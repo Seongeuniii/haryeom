@@ -5,5 +5,9 @@ declare module 'styled-components' {
         PRIMARY: string;
         PRIMARY_LIGHT: string;
         SECONDARY: string;
+        BORDER_LIGHT: string;
+        WHITE: string;
+        DARK_BLACK: string;
+        LIGHT_BLACK: string;
     }
 }
