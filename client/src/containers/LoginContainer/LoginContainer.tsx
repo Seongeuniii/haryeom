@@ -1,41 +1,19 @@
 import { useEffect } from 'react';
-import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
 import KakaoLoginButton from '@/components/KakaoLoginButton';
 import React from 'react';
 import styled from 'styled-components';
 import ServiceImg from '@/components/icons/ServiceImg';
-
-const path = '/auth/sign';
+import { login } from '@/apis/user/get-token';
 
 const LoginContainer = () => {
     const searchParams = useSearchParams();
-    const authCode = searchParams.get('code');
-
-    const getToken = async () => {
-        if (!authCode) return;
-
-        const res = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_SERVER}${path}?code=${authCode}`,
-            {
-                withCredentials: true,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Content-Type': 'application/json',
-                    'crossDomain': true,
-                },
-            }
-        );
-
-        const { data } = res;
-        const { accessToken, refreshToken } = data;
-        document.cookie = `accessToken=${accessToken}`;
-        document.cookie = `refreshToken=${refreshToken}`;
-    };
 
     useEffect(() => {
-        getToken();
-    }, [authCode]);
+        const authCode = searchParams.get('code');
+        if (!authCode) return;
+        login(authCode);
+    }, []);
 
     return (
         <StyledLoginContainer>

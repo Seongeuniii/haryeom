@@ -6,8 +6,6 @@ import RequiredInfoForm from './RequiredInfoForm';
 import OptionalInfoForm from './OptionalInfoForm';
 import SelectUserTypeForm from './SelectUserTypeForm';
 import { IUserInfo, IUserRole } from '@/apis/user/user';
-import userSessionAtom from '@/recoil/atoms/userSession';
-import { useRecoilValue } from 'recoil';
 
 const RegistUserInfoContainer = () => {
     const [step, setStep] = useState<number>(1);
@@ -28,8 +26,6 @@ const RegistUserInfoContainer = () => {
         introduce: '',
     });
 
-    const userSession = useRecoilValue(userSessionAtom);
-
     const updateUserInfo = (name: string, value: string | number) => {
         setUserInputValue({
             ...userInputValue,
@@ -44,10 +40,6 @@ const RegistUserInfoContainer = () => {
             console.log('끝');
         }
     }, [step, userRole]);
-
-    useEffect(() => {
-        console.log('regist', userSession);
-    }, []);
 
     return (
         <StyledRegistUserInfoContainer>

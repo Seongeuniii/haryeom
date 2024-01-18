@@ -1,12 +1,9 @@
 import styled from 'styled-components';
 
-const REST_API_KEY = '';
-const REDIRECT_URI = '';
-
 const KakaoLoginButton = () => {
     return (
         <StyledKakaoLoginButton
-            href={`https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}`}
+            href={`https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_REST_API_KEY}&redirect_uri=${process.env.NEXT_PUBLIC_REDIRECT_URI}`}
         >
             <img src="/images/kakao.png" alt="kakao login" />
         </StyledKakaoLoginButton>
