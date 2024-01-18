@@ -26,8 +26,7 @@ const InputForm = ({ label, name, handleChange }: InputFormProps) => {
 };
 
 const StyledInputForm = styled.div`
-    /* width: 100% */
-    min-width: 200px;
+    width: 100%;
     display: grid;
     -webkit-font-smoothing: antialiased;
 
@@ -74,17 +73,17 @@ const StyledInputForm = styled.div`
         transition: all 0.15s ease;
     }
     .inp input:hover {
-        background: rgba(0, 0, 0, 0.02);
-        box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+        /* background: rgba(0, 0, 0, 0.02);
+        box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.5); */
     }
     .inp input:not(:placeholder-shown) + .label {
         color: rgba(0, 0, 0, 0.5);
         transform: translate3d(0, -12px, 0) scale(0.75);
     }
     .inp input:focus {
-        background: rgba(0, 0, 0, 0.03);
+        /* background: rgba(0, 0, 0, 0.001); */
         outline: none;
-        box-shadow: inset 0 -2px 0 #9bc37c;
+        box-shadow: inset 0 -2px 0 ${({ theme }) => theme.PRIMARY};
     }
     .inp input:focus + .label {
         color: black;

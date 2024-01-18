@@ -1,49 +1,62 @@
-import Header from '@/components/Header';
-import InputForm from '@/components/commons/InputForm';
-import React, { ChangeEvent, useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-// import ServiceImg from '@/components/icons/ServiceImg';
 
-interface UserInfo {
-    name: string;
-    grades: string;
-    school: string;
-    phoneNumber: string;
-}
+import { UserInfoForm, registUserInfoStep } from './info';
+import RequiredInfoForm from './RequiredInfoForm';
+import OptionalInfoForm from './OptionalInfoForm';
+import SelectUserTypeForm from './SelectUserTypeForm';
 
 const RegistUserInfoContainer = () => {
-    const [userInputValue, setUserInputValue] = useState<UserInfo>({
+    const [step, setStep] = useState<number>(1);
+    const [userInputValue, setUserInputValue] = useState<UserInfoForm>({
+        userType: 'teacher',
         name: '',
         grades: '',
         school: '',
         phoneNumber: '',
     });
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
+    const updateUserInfo = (name: string, value: string | number) => {
         setUserInputValue({
             ...userInputValue,
             [name]: value,
         });
     };
 
+    useEffect(() => {
+        if (userInputValue.userType === 'teacher' && step === 4) {
+            console.log('끝');
+        } else if (userInputValue.userType === 'student' && step === 3) {
+            console.log('끝');
+        }
+    }, [step, userInputValue.userType]);
+
     return (
         <StyledRegistUserInfoContainer>
-            <Header navLinks={[]}></Header>
-            <RegistForm>
-                <RegistFormHeader>[필수] 회원 유형 선택</RegistFormHeader>
-                <RegistFormBody>
-                    <InputForm label={'이름'} name={'name'} handleChange={handleChange} />
-                    <InputForm label={'학교'} name={'grades'} handleChange={handleChange} />
-                    <InputForm label={'학년'} name={'school'} handleChange={handleChange} />
-                    <InputForm
-                        label={'전화번호'}
-                        name={'phoneNumber'}
-                        handleChange={handleChange}
-                    />
-                </RegistFormBody>
-                <FormButton>제출</FormButton>
-            </RegistForm>
+            <RegistFormBox>
+                <RegistFormHeader>{registUserInfoStep[step]}</RegistFormHeader>
+                <RegistForm>
+                    {step === 1 && (
+                        <SelectUserTypeForm
+                            userInputValue={userInputValue}
+                            updateUserInfo={updateUserInfo}
+                        />
+                    )}
+                    {step === 2 && (
+                        <RequiredInfoForm
+                            userType={userInputValue.userType}
+                            updateUserInfo={updateUserInfo}
+                        />
+                    )}
+                    {step === 3 && (
+                        <OptionalInfoForm
+                            userType={userInputValue.userType}
+                            updateUserInfo={updateUserInfo}
+                        />
+                    )}
+                </RegistForm>
+                <FormButton onClick={() => setStep(step + 1)}>등록하기</FormButton>
+            </RegistFormBox>
         </StyledRegistUserInfoContainer>
     );
 };
@@ -58,50 +71,49 @@ const StyledRegistUserInfoContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
 `;
 
-const RegistForm = styled.div`
+const RegistFormBox = styled.div`
     position: relative;
-    width: 500px;
+    min-width: 500px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 3em 3em 7.5em 3em;
-    border-radius: 1em;
-    border: 0.3em solid #9bc37c;
+    justify-content: space-between;
+    border-radius: 0.8em;
+    padding: 0.5em;
+    background-color: white;
     box-shadow: 0px 0px 20px rgba(105, 105, 105, 0.25);
 `;
 
 const RegistFormHeader = styled.div`
     width: 100%;
+    height: 30px;
     text-align: center;
     font-size: 22px;
     font-weight: bold;
     color: #1c1c1c;
-    padding-bottom: 1.6em;
-    margin-bottom: 0.5em;
+    margin-top: 50px;
 `;
 
-const RegistFormBody = styled.div`
+const RegistForm = styled.div`
     width: 100%;
-    padding: 0 1em 0 1em;
+    flex: 1;
     display: flex;
-    flex-direction: column;
-    gap: 1em;
+    align-items: center;
+    justify-content: center;
+    /* gap: 1em; */
 `;
 
 const FormButton = styled.button`
-    position: absolute;
-    width: 100px;
-    height: 50px;
-    border-radius: 2em;
-    bottom: 2em;
-    font-size: 20px;
+    width: 100%;
+    height: 45px;
+    background-color: ${({ theme }) => theme.PRIMARY};
+    color: ${({ theme }) => theme.WHITE};
     font-weight: bold;
-    right: 2em;
-    border: 1px solid #b9b9b9;
-    color: #343434;
+    border-radius: 0.4em;
+    font-size: 1.2em;
 `;
 
 export default RegistUserInfoContainer;

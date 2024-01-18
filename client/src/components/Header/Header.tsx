@@ -1,4 +1,4 @@
-import { NextPage } from 'next';
+import React from 'react';
 import Link from 'next/link';
 import styled from 'styled-components';
 
@@ -21,8 +21,10 @@ const Header = ({ navLinks }: HeaderProps) => {
                     <Link href="/">
                         <Logo>하렴</Logo>
                     </Link>
-                    {navLinks.map((page) => (
-                        <Link href={page.link}>{page.name}</Link>
+                    {navLinks.map((page, index) => (
+                        <Link href={page.link} key={`nav_${index}`}>
+                            {page.name}
+                        </Link>
                     ))}
                 </Nav>
                 <User onClick={handleClickUser}>김성은</User>
@@ -32,13 +34,15 @@ const Header = ({ navLinks }: HeaderProps) => {
 };
 
 const StyledHeader = styled.header`
-    position: sticky;
+    position: fixed;
+    top: 0;
     width: 100%;
     height: 3.5em;
     display: flex;
     align-items: center;
     justify-content: center;
     border-bottom: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    background-color: ${({ theme }) => theme.WHITE};
 `;
 
 const HeaderWrapper = styled.div`

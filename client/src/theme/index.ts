@@ -1,9 +1,13 @@
 import { DefaultTheme } from 'styled-components';
 
 const theme: DefaultTheme = {
-    PRIMARY: '#9E57FF',
-    PRIMARY_LIGHT: '#E7D6FF',
+    PRIMARY: '#57c08d',
+    PRIMARY_LIGHT: '#57c08d8a',
     SECONDARY: '#FCEDBD',
+    BORDER_LIGHT: '#e6e6e6',
+    WHITE: '#ffffff',
+    DARK_BLACK: '#1d1d1d',
+    LIGHT_BLACK: '#8d8d8d',
 };
 
 export default theme;
