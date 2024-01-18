@@ -1,26 +1,27 @@
 import { ChangeEvent } from 'react';
-
-import { UserType, requiredInfos } from './info';
-import InputForm from '@/components/commons/InputForm';
-import SelectForm from '@/components/commons/SelectForm';
 import styled from 'styled-components';
 
+import { requiredInfos } from './infoForm';
+import InputForm from '@/components/commons/InputForm';
+import SelectForm from '@/components/commons/SelectForm';
+import { IUserRole } from '@/components/apis/user/user';
+
 interface RequiredInfoFormProps {
-    userType: UserType;
+    userRole: IUserRole;
     updateUserInfo: (name: string, value: string | number) => void;
 }
 
-const RequiredInfoForm = ({ userType, updateUserInfo }: RequiredInfoFormProps) => {
+const RequiredInfoForm = ({ userRole, updateUserInfo }: RequiredInfoFormProps) => {
     return (
         <StyledRequiredInfoForm>
-            {requiredInfos[userType].map((requiredInfo, index) => {
-                if (requiredInfo.type === 'input') {
+            {Object.entries(requiredInfos[userRole]).map(([name, requiredInfo], index) => {
+                if (requiredInfo.inputType === 'text') {
                     return (
                         <InputForm
                             label={requiredInfo.label}
-                            name={requiredInfo.name}
+                            name={name}
                             handleChange={(e: ChangeEvent<HTMLInputElement>) =>
-                                updateUserInfo(requiredInfo.name, e.target.value)
+                                updateUserInfo(name, e.target.value)
                             }
                             key={`inputform_${index}`}
                         />
@@ -29,8 +30,8 @@ const RequiredInfoForm = ({ userType, updateUserInfo }: RequiredInfoFormProps) =
                     return (
                         <SelectForm
                             label={requiredInfo.label}
-                            name={requiredInfo.name}
-                            optionList={requiredInfo.value as string[]}
+                            name={name}
+                            optionList={requiredInfo.option as string[]}
                             key={`inputform_${index}`}
                             handleSelect={updateUserInfo}
                         />

@@ -1,18 +1,19 @@
+import { Dispatch, SetStateAction } from 'react';
 import styled from 'styled-components';
-import { UserInfoForm } from './info';
+import { IUserRole } from '@/components/apis/user/user';
 
 interface SelectUserTypeFormProps {
-    userInputValue: UserInfoForm;
-    updateUserInfo: (name: string, value: string | number) => void;
+    userRole: IUserRole;
+    setUserRole: Dispatch<SetStateAction<IUserRole>>;
 }
 
-const SelectUserTypeForm = ({ userInputValue, updateUserInfo }: SelectUserTypeFormProps) => {
+const SelectUserTypeForm = ({ userRole, setUserRole }: SelectUserTypeFormProps) => {
     return (
         <StyledSelectUserTypeForm>
             <UserTypeSection>
                 <SelectButton
-                    onClick={() => updateUserInfo('userType', 'teacher')}
-                    selected={userInputValue.userType === 'teacher'}
+                    onClick={() => setUserRole('teacher')}
+                    selected={userRole === 'teacher'}
                 >
                     <img src="/images/teacher.png" alt="teacher" />
                 </SelectButton>
@@ -20,8 +21,8 @@ const SelectUserTypeForm = ({ userInputValue, updateUserInfo }: SelectUserTypeFo
             </UserTypeSection>
             <UserTypeSection>
                 <SelectButton
-                    onClick={() => updateUserInfo('userType', 'student')}
-                    selected={userInputValue.userType === 'student'}
+                    onClick={() => setUserRole('student')}
+                    selected={userRole === 'student'}
                 >
                     <img src="/images/student-girl.png" alt="student" />
                     <img src="/images/student-boy.png" alt="student" />

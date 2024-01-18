@@ -1,19 +1,29 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import { UserInfoForm, registUserInfoStep } from './info';
+import { registUserInfoStep } from './infoForm';
 import RequiredInfoForm from './RequiredInfoForm';
 import OptionalInfoForm from './OptionalInfoForm';
 import SelectUserTypeForm from './SelectUserTypeForm';
+import { IUserInfo, IUserRole } from '@/components/apis/user/user';
 
 const RegistUserInfoContainer = () => {
     const [step, setStep] = useState<number>(1);
-    const [userInputValue, setUserInputValue] = useState<UserInfoForm>({
-        userType: 'teacher',
+    const [userRole, setUserRole] = useState<IUserRole>('guest');
+    const [userInputValue, setUserInputValue] = useState<IUserInfo>({
         name: '',
-        grades: '',
         school: '',
-        phoneNumber: '',
+        grade: '',
+        phone: '',
+        profileUrl: '',
+        college: '',
+        collegeEmail: '',
+        profileStatus: false,
+        gender: '',
+        salary: 0,
+        career: 0,
+        subjects: '',
+        introduce: '',
     });
 
     const updateUserInfo = (name: string, value: string | number) => {
@@ -24,12 +34,12 @@ const RegistUserInfoContainer = () => {
     };
 
     useEffect(() => {
-        if (userInputValue.userType === 'teacher' && step === 4) {
+        if (userRole === 'teacher' && step === 4) {
             console.log('끝');
-        } else if (userInputValue.userType === 'student' && step === 3) {
+        } else if (userRole === 'student' && step === 3) {
             console.log('끝');
         }
-    }, [step, userInputValue.userType]);
+    }, [step, userRole]);
 
     return (
         <StyledRegistUserInfoContainer>
@@ -37,22 +47,13 @@ const RegistUserInfoContainer = () => {
                 <RegistFormHeader>{registUserInfoStep[step]}</RegistFormHeader>
                 <RegistForm>
                     {step === 1 && (
-                        <SelectUserTypeForm
-                            userInputValue={userInputValue}
-                            updateUserInfo={updateUserInfo}
-                        />
+                        <SelectUserTypeForm userRole={userRole} setUserRole={setUserRole} />
                     )}
                     {step === 2 && (
-                        <RequiredInfoForm
-                            userType={userInputValue.userType}
-                            updateUserInfo={updateUserInfo}
-                        />
+                        <RequiredInfoForm userRole={userRole} updateUserInfo={updateUserInfo} />
                     )}
                     {step === 3 && (
-                        <OptionalInfoForm
-                            userType={userInputValue.userType}
-                            updateUserInfo={updateUserInfo}
-                        />
+                        <OptionalInfoForm userRole={userRole} updateUserInfo={updateUserInfo} />
                     )}
                 </RegistForm>
                 <FormButton onClick={() => setStep(step + 1)}>등록하기</FormButton>
