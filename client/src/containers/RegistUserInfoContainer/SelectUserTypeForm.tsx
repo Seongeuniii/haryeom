@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
 import styled from 'styled-components';
-import { IUserRole } from '@/components/apis/user/user';
+import { IUserRole } from '@/apis/user/user';
 
 interface SelectUserTypeFormProps {
     userRole: IUserRole;

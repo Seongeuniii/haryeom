@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { requiredInfos } from './infoForm';
 import InputForm from '@/components/commons/InputForm';
 import SelectForm from '@/components/commons/SelectForm';
-import { IUserRole } from '@/components/apis/user/user';
+import { IUserRole } from '@/apis/user/user';
 
 interface RequiredInfoFormProps {
     userRole: IUserRole;

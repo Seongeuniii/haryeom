@@ -1,4 +1,4 @@
-import { IStudentInfoKeys, TeacherInfoKeys, IUserRole } from '@/components/apis/user/user';
+import { IStudentInfoKeys, TeacherInfoKeys, IUserRole } from '@/apis/user/user';
 
 export interface Form {
     inputType: 'select' | 'text';
