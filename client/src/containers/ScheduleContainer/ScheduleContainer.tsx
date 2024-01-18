@@ -3,7 +3,7 @@ import Header from '@/components/Header';
 import { Page } from '@/components/Header/Header';
 import Modal from '@/components/commons/Modal';
 import { useModal } from '@/hooks/useModal';
-import Login from '@/components/Login';
+import Login from '@/components/KakaoLoginButton';
 
 interface ScheduleContainerProps {
     navLinks: Page[];
