@@ -3,6 +3,7 @@ package com.ioi.haryeom.homework.controller;
 import com.ioi.haryeom.auth.dto.AuthInfo;
 import com.ioi.haryeom.homework.dto.HomeworkListResponse;
 import com.ioi.haryeom.homework.dto.HomeworkRequest;
+import com.ioi.haryeom.homework.dto.HomeworkResponse;
 import com.ioi.haryeom.homework.service.HomeworkService;
 import com.ioi.haryeom.member.domain.Role;
 import java.net.URI;
@@ -43,6 +44,14 @@ public class HomeworkController {
 
         Long homeworkId = homeworkService.createHomework(tutoringId, request, authInfo);
         return ResponseEntity.created(URI.create("/homework/" + homeworkId)).build();
+    }
+
+    // 과외 숙제 상세 조회
+    @GetMapping("/{tutoringId}/homework/{homeworkId}")
+    public ResponseEntity<HomeworkResponse> getHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId) {
+
+        HomeworkResponse response = homeworkService.getHomework(tutoringId, homeworkId);
+        return ResponseEntity.ok(response);
     }
 
     // 과외 숙제 수정

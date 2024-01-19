@@ -84,6 +84,15 @@ public class HomeworkService {
         return savedHomework.getId();
     }
 
+    public HomeworkResponse getHomework(Long tutoringId, Long homeworkId) {
+
+        findTutoringById(tutoringId);
+
+        Homework homework = findHomeworkById(homeworkId);
+
+        return new HomeworkResponse(homework);
+    }
+
     @Transactional
     public void updateHomework(Long tutoringId, Long homeworkId, HomeworkRequest request, AuthInfo authInfo) {
 
