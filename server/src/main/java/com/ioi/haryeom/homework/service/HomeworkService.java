@@ -1,11 +1,14 @@
 package com.ioi.haryeom.homework.service;
 
 import com.ioi.haryeom.auth.dto.AuthInfo;
+import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.homework.domain.Homework;
 import com.ioi.haryeom.homework.domain.HomeworkStatus;
 import com.ioi.haryeom.homework.dto.HomeworkListResponse;
 import com.ioi.haryeom.homework.dto.HomeworkRequest;
 import com.ioi.haryeom.homework.dto.HomeworkResponse;
+import com.ioi.haryeom.homework.exception.HomeworkNotFoundException;
+import com.ioi.haryeom.homework.exception.HomeworkStatusException;
 import com.ioi.haryeom.homework.exception.InvalidDeadlineException;
 import com.ioi.haryeom.homework.exception.InvalidPageRangeException;
 import com.ioi.haryeom.homework.repository.HomeworkRepository;
@@ -81,6 +84,24 @@ public class HomeworkService {
         return savedHomework.getId();
     }
 
+    @Transactional
+    public void updateHomework(Long tutoringId, Long homeworkId, HomeworkRequest request, AuthInfo authInfo) {
+
+        validateTeacherRole(authInfo);
+        validateDeadline(request.getDeadline());
+
+        Homework homework = findHomeworkById(homeworkId);
+        validateOwner(authInfo, homework);
+        validateHomeworkUnconfirmed(homework);
+
+        Tutoring tutoring = findTutoringById(tutoringId);
+
+        Resource resource = findResourceById(request.getResourceId());
+        validatePageRange(resource, request.getStartPage(), request.getEndPage());
+
+        homework.update(resource, tutoring, request.getDeadline(), request.getStartPage(),
+            request.getEndPage());
+    }
 
     private int calculateProgressPercentage(Long tutoringId) {
 
@@ -90,17 +111,17 @@ public class HomeworkService {
         return (int) Math.round(((double) completedHomeworkCount / totalHomeworkCount) * 100);
     }
 
-    private void validateDeadline(LocalDate deadline) {
-        LocalDate current = LocalDate.now();
-        if (deadline.isBefore(current)) {
-            throw new InvalidDeadlineException();
-        }
-    }
-
     //TODO: 회원쪽에서 구현해야함
     private void validateTeacherRole(AuthInfo authInfo) {
         if (!Role.TEACHER.name().equals(authInfo.getRole())) {
             throw new NoTeacherException();
+        }
+    }
+
+    private void validateDeadline(LocalDate deadline) {
+        LocalDate current = LocalDate.now();
+        if (deadline.isBefore(current)) {
+            throw new InvalidDeadlineException();
         }
     }
 
@@ -109,6 +130,21 @@ public class HomeworkService {
             throw new InvalidPageRangeException();
         }
     }
+
+    private void validateOwner(AuthInfo authInfo, Homework homework) {
+        if (!homework.isOwner(authInfo.getMemberId())) {
+            throw new AuthorizationException();
+        }
+    }
+
+    private void validateHomeworkUnconfirmed(Homework homework) {
+        if (homework.getStatus() != HomeworkStatus.UNCONFIRMED) {
+            throw new HomeworkStatusException();
+        }
+    }
+
+    // TODO: Assignment 매칭O -> Assignent-Homework 검증
+    // TODO: Assignment 매칭X -> Resource-Tutoring, Homework-Tutoring 검증
 
 
     private Tutoring findTutoringById(Long tutoringId) {
@@ -119,5 +155,10 @@ public class HomeworkService {
     private Resource findResourceById(Long resourceId) {
         return resourceRepository.findById(resourceId)
             .orElseThrow(() -> new ResourceNotFoundException(resourceId));
+    }
+
+    private Homework findHomeworkById(Long homeworkId) {
+        return homeworkRepository.findById(homeworkId)
+            .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
     }
 }

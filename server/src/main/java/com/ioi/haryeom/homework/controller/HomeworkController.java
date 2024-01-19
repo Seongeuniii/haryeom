@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,5 +42,13 @@ public class HomeworkController {
 
         Long homeworkId = homeworkService.createHomework(tutoringId, request, authInfo);
         return ResponseEntity.created(URI.create("/homework/" + homeworkId)).build();
+    }
+
+    // 과외 숙제 수정
+    @PutMapping("/{tutoringId}/homework/{homeworkId}")
+    public ResponseEntity<Void> updateHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId, @RequestBody HomeworkRequest request) {
+
+        homeworkService.updateHomework(tutoringId, homeworkId, request, authInfo);
+        return ResponseEntity.noContent().build();
     }
 }
