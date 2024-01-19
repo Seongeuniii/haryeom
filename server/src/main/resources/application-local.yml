@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:localdb;DB_CLOSE_DELAY=-1;MODE=MYSQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        hbm2ddl:
+          import_files: classpath:db/data.sql
+          import_files_sql_extractor: org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor
+        connection:
+          charSet: UTF-8
+        format_sql: true
