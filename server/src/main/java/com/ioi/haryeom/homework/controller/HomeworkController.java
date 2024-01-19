@@ -8,6 +8,7 @@ import com.ioi.haryeom.member.domain.Role;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,6 +50,14 @@ public class HomeworkController {
     public ResponseEntity<Void> updateHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId, @RequestBody HomeworkRequest request) {
 
         homeworkService.updateHomework(tutoringId, homeworkId, request, authInfo);
+        return ResponseEntity.noContent().build();
+    }
+
+    // 과외 숙제 삭제
+    @DeleteMapping("/{tutoringId}/homework/{homeworkId}")
+    public ResponseEntity<Void> deleteHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId) {
+
+        homeworkService.deleteHomework(tutoringId, homeworkId, authInfo);
         return ResponseEntity.noContent().build();
     }
 }

@@ -103,6 +103,21 @@ public class HomeworkService {
             request.getEndPage());
     }
 
+    @Transactional
+    public void deleteHomework(Long tutoringId, Long homeworkId, AuthInfo authInfo) {
+
+        validateTeacherRole(authInfo);
+
+        findTutoringById(tutoringId);
+
+        Homework homework = findHomeworkById(homeworkId);
+
+        validateOwner(authInfo, homework);
+        validateHomeworkUnconfirmed(homework);
+
+        homework.delete();
+    }
+
     private int calculateProgressPercentage(Long tutoringId) {
 
         long totalHomeworkCount = homeworkRepository.countByTutoringId(tutoringId);
