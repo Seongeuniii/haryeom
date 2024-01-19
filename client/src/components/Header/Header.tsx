@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import styled from 'styled-components';
+import DropDown from '@/components/commons/DropDown';
 
 export interface Page {
     name: string;
@@ -12,7 +13,11 @@ interface HeaderProps {
 }
 
 const Header = ({ navLinks }: HeaderProps) => {
-    const handleClickUser = () => {};
+    const [open, setOpen] = useState<boolean>(false);
+
+    const handleClickUser = () => {
+        setOpen(!open);
+    };
 
     return (
         <StyledHeader>
@@ -27,7 +32,17 @@ const Header = ({ navLinks }: HeaderProps) => {
                         </Link>
                     ))}
                 </Nav>
-                <User onClick={handleClickUser}>김성은</User>
+                <User onClick={handleClickUser}>
+                    <span>김성은</span>
+                    {open && (
+                        <DropDown>
+                            <UserControlBox>
+                                <Button>마이페이지</Button>
+                                <Button>로그아웃</Button>
+                            </UserControlBox>
+                        </DropDown>
+                    )}
+                </User>
             </HeaderWrapper>
         </StyledHeader>
     );
@@ -63,6 +78,34 @@ const Nav = styled.nav`
     gap: 2em;
 `;
 
-const User = styled.button``;
+const User = styled.button`
+    position: relative;
+`;
+
+const UserControlBox = styled.div`
+    width: 6em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    border-radius: 0.3em;
+    gap: 5px;
+    padding: 0.4em 0.3em;
+`;
+
+const Button = styled.div`
+    font-size: 12px;
+    width: 100%;
+    height: 30px;
+    border-radius: 0.2em;
+    padding-top: 7px;
+
+    &:hover {
+        background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+        transition: all 0.5s;
+    }
+`;
 
 export default Header;
