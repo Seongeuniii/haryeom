@@ -3,22 +3,20 @@ import MyCalendar from '@/components/Calendar';
 import useCalendar from '@/hooks/useCalendar';
 import ScheduleCard from '@/components/ScheduleCard';
 
-const ClassScheduleContainer = () => {
+const MyClassScheduleContainer = () => {
     const { selectedDate, handleClick, handleYearMonthChange } = useCalendar();
 
     return (
-        <StyledClassScheduleContainer>
-            <CalendarWrapper>
-                <MyCalendar
-                    selectedDate={selectedDate}
-                    handleDayClick={handleClick}
-                    handleYearMonthChange={handleYearMonthChange}
-                ></MyCalendar>
-            </CalendarWrapper>
+        <StyledMyClassScheduleContainer>
             <ClassScheduleHeader>
                 <Title>과외 일정</Title>
-                <ViewDate>오늘일정</ViewDate>
+                <TodayScheduleButton>오늘</TodayScheduleButton>
             </ClassScheduleHeader>
+            <MyCalendar
+                selectedDate={selectedDate}
+                handleDayClick={handleClick}
+                handleYearMonthChange={handleYearMonthChange}
+            ></MyCalendar>
             <ScheduleList>
                 <SchedulesOfDay>
                     <ScheduleDate>1. 17. (월)</ScheduleDate>
@@ -32,30 +30,28 @@ const ClassScheduleContainer = () => {
                     <ScheduleCards>
                         <ScheduleCard />
                         <ScheduleCard />
+                        <ScheduleCard />
                     </ScheduleCards>
                 </SchedulesOfDay>
             </ScheduleList>
-        </StyledClassScheduleContainer>
+        </StyledMyClassScheduleContainer>
     );
 };
 
-const StyledClassScheduleContainer = styled.div`
-    height: 100%;
-    padding: 1.2em;
+const StyledMyClassScheduleContainer = styled.div`
+    width: 30%;
+    height: 90%;
+    padding: 1.8em;
     border-radius: 1em;
     background-color: ${({ theme }) => theme.WHITE};
     display: flex;
     flex-direction: column;
-`;
-
-const CalendarWrapper = styled.div`
-    padding-bottom: 1em;
-    border-bottom: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    box-shadow: 0px 0px 20px rgba(105, 105, 105, 0.25);
 `;
 
 const ClassScheduleHeader = styled.header`
     color: ${({ theme }) => theme.DARK_BLACK};
-    padding: 1.5em 0.6em 0 0.5em;
+    padding: 0.6em 0.6em 1.2em 0.5em;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -63,10 +59,10 @@ const ClassScheduleHeader = styled.header`
 
 const Title = styled.span`
     font-weight: 600;
-    font-size: 1.1em;
+    font-size: 1.4em;
 `;
 
-const ViewDate = styled.span`
+const TodayScheduleButton = styled.span`
     font-size: 0.8em;
     color: ${({ theme }) => theme.LIGHT_BLACK};
     text-decoration: underline;
@@ -75,6 +71,8 @@ const ViewDate = styled.span`
 const ScheduleList = styled.div`
     overflow: scroll;
     padding: 0.5em;
+    margin-top: 1em;
+    border-top: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
 `;
 
 const SchedulesOfDay = styled.div``;
@@ -86,8 +84,8 @@ const ScheduleDate = styled.div`
 `;
 
 const ScheduleCards = styled.div`
-    padding-left: 0.7em;
+    padding-left: 0.5em;
     border-left: 3px solid ${({ theme }) => theme.PRIMARY};
 `;
 
-export default ClassScheduleContainer;
+export default MyClassScheduleContainer;

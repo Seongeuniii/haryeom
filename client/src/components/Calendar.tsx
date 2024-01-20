@@ -29,10 +29,12 @@ const CalendarContainer = styled.div`
     }
 
     .react-calendar__navigation {
-        margin-bottom: 0.1em;
+        margin-bottom: 0;
+        height: 18px;
 
         button {
             color: ${({ theme }) => theme.LIGHT_BLACK};
+            font-size: 0.8em;
         }
     }
 

@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Features from './icons/Features';
 
 const ScheduleCard = () => {
     return (
@@ -10,7 +9,7 @@ const ScheduleCard = () => {
             </ScheduledTime>
             <ClassInfo>
                 <Subject>수학</Subject>
-                <Curriculum>지수함수와 로그함수</Curriculum>
+                <Curriculum>| 지수함수와 로그함수</Curriculum>
             </ClassInfo>
             <ClassState>종료</ClassState>
         </StyledScheduleCard>
@@ -26,7 +25,7 @@ const StyledScheduleCard = styled.div`
     gap: 1em;
     font-size: 12px;
     background-color: ${({ theme }) => theme.whte};
-    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    /* border: 1px solid ${({ theme }) => theme.BORDER_LIGHT}; */
     display: flex;
     align-items: center;
 `;
@@ -50,7 +49,7 @@ const ClassInfo = styled.div`
 `;
 
 const Subject = styled.div`
-    padding: 0.5em;
+    padding: 0.35em;
     border-radius: 0.9em;
     background-color: ${({ theme }) => theme.SECONDARY};
     color: ${({ theme }) => theme.DARK_BLACK};
