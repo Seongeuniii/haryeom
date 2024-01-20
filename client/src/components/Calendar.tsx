@@ -22,12 +22,18 @@ const MyCalendar = ({ selectedDate, handleDayClick, handleYearMonthChange }: MyC
 };
 
 const CalendarContainer = styled.div`
-    padding: 15px;
-
     .react-calendar {
         border: none;
         width: 100%;
         background-color: transparent;
+    }
+
+    .react-calendar__navigation {
+        margin-bottom: 0.1em;
+
+        button {
+            color: ${({ theme }) => theme.LIGHT_BLACK};
+        }
     }
 
     .react-calendar abbr[title='Sunday'],
@@ -54,7 +60,7 @@ const CalendarContainer = styled.div`
             border-radius: 100%;
         }
         .react-calendar__tile {
-            height: 3.5em;
+            height: 3.3em;
         }
 
         .react-calendar__tile--now {

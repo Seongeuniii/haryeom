@@ -1,51 +1,57 @@
 import styled from 'styled-components';
 import Header from '@/components/Header';
-import { Page } from '@/components/Header/Header';
-import Modal from '@/components/commons/Modal';
-import { useModal } from '@/hooks/useModal';
-import Login from '@/components/KakaoLoginButton';
+import ClassScheduleContainer from './ClassScheduleContainer';
 
-interface ScheduleContainerProps {
-    navLinks: Page[];
-}
+interface ScheduleContainerProps {}
 
-const ScheduleContainer = ({ navLinks }: ScheduleContainerProps) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { open, openModal, closeModal } = useModal();
-
+// eslint-disable-next-line no-empty-pattern
+const ScheduleContainer = ({}: ScheduleContainerProps) => {
     return (
         <StyledScheduleContainer>
-            <Header navLinks={navLinks}></Header>
-            <Modal open={open} closeModal={closeModal}>
-                <Login />
-            </Modal>
+            <Header navLinks={[]} />
+            <UserScheduleWrapper>
+                <LeftSection>
+                    <ClassScheduleContainer></ClassScheduleContainer>
+                </LeftSection>
+                <RightSection></RightSection>
+            </UserScheduleWrapper>
         </StyledScheduleContainer>
     );
 };
 
 export const getServerSideProps = () => {
-    const isAuthenticated = true;
-
-    if (!isAuthenticated) {
-        return {
-            redirect: {
-                destination: '/find',
-                permanent: false,
-            },
-        };
-    }
-
-    const userType = 'student';
-    const navLinks: Page[] = [
-        { name: '홈', link: '/' },
-        { name: '복습하렴', link: '/review' },
-        { name: '선생님찾기', link: '/find' },
-    ];
-
-    if (userType === 'student') return { props: { navLinks } };
-    else return { props: {} };
+    return { props: {} };
 };
 
-const StyledScheduleContainer = styled.main``;
+const StyledScheduleContainer = styled.main`
+    width: 100%;
+    height: 100%;
+    background-color: ${({ theme }) => theme.BACKGROUND};
+    display: flex;
+    justify-content: center;
+    align-items: end;
+`;
+
+const UserScheduleWrapper = styled.div`
+    width: 90%;
+    max-width: 1200px;
+    height: calc(100% - 3.5em);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+`;
+
+const LeftSection = styled.div`
+    width: 30%;
+    height: 90%;
+`;
+
+const RightSection = styled.div`
+    width: 67%;
+    height: 90%;
+    background-color: ${({ theme }) => theme.WHITE};
+    border: 2px solid ${({ theme }) => theme.BORDER_LIGHT};
+    border-radius: 1em;
+`;
 
 export default ScheduleContainer;
