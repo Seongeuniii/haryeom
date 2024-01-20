@@ -1,20 +1,35 @@
-import type { AppProps } from 'next/app';
-import { useState } from 'react';
+import App from 'next/app';
+import type { AppContext, AppProps } from 'next/app';
+import { useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ThemeProvider } from 'styled-components';
+import { MutableSnapshot, RecoilRoot } from 'recoil';
+import axios from 'axios';
 
 import GlobalStyle from '@/theme/GlobalStyle';
 import theme from '@/theme';
 import MainLayout from '@/components/layouts/MainLayout';
-import { RecoilRoot } from 'recoil';
+import { getUser } from '@/apis/user/get-user';
+import { IUser } from '@/apis/user/user';
+import userSession from '@/recoil/atoms/userSession';
 
-interface MyAppProps extends AppProps {}
+interface MyAppProps extends AppProps {
+    loginUserData: IUser | undefined;
+}
 
-function MyApp({ Component, pageProps }: MyAppProps) {
+function MyApp({ Component, pageProps, loginUserData }: MyAppProps) {
     const [queryClient] = useState(() => new QueryClient());
 
+    const initializer = useMemo(
+        () =>
+            ({ set }: MutableSnapshot) => {
+                set(userSession, loginUserData);
+            },
+        [loginUserData]
+    );
+
     return (
-        <RecoilRoot>
+        <RecoilRoot initializeState={initializer}>
             <QueryClientProvider client={queryClient}>
                 <ThemeProvider theme={theme}>
                     <GlobalStyle />
@@ -26,5 +41,22 @@ function MyApp({ Component, pageProps }: MyAppProps) {
         </RecoilRoot>
     );
 }
+
+MyApp.getInitialProps = async (appContext: AppContext) => {
+    const { ctx } = appContext;
+
+    let user: IUser | undefined;
+    let cookie: string | undefined;
+
+    if (ctx.req) {
+        cookie = ctx.req.headers.cookie;
+        console.log(cookie);
+        axios.defaults.headers.common['Cookie'] = cookie;
+        user = await getUser();
+    }
+
+    const appProps = App.getInitialProps(appContext);
+    return { ...appProps, loginUserData: user };
+};
 
 export default MyApp;

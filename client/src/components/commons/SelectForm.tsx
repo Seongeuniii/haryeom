@@ -1,14 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-interface SelectFormProps {
+interface StyledProps {
+    height?: string;
+}
+
+interface SelectFormProps extends StyledProps {
     label: string;
     name: string;
     optionList: string[];
-    handleSelect: (name: string, value: string | number) => void;
+    handleSelect: (name: string, clickedOption: string | number) => void;
 }
 
-const SelectForm = ({ label, name, optionList, handleSelect }: SelectFormProps) => {
+const SelectForm = ({ label, name, optionList, handleSelect, ...props }: SelectFormProps) => {
     const [selectOption, setSelectedOption] = useState(label);
 
     const handleClick = (option: string) => {
@@ -16,9 +20,13 @@ const SelectForm = ({ label, name, optionList, handleSelect }: SelectFormProps) 
         handleSelect(name, option);
     };
 
+    useEffect(() => {
+        console.log(selectOption);
+    }, []);
+
     return (
         <StyledSelectForm>
-            <SelectBox className="select-box__current" tabIndex={1}>
+            <SelectBox className="select-box__current" tabIndex={1} {...props}>
                 <SelectedOption className="select-box__value">{selectOption}</SelectedOption>
                 <DropDownIcon
                     className="select-box__icon"
@@ -44,16 +52,22 @@ const StyledSelectForm = styled.div`
     width: 100%;
 `;
 
-const SelectBox = styled.div`
+const SelectBox = styled.div<StyledProps>`
     cursor: pointer;
     outline: none;
-    height: 50px;
+    height: ${({ height }) => (height ? height : '50px')};
     display: flex;
     align-items: center;
     justify-content: center;
     border: 1px solid rgba(0, 0, 0, 0.3);
     border-radius: 0.5em;
     background-color: white;
+    padding-right: 1.2em;
+
+    img {
+        width: 14px;
+        height: 14px;
+    }
 
     &:focus {
         border: 2px solid ${({ theme }) => theme.PRIMARY};
