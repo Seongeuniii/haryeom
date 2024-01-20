@@ -16,6 +16,7 @@ const GlobalStyle = createGlobalStyle`
       background-color: transparent;
       border: none;
       font-size: 100%;
+      padding: 0;
     }
     body{
         font-family: 'Gowun Dodum', sans-serif;
