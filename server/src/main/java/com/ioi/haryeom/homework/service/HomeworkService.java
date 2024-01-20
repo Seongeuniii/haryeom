@@ -154,7 +154,7 @@ public class HomeworkService {
 
     private void validateOwner(AuthInfo authInfo, Homework homework) {
         if (!homework.isOwner(authInfo.getMemberId())) {
-            throw new AuthorizationException();
+            throw new AuthorizationException(authInfo.getMemberId());
         }
     }
 
