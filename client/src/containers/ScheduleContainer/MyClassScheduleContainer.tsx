@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import MyCalendar from '@/components/Calendar';
 import useCalendar from '@/hooks/useCalendar';
 import ScheduleCard from '@/components/ScheduleCard';
+import CreateNewClass from '@/components/CreateNewClass/CreateNewClass';
 
 const MyClassScheduleContainer = () => {
     const { selectedDate, handleClick, handleYearMonthChange } = useCalendar();
@@ -34,6 +35,7 @@ const MyClassScheduleContainer = () => {
                     </ScheduleCards>
                 </SchedulesOfDay>
             </ScheduleList>
+            <CreateNewClass />
         </StyledMyClassScheduleContainer>
     );
 };
