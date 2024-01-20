@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import Features from './icons/Features';
 
 const ScheduleCard = () => {
     return (
@@ -11,7 +12,7 @@ const ScheduleCard = () => {
                 <Subject>수학</Subject>
                 <Curriculum>지수함수와 로그함수</Curriculum>
             </ClassInfo>
-            <ClassState>입장하기</ClassState>
+            <ClassState>종료</ClassState>
         </StyledScheduleCard>
     );
 };
