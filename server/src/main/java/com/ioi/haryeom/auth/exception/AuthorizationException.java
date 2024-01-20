@@ -4,9 +4,9 @@ import com.ioi.haryeom.advice.exception.ForbiddenException;
 
 public class AuthorizationException extends ForbiddenException {
 
-    private static final String MESSAGE = "접근 권한이 없습니다.";
+    private static final String MESSAGE = "접근 권한이 없는 회원 ID 입니다. 회원 ID: %d";
 
-    public AuthorizationException() {
-        super(MESSAGE);
+    public AuthorizationException(Long memberId) {
+        super(String.format(MESSAGE, memberId));
     }
 }
