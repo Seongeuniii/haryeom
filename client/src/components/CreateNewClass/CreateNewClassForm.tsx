@@ -72,7 +72,6 @@ const CreateNewClassForm = () => {
                     </SelectTutoringTimeSection>
 
                     <WriteCurriculumSection>
-                        <Header>커리큘럼 작성</Header>
                         <CalendarWrapper>
                             <MyCalendar
                                 selectedDate={selectedDate}
@@ -84,6 +83,7 @@ const CreateNewClassForm = () => {
                 </div>
                 <div style={{ width: '100%' }}>
                     <WriteCurriculumList>
+                        <Header>커리큘럼 작성</Header>
                         <WriteCurriculumCard>
                             <InputForm
                                 label={'2024. 1. 20 (금) 18:00 ~ 20:00'}
@@ -199,14 +199,14 @@ const WriteCurriculumList = styled.div`
     height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 1em;
+    /* gap: 1em; */
 `;
 
 const WriteCurriculumCard = styled.div`
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 1em;
+    margin-bottom: 1em;
 `;
 
 const DeleteButton = styled.button`

@@ -5,9 +5,13 @@ import HomeworkProgress from '@/components/HomeworkProgress';
 const SelectedTSContainer = () => {
     return (
         <StyledSelectedTSContainer>
-            <div style={{ height: '50%' }}>
-                <SelectTS>수학 (김성은 선생님)</SelectTS>
-                <HomeworkProgress />
+            <div style={{ height: '50%', display: 'flex', paddingTop: '1em' }}>
+                <div>
+                    <SelectTS>수학 (김성은 선생님)</SelectTS>
+                    <HomeworkProgress />
+                </div>
+                <div>학습자료</div>
+                <div>커리큘럼</div>
             </div>
             <HomeworkList />
         </StyledSelectedTSContainer>
@@ -29,7 +33,7 @@ const SelectTS = styled.div`
     font-size: 1.3em;
     font-weight: 600;
     color: ${({ theme }) => theme.DARK_BLACK};
-    padding: 1em 0.6em;
+    padding: 0 0 1.1em 0.6em;
 `;
 
 export default SelectedTSContainer;

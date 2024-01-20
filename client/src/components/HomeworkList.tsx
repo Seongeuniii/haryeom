@@ -1,47 +1,41 @@
+import Link from 'next/link';
 import styled from 'styled-components';
 
 const HomeworkList = () => {
     return (
         <StyledHomeworkList>
             <HomeworkListHeader>숙제 목록</HomeworkListHeader>
-            <HomeworkListTitle>
+            <HomeworkTableTitle>
                 <State className="homework-list__header">구분</State>
                 <Deadline className="homework-list__header">마감일</Deadline>
                 <Resource className="homework-list__header">학습자료</Resource>
                 <Scope className="homework-list__header">범위</Scope>
-            </HomeworkListTitle>
-            <HomeworkCard>
-                <State>진행중</State>
-                <Deadline>2024. 1. 8 (수)</Deadline>
-                <Resource>호랭이 문제집</Resource>
-                <Scope>p. 1 ~ 10</Scope>
-            </HomeworkCard>
-            <HomeworkCard>
-                <State>완료</State>
-                <Deadline>2024. 1. 8 (수)</Deadline>
-                <Resource>호랭이 문제집</Resource>
-                <Scope>p. 1 ~ 10</Scope>
-            </HomeworkCard>
-            <HomeworkCard>
-                <State>시작안함</State>
-                <Deadline>2024. 1. 8 (수)</Deadline>
-                <Resource>호랭이 문제집</Resource>
-                <Scope>p. 1 ~ 10</Scope>
-            </HomeworkCard>
-            <HomeworkCard>
-                <State>기한마감</State>
-                <Deadline>2024. 1. 8 (수)</Deadline>
-                <Resource>호랭이 문제집</Resource>
-                <Scope>p. 1 ~ 10</Scope>
-            </HomeworkCard>
+            </HomeworkTableTitle>
+            <HomeworkCards>
+                <HomeworkCard>
+                    <State>진행중</State>
+                    <Deadline>2024. 1. 8 (수)</Deadline>
+                    <Resource>호랭이 문제집</Resource>
+                    <Scope>p. 1 ~ 10</Scope>
+                </HomeworkCard>
+                <HomeworkCard>
+                    <State>진행중</State>
+                    <Deadline>2024. 1. 8 (수)</Deadline>
+                    <Resource>호랭이 문제집</Resource>
+                    <Scope>p. 1 ~ 10</Scope>
+                </HomeworkCard>
+            </HomeworkCards>
+            <div>숙제</div>
+            <Link href={'/review'}>복습하러 가기</Link>
         </StyledHomeworkList>
     );
 };
 
 const StyledHomeworkList = styled.div`
     width: 100%;
-    height: 400px;
-    padding: 0.8em;
+    height: 50%;
+    display: flex;
+    flex-direction: column;
 `;
 
 const HomeworkListHeader = styled.div`
@@ -50,13 +44,19 @@ const HomeworkListHeader = styled.div`
     font-size: 1.2em;
 `;
 
-const HomeworkListTitle = styled.header`
+const HomeworkTableTitle = styled.header`
     width: 100%;
     display: flex;
     justify-content: space-around;
     padding: 0.4em 0;
     background-color: #f5f4f4;
     text-align: center;
+`;
+
+const HomeworkCards = styled.div`
+    width: 100%;
+    height: 100%;
+    overflow: scroll;
 `;
 
 const HomeworkCard = styled.div`
