@@ -26,9 +26,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,11 +41,10 @@ public class HomeworkService {
 
     private final TutoringRepository tutoringRepository;
 
-    public HomeworkListResponse getHomeworkList(Long tutoringId, Integer page, Integer pageSize) {
+    public HomeworkListResponse getHomeworkList(Long tutoringId, Pageable pageable) {
 
         Tutoring tutoring = findTutoringById(tutoringId);
 
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
         Page<Homework> homeworkPage = homeworkRepository.findAllByTutoringId(tutoring.getId(), pageable);
 
         int progressPercentage = calculateProgressPercentage(tutoring.getId());
