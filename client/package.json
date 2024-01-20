@@ -19,6 +19,7 @@
         "next": "14.0.4",
         "prettier": "^3.2.2",
         "react": "18.2.0",
+        "react-calendar": "^4.8.0",
         "react-dom": "18.2.0",
         "react-dropzone": "^14.2.3",
         "react-pdf": "^7.6.0",

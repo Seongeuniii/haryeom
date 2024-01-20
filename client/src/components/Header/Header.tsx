@@ -37,12 +37,13 @@ const StyledHeader = styled.header`
     position: fixed;
     top: 0;
     width: 100%;
-    height: 3.5em;
+    height: 4em;
     display: flex;
     align-items: center;
     justify-content: center;
     border-bottom: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
     background-color: ${({ theme }) => theme.WHITE};
+    background-color: ${({ theme }) => theme.BACKGROUND};
 `;
 
 const HeaderWrapper = styled.div`
