@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import styled from 'styled-components';
 import Header from '@/components//Header';
+import ChatContainer from '@/containers/ChatContainer';
 
 interface HomeLayoutProps {
     children: ReactNode;
@@ -11,6 +12,7 @@ const HomeLayout = ({ children }: HomeLayoutProps) => {
         <StyledHomeLayout>
             <Header navLinks={[]} />
             {children}
+            <ChatContainer />
         </StyledHomeLayout>
     );
 };

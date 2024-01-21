@@ -3,11 +3,12 @@ import styled from 'styled-components';
 
 interface ChatRoomPreviewProps {
     chatRoom: IChatRoom;
+    joinChat: (chatRoomId: number) => void;
 }
 
-const ChatRoomPreview = ({ chatRoom }: ChatRoomPreviewProps) => {
+const ChatRoomPreview = ({ chatRoom, joinChat }: ChatRoomPreviewProps) => {
     return (
-        <StyledChatRoomPreview>
+        <StyledChatRoomPreview onClick={() => joinChat(chatRoom.chatRoomId)}>
             <ProfileImg src={chatRoom.profileUrl} alt="프로필 사진" />
             <MiddleBlockWrapper>
                 <Name>
@@ -34,10 +35,9 @@ const StyledChatRoomPreview = styled.div`
 `;
 
 const ProfileImg = styled.img`
-    height: 53px;
-    width: 53px;
+    width: 45px;
+    height: 45px;
     border-radius: 100%;
-    margin-right: 13px;
     background-color: ${({ theme }) => theme.BORDER_LIGHT};
 `;
 
