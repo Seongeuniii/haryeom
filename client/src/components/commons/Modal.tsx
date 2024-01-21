@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import styled from 'styled-components';
+import Close from '@/components/icons/Close';
 
 interface ModalProps {
     children: ReactNode;
@@ -11,17 +12,27 @@ const Modal = ({ children, ...props }: ModalProps) => {
     const { open, closeModal } = props;
 
     return (
-        <>
-            <StyledModal open={open}>
-                <ModalCloseButton onClick={closeModal}>X</ModalCloseButton>
+        <StyledModal>
+            <ModalWrapper open={open}>
+                <ModalCloseButton onClick={closeModal}>
+                    <Close />
+                </ModalCloseButton>
                 {children}
-            </StyledModal>
+            </ModalWrapper>
             <ModalBackground open={open} onClick={closeModal} />
-        </>
+        </StyledModal>
     );
 };
 
-const StyledModal = styled.div<{ open: boolean }>`
+const StyledModal = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+`;
+
+const ModalWrapper = styled.div<{ open: boolean }>`
     ${({ open }) => !open && `display:none;`}
     position: absolute;
     top: 50%;
@@ -43,8 +54,10 @@ const ModalBackground = styled.div<{ open: boolean }>`
 
 const ModalCloseButton = styled.button`
     position: absolute;
-    right: 1em;
-    top: 1em;
+    right: 1.5em;
+    top: 1.5em;
+    width: 15px;
+    height: 15px;
 `;
 
 export default Modal;
