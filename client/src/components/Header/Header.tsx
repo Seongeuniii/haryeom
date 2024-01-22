@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import styled from 'styled-components';
 import { IUserRole } from '@/apis/user/user';
-import DropDown from '@/components/commons/Dropdown';
+import Dropdown from '@/components/commons/DropDown';
 import useDropdown from '@/hooks/useDropdown';
 
 export interface Page {
@@ -39,10 +38,6 @@ const testUserRole = 'student';
 const Header = () => {
     const { open, openDropdown, closeDropdown } = useDropdown();
 
-    useEffect(() => {
-        console.log(open);
-    }, [open]);
-
     return (
         <StyledHeader>
             <HeaderWrapper>
@@ -58,12 +53,12 @@ const Header = () => {
                 </Nav>
                 <User onClick={!open ? openDropdown : closeDropdown}>
                     <span>김성은</span>
-                    <DropDown open={open} closeDropdown={closeDropdown}>
+                    <Dropdown open={open} closeDropdown={closeDropdown}>
                         <UserControlBox>
                             <Button>마이페이지</Button>
                             <Button>로그아웃</Button>
                         </UserControlBox>
-                    </DropDown>
+                    </Dropdown>
                 </User>
             </HeaderWrapper>
         </StyledHeader>
