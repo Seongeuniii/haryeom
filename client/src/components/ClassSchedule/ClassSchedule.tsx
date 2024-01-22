@@ -52,16 +52,16 @@ const StyledClassSchedule = styled.div`
 `;
 
 const ClassScheduleHeader = styled.header`
-    color: ${({ theme }) => theme.DARK_BLACK};
-    padding: 0.6em 0.6em 1.2em 0.5em;
+    padding: 0.3em 0.6em 1.2em 0.5em;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    color: ${({ theme }) => theme.DARK_BLACK};
 `;
 
 const Title = styled.span`
+    font-size: 1.2em;
     font-weight: 600;
-    font-size: 1.4em;
 `;
 
 const TodayScheduleButton = styled.span`
@@ -72,22 +72,20 @@ const TodayScheduleButton = styled.span`
 
 const ScheduleList = styled.div`
     overflow: scroll;
-    padding: 0.5em;
     margin-top: 1em;
     border-top: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
 `;
 
-const SchedulesOfDay = styled.div``;
+const SchedulesOfDay = styled.div`
+    margin: 1em 0;
+`;
 
 const ScheduleDate = styled.div`
-    padding: 1em 0 1em 0;
+    padding: 1em 0.5em 1em 0.5em;
     color: ${({ theme }) => theme.DARK_BLACK};
-    font-size: 13px;
+    font-size: 0.9em;
 `;
 
-const ScheduleCards = styled.div`
-    padding-left: 0.5em;
-    border-left: 3px solid ${({ theme }) => theme.PRIMARY};
-`;
+const ScheduleCards = styled.div``;
 
 export default ClassSchedule;
