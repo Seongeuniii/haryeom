@@ -1,7 +1,9 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import styled from 'styled-components';
 import { IUserRole } from '@/apis/user/user';
+import DropDown from '@/components/commons/Dropdown';
+import useDropdown from '@/hooks/useDropdown';
 
 export interface Page {
     name: string;
@@ -35,7 +37,11 @@ const navLinks: { [key in IUserRole]: Page[] } = {
 const testUserRole = 'student';
 
 const Header = () => {
-    const handleClickUser = () => {};
+    const { open, openDropdown, closeDropdown } = useDropdown();
+
+    useEffect(() => {
+        console.log(open);
+    }, [open]);
 
     return (
         <StyledHeader>
@@ -50,7 +56,15 @@ const Header = () => {
                         </Link>
                     ))}
                 </Nav>
-                <User onClick={handleClickUser}>김성은</User>
+                <User onClick={!open ? openDropdown : closeDropdown}>
+                    <span>김성은</span>
+                    <DropDown open={open} closeDropdown={closeDropdown}>
+                        <UserControlBox>
+                            <Button>마이페이지</Button>
+                            <Button>로그아웃</Button>
+                        </UserControlBox>
+                    </DropDown>
+                </User>
             </HeaderWrapper>
         </StyledHeader>
     );
@@ -88,6 +102,34 @@ const Nav = styled.nav`
     gap: 1.6em;
 `;
 
-const User = styled.button``;
+const User = styled.button`
+    position: relative;
+`;
+
+const UserControlBox = styled.div`
+    width: 6em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    border-radius: 0.3em;
+    gap: 5px;
+    padding: 0.4em 0.3em;
+`;
+
+const Button = styled.div`
+    font-size: 12px;
+    width: 100%;
+    height: 30px;
+    border-radius: 0.2em;
+    padding-top: 7px;
+
+    &:hover {
+        background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+        transition: all 0.5s;
+    }
+`;
 
 export default Header;
