@@ -12,11 +12,11 @@ import com.ioi.haryeom.homework.exception.HomeworkStatusException;
 import com.ioi.haryeom.homework.exception.InvalidDeadlineException;
 import com.ioi.haryeom.homework.exception.InvalidPageRangeException;
 import com.ioi.haryeom.homework.repository.HomeworkRepository;
-import com.ioi.haryeom.member.domain.Role;
 import com.ioi.haryeom.member.exception.NoTeacherException;
 import com.ioi.haryeom.resource.domain.Resource;
 import com.ioi.haryeom.resource.exception.ResourceNotFoundException;
 import com.ioi.haryeom.resource.repository.ResourceRepository;
+import com.ioi.haryeom.textbook.domain.Textbook;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
 import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
@@ -45,7 +45,8 @@ public class HomeworkService {
 
         Tutoring tutoring = findTutoringById(tutoringId);
 
-        Page<Homework> homeworkPage = homeworkRepository.findAllByTutoringId(tutoring.getId(), pageable);
+        Page<Homework> homeworkPage = homeworkRepository.findAllByTutoringId(tutoring.getId(),
+            pageable);
 
         int progressPercentage = calculateProgressPercentage(tutoring.getId());
 
@@ -65,12 +66,12 @@ public class HomeworkService {
 
         Tutoring tutoring = findTutoringById(tutoringId);
 
-        Resource resource = findResourceById(request.getResourceId());
+        Textbook resource = findResourceById(request.getResourceId());
 
         validatePageRange(resource, request.getStartPage(), request.getEndPage());
 
         Homework homework = Homework.builder()
-            .resource(resource)
+            .textbook(resource)
             .tutoring(tutoring)
             .deadline(request.getDeadline())
             .startPage(request.getStartPage())
@@ -91,7 +92,8 @@ public class HomeworkService {
     }
 
     @Transactional
-    public void updateHomework(Long tutoringId, Long homeworkId, HomeworkRequest request, AuthInfo authInfo) {
+    public void updateHomework(Long tutoringId, Long homeworkId, HomeworkRequest request,
+        AuthInfo authInfo) {
 
         validateTeacherRole(authInfo);
         validateDeadline(request.getDeadline());
@@ -127,7 +129,8 @@ public class HomeworkService {
     private int calculateProgressPercentage(Long tutoringId) {
 
         long totalHomeworkCount = homeworkRepository.countByTutoringId(tutoringId);
-        long completedHomeworkCount = homeworkRepository.countByTutoringIdAndStatus(tutoringId, HomeworkStatus.COMPLETED);
+        long completedHomeworkCount = homeworkRepository.countByTutoringIdAndStatus(tutoringId,
+            HomeworkStatus.COMPLETED);
 
         return (int) Math.round(((double) completedHomeworkCount / totalHomeworkCount) * 100);
     }
