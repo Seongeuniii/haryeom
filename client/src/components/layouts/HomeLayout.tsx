@@ -26,9 +26,9 @@ const StyledHomeLayout = styled.div`
 `;
 
 const ContainerWrapper = styled.main`
-    width: 80%;
+    width: 75%;
     max-width: 1200px;
-    height: calc(100% - 3.5em);
+    height: calc(100% - 4em);
 `;
 
 export default HomeLayout;
