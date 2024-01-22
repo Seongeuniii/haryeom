@@ -1,14 +1,14 @@
 import styled from 'styled-components';
 import MyCalendar from '@/components/Calendar';
 import useCalendar from '@/hooks/useCalendar';
-import ScheduleCard from '@/components/ScheduleCard';
+import ScheduleCard from '@/components/ClassSchedule/ScheduleCard';
 import CreateNewClass from '@/components/CreateNewClass/CreateNewClass';
 
-const MyClassScheduleContainer = () => {
+const ClassSchedule = () => {
     const { selectedDate, handleClick, handleYearMonthChange } = useCalendar();
 
     return (
-        <StyledMyClassScheduleContainer>
+        <StyledClassSchedule>
             <ClassScheduleHeader>
                 <Title>과외 일정</Title>
                 <TodayScheduleButton>오늘</TodayScheduleButton>
@@ -36,11 +36,11 @@ const MyClassScheduleContainer = () => {
                 </SchedulesOfDay>
             </ScheduleList>
             <CreateNewClass />
-        </StyledMyClassScheduleContainer>
+        </StyledClassSchedule>
     );
 };
 
-const StyledMyClassScheduleContainer = styled.div`
+const StyledClassSchedule = styled.div`
     width: 30%;
     height: 90%;
     padding: 1.8em;
@@ -88,4 +88,4 @@ const ScheduleDate = styled.div`
 
 const ScheduleCards = styled.div``;
 
-export default MyClassScheduleContainer;
+export default ClassSchedule;
