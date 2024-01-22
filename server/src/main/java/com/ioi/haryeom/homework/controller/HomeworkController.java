@@ -7,6 +7,7 @@ import com.ioi.haryeom.homework.dto.HomeworkListResponse;
 import com.ioi.haryeom.homework.dto.HomeworkRequest;
 import com.ioi.haryeom.homework.dto.HomeworkResponse;
 import com.ioi.haryeom.homework.service.HomeworkService;
+import com.ioi.haryeom.member.domain.type.Role;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
