@@ -10,7 +10,7 @@ interface HomeLayoutProps {
 const HomeLayout = ({ children }: HomeLayoutProps) => {
     return (
         <StyledHomeLayout>
-            <Header navLinks={[]} />
+            <Header />
             {children}
             <ChatContainer />
         </StyledHomeLayout>

@@ -1,47 +1,64 @@
-import React, { useState } from 'react';
 import Link from 'next/link';
 import styled from 'styled-components';
-import DropDown from '@/components/commons/DropDown';
+import { IUserRole } from '@/apis/user/user';
+import Dropdown from '@/components/commons/DropDown';
+import useDropdown from '@/hooks/useDropdown';
 
 export interface Page {
     name: string;
     link: string;
 }
 
-interface HeaderProps {
-    navLinks: Page[];
-}
+const navLinks: { [key in IUserRole]: Page[] } = {
+    teacher: [
+        {
+            name: '마이홈',
+            link: '/',
+        },
+        {
+            name: '교재관리',
+            link: '/review',
+        },
+    ],
+    student: [
+        {
+            name: '마이홈',
+            link: '/',
+        },
+        {
+            name: '복습하렴',
+            link: '/review',
+        },
+    ],
+    guest: [],
+};
 
-const Header = ({ navLinks }: HeaderProps) => {
-    const [open, setOpen] = useState<boolean>(false);
+const testUserRole = 'student';
 
-    const handleClickUser = () => {
-        setOpen(!open);
-    };
+const Header = () => {
+    const { open, openDropdown, closeDropdown } = useDropdown();
 
     return (
         <StyledHeader>
             <HeaderWrapper>
                 <Nav>
-                    <Link href="/">
-                        <Logo>하렴</Logo>
+                    <Link href="/find">
+                        <Logo src="/images/logo.png" alt="logo" />
                     </Link>
-                    {navLinks.map((page, index) => (
+                    {navLinks[testUserRole].map((page, index) => (
                         <Link href={page.link} key={`nav_${index}`}>
                             {page.name}
                         </Link>
                     ))}
                 </Nav>
-                <User onClick={handleClickUser}>
+                <User onClick={!open ? openDropdown : closeDropdown}>
                     <span>김성은</span>
-                    {open && (
-                        <DropDown>
-                            <UserControlBox>
-                                <Button>마이페이지</Button>
-                                <Button>로그아웃</Button>
-                            </UserControlBox>
-                        </DropDown>
-                    )}
+                    <Dropdown open={open} closeDropdown={closeDropdown}>
+                        <UserControlBox>
+                            <Button>마이페이지</Button>
+                            <Button>로그아웃</Button>
+                        </UserControlBox>
+                    </Dropdown>
                 </User>
             </HeaderWrapper>
         </StyledHeader>
@@ -57,26 +74,27 @@ const StyledHeader = styled.header`
     align-items: center;
     justify-content: center;
     border-bottom: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
-    background-color: ${({ theme }) => theme.WHITE};
     background-color: ${({ theme }) => theme.BACKGROUND};
 `;
 
 const HeaderWrapper = styled.div`
     width: 90%;
-    max-width: 1200px;
+    max-width: 1300px;
     display: flex;
     align-items: center;
     justify-content: space-between;
 `;
 
-const Logo = styled.div`
-    font-size: 1.6em;
+const Logo = styled.img`
+    width: 80px;
+    height: 40px;
+    margin-right: 1em;
 `;
 
 const Nav = styled.nav`
     display: flex;
     align-items: center;
-    gap: 2em;
+    gap: 1.6em;
 `;
 
 const User = styled.button`
