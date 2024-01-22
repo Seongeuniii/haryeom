@@ -1,32 +1,33 @@
-import styled from 'styled-components';
 import { GetServerSideProps } from 'next';
 import { getCookie } from 'cookies-next';
-
-import HomeLayout from '@/components/layouts/HomeLayout';
-import MyClassScheduleContainer from './MyClassScheduleContainer';
-import SelectedTSContainer from './SelectedTSContainer';
-import LoginContainer from '../LoginContainer';
-import RegistUserInfoContainer from '../RegistUserInfoContainer';
+import styled from 'styled-components';
 import { IUserRole } from '@/apis/user/user';
+import LoginContainer from '@/containers/LoginContainer';
+import RegistUserInfoContainer from '@/containers/RegistUserInfoContainer';
+import HomeLayout from '@/components/layouts/HomeLayout';
+import ClassSchedule from '@/components/ClassSchedule';
+import SelectedTSContainer from './SelectedTSContainer';
 
 interface ScheduleContainerProps {
     userRole: IUserRole | undefined;
 }
 
-// eslint-disable-next-line no-empty-pattern
-const ScheduleContainer = ({ userRole }: ScheduleContainerProps) => {
-    if (userRole === ('teacher' || 'student')) {
-        return (
-            <HomeLayout>
-                <StyledScheduleContainer>
-                    <MyClassScheduleContainer />
-                    <SelectedTSContainer />
-                </StyledScheduleContainer>
-            </HomeLayout>
-        );
+const ScheduleContainer = ({ userRole = 'teacher' }: ScheduleContainerProps) => {
+    switch (userRole) {
+        case 'teacher' || 'student':
+            return (
+                <HomeLayout>
+                    <StyledScheduleContainer>
+                        <ClassSchedule />
+                        <SelectedTSContainer />
+                    </StyledScheduleContainer>
+                </HomeLayout>
+            );
+        case 'guest':
+            return <RegistUserInfoContainer />;
+        default:
+            return <LoginContainer />; // NOT LOGIN
     }
-    if (!userRole) return <LoginContainer />;
-    else if (userRole === 'guest') return <RegistUserInfoContainer />;
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -34,7 +35,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     const userRole = getCookie('userRole', { req });
 
-    if (!userRole || userRole === 'guest') return { props: {} }; // NOT LOGIN
+    if (!userRole || userRole === 'guest') return { props: {} };
 
     return { props: { userRole } };
 };
