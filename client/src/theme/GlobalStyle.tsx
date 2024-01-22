@@ -6,6 +6,11 @@ const GlobalStyle = createGlobalStyle`
     ${reset}
     * {
         box-sizing: border-box;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    *::-webkit-scrollbar {
+      display: none;
     }
     a {
       text-decoration: none;
@@ -16,6 +21,7 @@ const GlobalStyle = createGlobalStyle`
       background-color: transparent;
       border: none;
       font-size: 100%;
+      padding: 0;
     }
     body{
         font-family: 'Gowun Dodum', sans-serif;
