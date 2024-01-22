@@ -10,7 +10,7 @@ import lombok.Setter;
 public class HomeworkRequest {
 
     @NotNull
-    private Long resourceId;
+    private Long textbookId;
     @NotNull
     private Integer startPage;
     @NotNull
