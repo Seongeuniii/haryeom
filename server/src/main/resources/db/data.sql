@@ -1,69 +1,54 @@
--- Subjects
-INSERT INTO subject (id, name)
-VALUES (1, 'Mathematics');
-INSERT INTO subject (id, name)
-VALUES (2, 'Physics');
-INSERT INTO subject (id, name)
-VALUES (3, 'Chemistry');
+-- Member 테이블 더미 데이터
+INSERT INTO member (name, oauth_id, phone, profile_url, role, status) VALUES ('Member1', 'oauth1', '010-1234-5678', 'http://profile.url/member1', 'TEACHER', 'ACTIVATED');
+INSERT INTO member (name, oauth_id, phone, profile_url, role, status) VALUES ('Member2', 'oauth2', '010-8765-4321', 'http://profile.url/member2', 'STUDENT', 'ACTIVATED');
 
--- Members
-INSERT INTO member (id, role, status, oauth_id, profile_url, name, phone)
-VALUES (1, 'TEACHER', 'ACTIVATED', 'oauth1', 'http://profile.url/1', 'John Doe', '123-456-7890'),
-       (2, 'TEACHER', 'ACTIVATED', 'oauth2', 'http://profile.url/2', 'Jane Smith', '234-567-8901');
+-- Teacher 테이블 더미 데이터
+INSERT INTO teacher (created_at, updated_at, career, college, college_email, gender, introduce, major, profile_status, salary, member_id) VALUES ('2023-01-01', '2023-01-01', 5, 'College1', 'teacher1@college.com', 'MALE', 'Experienced teacher', 'Science', true, 50000, 1);
 
--- Teachers
-INSERT INTO teacher (id, member_id, profile_status, college, major, college_email, gender, salary,
-                     career, introduce)
-VALUES (1, 1, true, 'University A', 'Mathematics', 'john@univ.com', 'MALE', 50000, 5,
-        'Experienced Math Teacher'),
-       (2, 2, true, 'University B', 'Physics', 'jane@univ.com', 'FEMALE', 55000, 6,
-        'Dedicated Physics Teacher');
+-- Subject 테이블 더미 데이터
+INSERT INTO subject (name) VALUES ('Mathematics');
+INSERT INTO subject (name) VALUES ('Science');
 
--- Teacher Subjects
-INSERT INTO teacher_subject (id, teacher_id, subject_id)
-VALUES (1, 1, 1),
-       (2, 1, 2),
-       (3, 2, 2),
-       (4, 2, 3);
+-- TeacherSubject 테이블 더미 데이터
+INSERT INTO teacher_subject (subject_id, teacher_id) VALUES (1, 1);
+INSERT INTO teacher_subject (subject_id, teacher_id) VALUES (2, 1);
 
--- Tutoring
-INSERT INTO tutoring (id, chat_room_id, subject_id, hourly_rate, status, student_member_id,
-                      teacher_member_id, created_at, updated_at)
-VALUES (1, 1, 101, 50, 'IN_PROGRESS', 2, 1, '2023-01-01 10:00:00', '2023-01-01 10:00:00'),
-       (2, 2, 102, 60, 'CLOSED', 3, 1, '2023-01-02 10:00:00', '2023-01-02 10:00:00');
+-- ChatRoom 테이블 더미 데이터
+INSERT INTO chat_room (created_at, updated_at, student_member_id, teacher_member_id) VALUES ('2023-01-01', '2023-01-01', 2, 1);
 
--- Textbooks
-INSERT INTO textbook (id, teacher_member_id, textbook_name, textbook_url, is_first_page_cover,
-                      total_page, cover_img, is_deleted, created_at, updated_at)
-VALUES (1, 1, 'Textbook 1', 'http://textbook1.url', true, 120, 'http://coverimg1.url', false,
-        '2023-01-03 10:00:00', '2023-01-03 10:00:00'),
-       (2, 1, 'Textbook 2', 'http://textbook2.url', false, 200, 'http://coverimg2.url', false,
-        '2023-01-04 10:00:00', '2023-01-04 10:00:00');
+-- Tutoring 테이블 더미 데이터
+INSERT INTO tutoring (created_at, updated_at, hourly_rate, status, chat_room_id, student_member_id, subject_id, teacher_member_id) VALUES ('2023-01-01', '2023-01-01', 40, 'IN_PROGRESS', 1, 2, 1, 1);
 
--- Homework
-INSERT INTO homework (id, textbook_id, tutoring_id, deadline, start_page, end_page, status,
-                      is_deleted, created_at, updated_at)
-VALUES (1, 1, 1, '2023-12-31', 10, 20, 'UNCONFIRMED', false, '2023-01-05 10:00:00',
-        '2023-01-05 10:00:00'),
-       (2, 2, 1, '2023-12-31', 30, 40, 'IN_PROGRESS', false, '2023-01-06 10:00:00',
-        '2023-01-06 10:00:00'),
-       (3, 1, 2, '2023-11-30', 50, 60, 'COMPLETED', false, '2023-01-07 10:00:00',
-        '2023-01-07 10:00:00');
+-- ChatMessage 테이블 더미 데이터
+INSERT INTO chat_message (created_at, updated_at, message_content, chat_room_id, member_id) VALUES ('2023-01-01', '2023-01-01', 'Hello!', 1, 2);
 
--- ChatRoom 데이터 생성
-INSERT INTO chat_room (id, teacher_member_id, student_member_id)
-VALUES (1, 1, 2);
+-- Textbook 테이블 더미 데이터
+INSERT INTO textbook (created_at, updated_at, cover_img, is_deleted, is_first_page_cover, textbook_name, textbookurl, total_page, teacher_member_id) VALUES ('2023-01-01', '2023-01-01', 'http://cover.url/textbook1', false, true, 'Textbook1', 'http://textbook.url/textbook1', 100, 1);
 
--- ChatMessage 데이터 생성
-INSERT INTO chat_message (id, chat_room_id, member_id, content, created_at, updated_at)
-VALUES
-(1, 1, 1, 'Hello, how can I help you?', '2024-01-24 08:00:00', '2024-01-24 08:00:00'),
-(2, 1, 2, 'Hello, I have a question.', '2024-01-24 08:05:00', '2024-01-24 08:05:00');
+-- Homework 테이블 더미 데이터
+INSERT INTO homework (created_at, updated_at, deadline, end_page, is_deleted, start_page, status, textbook_id, tutoring_id) VALUES ('2023-01-01', '2023-01-01', '2023-03-01', 50, 0, 1, 'UNCONFIRMED', 1, 1);
 
--- ChatRoomState 데이터 생성
-INSERT INTO chat_room_state (id, chat_room_id, member_id, unread_message_count, last_read_message_id,
-                             is_deleted)
-VALUES (1, 1, 1, 0, 2, FALSE);
-INSERT INTO chat_room_state (id, chat_room_id, member_id, unread_message_count, last_read_message_id,
-                             is_deleted)
-VALUES (2, 1, 2, 1, 1, FALSE);
+-- Assignment 테이블 더미 데이터
+INSERT INTO assignment (textbook_id, tutoring_id) VALUES (1, 1);
+
+-- Student 테이블 더미 데이터
+INSERT INTO student (grade, school, member_id) VALUES ('11th', 'High School 1', 2);
+
+-- ChatRoomState 테이블 더미 데이터
+INSERT INTO chat_room_state (is_deleted, last_read_message_id, unread_message_count, chat_room_id, member_id) VALUES (0, 1, 0, 1, 2);
+
+-- Drawing 테이블 더미 데이터
+INSERT INTO drawing (homework_drawingurl, page, review_drawingurl, teacher_drawingurl, homework_id) VALUES ('http://drawing.url/homework1', 1, 'http://drawing.url/review1', 'http://drawing.url/teacher1', 1);
+
+-- TutoringSchedule 테이블 더미 데이터
+INSERT INTO tutoring_schedule (created_at, updated_at, duration, schedule_date, start_time, title, tutoring_id) VALUES ('2023-01-01', '2023-01-01', 60, '2023-03-01', '14:00:00', 'Tutoring Session 1', 1);
+
+-- Video 테이블 더미 데이터
+INSERT INTO video (created_at, updated_at, end_time, start_time, videourl, tutoring_schedule_id) VALUES ('2023-01-01', '2023-01-01', '15:00:00', '14:00:00', 'http://video.url/video1', 1);
+
+-- VideoRoom 테이블 더미 데이터
+INSERT INTO video_room (created_at, updated_at, room_code, tutoring_schedule_id) VALUES ('2023-01-01', '2023-01-01', 'ROOM1234', 1);
+
+-- VideoTimestamp 테이블 더미 데이터
+INSERT INTO video_timestamp (content, stamp_time, video_id) VALUES ('Important Point', '14:15:00', 1);
+
