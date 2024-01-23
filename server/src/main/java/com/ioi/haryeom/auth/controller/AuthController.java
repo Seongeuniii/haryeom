@@ -52,4 +52,15 @@ public class AuthController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/refresh")
+    private ResponseEntity<AccessTokenResponse> reissueAccessToken(HttpServletRequest request,
+        HttpServletResponse response) {
+        String accessToken = tokenService.reissueAccessToken(request, response);
+
+//        헤더에 담을 경우
+//        response.setHeader("Authorization", accessToken);
+
+        return ResponseEntity.ok().body(new AccessTokenResponse(accessToken));
+    }
 }
