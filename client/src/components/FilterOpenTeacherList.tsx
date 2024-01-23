@@ -1,23 +1,23 @@
 import styled from 'styled-components';
 import GraduationCap from '@/components/icons/GraduationCap';
-import Filter from '@/components/icons/Filter';
-import Career from '@/components/icons/Career';
-import Dollar from '@/components/icons/Dollar';
-import User from '@/components/icons/User';
-import Book from '@/components/icons/Book';
+import FilterIcon from '@/components/icons/Filter';
+import CareerIcon from '@/components/icons/Career';
+import DollarIcon from '@/components/icons/Dollar';
+import UserIcon from '@/components/icons/User';
+import BookIcon from '@/components/icons/Book';
 
 const FilterOpenTeacherList = () => {
     return (
         <StyledFilterOpenTeacherList>
             <FilterOption>
                 <FilterOptionIcon>
-                    <Filter />
+                    <FilterIcon />
                 </FilterOptionIcon>
                 <FilterOptionName>최신 등록 순</FilterOptionName>
             </FilterOption>
             <FilterOption>
                 <FilterOptionIcon>
-                    <Book />
+                    <BookIcon />
                 </FilterOptionIcon>
                 <FilterOptionName>과목</FilterOptionName>
             </FilterOption>
@@ -29,19 +29,19 @@ const FilterOpenTeacherList = () => {
             </FilterOption>
             <FilterOption>
                 <FilterOptionIcon>
-                    <Career />
+                    <CareerIcon />
                 </FilterOptionIcon>
                 <FilterOptionName>경력</FilterOptionName>
             </FilterOption>
             <FilterOption>
                 <FilterOptionIcon>
-                    <User />
+                    <UserIcon />
                 </FilterOptionIcon>
                 <FilterOptionName>성별</FilterOptionName>
             </FilterOption>
             <FilterOption>
                 <FilterOptionIcon>
-                    <Dollar />
+                    <DollarIcon />
                 </FilterOptionIcon>
                 <FilterOptionName>수업료</FilterOptionName>
             </FilterOption>
@@ -51,12 +51,11 @@ const FilterOpenTeacherList = () => {
 
 const StyledFilterOpenTeacherList = styled.div`
     width: min-content;
-    margin: 10em 0 1.3em 0;
-    padding: 0.55em 0;
-
+    margin: 10em 0 1.3em 1em;
+    padding: 0.55em;
+    border-radius: 0.4em;
     font-size: 0.85em;
-    border-radius: 0.7em;
-    border: 2px solid ${({ theme }) => theme.LIGHT_BLACK};
+    border: 1px solid ${({ theme }) => theme.LIGHT_BLACK};
     display: flex;
 
     & > button:last-child {
