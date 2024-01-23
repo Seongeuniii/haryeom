@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import OpenTeacherCard from './OpenTeacherCard';
 
 const OpenTeacherList = () => {
     return (
@@ -21,16 +22,12 @@ const OpenTeacherList = () => {
 
 const StyledOpenTeacherList = styled.div`
     width: 100%;
+    padding-top: 1.2em;
     padding-bottom: 3em;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(14em, 1fr));
-    gap: 1.7em;
-`;
-
-const OpenTeacherCard = styled.div`
-    min-width: 14em;
-    height: 20em;
-    background-color: pink;
+    gap: 2.2em;
+    overflow: scroll;
 `;
 
 export default OpenTeacherList;

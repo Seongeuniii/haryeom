@@ -1,23 +1,23 @@
 import styled from 'styled-components';
 import GraduationCap from '@/components/icons/GraduationCap';
-import Filter from '@/components/icons/Filter';
-import Career from '@/components/icons/Career';
-import Dollar from '@/components/icons/Dollar';
-import User from '@/components/icons/User';
-import Book from '@/components/icons/Book';
+import FilterIcon from '@/components/icons/Filter';
+import CareerIcon from '@/components/icons/Career';
+import DollarIcon from '@/components/icons/Dollar';
+import UserIcon from '@/components/icons/User';
+import BookIcon from '@/components/icons/Book';
 
 const FilterOpenTeacherList = () => {
     return (
         <StyledFilterOpenTeacherList>
             <FilterOption>
                 <FilterOptionIcon>
-                    <Filter />
+                    <FilterIcon />
                 </FilterOptionIcon>
                 <FilterOptionName>최신 등록 순</FilterOptionName>
             </FilterOption>
             <FilterOption>
                 <FilterOptionIcon>
-                    <Book />
+                    <BookIcon />
                 </FilterOptionIcon>
                 <FilterOptionName>과목</FilterOptionName>
             </FilterOption>
@@ -29,19 +29,19 @@ const FilterOpenTeacherList = () => {
             </FilterOption>
             <FilterOption>
                 <FilterOptionIcon>
-                    <Career />
+                    <CareerIcon />
                 </FilterOptionIcon>
                 <FilterOptionName>경력</FilterOptionName>
             </FilterOption>
             <FilterOption>
                 <FilterOptionIcon>
-                    <User />
+                    <UserIcon />
                 </FilterOptionIcon>
                 <FilterOptionName>성별</FilterOptionName>
             </FilterOption>
             <FilterOption>
                 <FilterOptionIcon>
-                    <Dollar />
+                    <DollarIcon />
                 </FilterOptionIcon>
                 <FilterOptionName>수업료</FilterOptionName>
             </FilterOption>
