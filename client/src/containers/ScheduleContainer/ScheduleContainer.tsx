@@ -1,25 +1,43 @@
+import { GetServerSideProps } from 'next';
+import { getCookie } from 'cookies-next';
 import styled from 'styled-components';
-import MyClassScheduleContainer from './MyClassScheduleContainer';
-
+import { IUserRole } from '@/apis/user/user';
+import LoginContainer from '@/containers/LoginContainer';
+import RegistUserInfoContainer from '@/containers/RegistUserInfoContainer';
 import HomeLayout from '@/components/layouts/HomeLayout';
+import ClassSchedule from '@/components/ClassSchedule';
 import SelectedTSContainer from './SelectedTSContainer';
 
-interface ScheduleContainerProps {}
+interface ScheduleContainerProps {
+    userRole: IUserRole | undefined;
+}
 
-// eslint-disable-next-line no-empty-pattern
-const ScheduleContainer = ({}: ScheduleContainerProps) => {
-    return (
-        <HomeLayout>
-            <StyledScheduleContainer>
-                <MyClassScheduleContainer />
-                <SelectedTSContainer />
-            </StyledScheduleContainer>
-        </HomeLayout>
-    );
+const ScheduleContainer = ({ userRole = 'teacher' }: ScheduleContainerProps) => {
+    switch (userRole) {
+        case 'teacher' || 'student':
+            return (
+                <HomeLayout>
+                    <StyledScheduleContainer>
+                        <ClassSchedule />
+                        <SelectedTSContainer />
+                    </StyledScheduleContainer>
+                </HomeLayout>
+            );
+        case 'guest':
+            return <RegistUserInfoContainer />;
+        default:
+            return <LoginContainer />; // NOT LOGIN
+    }
 };
 
-export const getServerSideProps = () => {
-    return { props: {} };
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req } = context;
+
+    const userRole = getCookie('userRole', { req });
+
+    if (!userRole || userRole === 'guest') return { props: {} };
+
+    return { props: { userRole } };
 };
 
 const StyledScheduleContainer = styled.main`

@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ThemeProvider } from 'styled-components';
 import { MutableSnapshot, RecoilRoot } from 'recoil';
 import axios from 'axios';
-
+import { setCookie } from 'cookies-next';
 import GlobalStyle from '@/theme/GlobalStyle';
 import theme from '@/theme';
 import MainLayout from '@/components/layouts/MainLayout';
@@ -44,15 +44,19 @@ function MyApp({ Component, pageProps, loginUserData }: MyAppProps) {
 
 MyApp.getInitialProps = async (appContext: AppContext) => {
     const { ctx } = appContext;
+    const { req, res } = ctx;
 
     let user: IUser | undefined;
     let cookie: string | undefined;
 
     if (ctx.req) {
         cookie = ctx.req.headers.cookie;
-        console.log(cookie);
         axios.defaults.headers.common['Cookie'] = cookie;
         user = await getUser();
+    }
+
+    if (user) {
+        setCookie('userRole', user.role, { req, res });
     }
 
     const appProps = App.getInitialProps(appContext);
