@@ -21,6 +21,10 @@ const CreateNewClass = () => {
 const StyledCreateNewClass = styled.div`
     width: 100%;
     text-align: center;
+
+    position: absolute;
+    bottom: 1em;
+    left: 0;
 `;
 
 const OpenModalButton = styled.button`
@@ -28,9 +32,10 @@ const OpenModalButton = styled.button`
     height: 30px;
     margin-top: 8px;
     font-size: 24px;
-    background-color: #f9f9f9;
     border-radius: 100%;
     color: ${({ theme }) => theme.LIGHT_BLACK};
+    background-color: ${({ theme }) => theme.LIGHT_BLACK};
+    color: white;
 
     &:hover {
         background-color: ${({ theme }) => theme.PRIMARY};

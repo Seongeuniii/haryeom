@@ -7,19 +7,30 @@ import RegistUserInfoContainer from '@/containers/RegistUserInfoContainer';
 import HomeLayout from '@/components/layouts/HomeLayout';
 import ClassSchedule from '@/components/ClassSchedule';
 import SelectedTSContainer from './SelectedTSContainer';
+import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
+import { ITutoringSchedules, ITutorings } from '@/apis/tutoring/tutoring';
+import { getHomeworkList } from '@/apis/homework/get-homework-list';
+import { IHomework } from '@/apis/homework/homework';
+import { getYearMonth } from '@/utils/time';
+import { getTutorings } from '@/apis/tutoring/get-tutorings';
 
 interface ScheduleContainerProps {
-    userRole: IUserRole | undefined;
+    userRole: IUserRole;
+    tutorings: ITutorings;
+    tutoringSchedules: ITutoringSchedules;
+    homeworkList: IHomework[];
 }
 
-const ScheduleContainer = ({ userRole = 'teacher' }: ScheduleContainerProps) => {
+const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
+    const { userRole = 'teacher', tutoringSchedules, homeworkList } = pageProps;
+
     switch (userRole) {
         case 'teacher' || 'student':
             return (
                 <HomeLayout>
                     <StyledScheduleContainer>
-                        <ClassSchedule />
-                        <SelectedTSContainer />
+                        <ClassSchedule tutoringSchedules={tutoringSchedules} />
+                        <SelectedTSContainer homeworkList={homeworkList} />
                     </StyledScheduleContainer>
                 </HomeLayout>
             );
@@ -33,17 +44,29 @@ const ScheduleContainer = ({ userRole = 'teacher' }: ScheduleContainerProps) => 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { req } = context;
 
-    const userRole = getCookie('userRole', { req });
+    let userRole: IUserRole | undefined;
+    // userRole = getCookie('userRole', { req });
 
-    if (!userRole || userRole === 'guest') return { props: {} };
+    if (!userRole || userRole === 'guest') {
+        return { props: {} };
+    }
 
-    return { props: { userRole } };
+    /**
+     * tutorings: 과외목록
+     * tutoringSchedules: 과외일정
+     * homeworkList: 숙제목록
+     * tutoringTextbooks: 학습자료
+     */
+    const tutorings = await getTutorings(userRole);
+    const tutoringSchedules = await getTutoringSchedules(userRole, getYearMonth(new Date()));
+    const homeworkList = await getHomeworkList(1); // tutoringId
+
+    return { props: { userRole, tutorings, tutoringSchedules, homeworkList } };
 };
 
 const StyledScheduleContainer = styled.main`
-    width: 90%;
-    max-width: 1200px;
-    height: calc(100% - 3.5em);
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;

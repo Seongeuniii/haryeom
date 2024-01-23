@@ -2,6 +2,7 @@ package com.ioi.haryeom.tutoring.domain;
 
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.common.domain.BaseTimeEntity;
+import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.member.domain.Member;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,8 +32,9 @@ public class Tutoring extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private ChatRoom chatRoom;
 
-    @Column
-    private Integer subjectId;
+    @JoinColumn(name = "subject_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Subject subject;
 
     @Column
     private Integer hourlyRate;
@@ -50,23 +52,23 @@ public class Tutoring extends BaseTimeEntity {
 
 
     @Builder
-    public Tutoring(ChatRoom chatRoom, Integer subjectId, Integer hourlyRate, TutoringStatus status,
+    public Tutoring(ChatRoom chatRoom, Subject subject, Integer hourlyRate, TutoringStatus status,
         Member student,
         Member teacher) {
         this.chatRoom = chatRoom;
-        this.subjectId = subjectId;
+        this.subject = subject;
         this.hourlyRate = hourlyRate;
         this.status = status;
         this.student = student;
         this.teacher = teacher;
     }
 
-    public void update(ChatRoom chatRoom, Integer subjectId, Integer hourlyRate,
+    public void update(ChatRoom chatRoom, Subject subject, Integer hourlyRate,
         TutoringStatus status,
         Member student,
         Member teacher) {
         this.chatRoom = chatRoom;
-        this.subjectId = subjectId;
+        this.subject = subject;
         this.hourlyRate = hourlyRate;
         this.status = status;
         this.student = student;
