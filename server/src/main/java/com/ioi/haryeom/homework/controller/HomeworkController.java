@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,7 +44,7 @@ public class HomeworkController {
     // 과외 숙제 등록
     @PostMapping("/{tutoringId}/homework")
     public ResponseEntity<Void> createHomework(@PathVariable Long tutoringId,
-        @RequestBody HomeworkRequest request) {
+        @RequestBody @Validated HomeworkRequest request) {
 
         Long homeworkId = homeworkService.createHomework(tutoringId, request, authInfo);
         return ResponseEntity.created(URI.create("/homework/" + homeworkId)).build();

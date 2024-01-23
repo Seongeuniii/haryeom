@@ -33,8 +33,8 @@ public class TeacherCustomRepositoryImpl implements TeacherCustomRepository {
                 inColleges(colleges),
                 inSubjectIds(subjectIds),
                 eqGender(gender),
-                gtMinCareer(minCareer),
-                ltMaxSalary(maxSalary)
+                goeMinCareer(minCareer),
+                loeMaxSalary(maxSalary)
             )
             .groupBy(teacher.id)
             .offset(pageable.getOffset())
@@ -63,18 +63,19 @@ public class TeacherCustomRepositoryImpl implements TeacherCustomRepository {
         return teacher.gender.eq(Gender.valueOf(gender));
     }
 
-    private BooleanExpression gtMinCareer(Integer minCareer) {
+    private BooleanExpression goeMinCareer(Integer minCareer) {
         if (minCareer == null) {
             return null;
         }
-        return teacher.career.gt(minCareer);
+        return teacher.career.goe(minCareer);
     }
 
-    private BooleanExpression ltMaxSalary(Integer maxSalary) {
+    private BooleanExpression loeMaxSalary(Integer maxSalary) {
         if (maxSalary == null) {
             return null;
+
         }
-        return teacher.salary.lt(maxSalary);
+        return teacher.salary.loe(maxSalary);
     }
 
     private BooleanExpression inColleges(List<String> colleges) {
