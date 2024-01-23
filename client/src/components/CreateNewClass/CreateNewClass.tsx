@@ -7,24 +7,23 @@ const CreateNewClass = () => {
     const { open, openModal, closeModal } = useModal();
 
     return (
-        <StyledCreateNewClass>
-            <OpenModalButton onClick={openModal}>+</OpenModalButton>
-            {open && (
-                <Modal open={true} closeModal={closeModal}>
-                    <CreateNewClassForm />
-                </Modal>
-            )}
-        </StyledCreateNewClass>
+        <>
+            <Modal open={open} closeModal={closeModal}>
+                <CreateNewClassForm />
+            </Modal>
+            <StyledCreateNewClass>
+                <OpenModalButton onClick={openModal}>+</OpenModalButton>
+            </StyledCreateNewClass>
+        </>
     );
 };
 
 const StyledCreateNewClass = styled.div`
     width: 100%;
-    text-align: center;
-
-    position: absolute;
-    bottom: 1em;
+    bottom: 1.5em;
     left: 0;
+    text-align: center;
+    position: absolute;
 `;
 
 const OpenModalButton = styled.button`

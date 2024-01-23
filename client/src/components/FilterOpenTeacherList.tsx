@@ -51,12 +51,11 @@ const FilterOpenTeacherList = () => {
 
 const StyledFilterOpenTeacherList = styled.div`
     width: min-content;
-    margin: 10em 0 1.3em 0;
-    padding: 0.55em 0;
-
+    margin: 10em 0 1.3em 1em;
+    padding: 0.55em;
+    border-radius: 0.4em;
     font-size: 0.85em;
-    border-radius: 0.7em;
-    border: 2px solid ${({ theme }) => theme.LIGHT_BLACK};
+    border: 1px solid ${({ theme }) => theme.LIGHT_BLACK};
     display: flex;
 
     & > button:last-child {

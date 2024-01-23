@@ -29,7 +29,7 @@ const FindTeacherContainerHeader = styled.header`
     position: fixed;
     width: 100vw;
     height: 8.3em;
-    padding-bottom: 1em;
+    padding: 1em;
     display: flex;
     flex-direction: column;
     justify-content: end;

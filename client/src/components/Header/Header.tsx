@@ -75,7 +75,6 @@ const StyledHeader = styled.header`
     justify-content: center;
     border-bottom: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
     background-color: ${({ theme }) => theme.BACKGROUND};
-    z-index: 100;
 `;
 
 const HeaderWrapper = styled.div`

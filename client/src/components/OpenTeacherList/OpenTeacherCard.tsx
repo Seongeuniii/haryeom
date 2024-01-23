@@ -5,9 +5,13 @@ import DollarIcon from '@/components/icons/Dollar';
 import UserIcon from '@/components/icons/User';
 import BookIcon from '@/components/icons/Book';
 
-const OpenTeacherCard = () => {
+interface OpenTeacherCardProps {
+    onClick: () => void;
+}
+
+const OpenTeacherCard = ({ onClick }: OpenTeacherCardProps) => {
     return (
-        <StyledOpenTeacherCard>
+        <StyledOpenTeacherCard onClick={onClick}>
             <TeacherProfileImg src="/images/cha.png" />
             <TeacherName>이태호</TeacherName>
             <TeacherInfo>
@@ -53,10 +57,15 @@ const OpenTeacherCard = () => {
 const StyledOpenTeacherCard = styled.div`
     height: 22em;
     border-radius: 1em;
-    box-shadow: 0px 0px 20px rgba(105, 105, 105, 0.25);
+    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    cursor: pointer;
+
+    &:hover {
+        box-shadow: 0px 0px 20px rgba(105, 105, 105, 0.25);
+    }
 `;
 
 const TeacherProfileImg = styled.img`
@@ -87,11 +96,14 @@ const Section = styled.div`
 const Option = styled.div`
     width: 100%;
     display: flex;
+    align-items: center;
     margin-bottom: 8px;
 `;
 
 const OptionIcon = styled.div`
     width: 30px;
+    text-align: center;
+    margin-right: 3px;
 `;
 
 export default OpenTeacherCard;
