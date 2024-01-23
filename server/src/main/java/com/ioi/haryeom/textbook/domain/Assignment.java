@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,4 +29,11 @@ public class Assignment {
     @JoinColumn(name = "textbook_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Textbook textbook;
+
+    @Builder
+    public Assignment(Long id, Tutoring tutoring, Textbook textbook) {
+        this.id = id;
+        this.tutoring = tutoring;
+        this.textbook = textbook;
+    }
 }
