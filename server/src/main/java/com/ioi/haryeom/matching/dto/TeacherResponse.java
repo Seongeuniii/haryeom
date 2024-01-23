@@ -10,21 +10,23 @@ import lombok.Getter;
 @Getter
 public class TeacherResponse {
 
-    private final Long teacherId;
-    private final String profileUrl;
-    private final String name;
-    private final String college;
-    private final Integer career;
-    private final Integer salary;
-    private final List<SubjectResponse> subjects;
+    private Long teacherId;
+    private String profileUrl;
+    private String name;
+    private String college;
+    private Integer career;
+    private String gender;
+    private Integer salary;
+    private List<SubjectResponse> subjects;
 
     private TeacherResponse(Long teacherId, String profileUrl, String name, String college, Integer career,
-        Integer salary, List<SubjectResponse> subjects) {
+        String gender, Integer salary, List<SubjectResponse> subjects) {
         this.teacherId = teacherId;
         this.profileUrl = profileUrl;
         this.name = name;
         this.college = college;
         this.career = career;
+        this.gender = gender;
         this.salary = salary;
         this.subjects = subjects;
     }
@@ -42,6 +44,7 @@ public class TeacherResponse {
             member.getName(),
             teacher.getCollege(),
             teacher.getCareer(),
+            teacher.getGender().toString(),
             teacher.getSalary(),
             subjects
         );

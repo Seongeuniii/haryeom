@@ -76,7 +76,7 @@ const ChatContainer = ({}: ChatContainerProps) => {
 };
 
 const ChatButton = styled.button`
-    position: absolute;
+    position: fixed;
     bottom: 20px;
     right: 20px;
     width: 60px;

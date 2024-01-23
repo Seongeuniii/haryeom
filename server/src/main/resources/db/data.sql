@@ -52,3 +52,34 @@ INSERT INTO video_room (created_at, updated_at, room_code, tutoring_schedule_id)
 -- VideoTimestamp 테이블 더미 데이터
 INSERT INTO video_timestamp (content, stamp_time, video_id) VALUES ('Important Point', '14:15:00', 1);
 
+-- Homework
+INSERT INTO homework (id, textbook_id, tutoring_id, deadline, start_page, end_page, status,
+                      is_deleted, created_at, updated_at)
+VALUES (1, 1, 1, '2023-12-31', 10, 20, 'UNCONFIRMED', false, '2023-01-05 10:00:00',
+        '2023-01-05 10:00:00'),
+       (2, 2, 1, '2023-12-31', 30, 40, 'IN_PROGRESS', false, '2023-01-06 10:00:00',
+        '2023-01-06 10:00:00'),
+       (3, 1, 2, '2023-11-30', 50, 60, 'COMPLETED', false, '2023-01-07 10:00:00',
+        '2023-01-07 10:00:00');
+
+-- TutoringSchedule
+INSERT INTO tutoring_schedule(id, tutoring_id, schedule_date, start_time, duration, title, created_at, updated_at)
+VALUES (1, 1, DATE '2024-01-22', TIME '18:00:00',2, '수열의 극한', DATEADD('SECOND', 10, CURRENT_TIMESTAMP()), DATEADD('SECOND', 20, CURRENT_TIMESTAMP())),
+       (2, 1, DATE '2024-01-26', TIME '17:00:00',2,'손흥민 축구교실',DATEADD('SECOND', 10, CURRENT_TIMESTAMP()), DATEADD('SECOND', 20, CURRENT_TIMESTAMP()));
+
+-- Video
+INSERT INTO video(id, tutoring_schedule_id, video_url, start_time, end_time, created_at, updated_at)
+VALUES (1, 1, 'dummy-url1/limitofsequence','17:59:03', '20:00:18', NOW(), NOW()),
+       (2, 2, 'dummy-url2/sonnyfootballclass','17:05:04','19:03:21', DATEADD('SECOND', 20, CURRENT_TIMESTAMP()),
+        DATEADD('SECOND', 10, CURRENT_TIMESTAMP()));
+
+-- VideoTimestamp
+INSERT INTO video_timestamp(id, video_id, stamp_time, content)
+VALUES (1, 1, TIME '00:04:03','수열의극한 개념설명'),
+       (2,1,TIME '00:07:05','수열의극한 문제풀이'),
+       (3,2,TIME'00:15:31','모든 것은 기초부터'),
+       (4,2,TIME'00:57:31', '토트넘 우승썰 풀어주기');
+
+-- VideoRoom
+INSERT INTO video_room(id, tutoring_schedule_id, room_code)
+VALUES (1, 1, '3a3ba96a-d32a-4891-81c4-47acd2de01fa'),(2, 2, '58e43602-17f7-45f3-aeb5-67cc296c8823');
