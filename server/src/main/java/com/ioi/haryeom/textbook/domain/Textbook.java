@@ -33,7 +33,7 @@ public class Textbook extends BaseTimeEntity {
 
     private String textbookURL;
 
-    private Boolean isFirstPageCover;
+    private Boolean firstPageCover;
 
     private Integer totalPage;
 
@@ -43,11 +43,11 @@ public class Textbook extends BaseTimeEntity {
 
     @Builder
     public Textbook(Member teacherMember, String textbookName, String textbookURL,
-        Boolean isFirstPageCover, Integer totalPage, String coverImg) {
+        Boolean firstPageCover, Integer totalPage, String coverImg) {
         this.teacherMember = teacherMember;
         this.textbookName = textbookName;
         this.textbookURL = textbookURL;
-        this.isFirstPageCover = isFirstPageCover;
+        this.firstPageCover = firstPageCover;
         this.totalPage = totalPage;
         this.coverImg = coverImg;
     }
