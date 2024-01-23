@@ -28,6 +28,12 @@ public class AuthController {
     private final AuthService authService;
     private final TokenService tokenService;
 
+    @GetMapping
+    public ResponseEntity<UserInfoResponse> getUser(@AuthenticationPrincipal Member member) {
+
+        return ResponseEntity.ok().body(authService.getUser(member));
+    }
+
     @GetMapping("/{provider}/login")
     public ResponseEntity<LoginResponse> oauthLogin(@RequestParam String code,
         @PathVariable("provider") String provider)

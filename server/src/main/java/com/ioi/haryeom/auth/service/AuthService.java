@@ -29,6 +29,15 @@ public class AuthService {
     private final TokenService tokenService;
     private final RedisTemplate<Long, Object> redisTemplate;
 
+    public UserInfoResponse getUser(Member member) {
+        return UserInfoResponse.builder()
+            .id(member.getId())
+            .name(member.getName())
+            .role(member.getRole())
+            .profileUrl(member.getProfileUrl())
+            .build();
+    }
+
     public LoginResponse oauthLogin(String code, String provider)
         throws IOException, ParseException {
         String oauthAccessToken;
