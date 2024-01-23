@@ -4,17 +4,17 @@ import styled from 'styled-components';
 
 interface MyCalendarProps {
     selectedDate: Date;
-    handleDayClick: (date: Date) => void;
+    handleClickDay: (date: Date) => void;
     handleYearMonthChange: (onArgs: OnArgs) => void;
 }
 
-const MyCalendar = ({ selectedDate, handleDayClick, handleYearMonthChange }: MyCalendarProps) => {
+const MyCalendar = ({ selectedDate, handleClickDay, handleYearMonthChange }: MyCalendarProps) => {
     return (
         <CalendarContainer>
             <Calendar
                 locale="en-US"
                 value={selectedDate}
-                onClickDay={handleDayClick}
+                onClickDay={handleClickDay}
                 onActiveStartDateChange={handleYearMonthChange}
             ></Calendar>
         </CalendarContainer>
