@@ -40,7 +40,10 @@ VALUES (1, 1, 'Textbook 1', 'http://textbook1.url', true, 120, 'http://coverimg1
        (2, 1, 'Textbook 2', 'http://textbook2.url', false, 200, 'http://coverimg2.url', false,
         '2023-01-04 10:00:00', '2023-01-04 10:00:00');
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7b54320b64346665141b4c32ec2c3ce29b67bd7e
 -- Homework
 INSERT INTO homework (id, textbook_id, tutoring_id, deadline, start_page, end_page, status,
                       is_deleted, created_at, updated_at)
@@ -50,6 +53,7 @@ VALUES (1, 1, 1, '2023-12-31', 10, 20, 'UNCONFIRMED', false, '2023-01-05 10:00:0
         '2023-01-06 10:00:00'),
        (3, 1, 2, '2023-11-30', 50, 60, 'COMPLETED', false, '2023-01-07 10:00:00',
         '2023-01-07 10:00:00');
+<<<<<<< HEAD
 
 -- TutoringSchedule
 INSERT INTO tutoring_schedule(id, tutoring_id, schedule_date, start_time, duration, title, created_at, updated_at)
@@ -72,3 +76,5 @@ VALUES (1, 1, TIME '00:04:03','수열의극한 개념설명'),
 -- VideoRoom
 INSERT INTO video_room(id, tutoring_schedule_id, room_code)
 VALUES (1, 1, '3a3ba96a-d32a-4891-81c4-47acd2de01fa'),(2, 2, '58e43602-17f7-45f3-aeb5-67cc296c8823');
+=======
+>>>>>>> 7b54320b64346665141b4c32ec2c3ce29b67bd7e
