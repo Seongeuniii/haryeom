@@ -31,7 +31,7 @@ public class TeacherResponse {
 
     public static TeacherResponse fromTeacher(Teacher teacher) {
         List<SubjectResponse> subjects = teacher.getTeacherSubjects().stream()
-            .map(ts -> new SubjectResponse(ts.getSubject().getId(), ts.getSubject().getName()))
+            .map(ts -> new SubjectResponse(ts.getSubject()))
             .collect(Collectors.toList());
 
         Member member = teacher.getMember();
