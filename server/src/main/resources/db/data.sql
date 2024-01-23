@@ -49,3 +49,21 @@ VALUES (1, 1, 1, '2023-12-31', 10, 20, 'UNCONFIRMED', false, '2023-01-05 10:00:0
         '2023-01-06 10:00:00'),
        (3, 1, 2, '2023-11-30', 50, 60, 'COMPLETED', false, '2023-01-07 10:00:00',
         '2023-01-07 10:00:00');
+
+-- ChatRoom 데이터 생성
+INSERT INTO chat_room (id, teacher_member_id, student_member_id)
+VALUES (1, 1, 2);
+
+-- ChatMessage 데이터 생성
+INSERT INTO chat_message (id, chat_room_id, member_id, content, created_at, updated_at)
+VALUES
+(1, 1, 1, 'Hello, how can I help you?', '2024-01-24 08:00:00', '2024-01-24 08:00:00'),
+(2, 1, 2, 'Hello, I have a question.', '2024-01-24 08:05:00', '2024-01-24 08:05:00');
+
+-- ChatRoomState 데이터 생성
+INSERT INTO chat_room_state (id, chat_room_id, member_id, unread_message_count, last_read_message_id,
+                             is_deleted)
+VALUES (1, 1, 1, 0, 2, FALSE);
+INSERT INTO chat_room_state (id, chat_room_id, member_id, unread_message_count, last_read_message_id,
+                             is_deleted)
+VALUES (2, 1, 2, 1, 1, FALSE);
