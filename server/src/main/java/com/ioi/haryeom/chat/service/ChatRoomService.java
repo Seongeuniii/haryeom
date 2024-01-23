@@ -4,6 +4,7 @@ import com.ioi.haryeom.chat.domain.ChatMessage;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.chat.domain.ChatRoomState;
 import com.ioi.haryeom.chat.dto.ChatRoomResponse;
+import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
 import com.ioi.haryeom.chat.repository.ChatMessageRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomStateRepository;
@@ -13,6 +14,10 @@ import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.exception.TeacherNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.member.repository.TeacherRepository;
+import com.ioi.haryeom.tutoring.domain.Tutoring;
+import com.ioi.haryeom.tutoring.domain.TutoringStatus;
+import com.ioi.haryeom.tutoring.dto.TutoringResponse;
+import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +37,7 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomStateRepository chatRoomStateRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final TutoringRepository tutoringRepository;
 
     // 채팅방 생성
     // 선생님이 선생님 찾기를 통해서 연락할 수 있다.
@@ -64,6 +70,17 @@ public class ChatRoomService {
         Map<Long, ChatMessage> lastMessageMap = getLastMessageMap(chatRoomStates);
 
         return createChatRoomResponses(chatRoomStates, lastMessageMap, memberId);
+    }
+
+    // 채팅방 구성원 과외 조회
+    public List<TutoringResponse> getChatRoomMembersTutoringList(Long chatRoomId) {
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new ChatRoomNotFoundException(chatRoomId));
+        List<Tutoring> tutoringList = tutoringRepository.findAllByChatRoomAndStatus(chatRoom, TutoringStatus.IN_PROGRESS);
+
+        return tutoringList.stream()
+            .map(tutoring -> new TutoringResponse(tutoring.getId(), tutoring.getSubject()))
+            .collect(Collectors.toList());
     }
 
 
