@@ -29,7 +29,7 @@ public class ChatRoomResponse {
         OppositeMemberResponse oppositeMemberResponse = new OppositeMemberResponse(oppositeMember);
         Integer unreadMessageCount = chatRoomState.getUnreadMessageCount();
 
-        String lastMessage = (lastChatMessage != null) ? lastChatMessage.getContent() : null;
+        String lastMessage = (lastChatMessage != null) ? lastChatMessage.getMessageContent() : null;
         LocalDateTime lastMessageCreatedAt = (lastChatMessage != null) ? lastChatMessage.getCreatedAt() : null;
 
         return new ChatRoomResponse(chatRoomId, oppositeMemberResponse, lastMessage, lastMessageCreatedAt, unreadMessageCount);

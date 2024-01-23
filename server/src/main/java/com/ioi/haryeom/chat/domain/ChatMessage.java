@@ -31,12 +31,12 @@ public class ChatMessage extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member senderMember;
 
-    private String content;
+    private String messageContent;
 
     @Builder
-    public ChatMessage(ChatRoom chatRoom, Member senderMember, String content) {
+    public ChatMessage(ChatRoom chatRoom, Member senderMember, String messageContent) {
         this.chatRoom = chatRoom;
         this.senderMember = senderMember;
-        this.content = content;
+        this.messageContent = messageContent;
     }
 }
