@@ -1,11 +1,51 @@
 import styled from 'styled-components';
 import MyCalendar from '@/components/Calendar';
 import useCalendar from '@/hooks/useCalendar';
-import ScheduleCard from '@/components/ClassSchedule/ScheduleCard';
 import CreateNewClass from '@/components/CreateNewClass/CreateNewClass';
+import { IStudentSchedule, ITeacherSchedule, ITutoringSchedules } from '@/apis/tutoring/tutoring';
+import { useRecoilValue } from 'recoil';
+import userSessionAtom from '@/recoil/atoms/userSession';
+import { useEffect, useState } from 'react';
+import TeacherScheduleCard from './TeacherScheduleCard';
+import StudentScheduleCard from './StudentScheduleCard';
+import { getFormattedYearMonthDay } from '@/utils/time';
 
-const ClassSchedule = () => {
-    const { selectedDate, handleClick, handleYearMonthChange } = useCalendar();
+interface ClassScheduleProps {
+    tutoringSchedules: ITutoringSchedules;
+}
+
+/**
+ * 날짜 클릭 -> 해당 날짜 -> 찾으면 객체 한개
+ * 최초 로드 -> 해당 이후의 모든 날짜
+ * useQuery => 전체 데이터
+ * atom =>
+ */
+
+const userRole = 'teacher';
+
+const ClassSchedule = ({ tutoringSchedules }: ClassScheduleProps) => {
+    const userSession = useRecoilValue(userSessionAtom);
+    const { day, yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
+
+    const [renderedTutoringSchedules, setRenderedTutoringSchedules] = useState<ITutoringSchedules>(
+        []
+    );
+
+    useEffect(() => {
+        setRenderedTutoringSchedules(
+            tutoringSchedules.filter(
+                (schedule) => schedule.scheduleDate === getFormattedYearMonthDay(day)
+            ) as ITutoringSchedules
+        );
+    }, [day]);
+
+    useEffect(() => {
+        setRenderedTutoringSchedules(
+            tutoringSchedules.filter(
+                (schedule) => new Date(schedule.scheduleDate) >= new Date() // 시간 포함 (오늘 날짜 제외됨, TODO: 시간 추가)
+            ) as ITutoringSchedules
+        );
+    }, [yearMonth]);
 
     return (
         <StyledClassSchedule>
@@ -14,26 +54,31 @@ const ClassSchedule = () => {
                 <TodayScheduleButton>오늘</TodayScheduleButton>
             </ClassScheduleHeader>
             <MyCalendar
-                selectedDate={selectedDate}
-                handleDayClick={handleClick}
+                selectedDate={day}
+                handleClickDay={handleClickDay}
                 handleYearMonthChange={handleYearMonthChange}
             ></MyCalendar>
             <ScheduleList>
-                <SchedulesOfDay>
-                    <ScheduleDate>1. 17. (월)</ScheduleDate>
-                    <ScheduleCards>
-                        <ScheduleCard />
-                        <ScheduleCard />
-                    </ScheduleCards>
-                </SchedulesOfDay>
-                <SchedulesOfDay>
-                    <ScheduleDate>1. 17. (월)</ScheduleDate>
-                    <ScheduleCards>
-                        <ScheduleCard />
-                        <ScheduleCard />
-                        <ScheduleCard />
-                    </ScheduleCards>
-                </SchedulesOfDay>
+                {renderedTutoringSchedules.map((daySchedule, index) => (
+                    <SchedulesOfADay key={index}>
+                        <ScheduleDate>{daySchedule.scheduleDate}</ScheduleDate>
+                        <ScheduleCards>
+                            {daySchedule.schedules.map((schedule) => {
+                                return userRole === 'teacher' ? (
+                                    <TeacherScheduleCard
+                                        key={schedule.tutoringId}
+                                        schedule={schedule as ITeacherSchedule}
+                                    />
+                                ) : (
+                                    <StudentScheduleCard
+                                        key={schedule.tutoringId}
+                                        schedule={schedule as IStudentSchedule}
+                                    />
+                                );
+                            })}
+                        </ScheduleCards>
+                    </SchedulesOfADay>
+                ))}
             </ScheduleList>
             <CreateNewClass />
         </StyledClassSchedule>
@@ -43,12 +88,13 @@ const ClassSchedule = () => {
 const StyledClassSchedule = styled.div`
     width: 30%;
     height: 90%;
-    padding: 1.8em;
+    padding: 1.8em 1.8em 0 1.8em;
     border-radius: 1em;
     background-color: ${({ theme }) => theme.WHITE};
     display: flex;
     flex-direction: column;
     box-shadow: 0px 0px 20px rgba(105, 105, 105, 0.25);
+    position: relative;
 `;
 
 const ClassScheduleHeader = styled.header`
@@ -73,10 +119,11 @@ const TodayScheduleButton = styled.span`
 const ScheduleList = styled.div`
     overflow: scroll;
     margin-top: 1em;
+    padding-bottom: 3em;
     border-top: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
 `;
 
-const SchedulesOfDay = styled.div`
+const SchedulesOfADay = styled.div`
     margin: 1em 0;
 `;
 

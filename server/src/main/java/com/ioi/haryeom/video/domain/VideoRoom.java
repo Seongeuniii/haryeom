@@ -1,4 +1,4 @@
-package com.ioi.haryeom.vedio.domain;
+package com.ioi.haryeom.video.domain;
 
 import com.ioi.haryeom.common.domain.BaseTimeEntity;
 import com.ioi.haryeom.tutoring.domain.TutoringSchedule;
@@ -27,6 +27,6 @@ public class VideoRoom extends BaseTimeEntity {
     @JoinColumn(name = "tutoring_schedule_id")
     private TutoringSchedule schedule;
 
-    @Column(length = 20)
+    @Column(length = 100)
     private String roomCode;
 }
