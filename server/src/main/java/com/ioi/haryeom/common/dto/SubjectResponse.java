@@ -7,7 +7,6 @@ import lombok.Getter;
 public class SubjectResponse {
 
     private Long subjectId;
-
     private String name;
 
     public SubjectResponse(Subject subject) {
