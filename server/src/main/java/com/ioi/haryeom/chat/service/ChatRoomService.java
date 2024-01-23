@@ -1,5 +1,6 @@
 package com.ioi.haryeom.chat.service;
 
+import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.chat.domain.ChatMessage;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.chat.domain.ChatRoomState;
@@ -8,8 +9,11 @@ import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
 import com.ioi.haryeom.chat.repository.ChatMessageRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomStateRepository;
+import com.ioi.haryeom.common.domain.Subject;
+import com.ioi.haryeom.common.dto.SubjectResponse;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.domain.Teacher;
+import com.ioi.haryeom.member.domain.TeacherSubject;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.exception.TeacherNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
@@ -21,6 +25,7 @@ import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -73,9 +78,11 @@ public class ChatRoomService {
     }
 
     // 채팅방 구성원 과외 조회
-    public List<TutoringResponse> getChatRoomMembersTutoringList(Long chatRoomId) {
+    public List<TutoringResponse> getChatRoomMembersTutoringList(Long chatRoomId, Long memberId) {
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new ChatRoomNotFoundException(chatRoomId));
+        validateMemberInChatRoom(chatRoom, memberId);
+
         List<Tutoring> tutoringList = tutoringRepository.findAllByChatRoomAndStatus(chatRoom, TutoringStatus.IN_PROGRESS);
 
         return tutoringList.stream()
@@ -83,6 +90,30 @@ public class ChatRoomService {
             .collect(Collectors.toList());
     }
 
+    // 신청 가능한 과목 조회
+    public List<SubjectResponse> getAvailableSubjectsForEnrollment(Long chatRoomId, Long memberId) {
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new ChatRoomNotFoundException(chatRoomId));
+        validateMemberInChatRoom(chatRoom, memberId);
+
+        Member teacherMember = chatRoom.getTeacherMember();
+        Teacher teacher = teacherRepository.findByMember(teacherMember).orElseThrow(() -> new TeacherNotFoundException("선생님을 찾을 수 없습니다."));
+
+        // 선생님 과목 조회
+        Set<Subject> teacherSubjects = teacher.getTeacherSubjects().stream()
+            .map(TeacherSubject::getSubject)
+            .collect(Collectors.toSet());
+
+        // 채팅방 구성원 신청한 과목 조회하여 제거
+        tutoringRepository.findAllByChatRoomAndStatus(chatRoom, TutoringStatus.IN_PROGRESS)
+            .stream()
+            .map(Tutoring::getSubject)
+            .forEach(teacherSubjects::remove);
+
+        return teacherSubjects.stream()
+            .map(SubjectResponse::new)
+            .collect(Collectors.toList());
+    }
 
     private Map<Long, ChatMessage> getLastMessageMap(List<ChatRoomState> chatRoomStates) {
         return chatRoomStates.stream()
@@ -112,5 +143,15 @@ public class ChatRoomService {
         Member oppositeMember = chatRoom.getOppositeMember(currentMemberId);
 
         return ChatRoomResponse.of(chatRoomState, lastChatMessage, oppositeMember);
+    }
+
+    public void validateMemberInChatRoom(ChatRoom chatRoom, Long memberId) {
+
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new MemberNotFoundException(memberId));
+
+        if (!chatRoom.isMemberPartOfChatRoom(member)) {
+            throw new AuthorizationException(memberId);
+        }
     }
 }

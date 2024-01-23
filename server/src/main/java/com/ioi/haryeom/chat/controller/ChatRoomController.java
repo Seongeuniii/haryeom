@@ -3,6 +3,7 @@ package com.ioi.haryeom.chat.controller;
 import com.ioi.haryeom.chat.dto.ChatRoomRequest;
 import com.ioi.haryeom.chat.dto.ChatRoomResponse;
 import com.ioi.haryeom.chat.service.ChatRoomService;
+import com.ioi.haryeom.common.dto.SubjectResponse;
 import com.ioi.haryeom.tutoring.dto.TutoringResponse;
 import java.net.URI;
 import java.util.List;
@@ -42,7 +43,14 @@ public class ChatRoomController {
     // 채팅방 구성원 과외 조회
     @GetMapping("/{chatRoomId}/tutoring")
     public ResponseEntity<List<TutoringResponse>> getChatRoomMembersTutoringList(@PathVariable Long chatRoomId) {
-        List<TutoringResponse> response = chatRoomService.getChatRoomMembersTutoringList(chatRoomId);
+        List<TutoringResponse> response = chatRoomService.getChatRoomMembersTutoringList(chatRoomId, memberId);
+        return ResponseEntity.ok(response);
+    }
+
+    // 신청 가능한 과목 조회
+    @GetMapping("/{chatRoomId}/subjects")
+    public ResponseEntity<List<SubjectResponse>> getAvailableSubjectsForEnrollment(@PathVariable Long chatRoomId) {
+        List<SubjectResponse> response = chatRoomService.getAvailableSubjectsForEnrollment(chatRoomId, memberId);
         return ResponseEntity.ok(response);
     }
 }

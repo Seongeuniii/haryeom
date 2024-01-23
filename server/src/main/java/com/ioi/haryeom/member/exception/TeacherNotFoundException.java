@@ -7,4 +7,8 @@ public class TeacherNotFoundException extends RuntimeException {
     public TeacherNotFoundException(Long teacherId) {
         super(String.format(MESSAGE, teacherId));
     }
+
+    public TeacherNotFoundException(String message) {
+        super(message);
+    }
 }
