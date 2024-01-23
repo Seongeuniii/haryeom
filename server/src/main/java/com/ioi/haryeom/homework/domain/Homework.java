@@ -1,10 +1,8 @@
 package com.ioi.haryeom.homework.domain;
 
 
-import static com.ioi.haryeom.homework.domain.HomeworkStatus.UNCONFIRMED;
-
 import com.ioi.haryeom.common.domain.BaseTimeEntity;
-import com.ioi.haryeom.resource.domain.Resource;
+import com.ioi.haryeom.textbook.domain.Textbook;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
 import java.time.LocalDate;
 import javax.persistence.Entity;
@@ -31,9 +29,9 @@ public class Homework extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "resource_id")
+    @JoinColumn(name = "textbook_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private Resource resource;
+    private Textbook textbook;
 
     @JoinColumn(name = "tutoring_id")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -46,23 +44,23 @@ public class Homework extends BaseTimeEntity {
     private Integer endPage;
 
     @Enumerated(EnumType.STRING)
-    private HomeworkStatus status = UNCONFIRMED;
+    private HomeworkStatus status = HomeworkStatus.UNCONFIRMED;
 
     private Boolean isDeleted = false;
 
     @Builder
-    public Homework(Resource resource, Tutoring tutoring, LocalDate deadline,
+    public Homework(Textbook textbook, Tutoring tutoring, LocalDate deadline,
         Integer startPage, Integer endPage) {
-        this.resource = resource;
+        this.textbook = textbook;
         this.tutoring = tutoring;
         this.deadline = deadline;
         this.startPage = startPage;
         this.endPage = endPage;
     }
 
-    public void update(Resource resource, Tutoring tutoring, LocalDate deadline,
+    public void update(Textbook textbook, Tutoring tutoring, LocalDate deadline,
         Integer startPage, Integer endPage) {
-        this.resource = resource;
+        this.textbook = textbook;
         this.tutoring = tutoring;
         this.deadline = deadline;
         this.startPage = startPage;
@@ -78,6 +76,6 @@ public class Homework extends BaseTimeEntity {
             return false;
         }
 
-        return resource.getMember().getId().equals(accessMemberId);
+        return textbook.getTeacherMember().getId().equals(accessMemberId);
     }
 }

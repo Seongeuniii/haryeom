@@ -12,11 +12,11 @@ import com.ioi.haryeom.homework.exception.HomeworkStatusException;
 import com.ioi.haryeom.homework.exception.InvalidDeadlineException;
 import com.ioi.haryeom.homework.exception.InvalidPageRangeException;
 import com.ioi.haryeom.homework.repository.HomeworkRepository;
-import com.ioi.haryeom.member.domain.Role;
+import com.ioi.haryeom.member.domain.type.Role;
 import com.ioi.haryeom.member.exception.NoTeacherException;
-import com.ioi.haryeom.resource.domain.Resource;
-import com.ioi.haryeom.resource.exception.ResourceNotFoundException;
-import com.ioi.haryeom.resource.repository.ResourceRepository;
+import com.ioi.haryeom.textbook.domain.Textbook;
+import com.ioi.haryeom.textbook.exception.TextNotFoundException;
+import com.ioi.haryeom.textbook.repository.TextbookRepository;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
 import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
@@ -37,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class HomeworkService {
 
     private final HomeworkRepository homeworkRepository;
-    private final ResourceRepository resourceRepository;
+    private final TextbookRepository textbookRepository;
 
     private final TutoringRepository tutoringRepository;
 
@@ -45,7 +45,8 @@ public class HomeworkService {
 
         Tutoring tutoring = findTutoringById(tutoringId);
 
-        Page<Homework> homeworkPage = homeworkRepository.findAllByTutoringId(tutoring.getId(), pageable);
+        Page<Homework> homeworkPage = homeworkRepository.findAllByTutoringId(tutoring.getId(),
+            pageable);
 
         int progressPercentage = calculateProgressPercentage(tutoring.getId());
 
@@ -65,12 +66,12 @@ public class HomeworkService {
 
         Tutoring tutoring = findTutoringById(tutoringId);
 
-        Resource resource = findResourceById(request.getResourceId());
+        Textbook textbook = findTextbookById(request.getTextbookId());
 
-        validatePageRange(resource, request.getStartPage(), request.getEndPage());
+        validatePageRange(textbook, request.getStartPage(), request.getEndPage());
 
         Homework homework = Homework.builder()
-            .resource(resource)
+            .textbook(textbook)
             .tutoring(tutoring)
             .deadline(request.getDeadline())
             .startPage(request.getStartPage())
@@ -91,7 +92,8 @@ public class HomeworkService {
     }
 
     @Transactional
-    public void updateHomework(Long tutoringId, Long homeworkId, HomeworkRequest request, AuthInfo authInfo) {
+    public void updateHomework(Long tutoringId, Long homeworkId, HomeworkRequest request,
+        AuthInfo authInfo) {
 
         validateTeacherRole(authInfo);
         validateDeadline(request.getDeadline());
@@ -102,10 +104,10 @@ public class HomeworkService {
 
         Tutoring tutoring = findTutoringById(tutoringId);
 
-        Resource resource = findResourceById(request.getResourceId());
-        validatePageRange(resource, request.getStartPage(), request.getEndPage());
+        Textbook textbook = findTextbookById(request.getTextbookId());
+        validatePageRange(textbook, request.getStartPage(), request.getEndPage());
 
-        homework.update(resource, tutoring, request.getDeadline(), request.getStartPage(),
+        homework.update(textbook, tutoring, request.getDeadline(), request.getStartPage(),
             request.getEndPage());
     }
 
@@ -127,7 +129,8 @@ public class HomeworkService {
     private int calculateProgressPercentage(Long tutoringId) {
 
         long totalHomeworkCount = homeworkRepository.countByTutoringId(tutoringId);
-        long completedHomeworkCount = homeworkRepository.countByTutoringIdAndStatus(tutoringId, HomeworkStatus.COMPLETED);
+        long completedHomeworkCount = homeworkRepository.countByTutoringIdAndStatus(tutoringId,
+            HomeworkStatus.COMPLETED);
 
         return (int) Math.round(((double) completedHomeworkCount / totalHomeworkCount) * 100);
     }
@@ -146,8 +149,8 @@ public class HomeworkService {
         }
     }
 
-    private void validatePageRange(Resource resource, Integer startPage, Integer endPage) {
-        if (startPage < 1 || endPage > resource.getTotalPage() || startPage > endPage) {
+    private void validatePageRange(Textbook textbook, Integer startPage, Integer endPage) {
+        if (startPage < 1 || endPage > textbook.getTotalPage() || startPage > endPage) {
             throw new InvalidPageRangeException();
         }
     }
@@ -173,9 +176,9 @@ public class HomeworkService {
             .orElseThrow(() -> new TutoringNotFoundException(tutoringId));
     }
 
-    private Resource findResourceById(Long resourceId) {
-        return resourceRepository.findById(resourceId)
-            .orElseThrow(() -> new ResourceNotFoundException(resourceId));
+    private Textbook findTextbookById(Long textbookId) {
+        return textbookRepository.findById(textbookId)
+            .orElseThrow(() -> new TextNotFoundException(textbookId));
     }
 
     private Homework findHomeworkById(Long homeworkId) {

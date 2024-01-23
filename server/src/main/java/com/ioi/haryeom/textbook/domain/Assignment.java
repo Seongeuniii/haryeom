@@ -1,7 +1,6 @@
-package com.ioi.haryeom.resource.domain;
+package com.ioi.haryeom.textbook.domain;
 
-import com.ioi.haryeom.common.domain.BaseTimeEntity;
-import com.ioi.haryeom.member.domain.Member;
+import com.ioi.haryeom.tutoring.domain.Tutoring;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -9,24 +8,24 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Table(name = "resources")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class Resource extends BaseTimeEntity {
+public class Assignment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "tutoring_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private Member member;
-    
-    private String resourceName;
+    private Tutoring tutoring;
 
-    private Integer totalPage;
-
+    @JoinColumn(name = "textbook_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Textbook textbook;
 }
