@@ -65,10 +65,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 const StyledScheduleContainer = styled.main`
-    width: 90%;
-    max-width: 1200px;
-    min-width: 1200px;
-    height: calc(100% - 3.5em);
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
