@@ -56,6 +56,17 @@ public class MemberService {
         return member.getId();
     }
 
+    public StudentInfoResponse getStudent(Long memberId) {
+        Member member = findMemberById(memberId);
+        return StudentInfoResponse.builder()
+            .profileUrl(member.getProfileUrl())
+            .name(member.getName())
+            .phone(member.getPhone())
+            .grade(member.getStudent().getGrade())
+            .school(member.getStudent().getSchool())
+            .build();
+    }
+
     private Member findMemberById(Long memberId) {
         return memberRepository.findById(memberId)
             .orElseThrow(() -> new StudentNotFoundException(memberId));

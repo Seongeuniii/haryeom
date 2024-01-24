@@ -38,4 +38,12 @@ public class MemberController {
         return ResponseEntity.created(URI.create("/members/students/" + memberId)).build();
     }
 
+    @GetMapping("/students/{memberId}")
+    public ResponseEntity<StudentInfoResponse> getStudent(
+        @PathVariable("memberId") Long memberId) {
+
+        return ResponseEntity.ok().body(memberService.getStudent(memberId));
+    }
+
+
 }
