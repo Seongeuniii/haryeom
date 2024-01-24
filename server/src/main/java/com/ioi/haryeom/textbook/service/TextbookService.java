@@ -103,7 +103,7 @@ public class TextbookService {
             Textbook textbook = Textbook.builder()
                     .teacherMember(teacherMember)
                     .textbookName(request.getTextbookName())
-                    .textbookURL(fileUrl)
+                    .textbookUrl(fileUrl)
                     .firstPageCover(request.isFirstPageCover())
                     .totalPage(request.getTotalPage())
                     .coverImg(coverImg)
