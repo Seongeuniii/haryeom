@@ -39,7 +39,7 @@ const StyledHomeworkList = styled.div`
 `;
 
 const HomeworkListHeader = styled.div`
-    padding: 1.2em 0.6em;
+    padding: 0.3em 0.6em 1.2em 0.5em;
     font-weight: 600;
     font-size: 1.2em;
 `;

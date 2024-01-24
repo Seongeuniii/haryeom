@@ -1,7 +1,8 @@
-package com.ioi.haryeom.vedio.domain;
+package com.ioi.haryeom.video.domain;
 
 import java.time.LocalTime;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -13,6 +14,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters.LocalTimeConverter;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,6 +29,8 @@ public class VideoTimestamp {
     @JoinColumn(name = "video_id")
     private Video video;
 
+
+//    @Convert(converter = LocalTimeConverter.class)
     private LocalTime stampTime;
 
     @Column(length = 100)

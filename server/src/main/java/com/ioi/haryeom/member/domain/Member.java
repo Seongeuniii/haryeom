@@ -11,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -42,5 +43,54 @@ public class Member extends BaseTimeEntity {
     private String name;
 
     private String phone;
+
+    @Builder
+    public Member(Long id, Student student, Teacher teacher, Role role, MemberStatus status,
+        String oauthId, String profileUrl, String name, String phone) {
+        this.id = id;
+        this.student = student;
+        this.teacher = teacher;
+        this.role = role;
+        this.status = status;
+        this.oauthId = oauthId;
+        this.profileUrl = profileUrl;
+        this.name = name;
+        this.phone = phone;
+    }
+
+    public void createStudent(Student student, Role role, String profileUrl, String name,
+        String phone) {
+        this.student = student;
+        this.role = role;
+        this.profileUrl = profileUrl;
+        this.name = name;
+        this.phone = phone;
+    }
+
+    public void updateStudent(String profileUrl, String name,
+        String phone) {
+        this.profileUrl = profileUrl;
+        this.name = name;
+        this.phone = phone;
+    }
+
+    public void createTeacher(Teacher teacher, Role role, String profileUrl, String name,
+        String phone) {
+        this.teacher = teacher;
+        this.role = role;
+        this.profileUrl = profileUrl;
+        this.name = name;
+        this.phone = phone;
+    }
+
+    public void updateTeacher(String profileUrl, String name, String phone) {
+        this.profileUrl = profileUrl;
+        this.name = name;
+        this.phone = phone;
+    }
+
+    public void delete() {
+        this.status = MemberStatus.DELETED;
+    }
 }
 

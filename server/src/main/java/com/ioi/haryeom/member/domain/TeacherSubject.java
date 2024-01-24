@@ -21,7 +21,8 @@ public class TeacherSubject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "teacher_member_id")
+
+    @JoinColumn(name = "teacher_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Teacher teacher;
 
