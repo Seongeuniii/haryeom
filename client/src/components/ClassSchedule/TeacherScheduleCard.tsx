@@ -1,24 +1,30 @@
 import styled from 'styled-components';
+import { ITeacherSchedule } from '@/apis/tutoring/tutoring';
+import { addMinutesToTime } from '@/utils/time';
 
-const ScheduleCard = () => {
+interface TeacherScheduleCardProps {
+    schedule: ITeacherSchedule;
+}
+
+const TeacherScheduleCard = ({ schedule }: TeacherScheduleCardProps) => {
     return (
-        <StyledScheduleCard>
+        <StyledTeacherScheduleCard>
             <div>
                 <ScheduledTime>
-                    <StartTime>18:00</StartTime>
-                    <Duration>~ 20:00</Duration>
+                    <StartTime>{schedule.startTime}</StartTime>
+                    <Duration>~ {addMinutesToTime(schedule.startTime, schedule.duration)}</Duration>
                 </ScheduledTime>
                 <ClassInfo>
-                    <Subject>고등수학</Subject>
-                    <Curriculum>| 지수함수와 로그함수</Curriculum>
+                    <Subject>{schedule.studentName}</Subject>
+                    <Curriculum>| {schedule.title}</Curriculum>
                 </ClassInfo>
             </div>
             <ClassState>종료</ClassState>
-        </StyledScheduleCard>
+        </StyledTeacherScheduleCard>
     );
 };
 
-const StyledScheduleCard = styled.div`
+const StyledTeacherScheduleCard = styled.div`
     width: 100%;
     padding: 0.8em;
     margin-bottom: 0.9em;
@@ -64,4 +70,4 @@ const ClassState = styled.div`
     margin-left: auto;
 `;
 
-export default ScheduleCard;
+export default TeacherScheduleCard;

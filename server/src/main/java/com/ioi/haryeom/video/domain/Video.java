@@ -1,4 +1,4 @@
-package com.ioi.haryeom.vedio.domain;
+package com.ioi.haryeom.video.domain;
 
 import com.ioi.haryeom.common.domain.BaseTimeEntity;
 import com.ioi.haryeom.tutoring.domain.TutoringSchedule;
@@ -27,21 +27,21 @@ public class Video extends BaseTimeEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tutoring_schedule_id")
-    private TutoringSchedule schedule; // 과외 일정과 1:1 mapping
+    private TutoringSchedule tutoringSchedule;
 
     @Column(length = 2048)
-    private String videoURL;
+    private String videoUrl;
 
     private LocalTime startTime;
 
     private LocalTime endTime;
 
     @Builder
-    public Video(TutoringSchedule schedule, LocalTime startTime, String videoURL,
+    public Video(TutoringSchedule tutoringSchedule, LocalTime startTime, String videoUrl,
         LocalTime endTime) {
-        this.schedule = schedule;
+        this.tutoringSchedule = tutoringSchedule;
         this.startTime = startTime;
-        this.videoURL = videoURL;
+        this.videoUrl = videoUrl;
         this.endTime = endTime;
     }
 
@@ -50,6 +50,6 @@ public class Video extends BaseTimeEntity {
     }
 
     public void updateVideoURL(String videoURL) {
-        this.videoURL = videoURL;
+        this.videoUrl = videoURL;
     }
 }

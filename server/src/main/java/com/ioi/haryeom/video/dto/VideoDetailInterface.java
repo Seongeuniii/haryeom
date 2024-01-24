@@ -5,7 +5,7 @@ import java.time.LocalTime;
 
 public interface VideoDetailInterface {
     Long getId();
-    String getVideoURL();
+    String getVideoUrl();
     LocalTime getStartTime();
     LocalTime getEndTime();
 }

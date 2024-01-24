@@ -15,21 +15,23 @@ public class TeacherResponse {
     private String name;
     private String college;
     private Integer career;
+    private String gender;
     private Integer salary;
     private List<SubjectResponse> subjects;
 
     private TeacherResponse(Long teacherId, String profileUrl, String name, String college, Integer career,
-        Integer salary, List<SubjectResponse> subjects) {
+        String gender, Integer salary, List<SubjectResponse> subjects) {
         this.teacherId = teacherId;
         this.profileUrl = profileUrl;
         this.name = name;
         this.college = college;
         this.career = career;
+        this.gender = gender;
         this.salary = salary;
         this.subjects = subjects;
     }
 
-    public static TeacherResponse fromTeacher(Teacher teacher) {
+    public static TeacherResponse from(Teacher teacher) {
         List<SubjectResponse> subjects = teacher.getTeacherSubjects().stream()
             .map(ts -> new SubjectResponse(ts.getSubject()))
             .collect(Collectors.toList());
@@ -42,6 +44,7 @@ public class TeacherResponse {
             member.getName(),
             teacher.getCollege(),
             teacher.getCareer(),
+            teacher.getGender().toString(),
             teacher.getSalary(),
             subjects
         );
