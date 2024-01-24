@@ -45,10 +45,9 @@ public class HomeworkService {
 
         Tutoring tutoring = findTutoringById(tutoringId);
 
-        Page<Homework> homeworkPage = homeworkRepository.findAllByTutoringId(tutoring.getId(),
-            pageable);
+        Page<Homework> homeworkPage = homeworkRepository.findAllByTutoring(tutoring, pageable);
 
-        int progressPercentage = calculateProgressPercentage(tutoring.getId());
+        int progressPercentage = calculateProgressPercentage(tutoring);
 
         List<HomeworkResponse> homeworkResponses = homeworkPage.getContent()
             .stream()
@@ -92,8 +91,7 @@ public class HomeworkService {
     }
 
     @Transactional
-    public void updateHomework(Long tutoringId, Long homeworkId, HomeworkRequest request,
-        AuthInfo authInfo) {
+    public void updateHomework(Long tutoringId, Long homeworkId, HomeworkRequest request, AuthInfo authInfo) {
 
         validateTeacherRole(authInfo);
         validateDeadline(request.getDeadline());
@@ -126,10 +124,10 @@ public class HomeworkService {
         homework.delete();
     }
 
-    private int calculateProgressPercentage(Long tutoringId) {
+    private int calculateProgressPercentage(Tutoring tutoring) {
 
-        long totalHomeworkCount = homeworkRepository.countByTutoringId(tutoringId);
-        long completedHomeworkCount = homeworkRepository.countByTutoringIdAndStatus(tutoringId,
+        long totalHomeworkCount = homeworkRepository.countByTutoring(tutoring);
+        long completedHomeworkCount = homeworkRepository.countByTutoringAndStatus(tutoring,
             HomeworkStatus.COMPLETED);
 
         return (int) Math.round(((double) completedHomeworkCount / totalHomeworkCount) * 100);

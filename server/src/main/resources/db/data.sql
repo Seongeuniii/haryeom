@@ -5,7 +5,6 @@ INSERT INTO member (id, name, oauth_id, phone, profile_url, role, status) VALUES
 INSERT INTO member (id, name, oauth_id, phone, profile_url, role, status) VALUES (4, '정태우', 'oauth4', '010-7777-7777', 'http://profile.url/member4', 'TEACHER', 'ACTIVATED');
 INSERT INTO member (id, name, oauth_id, phone, profile_url, role, status) VALUES (5, '송미영', 'oauth5', '010-9999-9999', 'http://profile.url/member5', 'STUDENT', 'ACTIVATED');
 
-
 -- Teacher 테이블 더미 데이터
 INSERT INTO teacher (id, created_at, updated_at, career, college, college_email, gender, introduce, major, profile_status, salary, member_id)
 VALUES (1, '2023-01-05 10:00:00', '2023-01-05 10:00:00', 5, '서울대학교', 'teacher1@koreauniv.com', 'MALE', '경력 있는 선생님', '과학', true, 50000, 1);
@@ -27,14 +26,6 @@ INSERT INTO subject (id, name) VALUES (8, '국어');
 INSERT INTO teacher_subject (subject_id, teacher_id) VALUES (1, 1); -- 김영희 선생님이 수학을 가르칩니다.
 INSERT INTO teacher_subject (subject_id, teacher_id) VALUES (2, 1); -- 김영희 선생님과 과학을 가르칩니다.
 INSERT INTO teacher_subject (subject_id, teacher_id) VALUES (2, 4); -- 정태우 선생님과 과학을 가르칩니다.
-
-
--- ChatRoom 테이블 더미 데이터
-INSERT INTO chat_room (id, created_at, updated_at, student_member_id, teacher_member_id) VALUES (1, '2023-01-05 10:00:00', '2023-01-05 10:00:00', 2, 1); -- 이철수 학생과 김영희 선생님의 채팅방
-INSERT INTO chat_room (id, created_at, updated_at, student_member_id, teacher_member_id) VALUES (2, '2023-01-05 10:00:00', '2023-01-05 10:00:00', 3, 4); -- 박지영 학생과 정태우 선생님의 채팅방
-INSERT INTO chat_room (id, created_at, updated_at, student_member_id, teacher_member_id) VALUES (3, '2023-01-05 10:00:00', '2023-01-05 10:00:00', 5, 1); -- 송미영 학생과 김영희 선생님의 채팅방
-INSERT INTO chat_room (id, created_at, updated_at, student_member_id, teacher_member_id) VALUES (4, '2023-01-05 10:00:00', '2023-01-05 10:00:00', 3, 1); -- 박지영 학생과 김영희 선생님의 또 다른 채팅방
-
 
 
 -- Tutoring 테이블 더미 데이터
@@ -85,29 +76,20 @@ INSERT INTO chat_message (id, created_at, updated_at, message_content, chat_room
 -- ChatMessage 19
 INSERT INTO chat_message (id, created_at, updated_at, message_content, chat_room_id, member_id) VALUES (19, '2023-01-05 11:35:00', '2023-01-05 11:35:00', '안녕하세요!', 4, 3); -- 박지영 학생이 김영희 선생님에게 메시지
 
-
--- Textbooks
-INSERT INTO textbook (id, teacher_member_id, textbook_name, textbook_url, is_first_page_cover,
-                      total_page, cover_img, is_deleted, created_at, updated_at)
-VALUES (1, 1, 'Textbook 1', 'http://textbook1.url', true, 120, 'http://coverimg1.url', false,
-        '2023-01-03 10:00:00', '2023-01-03 10:00:00'),
-       (2, 1, 'Textbook 2', 'http://textbook2.url', false, 200, 'http://coverimg2.url', false,
-        '2023-01-04 10:00:00', '2023-01-04 10:00:00');
-
 -- Homework 테이블 더미 데이터
 INSERT INTO homework (id, textbook_id, tutoring_id, deadline, start_page, end_page, status, is_deleted, created_at, updated_at)
 VALUES
-    (1, 1, 1, '2023-12-31', 10, 20, 'UNCONFIRMED', false, '2023-01-05 10:00:00', '2023-01-05 10:00:00'),
-    (2, 2, 1, '2023-12-31', 30, 40, 'IN_PROGRESS', false, '2023-01-06 10:00:00', '2023-01-06 10:00:00'),
-    (3, 1, 2, '2023-11-30', 50, 60, 'COMPLETED', false, '2023-01-07 10:00:00', '2023-01-07 10:00:00');
+  (1, 1, 1, '2023-12-31', 10, 20, 'UNCONFIRMED', false, '2023-01-05 10:00:00', '2023-01-05 10:00:00'),
+  (2, 2, 1, '2023-12-31', 30, 40, 'IN_PROGRESS', false, '2023-01-06 10:00:00', '2023-01-06 10:00:00'),
+  (3, 1, 2, '2023-11-30', 50, 60, 'COMPLETED', false, '2023-01-07 10:00:00', '2023-01-07 10:00:00');
 
 -- ChatRoomState 테이블 더미 데이터
 INSERT INTO chat_room_state (id, is_deleted, last_read_message_id, unread_message_count, chat_room_id, member_id)
 VALUES
-    (1, 0, 1, 0, 1, 2), -- 이철수 학생과 김영희 선생님의 채팅방 상태
-    (2, 0, 1, 0, 2, 3), -- 박지영 학생과 정태우 선생님의 채팅방 상태
-    (3, 0, 1, 0, 3, 5), -- 송미영 학생과 김영희 선생님의 채팅방 상태
-    (4, 0, 1, 0, 4, 3); -- 박지영 학생과 김영희 선생님의 또 다른 채팅방 상태
+  (1, 0, 1, 0, 1, 2), -- 이철수 학생과 김영희 선생님의 채팅방 상태
+  (2, 0, 1, 0, 2, 3), -- 박지영 학생과 정태우 선생님의 채팅방 상태
+  (3, 0, 1, 0, 3, 5), -- 송미영 학생과 김영희 선생님의 채팅방 상태
+  (4, 0, 1, 0, 4, 3); -- 박지영 학생과 김영희 선생님의 또 다른 채팅방 상태
 
 -- TutoringSchedule 테이블 더미 데이터
 INSERT INTO tutoring_schedule(id, tutoring_id, schedule_date, start_time, duration, title, created_at, updated_at)

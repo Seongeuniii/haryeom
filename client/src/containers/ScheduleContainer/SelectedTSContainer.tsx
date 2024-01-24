@@ -1,8 +1,13 @@
 import styled from 'styled-components';
 import HomeworkList from '@/components/HomeworkList';
 import HomeworkProgress from '@/components/HomeworkProgress';
+import { IHomework } from '@/apis/homework/homework';
 
-const SelectedTSContainer = () => {
+interface SelectedTSContainerProps {
+    homeworkList: IHomework[] | undefined;
+}
+
+const SelectedTSContainer = ({ homeworkList }: SelectedTSContainerProps) => {
     return (
         <StyledSelectedTSContainer>
             <div style={{ height: '50%', display: 'flex' }}>
