@@ -36,4 +36,9 @@ public class Student {
         this.grade = grade;
         this.school = school;
     }
+
+    public void updateStudent(String grade, String school) {
+        this.grade = grade;
+        this.school = school;
+    }
 }
