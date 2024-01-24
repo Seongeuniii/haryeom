@@ -177,6 +177,13 @@ public class HomeworkService {
         return new HomeworkReviewResponse(homework, textbookInfo, drawingResponses);
     }
 
+    public void submitHomework(Long homeworkId, AuthInfo authInfo) {
+        Homework homework = homeworkRepository.findById(homeworkId)
+                .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
+
+        homework.submit();
+    }
+
     //TODO: 회원쪽에서 구현해야함
     private void validateTeacherRole(AuthInfo authInfo) {
         if (!Role.TEACHER.name().equals(authInfo.getRole())) {

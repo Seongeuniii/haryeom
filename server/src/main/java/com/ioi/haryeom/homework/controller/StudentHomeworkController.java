@@ -8,10 +8,7 @@ import com.ioi.haryeom.homework.service.HomeworkService;
 import com.ioi.haryeom.member.domain.type.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/homework")
 @RequiredArgsConstructor
@@ -42,5 +39,12 @@ public class StudentHomeworkController {
 
         return ResponseEntity.ok(homework);
     }
+
+    @PostMapping("/{homeworkId}")
+    public ResponseEntity<Void> submitHomework(@PathVariable Long homeworkId) {
+        homeworkService.submitHomework(homeworkId, authInfo);
+        return ResponseEntity.ok().build();
+    }
+
 
 }
