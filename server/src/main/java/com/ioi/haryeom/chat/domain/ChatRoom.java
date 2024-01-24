@@ -2,6 +2,7 @@ package com.ioi.haryeom.chat.domain;
 
 import com.ioi.haryeom.common.domain.BaseTimeEntity;
 import com.ioi.haryeom.member.domain.Member;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -31,6 +32,8 @@ public class ChatRoom extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member studentMember;
 
+    @Column(columnDefinition = "TINYINT(1)")
+    private Boolean isDeleted = false;
 
     @Builder
     public ChatRoom(Member teacherMember, Member studentMember) {

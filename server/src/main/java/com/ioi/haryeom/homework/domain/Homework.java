@@ -5,6 +5,7 @@ import com.ioi.haryeom.common.domain.BaseTimeEntity;
 import com.ioi.haryeom.textbook.domain.Textbook;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
 import java.time.LocalDate;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -46,6 +47,7 @@ public class Homework extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private HomeworkStatus status = HomeworkStatus.UNCONFIRMED;
 
+    @Column(columnDefinition = "TINYINT(1)")
     private Boolean isDeleted = false;
 
     @Builder

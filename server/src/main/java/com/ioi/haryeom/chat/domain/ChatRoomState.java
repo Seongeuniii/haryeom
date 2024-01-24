@@ -1,6 +1,7 @@
 package com.ioi.haryeom.chat.domain;
 
 import com.ioi.haryeom.member.domain.Member;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -30,19 +31,16 @@ public class ChatRoomState {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private Integer unreadMessageCount;
-
     private Long lastReadMessageId;
 
-    private Boolean isDeleted;
+    @Column(columnDefinition = "TINYINT(1)")
+    private Boolean isDeleted = false;
 
     @Builder
-    public ChatRoomState(Long id, ChatRoom chatRoom, Member member, Integer unreadMessageCount,
-        Long lastReadMessageId, Boolean isDeleted) {
+    public ChatRoomState(Long id, ChatRoom chatRoom, Member member, Long lastReadMessageId, Boolean isDeleted) {
         this.id = id;
         this.chatRoom = chatRoom;
         this.member = member;
-        this.unreadMessageCount = unreadMessageCount;
         this.lastReadMessageId = lastReadMessageId;
         this.isDeleted = isDeleted;
     }
