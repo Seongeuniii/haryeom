@@ -52,4 +52,36 @@ public class MemberController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/teachers")
+    public ResponseEntity<Void> createTeacher(@AuthenticationPrincipal Member user,
+        @RequestBody TeacherCreateRequest teacherRequest) {
+
+        Long memberId = memberService.createTeacher(user, teacherRequest);
+        return ResponseEntity.created(URI.create("/members/teachers/" + memberId)).build();
+    }
+
+    @GetMapping("/teachers/{memberId}")
+    public ResponseEntity<TeacherInfoResponse> getTeacher(@PathVariable("memberId") Long memberId) {
+        return ResponseEntity.ok().body(memberService.getTeacher(memberId));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteMember(@AuthenticationPrincipal Member user,
+        HttpServletResponse response) throws IOException {
+        memberService.deleteMember(user, response);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/students/mypage")
+    public ResponseEntity<StudentInfoResponse> getMyStudent(
+        @AuthenticationPrincipal Member member) {
+        return ResponseEntity.ok().body(memberService.getStudent(member.getId()));
+    }
+
+    @GetMapping("/teachers/mypage")
+    public ResponseEntity<TeacherInfoResponse> getMyTeacher(
+        @AuthenticationPrincipal Member member) {
+        return ResponseEntity.ok().body(memberService.getTeacher(member.getId()));
+    }
+
 }

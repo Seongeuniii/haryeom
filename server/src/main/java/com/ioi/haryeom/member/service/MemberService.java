@@ -87,8 +87,92 @@ public class MemberService {
             studentRequest.getName(), studentRequest.getPhone());
     }
 
+    @Transactional
+    public Long createTeacher(Member user, TeacherCreateRequest teacherRequest) {
+        Member member = findMemberById(user.getId());
+
+        Teacher teacher = Teacher.builder()
+            .member(member)
+            .profileStatus(teacherRequest.getProfileStatus())
+            .college(teacherRequest.getCollege())
+            .collegeEmail(teacherRequest.getCollegeEmail())
+            .gender(teacherRequest.getGender())
+            .salary(teacherRequest.getSalary())
+            .career(teacherRequest.getCareer())
+            .introduce(teacherRequest.getIntroduce())
+            .build();
+
+        member.createTeacher(teacher, Role.TEACHER, teacherRequest.getProfileUrl(),
+            teacherRequest.getName(), teacherRequest.getPhone());
+
+        List<SubjectResponse> subjects = teacherRequest.getSubjects();
+
+        for (SubjectResponse subjectResponse : subjects) {
+
+            TeacherSubject teacherSubject = TeacherSubject.builder()
+                .teacher(teacher)
+                .subject(
+                    subjectRepository.findById(subjectResponse.getSubjectId()).orElseThrow(
+                        () -> new SubjectNotFoundException(subjectResponse.getSubjectId())
+                    )
+                )
+                .build();
+
+            teacherSubjectRepository.save(teacherSubject);
+        }
+
+        teacherRepository.save(teacher);
+
+        return member.getId();
+    }
+
+    public TeacherInfoResponse getTeacher(Long memberId) {
+        Member member = findMemberById(memberId);
+
+        List<SubjectResponse> list = findSubjectsById(memberId);
+        for (SubjectResponse sub : list) {
+            log.info("ID : " + sub.getSubjectId() + " 과목명 : " + sub.getName());
+        }
+
+        return TeacherInfoResponse.builder()
+            .profileUrl(member.getProfileUrl())
+            .name(member.getName())
+            .phone(member.getPhone())
+            .profileStatus(member.getTeacher().getProfileStatus())
+            .college(member.getTeacher().getCollege())
+            .collegeEmail(member.getTeacher().getCollegeEmail())
+            .gender(member.getTeacher().getGender())
+            .salary(member.getTeacher().getSalary())
+            .career(member.getTeacher().getCareer())
+            .subjects(findSubjectsById(memberId))
+            .introduce(member.getTeacher().getIntroduce())
+            .build();
+    }
+
+    @Transactional
+    public void updateTeacher(Member user, TeacherInfoResponse teacherRequest) {
+        Member member = findMemberById(user.getId());
+    }
+
+    @Transactional
+    public void deleteMember(Member user, HttpServletResponse response) throws IOException {
+        Member member = findMemberById(user.getId());
+        member.delete();
+        authService.oauthLogout(user.getId(), "KAKAO");
+        tokenService.resetHeader(response);
+    }
+
     private Member findMemberById(Long memberId) {
         return memberRepository.findById(memberId)
             .orElseThrow(() -> new StudentNotFoundException(memberId));
+    }
+
+    private List<SubjectResponse> findSubjectsById(Long teacherId) {
+        return teacherSubjectRepository
+            .findByTeacherId(teacherId)
+            .stream()
+            .map(TeacherSubject::getSubject)
+            .map(SubjectResponse::from)
+            .collect(Collectors.toList());
     }
 }
