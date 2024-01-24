@@ -1,19 +1,32 @@
-import { ReactNode } from 'react';
+import { ChangeEvent, ReactNode } from 'react';
 import styled from 'styled-components';
 
 interface InputTextOptionBoxProps {
     children: ReactNode;
+    name: string;
     minMax: string;
     unit: string;
+    handleInput: (name: string, value: string) => void;
 }
 
-const InputTextOptionBox = ({ children, minMax, unit }: InputTextOptionBoxProps) => {
+const InputTextOptionBox = ({
+    children,
+    name,
+    minMax,
+    unit,
+    handleInput,
+}: InputTextOptionBoxProps) => {
     return (
         <StyledInputValueBox>
             {children}
             <InputWrapper>
                 {minMax}
-                <Input type="text" />
+                <Input
+                    type="text"
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        handleInput(name, e.target.value)
+                    }
+                />
                 {unit}
             </InputWrapper>
         </StyledInputValueBox>

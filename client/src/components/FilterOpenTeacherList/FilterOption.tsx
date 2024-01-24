@@ -1,31 +1,27 @@
+import { ReactNode } from 'react';
 import styled from 'styled-components';
 import useDropdown from '@/hooks/useDropdown';
-import Dropdown from '../commons/Dropdown';
-import { ReactNode } from 'react';
+import Dropdown from '@/components/commons/Dropdown';
+import { IFilterOption } from './FilterOpenTeacherList';
 
 interface FilterOptionProps {
-    filterOptionName: string;
-    Icon: () => JSX.Element;
+    filterOption: IFilterOption;
     InputBox?: (children: ReactNode) => JSX.Element;
 }
 
-const FilterOption = ({ filterOptionName, Icon, InputBox }: FilterOptionProps) => {
+const FilterOption = ({ filterOption, InputBox }: FilterOptionProps) => {
     const { open, openDropdown, closeDropdown } = useDropdown();
 
     return (
         <StyledFilterOption onClick={!open ? openDropdown : undefined}>
-            <IconWrapper>
-                <Icon />
-            </IconWrapper>
-            <FilterOptionName>{filterOptionName}</FilterOptionName>
+            <IconWrapper>{filterOption.icon()}</IconWrapper>
+            <FilterOptionLabel>{filterOption.title}</FilterOptionLabel>
             {InputBox && (
                 <Dropdown open={open} closeDropdown={closeDropdown} top="0em" left="1em">
                     {InputBox(
                         <InputBoxHeader>
-                            <IconWrapper>
-                                <Icon />
-                            </IconWrapper>
-                            <FilterOptionName>{filterOptionName}</FilterOptionName>
+                            <IconWrapper>{filterOption.icon()}</IconWrapper>
+                            <FilterOptionLabel>{filterOption.title}</FilterOptionLabel>
                         </InputBoxHeader>
                     )}
                 </Dropdown>
@@ -55,7 +51,7 @@ const IconWrapper = styled.div`
     cursor: pointer;
 `;
 
-const FilterOptionName = styled.span`
+const FilterOptionLabel = styled.span`
     white-space: nowrap;
     cursor: pointer;
 `;

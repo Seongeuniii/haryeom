@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import GraduationCap from '@/components/icons/GraduationCap';
 import FilterIcon from '@/components/icons/Filter';
@@ -6,70 +6,166 @@ import CareerIcon from '@/components/icons/Career';
 import DollarIcon from '@/components/icons/Dollar';
 import UserIcon from '@/components/icons/User';
 import BookIcon from '@/components/icons/Book';
+import { IFilterOptionValue } from '@/apis/matching/matching';
 import FilterOption from './FilterOption';
 import { subjectDefaultOptions, univDefaultOptions } from './filterDefaultOptions';
 import SelectOptionBox from './SelectOptionBox';
 import InputTextOptionBox from './InputTextBox';
 
-const filterOptions = [
+export interface IFilterOption {
+    name: keyof IFilterOptionValue | 'filter';
+    title: string;
+    icon: () => JSX.Element;
+    defaultOptionValues?: string[];
+    multiple?: boolean;
+    minMax?: string;
+    unit?: string;
+}
+
+export const filterOptions: IFilterOption[] = [
     {
-        name: '과목',
+        name: 'filter',
+        title: '최신 등록 순',
+        icon: FilterIcon,
+    },
+    {
+        name: 'subjectIds', // index 1 ~
+        title: '과목',
         icon: BookIcon,
-        optionValues: subjectDefaultOptions,
+        defaultOptionValues: subjectDefaultOptions,
         multiple: true,
     },
     {
-        name: '학교',
+        name: 'colleges',
+        title: '학교',
         icon: GraduationCap,
-        optionValues: univDefaultOptions,
+        defaultOptionValues: univDefaultOptions,
         multiple: true,
     },
     {
-        name: '경력',
+        name: 'minCareer',
+        title: '경력',
         icon: CareerIcon,
         minMax: '최소',
         unit: '년',
     },
     {
-        name: '성별',
+        name: 'gender',
+        title: '성별',
         icon: UserIcon,
-        optionValues: ['여자', '남자'],
+        defaultOptionValues: ['여자', '남자'],
         multiple: false,
     },
     {
-        name: '수업료',
+        name: 'maxSalary',
+        title: '수업료',
         icon: DollarIcon,
         minMax: '최대',
         unit: '만원',
     },
 ];
 
+export interface IOptionValue {
+    name: keyof IFilterOptionValue;
+    label: string;
+    multiple: boolean;
+    selected: boolean;
+}
+
 const FilterOpenTeacherList = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [optionValuesOfAllFilters, setOptionValuesOfAllFilters] = useState<any>({
+        subjectIds: [],
+        colleges: [],
+        minCareer: 0,
+        gender: [],
+        maxSalary: 0,
+    });
+
+    const handleSelectOption = (optionValue: IOptionValue, selectedIdx: number) => {
+        if (optionValue.multiple) {
+            const newOptionValuesOfAllFilters = { ...optionValuesOfAllFilters };
+            newOptionValuesOfAllFilters[optionValue.name][selectedIdx].selected =
+                !newOptionValuesOfAllFilters[optionValue.name][selectedIdx].selected;
+            setOptionValuesOfAllFilters(newOptionValuesOfAllFilters);
+        } else {
+            const newOptionValuesOfAllFilters = { ...optionValuesOfAllFilters };
+            newOptionValuesOfAllFilters[optionValue.name] = optionValuesOfAllFilters[
+                optionValue.name
+            ].map((optionValuesOfOneFilter: IOptionValue, idx: number) => {
+                if (selectedIdx === idx) {
+                    return {
+                        ...optionValuesOfOneFilter,
+                        selected: !optionValuesOfOneFilter.selected,
+                    };
+                }
+                return {
+                    ...optionValuesOfOneFilter,
+                    selected: false,
+                };
+            });
+            setOptionValuesOfAllFilters(newOptionValuesOfAllFilters);
+        }
+    };
+
+    const handleInput = (name: string, value: string) => {
+        const newOptionValuesOfAllFilters = { ...optionValuesOfAllFilters };
+        newOptionValuesOfAllFilters[name] = value;
+        setOptionValuesOfAllFilters(newOptionValuesOfAllFilters);
+    };
+
+    useEffect(() => {
+        const newOptionValuesOfAllFilters = { ...optionValuesOfAllFilters };
+        filterOptions.map((filterOption) => {
+            if (filterOption.defaultOptionValues) {
+                newOptionValuesOfAllFilters[filterOption.name] =
+                    filterOption.defaultOptionValues.map((defaultOptionValue) => {
+                        return {
+                            name: filterOption.name,
+                            label: defaultOptionValue,
+                            multiple: filterOption.multiple,
+                            selected: false,
+                        };
+                    });
+            }
+        });
+        setOptionValuesOfAllFilters(newOptionValuesOfAllFilters);
+    }, []);
+
+    useEffect(() => {
+        console.log(optionValuesOfAllFilters);
+    }, [optionValuesOfAllFilters]);
+
     return (
         <StyledFilterOpenTeacherList>
-            <FilterOption filterOptionName={'최신 등록 순'} Icon={FilterIcon} />
-            {filterOptions.map((filterOption, index) => (
-                <FilterOption
-                    filterOptionName={filterOption.name}
-                    Icon={filterOption.icon}
-                    InputBox={
-                        filterOption.optionValues
-                            ? (children: ReactNode) =>
-                                  SelectOptionBox({
-                                      children,
-                                      optionValues: filterOption.optionValues,
-                                      multiple: filterOption.multiple,
-                                  })
-                            : (children: ReactNode) =>
-                                  InputTextOptionBox({
-                                      children,
-                                      minMax: filterOption.minMax,
-                                      unit: filterOption.unit,
-                                  })
-                    }
-                    key={`filterOptions_${index}`}
-                />
-            ))}
+            {filterOptions.map((filterOption, index) => {
+                return (
+                    <FilterOption
+                        filterOption={filterOption}
+                        InputBox={
+                            index > 0 // 정렬기준 변경불가
+                                ? filterOption.defaultOptionValues
+                                    ? (children: ReactNode) =>
+                                          SelectOptionBox({
+                                              children,
+                                              optionValues:
+                                                  optionValuesOfAllFilters[filterOption.name],
+                                              handleSelectOption,
+                                          })
+                                    : (children: ReactNode) =>
+                                          InputTextOptionBox({
+                                              children,
+                                              name: filterOption.name,
+                                              minMax: filterOption.minMax as string,
+                                              unit: filterOption.unit as string,
+                                              handleInput,
+                                          })
+                                : undefined
+                        }
+                        key={`filterOptions_${index}`}
+                    />
+                );
+            })}
         </StyledFilterOpenTeacherList>
     );
 };
