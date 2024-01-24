@@ -45,5 +45,11 @@ public class MemberController {
         return ResponseEntity.ok().body(memberService.getStudent(memberId));
     }
 
+    @PutMapping("/students")
+    public ResponseEntity<Void> updateStudent(@AuthenticationPrincipal Member user,
+        @RequestBody StudentInfoResponse studentRequest) {
+        memberService.updateStudent(user, studentRequest);
+        return ResponseEntity.noContent().build();
+    }
 
 }

@@ -34,8 +34,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class MemberService {
 
+    private final AuthService authService;
+    private final TokenService tokenService;
+
     private final MemberRepository memberRepository;
     private final StudentRepository studentRepository;
+    private final TeacherRepository teacherRepository;
+    private final TeacherSubjectRepository teacherSubjectRepository;
+    private final SubjectRepository subjectRepository;
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
 
     @Transactional
@@ -65,6 +73,18 @@ public class MemberService {
             .grade(member.getStudent().getGrade())
             .school(member.getStudent().getSchool())
             .build();
+    }
+
+    @Transactional
+    public void updateStudent(Member user, StudentInfoResponse studentRequest) {
+        Member member = findMemberById(user.getId());
+
+        Student student = member.getStudent();
+
+        student.updateStudent(studentRequest.getGrade(), studentRequest.getSchool());
+
+        member.updateStudent(studentRequest.getProfileUrl(),
+            studentRequest.getName(), studentRequest.getPhone());
     }
 
     private Member findMemberById(Long memberId) {
