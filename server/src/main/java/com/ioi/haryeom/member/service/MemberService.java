@@ -149,6 +149,14 @@ public class MemberService {
             .build();
     }
 
+    @Transactional
+    public void deleteMember(Member user, HttpServletResponse response) throws IOException {
+        Member member = findMemberById(user.getId());
+        member.delete();
+        authService.oauthLogout(user.getId(), "KAKAO");
+        tokenService.resetHeader(response);
+    }
+
     private Member findMemberById(Long memberId) {
         return memberRepository.findById(memberId)
             .orElseThrow(() -> new StudentNotFoundException(memberId));

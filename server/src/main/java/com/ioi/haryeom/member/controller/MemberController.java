@@ -65,4 +65,11 @@ public class MemberController {
         return ResponseEntity.ok().body(memberService.getTeacher(memberId));
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> deleteMember(@AuthenticationPrincipal Member user,
+        HttpServletResponse response) throws IOException {
+        memberService.deleteMember(user, response);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
 }
