@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import HomeLayout from '@/components/layouts/HomeLayout';
-import FilterOpenTeacherList from '@/components/FilterOpenTeacherList';
+import FilterOpenTeacherList from '@/components/FilterOpenTeacherList/FilterOpenTeacherList';
 import OpenTeacherList from '@/components/OpenTeacherList';
 
 const FindTeacherContainer = () => {
@@ -34,6 +34,7 @@ const FindTeacherContainerHeader = styled.header`
     flex-direction: column;
     justify-content: end;
     background-color: white;
+    z-index: -1;
 `;
 
 const Title = styled.span`
