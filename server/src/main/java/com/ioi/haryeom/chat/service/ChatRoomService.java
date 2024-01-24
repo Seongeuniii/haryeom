@@ -4,6 +4,7 @@ import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.chat.domain.ChatMessage;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.chat.domain.ChatRoomState;
+import com.ioi.haryeom.chat.dto.ChatMessageResponse;
 import com.ioi.haryeom.chat.dto.ChatRoomResponse;
 import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
 import com.ioi.haryeom.chat.exception.ChatRoomStateNotFoundException;
@@ -28,6 +29,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -90,6 +95,7 @@ public class ChatRoomService {
             .collect(Collectors.toList());
     }
 
+    // 채팅방 나가기
     @Transactional
     public void exitChatRoom(Long memberId, Long chatRoomId) {
         ChatRoom chatRoom = findChatRoomById(chatRoomId);
@@ -103,6 +109,23 @@ public class ChatRoomService {
         chatRoomState.delete();
     }
 
+    // 채팅방 메시지 목록 조회
+    public List<ChatMessageResponse> getChatMessageList(Long chatRoomId, Long lastMessageId, Integer size, Long memberId) {
+
+        ChatRoom chatRoom = findChatRoomById(chatRoomId);
+        Member member = findMemberById(memberId);
+
+        validateMemberInChatRoom(chatRoom, member);
+
+        Pageable pageable = createPageable(size);
+
+        Page<ChatMessage> chatMessagePage = getChatMessages(lastMessageId, chatRoom, pageable);
+
+        return chatMessagePage.getContent()
+            .stream()
+            .map(ChatMessageResponse::from)
+            .collect(Collectors.toList());
+    }
 
     // 채팅방 구성원 과외 조회
     public List<TutoringResponse> getChatRoomMembersTutoringList(Long chatRoomId, Long memberId) {
@@ -152,26 +175,6 @@ public class ChatRoomService {
             .collect(Collectors.toList());
     }
 
-//    private Map<Long, ChatMessage> getLastMessageMap(List<ChatRoomState> chatRoomStates) {
-//        return chatRoomStates.stream()
-//            .map(ChatRoomState::getChatRoom)
-//            .distinct()
-//            .collect(Collectors.toMap(
-//                ChatRoom::getId,
-//                room -> chatMessageRepository.findFirstByChatRoomOrderByCreatedAtDesc(room.getId())
-//            ));
-//    }
-
-//    private List<ChatRoomResponse> createChatRoomResponses(List<ChatRoomState> chatRoomStates,
-//        Map<Long, ChatMessage> lastMessageMap, Long currentMemberId) {
-//        return chatRoomStates.stream()
-//            .map(state -> createChatRoomResponse(state, lastMessageMap, currentMemberId))
-//            .sorted(Comparator.comparing(
-//                ChatRoomResponse::getLastMessageCreatedAt,
-//                Comparator.reverseOrder()))
-//            .collect(Collectors.toList());
-//    }
-
     private ChatRoomResponse createChatRoomResponse(ChatRoomState chatRoomState, Member member) {
         Long lastReadMessageId = chatRoomState.getLastReadMessageId();
         ChatRoom chatRoom = chatRoomState.getChatRoom();
@@ -184,6 +187,19 @@ public class ChatRoomService {
         return ChatRoomResponse.of(chatRoomState, lastChatMessage, oppositeMember, unreadMessageCount);
     }
 
+    private Pageable createPageable(Integer size) {
+        return PageRequest.of(0, size, Sort.by("createdAt").descending());
+    }
+
+    private Page<ChatMessage> getChatMessages(Long lastMessageId, ChatRoom chatRoom, Pageable pageable) {
+        Page<ChatMessage> chatMessagePage;
+        if (lastMessageId == null) {
+            chatMessagePage = chatMessageRepository.findByChatRoom(chatRoom, pageable);
+        } else {
+            chatMessagePage = chatMessageRepository.findByChatRoomAndIdLessThan(chatRoom, lastMessageId, pageable);
+        }
+        return chatMessagePage;
+    }
 
     private Member findMemberById(Long memberId) {
         return memberRepository.findById(memberId)
@@ -205,5 +221,4 @@ public class ChatRoomService {
             throw new AuthorizationException(member.getId());
         }
     }
-
 }
