@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +27,8 @@ public class MatchingTeacherController {
 
     // 선생님 목록 조회
     @GetMapping("")
-    public ResponseEntity<List<TeacherResponse>> getTeacherList(@ModelAttribute MatchingTeacherRequest request,
+    public ResponseEntity<List<TeacherResponse>> getTeacherList(
+        @ModelAttribute @Validated MatchingTeacherRequest request,
         @PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable) {
 
         List<TeacherResponse> response = matchingTeacherService.getTeacherList(request, pageable);

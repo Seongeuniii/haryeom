@@ -33,18 +33,18 @@ public class MatchingTeacherService {
             request.getMinCareer(), request.getMaxSalary(), pageable);
 
         return teachers.stream()
-            .map(TeacherResponse::fromTeacher)
+            .map(TeacherResponse::from)
             .collect(Collectors.toList());
     }
 
 
     public TeacherDetailResponse getTeacher(Long teacherId) {
-        
+
         Teacher teacher = teacherRepository.findById(teacherId)
             .orElseThrow(() -> new TeacherNotFoundException(teacherId));
 
         List<TeacherSubject> teacherSubjects = teacherSubjectRepository.findByTeacherId(teacher.getId());
 
-        return TeacherDetailResponse.fromTeacher(teacher, teacherSubjects);
+        return TeacherDetailResponse.from(teacher, teacherSubjects);
     }
 }
