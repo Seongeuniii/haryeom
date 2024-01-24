@@ -4,9 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public interface VideoInterface {
-    Long getId();
+    Long getVideoId();
     String getTitle();
-    LocalTime getStartTime();
-    LocalTime getEndTime();
+    LocalTime getDuration();
     LocalDate getScheduleDate();
 }
