@@ -76,6 +76,18 @@ INSERT INTO chat_message (id, created_at, updated_at, message_content, chat_room
 -- ChatMessage 19
 INSERT INTO chat_message (id, created_at, updated_at, message_content, chat_room_id, member_id) VALUES (19, '2023-01-05 11:35:00', '2023-01-05 11:35:00', '안녕하세요!', 4, 3); -- 박지영 학생이 김영희 선생님에게 메시지
 
+-- Textbook 테이블 더미 데이터
+INSERT INTO textbook (id, teacher_member_id, subject_id, textbook_name, textbook_url, is_fist_page_cover, total_page, cover_img, is_deleted, created_at, updated_at)
+VALUES
+  (1, 1, 3, '영어단어장', 'https://hjr-bucket.s3.ap-northeast-2.amazonaws.com/%EC%98%81%EC%96%B4_%EB%8B%A8%EC%96%B4%EC%9E%A5.pdf', true, 40, 'https://hjr-bucket.s3.ap-northeast-2.amazonaws.com/testtest_cover.png', false, '2023-01-15 10:00:00', '2023-01-15 10:00:00'),
+  (2, 1, 8, '국어문제지', 'https://hjr-bucket.s3.ap-northeast-2.amazonaws.com/%EA%B5%AD%EC%96%B4%EC%98%81%EC%97%AD_%EB%AC%B8%EC%A0%9C%EC%A7%80.pdf', true, 20, 'https://hjr-bucket.s3.ap-northeast-2.amazonaws.com/hjrimage.jpg', false, '2023-01-16 10:00:00', '2023-01-16 10:00:00');
+
+-- Assignment 테이블 더미 데이터
+INSERT INTO assignment (id, tutoring_id, textbook_id)
+VALUES
+  (1, 1, 1),
+  (2, 2, 2);
+
 -- Homework 테이블 더미 데이터
 INSERT INTO homework (id, textbook_id, tutoring_id, deadline, start_page, end_page, status, is_deleted, created_at, updated_at)
 VALUES

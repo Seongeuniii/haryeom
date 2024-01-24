@@ -8,13 +8,13 @@ public class TextbookResponse {
 
     private Long textbookId;
     private String textbookName;
-    private String textbookURL;
+    private String textbookUrl;
     private Integer totalPage;
 
     public TextbookResponse(Textbook textbook){
         this.textbookId = textbook.getId();
         this.textbookName = textbook.getTextbookName();
-        this.textbookURL = textbook.getTextbookURL();
+        this.textbookUrl = textbook.getTextbookUrl();
         this.totalPage = textbook.getTotalPage();
 
     }

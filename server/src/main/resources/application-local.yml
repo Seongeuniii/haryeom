@@ -19,3 +19,21 @@ spring:
           charSet: UTF-8
         format_sql: true
 #        show_sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+cloud:
+  aws:
+    s3:
+      bucket: hjr-bucket
+    credentials:
+      access-key: AKIA3XBXJOXXC2SZ63GV
+      secret-key: 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
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false

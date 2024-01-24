@@ -31,7 +31,7 @@ public class Textbook extends BaseTimeEntity {
 
     private String textbookName;
 
-    private String textbookURL;
+    private String textbookUrl;
 
     private Boolean firstPageCover;
 
@@ -42,11 +42,11 @@ public class Textbook extends BaseTimeEntity {
     private Boolean isDeleted = false;
 
     @Builder
-    public Textbook(Member teacherMember, String textbookName, String textbookURL,
+    public Textbook(Member teacherMember, String textbookName, String textbookUrl,
         Boolean firstPageCover, Integer totalPage, String coverImg) {
         this.teacherMember = teacherMember;
         this.textbookName = textbookName;
-        this.textbookURL = textbookURL;
+        this.textbookUrl = textbookUrl;
         this.firstPageCover = firstPageCover;
         this.totalPage = totalPage;
         this.coverImg = coverImg;
