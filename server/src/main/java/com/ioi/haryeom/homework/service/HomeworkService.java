@@ -2,19 +2,20 @@ package com.ioi.haryeom.homework.service;
 
 import com.ioi.haryeom.auth.dto.AuthInfo;
 import com.ioi.haryeom.auth.exception.AuthorizationException;
+import com.ioi.haryeom.homework.domain.Drawing;
 import com.ioi.haryeom.homework.domain.Homework;
 import com.ioi.haryeom.homework.domain.HomeworkStatus;
-import com.ioi.haryeom.homework.dto.HomeworkListResponse;
-import com.ioi.haryeom.homework.dto.HomeworkRequest;
-import com.ioi.haryeom.homework.dto.HomeworkResponse;
+import com.ioi.haryeom.homework.dto.*;
 import com.ioi.haryeom.homework.exception.HomeworkNotFoundException;
 import com.ioi.haryeom.homework.exception.HomeworkStatusException;
 import com.ioi.haryeom.homework.exception.InvalidDeadlineException;
 import com.ioi.haryeom.homework.exception.InvalidPageRangeException;
+import com.ioi.haryeom.homework.repository.DrawingRepository;
 import com.ioi.haryeom.homework.repository.HomeworkRepository;
 import com.ioi.haryeom.member.domain.type.Role;
 import com.ioi.haryeom.member.exception.NoTeacherException;
 import com.ioi.haryeom.textbook.domain.Textbook;
+import com.ioi.haryeom.textbook.dto.TextbookResponse;
 import com.ioi.haryeom.textbook.exception.TextNotFoundException;
 import com.ioi.haryeom.textbook.repository.TextbookRepository;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
@@ -38,7 +39,7 @@ public class HomeworkService {
 
     private final HomeworkRepository homeworkRepository;
     private final TextbookRepository textbookRepository;
-
+    private final DrawingRepository drawingRepository;
     private final TutoringRepository tutoringRepository;
 
     public HomeworkListResponse getHomeworkList(Long tutoringId, Pageable pageable) {
@@ -131,6 +132,49 @@ public class HomeworkService {
             HomeworkStatus.COMPLETED);
 
         return (int) Math.round(((double) completedHomeworkCount / totalHomeworkCount) * 100);
+    }
+
+    //// 학생 숙제
+
+    public HomeworkNewLoadResponse getNewHomework(Long homeworkId, AuthInfo authInfo) {
+        Homework homework = homeworkRepository.findById(homeworkId)
+                .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
+
+        Textbook textbook = homework.getTextbook();
+        TextbookResponse textbookInfo = new TextbookResponse(textbook);
+
+        return new HomeworkNewLoadResponse(homework, textbookInfo);
+    }
+
+    public HomeworkOngoingLoadResponse getOngoingHomework(Long homeworkId, AuthInfo authInfo) {
+        Homework homework = homeworkRepository.findById(homeworkId)
+                .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
+
+        Textbook textbook = homework.getTextbook();
+        TextbookResponse textbookInfo = new TextbookResponse(textbook);
+
+        List<Drawing> drawings =  drawingRepository.findAllByHomework(homework);
+        List<StudentDrawingResponse> drawingResponses = drawings.stream()
+                .map(StudentDrawingResponse::new)
+                .collect(Collectors.toList());
+
+        return new HomeworkOngoingLoadResponse(homework, textbookInfo, drawingResponses);
+
+    }
+
+    public HomeworkReviewResponse getReviewHomework(Long homeworkId, AuthInfo authInfo) {
+        Homework homework = homeworkRepository.findById(homeworkId)
+                .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
+
+        Textbook textbook = homework.getTextbook();
+        TextbookResponse textbookInfo = new TextbookResponse(textbook);
+
+        List<Drawing> drawings = drawingRepository.findAllByHomework(homework);
+        List<TeacherDrawingResponse> drawingResponses = drawings.stream()
+                .map(TeacherDrawingResponse::new)
+                .collect(Collectors.toList());
+
+        return new HomeworkReviewResponse(homework, textbookInfo, drawingResponses);
     }
 
     //TODO: 회원쪽에서 구현해야함
