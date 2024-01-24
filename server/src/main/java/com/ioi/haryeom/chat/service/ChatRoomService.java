@@ -50,6 +50,7 @@ public class ChatRoomService {
     public Long createChatRoom(Long teacherId, Long memberId) {
 
         Teacher teacher = findTeacherById(teacherId);
+        Member teacherMember = teacher.getMember();
 
         Member studentMember = findMemberById(memberId);
 
@@ -58,7 +59,21 @@ public class ChatRoomService {
             .studentMember(studentMember)
             .build();
 
-        return chatRoomRepository.save(chatRoom).getId();
+        ChatRoomState studentChatRoomState = ChatRoomState.builder()
+            .chatRoom(chatRoom)
+            .member(studentMember)
+            .build();
+
+        ChatRoomState teacherChatRoomState = ChatRoomState.builder()
+            .chatRoom(chatRoom)
+            .member(teacherMember)
+            .build();
+
+        ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
+        chatRoomStateRepository.save(studentChatRoomState);
+        chatRoomStateRepository.save(teacherChatRoomState);
+
+        return savedChatRoom.getId();
     }
 
 

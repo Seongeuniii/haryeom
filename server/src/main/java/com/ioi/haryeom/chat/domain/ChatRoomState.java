@@ -31,18 +31,15 @@ public class ChatRoomState {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private Long lastReadMessageId;
+    private Long lastReadMessageId = 0L;
 
     @Column(columnDefinition = "TINYINT(1)")
     private Boolean isDeleted = false;
 
     @Builder
-    public ChatRoomState(Long id, ChatRoom chatRoom, Member member, Long lastReadMessageId, Boolean isDeleted) {
-        this.id = id;
+    public ChatRoomState(ChatRoom chatRoom, Member member) {
         this.chatRoom = chatRoom;
         this.member = member;
-        this.lastReadMessageId = lastReadMessageId;
-        this.isDeleted = isDeleted;
     }
 
     public void delete() {
