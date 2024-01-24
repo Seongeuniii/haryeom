@@ -41,8 +41,8 @@ public class ChatRoom extends BaseTimeEntity {
         this.studentMember = studentMember;
     }
 
-    public Member getOppositeMember(Long currentMemberId) {
-        if (teacherMember.getId().equals(currentMemberId)) {
+    public Member getOppositeMember(Member member) {
+        if (teacherMember.equals(member)) {
             return studentMember;
         } else {
             return teacherMember;

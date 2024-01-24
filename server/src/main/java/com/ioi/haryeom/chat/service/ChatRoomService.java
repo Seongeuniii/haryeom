@@ -23,9 +23,7 @@ import com.ioi.haryeom.tutoring.domain.Tutoring;
 import com.ioi.haryeom.tutoring.domain.TutoringStatus;
 import com.ioi.haryeom.tutoring.dto.TutoringResponse;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -64,18 +62,17 @@ public class ChatRoomService {
     }
 
 
-    //TODO: 안읽은 메시지 수 구현해야함
-    // 채팅방 목록
+    // 채팅방 목록 조회
     public List<ChatRoomResponse> getChatRoomList(Long memberId) {
-        // 회원의 채팅방 상태 리스트 조회
-        List<ChatRoomState> chatRoomStates = chatRoomStateRepository.findAllByMemberId(memberId);
+
+        Member member = findMemberById(memberId);
+        List<ChatRoomState> chatRoomStates = chatRoomStateRepository.findAllByMemberAndIsDeletedIsFalse(member);
 
         log.info("[GET CHATROOM LIST] chatRoomStates size : {} ", chatRoomStates.size());
 
-        // 각 채팅방의 마지막 메시지 조회
-        Map<Long, ChatMessage> lastMessageMap = getLastMessageMap(chatRoomStates);
-
-        return createChatRoomResponses(chatRoomStates, lastMessageMap, memberId);
+        return chatRoomStates.stream()
+            .map(chatRoomState -> createChatRoomResponse(chatRoomState, member))
+            .collect(Collectors.toList());
     }
 
     @Transactional
@@ -140,37 +137,38 @@ public class ChatRoomService {
             .collect(Collectors.toList());
     }
 
-    private Map<Long, ChatMessage> getLastMessageMap(List<ChatRoomState> chatRoomStates) {
-        return chatRoomStates.stream()
-            .map(ChatRoomState::getChatRoom)
-            .distinct()
-            .collect(Collectors.toMap(
-                ChatRoom::getId,
-                room -> chatMessageRepository.findFirstByChatRoomIdOrderByCreatedAtDesc(room.getId())
-            ));
-    }
+//    private Map<Long, ChatMessage> getLastMessageMap(List<ChatRoomState> chatRoomStates) {
+//        return chatRoomStates.stream()
+//            .map(ChatRoomState::getChatRoom)
+//            .distinct()
+//            .collect(Collectors.toMap(
+//                ChatRoom::getId,
+//                room -> chatMessageRepository.findFirstByChatRoomOrderByCreatedAtDesc(room.getId())
+//            ));
+//    }
 
-    private List<ChatRoomResponse> createChatRoomResponses(List<ChatRoomState> chatRoomStates,
-        Map<Long, ChatMessage> lastMessageMap, Long currentMemberId) {
-        return chatRoomStates.stream()
-            .map(state -> createChatRoomResponse(state, lastMessageMap, currentMemberId))
-            .sorted(Comparator.comparing(
-                ChatRoomResponse::getLastMessageCreatedAt,
-                Comparator.reverseOrder()))
-            .collect(Collectors.toList());
-    }
+//    private List<ChatRoomResponse> createChatRoomResponses(List<ChatRoomState> chatRoomStates,
+//        Map<Long, ChatMessage> lastMessageMap, Long currentMemberId) {
+//        return chatRoomStates.stream()
+//            .map(state -> createChatRoomResponse(state, lastMessageMap, currentMemberId))
+//            .sorted(Comparator.comparing(
+//                ChatRoomResponse::getLastMessageCreatedAt,
+//                Comparator.reverseOrder()))
+//            .collect(Collectors.toList());
+//    }
 
-    private ChatRoomResponse createChatRoomResponse(ChatRoomState chatRoomState, Map<Long, ChatMessage> lastMessageMap,
-        Long currentMemberId) {
-
+    private ChatRoomResponse createChatRoomResponse(ChatRoomState chatRoomState, Member member) {
+        Long lastReadMessageId = chatRoomState.getLastReadMessageId();
         ChatRoom chatRoom = chatRoomState.getChatRoom();
-        ChatMessage lastChatMessage = lastMessageMap.getOrDefault(chatRoom.getId(), null);
 
-        // 현재 사용자와 상대방을 구분
-        Member oppositeMember = chatRoom.getOppositeMember(currentMemberId);
+        ChatMessage lastChatMessage = chatMessageRepository.findFirstByChatRoomOrderByCreatedAtDesc(chatRoom);
+        Integer unreadMessageCount = chatMessageRepository.countAllByChatRoomAndIdGreaterThan(chatRoom,
+            lastReadMessageId);
+        Member oppositeMember = chatRoom.getOppositeMember(member);
 
-        return ChatRoomResponse.of(chatRoomState, lastChatMessage, oppositeMember);
+        return ChatRoomResponse.of(chatRoomState, lastChatMessage, oppositeMember, unreadMessageCount);
     }
+
 
     private Member findMemberById(Long memberId) {
         return memberRepository.findById(memberId)

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ChatRoomStateRepository extends JpaRepository<ChatRoomState, Long> {
 
-    List<ChatRoomState> findAllByMemberId(Long memberId);
+    List<ChatRoomState> findAllByMemberAndIsDeletedIsFalse(Member member);
 
     Optional<ChatRoomState> findByChatRoomAndMemberAndIsDeletedIsFalse(ChatRoom chatRoom, Member member);
 }
