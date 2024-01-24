@@ -104,9 +104,9 @@ public class MemberService {
 
         member.createTeacher(teacher, Role.TEACHER, teacherRequest.getProfileUrl(),
             teacherRequest.getName(), teacherRequest.getPhone());
+        teacherRepository.save(teacher);
 
         List<SubjectResponse> subjects = teacherRequest.getSubjects();
-
         for (SubjectResponse subjectResponse : subjects) {
 
             TeacherSubject teacherSubject = TeacherSubject.builder()
@@ -121,7 +121,6 @@ public class MemberService {
             teacherSubjectRepository.save(teacherSubject);
         }
 
-        teacherRepository.save(teacher);
 
         return member.getId();
     }

@@ -15,6 +15,10 @@ public interface TutoringRepository extends JpaRepository<Tutoring, Long> {
 
     List<Tutoring> findAllByTeacherId(Long teacherMemberId);
 
+    List<Tutoring> findAllByTeacherIdAndStatus(Long teacherMemberId, TutoringStatus status);
+
+    List<Tutoring> findAllByStudentIdAndStatus(Long studentMemberId, TutoringStatus status);
+
     List<Tutoring> findAllByChatRoomAndStatus(ChatRoom chatRoom, TutoringStatus status);
 
 
