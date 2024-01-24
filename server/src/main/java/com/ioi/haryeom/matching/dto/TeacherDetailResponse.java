@@ -12,15 +12,15 @@ import lombok.Getter;
 @Getter
 public class TeacherDetailResponse {
 
-    private Long teacherId;
-    private String profileUrl;
-    private String name;
-    private String college;
-    private Integer career;
-    private Gender gender;
-    private Integer salary;
-    private List<SubjectResponse> subjects;
-    private String introduce;
+    private final Long teacherId;
+    private final String profileUrl;
+    private final String name;
+    private final String college;
+    private final Integer career;
+    private final Gender gender;
+    private final Integer salary;
+    private final List<SubjectResponse> subjects;
+    private final String introduce;
 
     public TeacherDetailResponse(Long teacherId, String profileUrl, String name, String college, Integer career,
         Gender gender, Integer salary, List<SubjectResponse> subjects, String introduce) {
@@ -35,7 +35,7 @@ public class TeacherDetailResponse {
         this.introduce = introduce;
     }
 
-    public static TeacherDetailResponse fromTeacher(Teacher teacher, List<TeacherSubject> teacherSubjects) {
+    public static TeacherDetailResponse from(Teacher teacher, List<TeacherSubject> teacherSubjects) {
         List<SubjectResponse> subjects = teacherSubjects.stream()
             .map(ts -> new SubjectResponse(ts.getSubject()))
             .collect(Collectors.toList());

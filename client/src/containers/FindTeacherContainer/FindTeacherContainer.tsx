@@ -23,14 +23,13 @@ const StyledFindTeacherContainer = styled.div`
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 0 0.7em 0 0.7em;
 `;
 
 const FindTeacherContainerHeader = styled.header`
     position: fixed;
-    width: 100%;
+    width: 100vw;
     height: 8.3em;
-    padding-bottom: 1em;
+    padding: 1em;
     display: flex;
     flex-direction: column;
     justify-content: end;

@@ -34,17 +34,14 @@ public class HomeworkController {
 
     // 과외 숙제 리스트 조회
     @GetMapping("/{tutoringId}/homework")
-    public ResponseEntity<HomeworkListResponse> getHomeworkList(@PathVariable Long tutoringId,
-        @PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable) {
-
+    public ResponseEntity<HomeworkListResponse> getHomeworkList(@PathVariable Long tutoringId, @PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable) {
         HomeworkListResponse homeworkList = homeworkService.getHomeworkList(tutoringId, pageable);
         return ResponseEntity.ok(homeworkList);
     }
 
     // 과외 숙제 등록
     @PostMapping("/{tutoringId}/homework")
-    public ResponseEntity<Void> createHomework(@PathVariable Long tutoringId,
-        @RequestBody @Validated HomeworkRequest request) {
+    public ResponseEntity<Void> createHomework(@PathVariable Long tutoringId, @RequestBody @Validated HomeworkRequest request) {
 
         Long homeworkId = homeworkService.createHomework(tutoringId, request, authInfo);
         return ResponseEntity.created(URI.create("/homework/" + homeworkId)).build();
@@ -52,8 +49,7 @@ public class HomeworkController {
 
     // 과외 숙제 상세 조회
     @GetMapping("/{tutoringId}/homework/{homeworkId}")
-    public ResponseEntity<HomeworkResponse> getHomework(@PathVariable Long tutoringId,
-        @PathVariable Long homeworkId) {
+    public ResponseEntity<HomeworkResponse> getHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId) {
 
         HomeworkResponse response = homeworkService.getHomework(tutoringId, homeworkId);
         return ResponseEntity.ok(response);
@@ -61,8 +57,7 @@ public class HomeworkController {
 
     // 과외 숙제 수정
     @PutMapping("/{tutoringId}/homework/{homeworkId}")
-    public ResponseEntity<Void> updateHomework(@PathVariable Long tutoringId,
-        @PathVariable Long homeworkId, @RequestBody HomeworkRequest request) {
+    public ResponseEntity<Void> updateHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId, @RequestBody HomeworkRequest request) {
 
         homeworkService.updateHomework(tutoringId, homeworkId, request, authInfo);
         return ResponseEntity.noContent().build();
@@ -70,8 +65,7 @@ public class HomeworkController {
 
     // 과외 숙제 삭제
     @DeleteMapping("/{tutoringId}/homework/{homeworkId}")
-    public ResponseEntity<Void> deleteHomework(@PathVariable Long tutoringId,
-        @PathVariable Long homeworkId) {
+    public ResponseEntity<Void> deleteHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId) {
 
         homeworkService.deleteHomework(tutoringId, homeworkId, authInfo);
         return ResponseEntity.noContent().build();

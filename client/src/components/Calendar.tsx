@@ -62,7 +62,7 @@ const CalendarContainer = styled.div`
             border-radius: 100%;
         }
         .react-calendar__tile {
-            height: 3.3em;
+            height: 3.1em;
         }
 
         .react-calendar__tile--now {

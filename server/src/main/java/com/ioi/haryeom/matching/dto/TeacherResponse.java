@@ -31,7 +31,7 @@ public class TeacherResponse {
         this.subjects = subjects;
     }
 
-    public static TeacherResponse fromTeacher(Teacher teacher) {
+    public static TeacherResponse from(Teacher teacher) {
         List<SubjectResponse> subjects = teacher.getTeacherSubjects().stream()
             .map(ts -> new SubjectResponse(ts.getSubject()))
             .collect(Collectors.toList());

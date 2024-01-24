@@ -18,3 +18,4 @@ spring:
         connection:
           charSet: UTF-8
         format_sql: true
+#        show_sql: true

@@ -21,6 +21,111 @@ interface ScheduleContainerProps {
     homeworkList: IHomework[];
 }
 
+const testTutoringSchedules: ITutoringSchedules = [
+    {
+        scheduleDate: '2024-01-22',
+        scheduleCount: 2,
+        schedules: [
+            {
+                tutoringScheduleId: 1,
+                tutoringId: 1,
+                teacherMemberId: 1,
+                subject: {
+                    subjectId: 1,
+                    name: '과목명1',
+                },
+                startTime: '18:30',
+                duration: 120,
+                title: '커리큘럼명1',
+            },
+            {
+                tutoringScheduleId: 2,
+                tutoringId: 2,
+                teacherMemberId: 2,
+                subject: {
+                    subjectId: 2,
+                    name: '과목명2',
+                },
+                startTime: '20:30',
+                duration: 90,
+                title: '커리큘럼명2',
+            },
+        ],
+    },
+    {
+        scheduleDate: '2024-01-23',
+        scheduleCount: 1,
+        schedules: [
+            {
+                tutoringScheduleId: 3,
+                tutoringId: 1,
+                teacherMemberId: 1,
+                subject: {
+                    subjectId: 1,
+                    name: '과목명1',
+                },
+                startTime: '18:30',
+                duration: 120,
+                title: '커리큘럼명3',
+            },
+        ],
+    },
+    {
+        scheduleDate: '2024-01-28',
+        scheduleCount: 1,
+        schedules: [
+            {
+                tutoringScheduleId: 3,
+                tutoringId: 1,
+                teacherMemberId: 1,
+                subject: {
+                    subjectId: 1,
+                    name: '과목명1',
+                },
+                startTime: '18:30',
+                duration: 120,
+                title: '커리큘럼명3',
+            },
+        ],
+    },
+    {
+        scheduleDate: '2024-01-29',
+        scheduleCount: 1,
+        schedules: [
+            {
+                tutoringScheduleId: 3,
+                tutoringId: 1,
+                teacherMemberId: 1,
+                subject: {
+                    subjectId: 1,
+                    name: '과목명1',
+                },
+                startTime: '18:30',
+                duration: 120,
+                title: '커리큘럼명3',
+            },
+        ],
+    },
+    {
+        scheduleDate: '2024-01-30',
+        scheduleCount: 1,
+        schedules: [
+            {
+                tutoringScheduleId: 3,
+                tutoringId: 1,
+                teacherMemberId: 1,
+                subject: {
+                    subjectId: 1,
+                    name: '과목명1',
+                },
+                startTime: '18:30',
+                duration: 120,
+                title: '커리큘럼명3',
+            },
+        ],
+    },
+];
+
 const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const { userRole = 'teacher', tutoringSchedules, homeworkList } = pageProps;
 
@@ -29,7 +134,7 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
             return (
                 <HomeLayout>
                     <StyledScheduleContainer>
-                        <ClassSchedule tutoringSchedules={tutoringSchedules} />
+                        <ClassSchedule tutoringSchedules={testTutoringSchedules} />
                         <SelectedTSContainer homeworkList={homeworkList} />
                     </StyledScheduleContainer>
                 </HomeLayout>

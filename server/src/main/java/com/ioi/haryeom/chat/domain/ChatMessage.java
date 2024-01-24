@@ -17,36 +17,26 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class ChatRoom extends BaseTimeEntity {
+public class ChatMessage extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "teacher_member_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private Member teacherMember;
+    @JoinColumn(name = "chat_room_id")
+    private ChatRoom chatRoom;
 
-    @JoinColumn(name = "student_member_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private Member studentMember;
+    @JoinColumn(name = "member_id")
+    private Member senderMember;
 
+    private String messageContent;
 
     @Builder
-    public ChatRoom(Member teacherMember, Member studentMember) {
-        this.teacherMember = teacherMember;
-        this.studentMember = studentMember;
-    }
-
-    public Member getOppositeMember(Long currentMemberId) {
-        if (teacherMember.getId().equals(currentMemberId)) {
-            return studentMember;
-        } else {
-            return teacherMember;
-        }
-    }
-
-    public boolean isMemberPartOfChatRoom(Member member) {
-        return (teacherMember.equals(member) || studentMember.equals(member));
+    public ChatMessage(ChatRoom chatRoom, Member senderMember, String messageContent) {
+        this.chatRoom = chatRoom;
+        this.senderMember = senderMember;
+        this.messageContent = messageContent;
     }
 }

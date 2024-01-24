@@ -30,19 +30,19 @@ public class ChatRoomState {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private Integer unreadCount;
+    private Integer unreadMessageCount;
 
     private Long lastReadMessageId;
 
     private Boolean isDeleted;
 
     @Builder
-    public ChatRoomState(Long id, ChatRoom chatRoom, Member member, Integer unreadCount,
+    public ChatRoomState(Long id, ChatRoom chatRoom, Member member, Integer unreadMessageCount,
         Long lastReadMessageId, Boolean isDeleted) {
         this.id = id;
         this.chatRoom = chatRoom;
         this.member = member;
-        this.unreadCount = unreadCount;
+        this.unreadMessageCount = unreadMessageCount;
         this.lastReadMessageId = lastReadMessageId;
         this.isDeleted = isDeleted;
     }

@@ -35,7 +35,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> unexpectedRException(RuntimeException e) {
-        log.error("{} error message >> {} ", e.getClass().getSimpleName(), e.getMessage());
+        log.error("{} error message >> {} \n", e.getClass().getSimpleName(), e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(new ErrorResponse(e.getMessage()));
     }
