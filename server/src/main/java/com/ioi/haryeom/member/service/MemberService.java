@@ -87,8 +87,48 @@ public class MemberService {
             studentRequest.getName(), studentRequest.getPhone());
     }
 
+    @Transactional
+    public Long createTeacher(Member user, TeacherCreateRequest teacherRequest) {
+        Member member = findMemberById(user.getId());
+
+        Teacher teacher = Teacher.builder()
+            .member(member)
+            .profileStatus(teacherRequest.getProfileStatus())
+            .college(teacherRequest.getCollege())
+            .collegeEmail(teacherRequest.getCollegeEmail())
+            .gender(teacherRequest.getGender())
+            .salary(teacherRequest.getSalary())
+            .career(teacherRequest.getCareer())
+            .introduce(teacherRequest.getIntroduce())
+            .build();
+
+        member.createTeacher(teacher, Role.TEACHER, teacherRequest.getProfileUrl(),
+            teacherRequest.getName(), teacherRequest.getPhone());
+
+        List<SubjectResponse> subjects = teacherRequest.getSubjects();
+
+        for (SubjectResponse subjectResponse : subjects) {
+
+            TeacherSubject teacherSubject = TeacherSubject.builder()
+                .teacher(teacher)
+                .subject(
+                    subjectRepository.findById(subjectResponse.getSubjectId()).orElseThrow(
+                        () -> new SubjectNotFoundException(subjectResponse.getSubjectId())
+                    )
+                )
+                .build();
+
+            teacherSubjectRepository.save(teacherSubject);
+        }
+
+        teacherRepository.save(teacher);
+
+        return member.getId();
+    }
+
     private Member findMemberById(Long memberId) {
         return memberRepository.findById(memberId)
             .orElseThrow(() -> new StudentNotFoundException(memberId));
     }
+
 }

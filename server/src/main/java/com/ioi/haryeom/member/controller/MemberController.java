@@ -52,4 +52,12 @@ public class MemberController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/teachers")
+    public ResponseEntity<Void> createTeacher(@AuthenticationPrincipal Member user,
+        @RequestBody TeacherCreateRequest teacherRequest) {
+
+        Long memberId = memberService.createTeacher(user, teacherRequest);
+        return ResponseEntity.created(URI.create("/members/teachers/" + memberId)).build();
+    }
+
 }
