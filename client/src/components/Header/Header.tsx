@@ -51,7 +51,7 @@ const Header = () => {
                         </Link>
                     ))}
                 </Nav>
-                <User onClick={!open ? openDropdown : closeDropdown}>
+                <User onClick={!open ? openDropdown : undefined}>
                     <span>김성은</span>
                     <Dropdown open={open} closeDropdown={closeDropdown}>
                         <UserControlBox>

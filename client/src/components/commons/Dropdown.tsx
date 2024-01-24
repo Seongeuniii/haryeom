@@ -1,7 +1,12 @@
 import { ReactNode } from 'react';
 import styled from 'styled-components';
 
-interface DropdownnProps {
+interface StyledProps {
+    top?: string;
+    left?: string;
+}
+
+interface DropdownnProps extends StyledProps {
     children: ReactNode;
     open: boolean;
     closeDropdown: () => void;
@@ -11,21 +16,22 @@ const Dropdown = ({ children, ...props }: DropdownnProps) => {
     const { open, closeDropdown } = props;
 
     return (
-        <StyledDropDown>
-            <DropdownWrapper open={open}>{children}</DropdownWrapper>
+        <StyledDropDown open={open}>
+            <DropdownWrapper {...props}>{children}</DropdownWrapper>
             <DropdownBackground open={open} onClick={closeDropdown} />
         </StyledDropDown>
     );
 };
 
-const StyledDropDown = styled.div``;
-
-const DropdownWrapper = styled.div<{ open: boolean }>`
+const StyledDropDown = styled.div<{ open: boolean }>`
     ${({ open }) => !open && `display:none;`}
+`;
+
+const DropdownWrapper = styled.div<StyledProps>`
     position: absolute;
-    top: 2em;
-    left: 50%;
-    transform: translate(-50%, 0);
+    top: ${({ top }) => (top ? top : '2em')};
+    left: ${({ left }) => (left ? left : '50%')};
+    ${({ left }) => !left && 'transform: translate(-50%, 0)'};
     width: min-content;
     height: min-content;
     z-index: 100;
