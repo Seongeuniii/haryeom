@@ -4,7 +4,6 @@ import com.ioi.haryeom.common.domain.BaseTimeEntity;
 import com.ioi.haryeom.tutoring.domain.TutoringSchedule;
 import java.time.LocalTime;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -16,13 +15,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters.LocalTimeConverter;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@ToString
 public class Video extends BaseTimeEntity {
 
     @Id
@@ -31,25 +27,21 @@ public class Video extends BaseTimeEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tutoring_schedule_id")
-    private TutoringSchedule tutoringSchedule; // 과외 일정과 1:1 mapping
+    private TutoringSchedule tutoringSchedule;
 
-    @Column(length = 2048, name="video_url")
-    private String videoURL;
+    @Column(length = 2048)
+    private String videoUrl;
 
-
-//    @Convert(converter = LocalTimeConverter.class)
     private LocalTime startTime;
 
-
-//    @Convert(converter = LocalTimeConverter.class)
     private LocalTime endTime;
 
     @Builder
-    public Video(TutoringSchedule tutoringSchedule, LocalTime startTime, String videoURL,
+    public Video(TutoringSchedule tutoringSchedule, LocalTime startTime, String videoUrl,
         LocalTime endTime) {
         this.tutoringSchedule = tutoringSchedule;
         this.startTime = startTime;
-        this.videoURL = videoURL;
+        this.videoUrl = videoUrl;
         this.endTime = endTime;
     }
 
@@ -58,6 +50,6 @@ public class Video extends BaseTimeEntity {
     }
 
     public void updateVideoURL(String videoURL) {
-        this.videoURL = videoURL;
+        this.videoUrl = videoURL;
     }
 }
