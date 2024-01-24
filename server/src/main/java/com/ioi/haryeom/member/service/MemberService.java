@@ -126,9 +126,40 @@ public class MemberService {
         return member.getId();
     }
 
+    public TeacherInfoResponse getTeacher(Long memberId) {
+        Member member = findMemberById(memberId);
+
+        List<SubjectResponse> list = findSubjectsById(memberId);
+        for (SubjectResponse sub : list) {
+            log.info("ID : " + sub.getSubjectId() + " 과목명 : " + sub.getName());
+        }
+
+        return TeacherInfoResponse.builder()
+            .profileUrl(member.getProfileUrl())
+            .name(member.getName())
+            .phone(member.getPhone())
+            .profileStatus(member.getTeacher().getProfileStatus())
+            .college(member.getTeacher().getCollege())
+            .collegeEmail(member.getTeacher().getCollegeEmail())
+            .gender(member.getTeacher().getGender())
+            .salary(member.getTeacher().getSalary())
+            .career(member.getTeacher().getCareer())
+            .subjects(findSubjectsById(memberId))
+            .introduce(member.getTeacher().getIntroduce())
+            .build();
+    }
+
     private Member findMemberById(Long memberId) {
         return memberRepository.findById(memberId)
             .orElseThrow(() -> new StudentNotFoundException(memberId));
     }
 
+    private List<SubjectResponse> findSubjectsById(Long teacherId) {
+        return teacherSubjectRepository
+            .findByTeacherId(teacherId)
+            .stream()
+            .map(TeacherSubject::getSubject)
+            .map(SubjectResponse::from)
+            .collect(Collectors.toList());
+    }
 }

@@ -60,4 +60,9 @@ public class MemberController {
         return ResponseEntity.created(URI.create("/members/teachers/" + memberId)).build();
     }
 
+    @GetMapping("/teachers/{memberId}")
+    public ResponseEntity<TeacherInfoResponse> getTeacher(@PathVariable("memberId") Long memberId) {
+        return ResponseEntity.ok().body(memberService.getTeacher(memberId));
+    }
+
 }
