@@ -2,7 +2,7 @@ package com.ioi.haryeom.video.controller;
 
 import com.ioi.haryeom.homework.dto.HomeworkResponse;
 import com.ioi.haryeom.video.dto.VideoDetailInterface;
-import com.ioi.haryeom.video.dto.VideoListResponseDto;
+import com.ioi.haryeom.video.dto.VideoInterface;
 import com.ioi.haryeom.video.service.ReviewService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class ReviewController {
 
     // 과목별 비디오 리스트 찾기
     @GetMapping("/video/{subjectId}")
-    public ResponseEntity<List<VideoListResponseDto>> getVideoListBySubject(@PathVariable Integer subjectId){
+    public ResponseEntity<List<VideoInterface>> getVideoListBySubject(@PathVariable Integer subjectId){
         return ResponseEntity.ok(reviewService.getVideoListBySubject(subjectId));
     }
 
