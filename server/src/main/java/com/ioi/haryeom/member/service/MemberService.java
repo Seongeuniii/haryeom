@@ -150,6 +150,11 @@ public class MemberService {
     }
 
     @Transactional
+    public void updateTeacher(Member user, TeacherInfoResponse teacherRequest) {
+        Member member = findMemberById(user.getId());
+    }
+
+    @Transactional
     public void deleteMember(Member user, HttpServletResponse response) throws IOException {
         Member member = findMemberById(user.getId());
         member.delete();

@@ -72,4 +72,16 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @GetMapping("/students/mypage")
+    public ResponseEntity<StudentInfoResponse> getMyStudent(
+        @AuthenticationPrincipal Member member) {
+        return ResponseEntity.ok().body(memberService.getStudent(member.getId()));
+    }
+
+    @GetMapping("/teachers/mypage")
+    public ResponseEntity<TeacherInfoResponse> getMyTeacher(
+        @AuthenticationPrincipal Member member) {
+        return ResponseEntity.ok().body(memberService.getTeacher(member.getId()));
+    }
+
 }
