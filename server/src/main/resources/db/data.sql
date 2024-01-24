@@ -11,6 +11,7 @@ VALUES (1, '2023-01-05 10:00:00', '2023-01-05 10:00:00', 5, '서울대학교', '
 INSERT INTO teacher (id, created_at, updated_at, career, college, college_email, gender, introduce, major, profile_status, salary, member_id)
 VALUES (4, '2023-01-05 10:00:00', '2023-01-05 10:00:00', 10, '연세대학교', 'teacher4@koreauniv.com', 'FEMALE', '경력 있는 선생님', '수학', true, 60000, 4);
 
+
 -- Subject 테이블 더미 데이터
 INSERT INTO subject (id, name) VALUES (1, '수학');
 INSERT INTO subject (id, name) VALUES (2, '과학');
@@ -26,11 +27,6 @@ INSERT INTO teacher_subject (subject_id, teacher_id) VALUES (1, 1); -- 김영희
 INSERT INTO teacher_subject (subject_id, teacher_id) VALUES (2, 1); -- 김영희 선생님과 과학을 가르칩니다.
 INSERT INTO teacher_subject (subject_id, teacher_id) VALUES (2, 4); -- 정태우 선생님과 과학을 가르칩니다.
 
--- ChatRoom 테이블 더미 데이터
-INSERT INTO chat_room (id, created_at, updated_at, student_member_id, teacher_member_id) VALUES (1, '2023-01-05 10:00:00', '2023-01-05 10:00:00', 2, 1); -- 이철수 학생과 김영희 선생님의 채팅방
-INSERT INTO chat_room (id, created_at, updated_at, student_member_id, teacher_member_id) VALUES (2, '2023-01-05 10:00:00', '2023-01-05 10:00:00', 3, 4); -- 박지영 학생과 정태우 선생님의 채팅방
-INSERT INTO chat_room (id, created_at, updated_at, student_member_id, teacher_member_id) VALUES (3, '2023-01-05 10:00:00', '2023-01-05 10:00:00', 5, 1); -- 송미영 학생과 김영희 선생님의 채팅방
-INSERT INTO chat_room (id, created_at, updated_at, student_member_id, teacher_member_id) VALUES (4, '2023-01-05 10:00:00', '2023-01-05 10:00:00', 3, 1); -- 박지영 학생과 김영희 선생님의 또 다른 채팅방
 
 -- Tutoring 테이블 더미 데이터
 -- Tutoring 세션 1
@@ -97,23 +93,22 @@ VALUES
 
 -- TutoringSchedule 테이블 더미 데이터
 INSERT INTO tutoring_schedule(id, tutoring_id, schedule_date, start_time, duration, title, created_at, updated_at)
-VALUES (1, 1, DATE '2024-01-22', TIME '18:00:00',2, '수열의 극한', DATEADD('SECOND', 10, CURRENT_TIMESTAMP()), DATEADD('SECOND', 20, CURRENT_TIMESTAMP())),
-       (2, 1, DATE '2024-01-26', TIME '17:00:00',2,'손흥민 축구교실',DATEADD('SECOND', 10, CURRENT_TIMESTAMP()), DATEADD('SECOND', 20, CURRENT_TIMESTAMP()));
-
+VALUES (1, 1, '2024-01-10', '18:00:00',2, '수열의 극한 1 - 수열의 수렴과 발산', '2024-01-08 12:34:56', '2024-01-08 12:34:56'),
+       (2, 1, '2024-01-20', '17:00:00',2,'수열의 극한 2 - 급수', '2024-01-15 11:05:36', '2024-01-15 11:30:00'),
+       (3, 1, '2024-02-01', '10:00:00',2,'지수함수와 로그함수의 극한', '2024-01-24 05:03:21', '2024-01-24 05:03:21');
 
 -- Video 테이블 더미 데이터
 INSERT INTO video(id, tutoring_schedule_id, video_url, start_time, end_time, created_at, updated_at)
-VALUES (1, 1, 'dummy-url1/limitofsequence','17:59:03', '20:00:18', NOW(), NOW()),
-       (2, 2, 'dummy-url2/sonnyfootballclass','17:05:04','19:03:21', DATEADD('SECOND', 20, CURRENT_TIMESTAMP()),
-        DATEADD('SECOND', 10, CURRENT_TIMESTAMP()));
+VALUES (1, 1, 'https://haryeom-video-bucket.s3.ap-northeast-2.amazonaws.com/video-math-240110.webm','17:59:03', '20:00:18', '2024-01-10 17:59:03', '2024-01-10 20:00:18'),
+       (2, 2, 'http://https://haryeom-video-bucket.s3.ap-northeast-2.amazonaws.com/video-math-240120.webm','17:05:04','19:03:21', '2024-01-20 17:05:04', '2024-01-20 19:03:21');
+
+-- VideoTimestamp 테이블 더미 데이터
+INSERT INTO video_timestamp(id, video_id, stamp_time, content)
+VALUES (1, 1, TIME '00:04:03','수열의수렴 개념설명'),
+       (2,1,TIME '00:07:05','수열의발산 개념설명'),
+       (3,2,TIME'00:15:31','수렴할 때 급수 계산방법'),
+       (4,2,TIME'00:57:31', '오답 유형');
 
 -- VideoRoom 테이블 더미 데이터
 INSERT INTO video_room(id, tutoring_schedule_id, room_code)
 VALUES (1, 1, '3a3ba96a-d32a-4891-81c4-47acd2de01fa'),(2, 2, '58e43602-17f7-45f3-aeb5-67cc296c8823');
-
--- VideoTimestamp 테이블 더미 데이터
-INSERT INTO video_timestamp(id, video_id, stamp_time, content)
-VALUES (1, 1, TIME '00:04:03','수열의극한 개념설명'),
-       (2,1,TIME '00:07:05','수열의극한 문제풀이'),
-       (3,2,TIME'00:15:31','모든 것은 기초부터'),
-       (4,2,TIME'00:57:31', '토트넘 우승썰 풀어주기');
