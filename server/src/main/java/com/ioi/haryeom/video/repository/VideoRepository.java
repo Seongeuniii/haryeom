@@ -13,10 +13,10 @@ import org.springframework.stereotype.Repository;
 public interface VideoRepository extends JpaRepository<Video, Long> {
     Video findByTutoringSchedule_Id(Long tutoringScheduleId);
 
-    @Query(value = "select v.id, v.start_time as startTime, v.end_time as endTime, s.schedule_date as scheduleDate, s.title from video v"
-        + " RIGHT JOIN tutoring_schedule s"
+    @Query(value = "select v.id AS videoId, SEC_TO_TIME(TIMESTAMPDIFF(SECOND, v.start_time,v.end_time)) AS duration, s.schedule_date as scheduleDate, s.title from video v"
+        + " LEFT JOIN tutoring_schedule s"
         + " ON v.tutoring_schedule_id=s.id"
-        + " RIGHT JOIN tutoring t"
+        + " LEFT JOIN tutoring t"
         + " ON t.id=s.tutoring_id"
         + " WHERE t.subject_id = :subjectId", nativeQuery = true)
     List<VideoInterface> findAllBySubjectId(@Param("subjectId") Integer subjectId);
