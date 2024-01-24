@@ -2,6 +2,7 @@ package com.ioi.haryeom.textbook.domain;
 
 import com.ioi.haryeom.common.domain.BaseTimeEntity;
 import com.ioi.haryeom.member.domain.Member;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -39,6 +40,7 @@ public class Textbook extends BaseTimeEntity {
 
     private String coverImg;
 
+    @Column(columnDefinition = "TINYINT(1)")
     private Boolean isDeleted = false;
 
     @Builder
