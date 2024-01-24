@@ -52,4 +52,8 @@ public class ChatRoom extends BaseTimeEntity {
     public boolean isMemberPartOfChatRoom(Member member) {
         return (teacherMember.equals(member) || studentMember.equals(member));
     }
+
+    public void delete() {
+        isDeleted = true;
+    }
 }

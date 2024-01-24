@@ -44,4 +44,8 @@ public class ChatRoomState {
         this.lastReadMessageId = lastReadMessageId;
         this.isDeleted = isDeleted;
     }
+
+    public void delete() {
+        isDeleted = true;
+    }
 }
