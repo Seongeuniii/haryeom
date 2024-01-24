@@ -16,7 +16,8 @@ public class ChatRoomResponse {
     private final LocalDateTime lastMessageCreatedAt;
     private final Integer unreadMessageCount;
 
-    private ChatRoomResponse(Long chatRoomId, OppositeMemberResponse oppositeMember, String lastMessage, LocalDateTime lastMessageCreatedAt, Integer unreadMessageCount) {
+    private ChatRoomResponse(Long chatRoomId, OppositeMemberResponse oppositeMember, String lastMessage,
+        LocalDateTime lastMessageCreatedAt, Integer unreadMessageCount) {
         this.chatRoomId = chatRoomId;
         this.oppositeMember = oppositeMember;
         this.lastMessage = lastMessage;
@@ -27,12 +28,13 @@ public class ChatRoomResponse {
     public static ChatRoomResponse of(ChatRoomState chatRoomState, ChatMessage lastChatMessage, Member oppositeMember) {
         Long chatRoomId = chatRoomState.getChatRoom().getId();
         OppositeMemberResponse oppositeMemberResponse = new OppositeMemberResponse(oppositeMember);
-        Integer unreadMessageCount = chatRoomState.getUnreadMessageCount();
+        Integer unreadMessageCount = 1; //TODO: 바꿔야함
 
         String lastMessage = (lastChatMessage != null) ? lastChatMessage.getMessageContent() : null;
         LocalDateTime lastMessageCreatedAt = (lastChatMessage != null) ? lastChatMessage.getCreatedAt() : null;
 
-        return new ChatRoomResponse(chatRoomId, oppositeMemberResponse, lastMessage, lastMessageCreatedAt, unreadMessageCount);
+        return new ChatRoomResponse(chatRoomId, oppositeMemberResponse, lastMessage, lastMessageCreatedAt,
+            unreadMessageCount);
     }
 
     @Getter
