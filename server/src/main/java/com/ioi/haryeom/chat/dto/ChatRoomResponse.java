@@ -25,10 +25,10 @@ public class ChatRoomResponse {
         this.unreadMessageCount = unreadMessageCount;
     }
 
-    public static ChatRoomResponse of(ChatRoomState chatRoomState, ChatMessage lastChatMessage, Member oppositeMember) {
+    public static ChatRoomResponse of(ChatRoomState chatRoomState, ChatMessage lastChatMessage, Member oppositeMember,
+        Integer unreadMessageCount) {
         Long chatRoomId = chatRoomState.getChatRoom().getId();
         OppositeMemberResponse oppositeMemberResponse = new OppositeMemberResponse(oppositeMember);
-        Integer unreadMessageCount = 1; //TODO: 바꿔야함
 
         String lastMessage = (lastChatMessage != null) ? lastChatMessage.getMessageContent() : null;
         LocalDateTime lastMessageCreatedAt = (lastChatMessage != null) ? lastChatMessage.getCreatedAt() : null;
