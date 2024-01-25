@@ -15,4 +15,9 @@ public class ChatMessageService {
     public void connectChatRoom(Long chatRoomId, String sessionId, Long memberId) {
         sessionManager.addSession(chatRoomId, sessionId, memberId);
     }
+
+    public void disconnectChatRoom(String sessionId) {
+        //TODO: lastReadMessageId와 업데이트하는 로직 추가
+        sessionManager.removeSession(sessionId);
+    }
 }

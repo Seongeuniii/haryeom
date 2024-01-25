@@ -15,4 +15,9 @@ public class WebSocketSessionManager {
         sessionMemberMap.put(sessionId, memberId);
         sessionChatRoomMap.put(sessionId, chatRoomId);
     }
+
+    public void removeSession(String sessionId) {
+        sessionMemberMap.remove(sessionId);
+        sessionChatRoomMap.remove(sessionId);
+    }
 }

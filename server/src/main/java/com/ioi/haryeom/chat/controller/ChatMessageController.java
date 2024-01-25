@@ -3,10 +3,12 @@ package com.ioi.haryeom.chat.controller;
 import com.ioi.haryeom.chat.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,5 +26,11 @@ public class ChatMessageController {
         log.info("[CONNECT] CHAT ROOM ID {}", chatRoomId);
         String sessionId = headerAccessor.getSessionId();
         chatMessageService.connectChatRoom(chatRoomId, sessionId, memberId);
+    }
+
+    @EventListener
+    public void disconnectChatRoom(SessionDisconnectEvent event) {
+        log.info("[DISCONNECT] CHAT ROOM");
+        chatMessageService.disconnectChatRoom(event.getSessionId());
     }
 }
