@@ -2,7 +2,7 @@ oauth:
   kakao:
     client-id: af99408e6a2d5e359657ca95e2e040ea
     client-secret: VpvCS5PJG034uwWNWj7XEFQqKP04Sn7N
-    redirect-uri: http://localhost:8080/oauth/kakao
+    redirect-uri: http://i10a807.p.ssafy.io:8080/oauth/kakao
     scope: profile_nickname,profile_image,account_email
 spring:
   datasource:
