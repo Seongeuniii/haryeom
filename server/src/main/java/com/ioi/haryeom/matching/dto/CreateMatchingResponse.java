@@ -1,11 +1,11 @@
-package com.ioi.haryeom.chat.dto;
+package com.ioi.haryeom.matching.dto;
 
 import com.ioi.haryeom.chat.domain.ChatRoom;
-import com.ioi.haryeom.common.domain.Subject;
-import com.ioi.haryeom.member.domain.Member;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class CreateMatchingResponse {
 
     private Long receiveMemberId;
@@ -20,13 +20,12 @@ public class CreateMatchingResponse {
         this.hourlyRate = hourlyRate;
     }
 
-    public static CreateMatchingResponse of(ChatRoom chatRoom, Member member, Subject subject, Integer hourlyRate) {
+    public static CreateMatchingResponse of(ChatRoom chatRoom, String subjectName, Integer hourlyRate) {
         return new CreateMatchingResponse(
-            chatRoom.getOppositeMember(member).getId(),
-            member.getName(),
-            subject.getName(),
+            chatRoom.getTeacherMember().getId(),
+            chatRoom.getStudentMember().getName(),
+            subjectName,
             hourlyRate
         );
     }
-
 }
