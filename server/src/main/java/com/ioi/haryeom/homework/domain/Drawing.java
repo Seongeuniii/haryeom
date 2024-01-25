@@ -43,12 +43,12 @@ public class Drawing {
         this.teacherDrawingUrl = teacherDrawingUrl;
     }
 
-    public void update(Homework homework, Integer page, String homeworkDrawingURL,
-        String reviewDrawingURL, String teacherDrawingURL) {
+    public void update(Homework homework, Integer page, String homeworkDrawingUrl,
+        String reviewDrawingUrl, String teacherDrawingUrl) {
         this.homework = homework;
         this.page = page;
-        this.homeworkDrawingUrl = homeworkDrawingURL;
-        this.reviewDrawingUrl = reviewDrawingURL;
-        this.teacherDrawingUrl = teacherDrawingURL;
+        this.homeworkDrawingUrl = homeworkDrawingUrl;
+        this.reviewDrawingUrl = reviewDrawingUrl;
+        this.teacherDrawingUrl = teacherDrawingUrl;
     }
 }

@@ -15,6 +15,6 @@ public class StudentDrawingResponse {
     public StudentDrawingResponse(Drawing drawing) {
         this.drawingId = drawing.getId();
         this.page = drawing.getPage();
-        this.homeworkDrawingUrl = drawing.getHomeworkDrawingURL();
+        this.homeworkDrawingUrl = drawing.getHomeworkDrawingUrl();
     }
 }
