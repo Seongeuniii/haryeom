@@ -124,3 +124,13 @@ VALUES (1, 1, TIME '00:04:03','수열의수렴 개념설명'),
 -- VideoRoom 테이블 더미 데이터
 INSERT INTO video_room(id, tutoring_schedule_id, room_code)
 VALUES (1, 1, '3a3ba96a-d32a-4891-81c4-47acd2de01fa'),(2, 2, '58e43602-17f7-45f3-aeb5-67cc296c8823');
+
+-- Drawings 테이블 더미 데이터
+INSERT INTO drawing(id, homework_id, page, homework_drawing_url, review_drawing_url, teacher_drawing_url)
+VALUES
+    (1, 1, 10, 'https://hjr-bucket.s3.ap-northeast-2.amazonaws.com/hjrimage.jpg', 'http://iamge.url/drawing1', 'http://iamge.url/drawing1'),
+    (2, 1, 11, 'https://hjr-bucket.s3.ap-northeast-2.amazonaws.com/hjrimage.jpg', 'http://iamge.url/drawing2', 'http://iamge.url/drawing2'),
+    (3, 1, 12, 'https://hjr-bucket.s3.ap-northeast-2.amazonaws.com/hjrimage.jpg', 'http://iamge.url/drawing3', 'http://iamge.url/drawing3'),
+    (4, 1, 13, 'https://hjr-bucket.s3.ap-northeast-2.amazonaws.com/hjrimage.jpg', 'http://iamge.url/drawing4', 'http://iamge.url/drawing4'),
+    (5, 1, 14, 'https://hjr-bucket.s3.ap-northeast-2.amazonaws.com/hjrimage.jpg', 'http://iamge.url/drawing5', 'http://iamge.url/drawing5'),
+    (6, 1, 15, 'https://hjr-bucket.s3.ap-northeast-2.amazonaws.com/hjrimage.jpg', 'http://iamge.url/drawing6', 'http://iamge.url/drawing6');
