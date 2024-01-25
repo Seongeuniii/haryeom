@@ -20,4 +20,8 @@ public class WebSocketSessionManager {
         sessionMemberMap.remove(sessionId);
         sessionChatRoomMap.remove(sessionId);
     }
+
+    public Long findMemberIdBySessionId(String sessionId) {
+        return sessionMemberMap.get(sessionId);
+    }
 }
