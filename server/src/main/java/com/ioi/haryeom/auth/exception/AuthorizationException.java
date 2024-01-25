@@ -9,4 +9,8 @@ public class AuthorizationException extends ForbiddenException {
     public AuthorizationException(Long memberId) {
         super(String.format(MESSAGE, memberId));
     }
+
+    public AuthorizationException(String message) {
+        super(message);
+    }
 }
