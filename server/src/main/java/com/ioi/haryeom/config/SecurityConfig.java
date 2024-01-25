@@ -1,5 +1,8 @@
 package com.ioi.haryeom.config;
 
+
+import static org.springframework.http.HttpMethod.POST;
+
 import com.ioi.haryeom.auth.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -7,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -21,21 +23,24 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        // TODO: 필터체인 권한 더 작성 필요
-        http
-            .csrf(AbstractHttpConfigurer::disable)
+        http.csrf(AbstractHttpConfigurer::disable)
             .cors(AbstractHttpConfigurer::disable)
-            .headers(h -> h.frameOptions(FrameOptionsConfig::disable))
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
-            .formLogin(AbstractHttpConfigurer::disable)
+            .formLogin().disable()
             .authorizeRequests()
-            .antMatchers(
-                "/api/**"
-            ).permitAll();
-
-        http.headers().frameOptions().disable();
+            .antMatchers("/api/auth/**/login", "/api/auth/refresh")
+            .permitAll()
+            .antMatchers("/api/auth/")
+            .hasRole("GUEST")
+            .antMatchers(POST, " /api/members/students", "/api/members/teachers")
+            .hasRole("GUEST")
+            .antMatchers("/api/members/students", "/api/members/students/**")
+            .hasRole("STUDENT")
+            .antMatchers("/api/members/teachers", "/api/members/teachers/**")
+            .hasRole("TEACHER")
+            .anyRequest()
+            .authenticated();
 
         http.addFilterBefore(new JwtAuthenticationFilter(tokenService),
             UsernamePasswordAuthenticationFilter.class);
