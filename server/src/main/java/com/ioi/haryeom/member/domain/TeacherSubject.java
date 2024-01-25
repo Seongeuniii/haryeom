@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,11 +22,18 @@ public class TeacherSubject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "teacher_member_id")
+
+    @JoinColumn(name = "teacher_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Teacher teacher;
 
     @JoinColumn(name = "subject_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Subject subject;
+
+    @Builder
+    public TeacherSubject(Teacher teacher, Subject subject) {
+        this.teacher = teacher;
+        this.subject = subject;
+    }
 }

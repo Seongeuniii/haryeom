@@ -2,6 +2,7 @@ package com.ioi.haryeom.textbook.domain;
 
 import com.ioi.haryeom.common.domain.BaseTimeEntity;
 import com.ioi.haryeom.member.domain.Member;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -31,23 +32,24 @@ public class Textbook extends BaseTimeEntity {
 
     private String textbookName;
 
-    private String textbookURL;
+    private String textbookUrl;
 
-    private Boolean isFirstPageCover;
+    private Boolean firstPageCover;
 
     private Integer totalPage;
 
     private String coverImg;
 
+    @Column(columnDefinition = "TINYINT(1)")
     private Boolean isDeleted = false;
 
     @Builder
-    public Textbook(Member teacherMember, String textbookName, String textbookURL,
-        Boolean isFirstPageCover, Integer totalPage, String coverImg) {
+    public Textbook(Member teacherMember, String textbookName, String textbookUrl,
+        Boolean firstPageCover, Integer totalPage, String coverImg) {
         this.teacherMember = teacherMember;
         this.textbookName = textbookName;
-        this.textbookURL = textbookURL;
-        this.isFirstPageCover = isFirstPageCover;
+        this.textbookUrl = textbookUrl;
+        this.firstPageCover = firstPageCover;
         this.totalPage = totalPage;
         this.coverImg = coverImg;
     }

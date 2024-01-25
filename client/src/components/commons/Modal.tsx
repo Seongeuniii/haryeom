@@ -10,10 +10,11 @@ interface ModalProps {
 
 const Modal = ({ children, ...props }: ModalProps) => {
     const { open, closeModal } = props;
+    console.log(open);
 
     return (
-        <StyledModal>
-            <ModalWrapper open={open}>
+        <StyledModal open={open}>
+            <ModalWrapper>
                 <ModalCloseButton onClick={closeModal}>
                     <Close />
                 </ModalCloseButton>
@@ -24,7 +25,8 @@ const Modal = ({ children, ...props }: ModalProps) => {
     );
 };
 
-const StyledModal = styled.div`
+const StyledModal = styled.div<{ open: boolean }>`
+    ${({ open }) => !open && `display:none;`}
     position: fixed;
     top: 0;
     left: 0;
@@ -32,8 +34,7 @@ const StyledModal = styled.div`
     height: 100vh;
 `;
 
-const ModalWrapper = styled.div<{ open: boolean }>`
-    ${({ open }) => !open && `display:none;`}
+const ModalWrapper = styled.div`
     position: absolute;
     top: 50%;
     left: 50%;

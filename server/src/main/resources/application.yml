@@ -1,0 +1,43 @@
+oauth:
+  kakao:
+    client-id: af99408e6a2d5e359657ca95e2e040ea
+    client-secret: VpvCS5PJG034uwWNWj7XEFQqKP04Sn7N
+    redirect-uri: http://localhost:8080/oauth/kakao
+    scope: profile_nickname,profile_image,account_email
+spring:
+  datasource:
+    url: 'jdbc:mariadb://i10a807.p.ssafy.io:3306/haryeom'
+    username: root
+    password: ssafyioi807
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  jwt:
+    token:
+      secret-key: QTEwN2phbnNvcnJ5dGVhbWRuZmxya2RsZW1kZ2tmcmpkaWFrZmZsd2xha2RrcnBUc2kK
+      refresh-secret-key:
+        QTEwN2phbnNvcnJ5dGVhbWZsdm1mcHRubHhoem1zZHBlb2drZ2tzcmtxdGRsc2xSa3Jqc2VtZndsYWsK
+cloud:
+  aws:
+    s3:
+      bucket: hjr-bucket
+    credentials:
+      access-key: AKIA3XBXJOXXC2SZ63GV
+      secret-key: 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
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false

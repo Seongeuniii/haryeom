@@ -1,6 +1,10 @@
 package com.ioi.haryeom.member.domain;
 
+import com.ioi.haryeom.common.domain.BaseTimeEntity;
 import com.ioi.haryeom.member.domain.type.Gender;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -9,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -18,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Teacher {
+public class Teacher extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +32,9 @@ public class Teacher {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private Member member;
+
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
+    private List<TeacherSubject> teacherSubjects = new ArrayList<>();
 
     private Boolean profileStatus;
 

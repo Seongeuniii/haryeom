@@ -3,14 +3,14 @@ import MyCalendar from '../Calendar';
 import useCalendar from '@/hooks/useCalendar';
 
 const SelectTutoringDate = () => {
-    const { selectedDate, handleClick, handleYearMonthChange } = useCalendar();
+    const { day, yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
 
     return (
         <StyledSelectTutoringDate>
             <CalendarWrapper>
                 <MyCalendar
-                    selectedDate={selectedDate}
-                    handleDayClick={handleClick}
+                    selectedDate={day}
+                    handleClickDay={handleClickDay}
                     handleYearMonthChange={handleYearMonthChange}
                 ></MyCalendar>
             </CalendarWrapper>

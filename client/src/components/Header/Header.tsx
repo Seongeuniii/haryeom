@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import styled from 'styled-components';
 import { IUserRole } from '@/apis/user/user';
-import Dropdown from '@/components/commons/DropDown';
+import Dropdown from '@/components/commons/Dropdown';
 import useDropdown from '@/hooks/useDropdown';
 
 export interface Page {
@@ -51,7 +51,7 @@ const Header = () => {
                         </Link>
                     ))}
                 </Nav>
-                <User onClick={!open ? openDropdown : closeDropdown}>
+                <User onClick={!open ? openDropdown : undefined}>
                     <span>김성은</span>
                     <Dropdown open={open} closeDropdown={closeDropdown}>
                         <UserControlBox>
