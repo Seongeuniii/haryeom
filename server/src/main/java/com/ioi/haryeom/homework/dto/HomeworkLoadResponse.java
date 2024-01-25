@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class HomeworkOngoingLoadResponse {
+public class HomeworkLoadResponse {
 
     private Long homeworkId;
     private Integer startPage;
@@ -15,7 +15,7 @@ public class HomeworkOngoingLoadResponse {
     private TextbookResponse textbook;
     private List<StudentDrawingResponse> drawings;
 
-    public HomeworkOngoingLoadResponse(Homework homework, TextbookResponse textbook, List<StudentDrawingResponse> drawings) {
+    public HomeworkLoadResponse(Homework homework, TextbookResponse textbook, List<StudentDrawingResponse> drawings) {
         this.homeworkId = homework.getId();
         this.startPage = homework.getStartPage();
         this.endPage = homework.getEndPage();
