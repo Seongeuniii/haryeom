@@ -67,4 +67,16 @@ public class Teacher extends BaseTimeEntity {
         this.career = career;
         this.introduce = introduce;
     }
+
+    public void updateTeacher(Boolean profileStatus, String college, String collegeEmail,
+        Gender gender,
+        Integer salary, Integer career, String introduce) {
+        this.profileStatus = profileStatus;
+        this.college = college;
+        this.collegeEmail = collegeEmail;
+        this.gender = gender;
+        this.salary = salary;
+        this.career = career;
+        this.introduce = introduce;
+    }
 }

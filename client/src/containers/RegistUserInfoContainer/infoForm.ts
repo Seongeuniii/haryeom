@@ -22,14 +22,14 @@ export const registUserInfoStep: { [key: number]: string } = {
 };
 
 export const requiredInfos: UserInfos = {
-    teacher: {
+    TEACHER: {
         profileUrl: { inputType: 'text', label: '프로필 사진' },
         name: { inputType: 'text', label: '이름' },
         college: { inputType: 'text', label: '대학교' },
         collegeEmail: { inputType: 'text', label: '대학교 이메일 인증', name: 'collegeEmail' },
         phone: { inputType: 'text', label: '전화번호', name: 'phone' },
     },
-    student: {
+    STUDENT: {
         profileUrl: { inputType: 'text', label: '프로필 사진' },
         name: { inputType: 'text', label: '이름' },
         school: { inputType: 'text', label: '학교' },
@@ -54,11 +54,11 @@ export const requiredInfos: UserInfos = {
         },
         phone: { inputType: 'text', label: '전화번호' },
     },
-    guest: {},
+    GUEST: {},
 };
 
 export const optionalInfos: UserInfos = {
-    teacher: {
+    TEACHER: {
         profileStatus: {
             inputType: 'select',
             label: '프로필 공개 여부',
@@ -74,6 +74,6 @@ export const optionalInfos: UserInfos = {
         },
         introduce: { inputType: 'text', label: '선생님 소개' },
     },
-    student: {},
-    guest: {},
+    STUDENT: {},
+    GUEST: {},
 };

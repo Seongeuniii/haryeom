@@ -1,18 +1,22 @@
 import { useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import KakaoLoginButton from '@/components/KakaoLoginButton';
-import React from 'react';
 import styled from 'styled-components';
+import { useRouter } from 'next/router';
+import { useRecoilValue } from 'recoil';
+import { GetServerSideProps } from 'next';
+import KakaoLoginButton from '@/components/KakaoLoginButton';
 import ServiceImg from '@/components/icons/ServiceImg';
-import { login } from '@/apis/user/get-token';
+import { getToken } from '@/apis/user/get-token';
+import userSessionAtom from '@/recoil/atoms/userSession';
 
 const LoginContainer = () => {
-    const searchParams = useSearchParams();
+    const userSession = useRecoilValue(userSessionAtom);
+    const router = useRouter();
 
     useEffect(() => {
-        const authCode = searchParams.get('code');
-        if (!authCode) return;
-        login(authCode);
+        if (userSession) {
+            router.push('/');
+            return;
+        }
     }, []);
 
     return (
@@ -29,6 +33,23 @@ const LoginContainer = () => {
             </LoginSection>
         </StyledLoginContainer>
     );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { query } = context;
+
+    if (query.code) {
+        const successLogin = await getToken(query.code as string, context);
+        if (successLogin) {
+            return {
+                redirect: {
+                    destination: '/',
+                    permanent: false,
+                },
+            };
+        }
+    }
+    return { props: {} };
 };
 
 const StyledLoginContainer = styled.div`

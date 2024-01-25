@@ -6,6 +6,7 @@ import com.ioi.haryeom.member.dto.StudentCreateRequest;
 import com.ioi.haryeom.member.dto.StudentInfoResponse;
 import com.ioi.haryeom.member.dto.TeacherCreateRequest;
 import com.ioi.haryeom.member.dto.TeacherInfoResponse;
+import com.ioi.haryeom.member.dto.TeacherUpdateRequest;
 import com.ioi.haryeom.member.service.MemberService;
 import java.io.IOException;
 import java.net.URI;
@@ -63,6 +64,13 @@ public class MemberController {
     @GetMapping("/teachers/{memberId}")
     public ResponseEntity<TeacherInfoResponse> getTeacher(@PathVariable("memberId") Long memberId) {
         return ResponseEntity.ok().body(memberService.getTeacher(memberId));
+    }
+
+    @PutMapping("/teachers")
+    public ResponseEntity<Void> updateTeacher(@AuthenticationPrincipal Member user, @RequestBody
+    TeacherUpdateRequest teacherRequest){
+        memberService.updateTeacher(user, teacherRequest);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping

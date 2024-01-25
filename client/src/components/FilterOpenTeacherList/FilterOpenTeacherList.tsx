@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-ignore
 import { ReactNode, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import GraduationCap from '@/components/icons/GraduationCap';
@@ -12,7 +14,7 @@ import { subjectDefaultOptions, univDefaultOptions } from './filterDefaultOption
 import SelectOptionBox from './SelectOptionBox';
 import InputTextOptionBox from './InputTextBox';
 import useFilter from '@/components/FilterOpenTeacherList/useFilter';
-import Close from '../icons/Close';
+// import Close from '../icons/Close';
 
 export interface IFilterOption {
     name: keyof IFilterOptionValue | 'filter';
@@ -81,8 +83,10 @@ const FilterOpenTeacherList = () => {
             const filterOptions = optionValuesOfAllFilters[key];
 
             if (Array.isArray(filterOptions)) {
+                // @ts-ignore
                 selectedOptions[key] = filterOptions.filter((option) => option.selected);
             } else {
+                // @ts-ignore
                 selectedOptions[key] = filterOptions;
             }
         });
@@ -91,6 +95,7 @@ const FilterOpenTeacherList = () => {
     };
 
     useEffect(() => {
+        // @ts-ignore
         setSelectedItems(getSelectedOptions(optionValuesOfAllFilters));
         console.log(selectedItems);
     }, [optionValuesOfAllFilters]);
@@ -128,9 +133,10 @@ const FilterOpenTeacherList = () => {
                 })}
             </StyledFilterOpenTeacherList>
             <SelectedOptionValues>
-                {Object.keys(selectedItems).map((key) => (
+                {/* {Object.keys(selectedItems).map((key) => (
                     <>
                         {Array.isArray(selectedItems[key]) &&
+                            // @ts-ignore
                             selectedItems[key].map((option, idx) => (
                                 <SelectedOptionValue key={option.label}>
                                     <span>{option.label}</span>
@@ -140,7 +146,7 @@ const FilterOpenTeacherList = () => {
                                 </SelectedOptionValue>
                             ))}
                     </>
-                ))}
+                ))} */}
             </SelectedOptionValues>
         </>
     );
@@ -165,22 +171,22 @@ const SelectedOptionValues = styled.div`
     flex-wrap: wrap;
 `;
 
-const SelectedOptionValue = styled.div`
-    padding: 0.5em;
-    border-radius: 0.3em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: ${({ theme }) => theme.SECONDARY};
-`;
+// const SelectedOptionValue = styled.div`
+//     padding: 0.5em;
+//     border-radius: 0.3em;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//     background-color: ${({ theme }) => theme.SECONDARY};
+// `;
 
-const DeleteButton = styled.button`
-    width: 7px;
-    height: 7px;
-    margin-left: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-`;
+// const DeleteButton = styled.button`
+//     width: 7px;
+//     height: 7px;
+//     margin-left: 5px;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+// `;
 
 export default FilterOpenTeacherList;

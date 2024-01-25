@@ -10,7 +10,7 @@ export interface Page {
 }
 
 const navLinks: { [key in IUserRole]: Page[] } = {
-    teacher: [
+    TEACHER: [
         {
             name: '마이홈',
             link: '/',
@@ -20,7 +20,7 @@ const navLinks: { [key in IUserRole]: Page[] } = {
             link: '/review',
         },
     ],
-    student: [
+    STUDENT: [
         {
             name: '마이홈',
             link: '/',
@@ -30,10 +30,10 @@ const navLinks: { [key in IUserRole]: Page[] } = {
             link: '/review',
         },
     ],
-    guest: [],
+    GUEST: [],
 };
 
-const testUserRole = 'student';
+const testUserRole: IUserRole = 'STUDENT';
 
 const Header = () => {
     const { open, openDropdown, closeDropdown } = useDropdown();

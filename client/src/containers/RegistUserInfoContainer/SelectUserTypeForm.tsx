@@ -12,8 +12,8 @@ const SelectUserTypeForm = ({ userRole, setUserRole }: SelectUserTypeFormProps) 
         <StyledSelectUserTypeForm>
             <UserTypeSection>
                 <SelectButton
-                    onClick={() => setUserRole('teacher')}
-                    selected={userRole === 'teacher'}
+                    onClick={() => setUserRole('TEACHER')}
+                    selected={userRole === 'TEACHER'}
                 >
                     <img src="/images/teacher.png" alt="teacher" />
                 </SelectButton>
@@ -21,8 +21,8 @@ const SelectUserTypeForm = ({ userRole, setUserRole }: SelectUserTypeFormProps) 
             </UserTypeSection>
             <UserTypeSection>
                 <SelectButton
-                    onClick={() => setUserRole('student')}
-                    selected={userRole === 'student'}
+                    onClick={() => setUserRole('STUDENT')}
+                    selected={userRole === 'STUDENT'}
                 >
                     <img src="/images/student-girl.png" alt="student" />
                     <img src="/images/student-boy.png" alt="student" />
