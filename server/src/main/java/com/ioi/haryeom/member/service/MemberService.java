@@ -14,6 +14,7 @@ import com.ioi.haryeom.member.dto.StudentInfoResponse;
 import com.ioi.haryeom.member.dto.SubjectResponse;
 import com.ioi.haryeom.member.dto.TeacherCreateRequest;
 import com.ioi.haryeom.member.dto.TeacherInfoResponse;
+import com.ioi.haryeom.member.dto.TeacherUpdateRequest;
 import com.ioi.haryeom.member.exception.StudentNotFoundException;
 import com.ioi.haryeom.member.exception.SubjectNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
@@ -149,8 +150,40 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateTeacher(Member user, TeacherInfoResponse teacherRequest) {
+    public void updateTeacher(Member user, TeacherUpdateRequest teacherRequest) {
         Member member = findMemberById(user.getId());
+
+        member.updateTeacher(teacherRequest.getProfileUrl(), teacherRequest.getName(),
+            teacherRequest.getPhone());
+
+        Teacher teacher = member.getTeacher();
+
+        List<TeacherSubject> teacherSubjects = teacher.getTeacherSubjects();
+
+        teacherSubjectRepository.deleteAll(teacherSubjects);
+
+        List<SubjectResponse> subjects = teacherRequest.getSubjects();
+        for (SubjectResponse subjectResponse : subjects) {
+
+            TeacherSubject teacherSubject = TeacherSubject.builder()
+                .teacher(teacher)
+                .subject(
+                    subjectRepository.findById(subjectResponse.getSubjectId()).orElseThrow(
+                        () -> new SubjectNotFoundException(subjectResponse.getSubjectId())
+                    )
+                )
+                .build();
+
+            teacherSubjectRepository.save(teacherSubject);
+        }
+
+        teacher.updateTeacher(teacherRequest.getProfileStatus(),
+            teacherRequest.getCollege(),
+            teacherRequest.getCollegeEmail(),
+            teacherRequest.getGender(),
+            teacherRequest.getSalary(),
+            teacherRequest.getCareer(),
+            teacherRequest.getIntroduce());
     }
 
     @Transactional
