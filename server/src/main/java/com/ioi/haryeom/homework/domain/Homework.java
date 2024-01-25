@@ -73,6 +73,14 @@ public class Homework extends BaseTimeEntity {
         isDeleted = true;
     }
 
+    public void confirm() {
+        this.status = HomeworkStatus.IN_PROGRESS;
+    }
+
+    public void submit() {
+        this.status = HomeworkStatus.COMPLETED;
+    }
+
     public boolean isOwner(Long accessMemberId) {
         if (accessMemberId == null) {
             return false;
