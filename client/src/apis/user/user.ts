@@ -1,4 +1,4 @@
-export type IUserRole = 'student' | 'teacher' | 'guest';
+export type IUserRole = 'TEACHER' | 'STUDENT' | 'GUEST';
 
 export interface IUser {
     memberId: number;

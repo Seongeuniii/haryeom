@@ -127,10 +127,10 @@ const testTutoringSchedules: ITutoringSchedules = [
 ];
 
 const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
-    const { userRole = 'teacher', tutoringSchedules, homeworkList } = pageProps;
+    const { userRole = 'TEACHER', tutoringSchedules, homeworkList } = pageProps;
 
     switch (userRole) {
-        case 'teacher' || 'student':
+        case 'TEACHER' || 'STUDENT':
             return (
                 <HomeLayout>
                     <StyledScheduleContainer>
@@ -139,7 +139,7 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                     </StyledScheduleContainer>
                 </HomeLayout>
             );
-        case 'guest':
+        case 'GUEST':
             return <RegistUserInfoContainer />;
         default:
             return <LoginContainer />; // NOT LOGIN
@@ -152,7 +152,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     let userRole: IUserRole | undefined;
     // userRole = getCookie('userRole', { req });
 
-    if (!userRole || userRole === 'guest') {
+    if (!userRole || userRole === 'GUEST') {
         return { props: {} };
     }
 

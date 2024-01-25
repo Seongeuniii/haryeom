@@ -9,7 +9,7 @@ import { IUserInfo, IUserRole } from '@/apis/user/user';
 
 const RegistUserInfoContainer = () => {
     const [step, setStep] = useState<number>(1);
-    const [userRole, setUserRole] = useState<IUserRole>('guest');
+    const [userRole, setUserRole] = useState<IUserRole>('GUEST');
     const [userInputValue, setUserInputValue] = useState<IUserInfo>({
         name: '',
         school: '',
@@ -34,9 +34,9 @@ const RegistUserInfoContainer = () => {
     };
 
     useEffect(() => {
-        if (userRole === 'teacher' && step === 4) {
+        if (userRole === 'TEACHER' && step === 4) {
             console.log('끝');
-        } else if (userRole === 'student' && step === 3) {
+        } else if (userRole === 'STUDENT' && step === 3) {
             console.log('끝');
         }
     }, [step, userRole]);
