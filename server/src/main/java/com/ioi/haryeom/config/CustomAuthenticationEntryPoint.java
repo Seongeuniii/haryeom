@@ -14,8 +14,7 @@ import org.springframework.stereotype.Component;
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response,
-        AuthenticationException authException)
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
         throws IOException {
 
         ErrorCode errorCode = (ErrorCode) request.getAttribute("errorCode");
@@ -23,8 +22,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         setResponse(response, errorCode, httpStatus);
     }
 
-    private void setResponse(HttpServletResponse response, ErrorCode errorCode,
-        HttpStatus httpStatus)
+    private void setResponse(HttpServletResponse response, ErrorCode errorCode, HttpStatus httpStatus)
         throws IOException {
 
         response.setContentType("application/json;charset=UTF-8");
