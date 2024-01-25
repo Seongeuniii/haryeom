@@ -1,1 +1,1 @@
-export { default } from './LoginContainer';
+export { default, getServerSideProps } from './LoginContainer';
