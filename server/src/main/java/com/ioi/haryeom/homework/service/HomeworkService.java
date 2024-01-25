@@ -136,19 +136,21 @@ public class HomeworkService {
 
     //// 학생 숙제
 
-    public HomeworkNewLoadResponse getNewHomework(Long homeworkId, AuthInfo authInfo) {
+//    public HomeworkNewLoadResponse getNewHomework(Long homeworkId, AuthInfo authInfo) {
+//        Homework homework = homeworkRepository.findById(homeworkId)
+//                .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
+//
+//        Textbook textbook = homework.getTextbook();
+//        TextbookResponse textbookInfo = new TextbookResponse(textbook);
+//
+//        return new HomeworkNewLoadResponse(homework, textbookInfo);
+//    }
+
+    public HomeworkLoadResponse getLoadHomework(Long homeworkId, AuthInfo authInfo) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
-
-        Textbook textbook = homework.getTextbook();
-        TextbookResponse textbookInfo = new TextbookResponse(textbook);
-
-        return new HomeworkNewLoadResponse(homework, textbookInfo);
-    }
-
-    public HomeworkOngoingLoadResponse getOngoingHomework(Long homeworkId, AuthInfo authInfo) {
-        Homework homework = homeworkRepository.findById(homeworkId)
-                .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
+        // 숙제 상태 변경
+        homework.confirm();
 
         Textbook textbook = homework.getTextbook();
         TextbookResponse textbookInfo = new TextbookResponse(textbook);
@@ -158,7 +160,7 @@ public class HomeworkService {
                 .map(StudentDrawingResponse::new)
                 .collect(Collectors.toList());
 
-        return new HomeworkOngoingLoadResponse(homework, textbookInfo, drawingResponses);
+        return new HomeworkLoadResponse(homework, textbookInfo, drawingResponses);
 
     }
 
