@@ -39,13 +39,11 @@ public class MatchingService {
     @Transactional
     public String createMatchingRequest(CreateMatchingRequest request, Long memberId) {
 
-        ChatRoom chatRoom = chatRoomRepository.findById(request.getChatRoomId())
-            .orElseThrow(() -> new ChatRoomNotFoundException(request.getChatRoomId()));
+        ChatRoom chatRoom = findChatRoomById(request.getChatRoomId());
 
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
+        Member member = findMemberById(memberId);
 
-        Subject subject = subjectRepository.findById(request.getSubjectId())
-            .orElseThrow(() -> new SubjectNotFoundException(request.getSubjectId()));
+        Subject subject = findSubjectById(request.getSubjectId());
 
         String matchingId = IdGenerator.createMatchingId();
         matchingManager.addMatching(matchingId, request);
@@ -66,20 +64,17 @@ public class MatchingService {
             request.getMatchingId());
         matchingManager.removeMatchingRequestByMatchingId(request.getMatchingId());
 
-        ChatRoom chatRoom = chatRoomRepository.findById(createdMatchingRequest.getChatRoomId())
-            .orElseThrow(() -> new ChatRoomNotFoundException(createdMatchingRequest.getChatRoomId()));
+        ChatRoom chatRoom = findChatRoomById(createdMatchingRequest.getChatRoomId());
 
-        Member member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new MemberNotFoundException(memberId));
+        Member member = findMemberById(memberId);
 
-        Subject subject = subjectRepository.findById(createdMatchingRequest.getSubjectId())
-            .orElseThrow(() -> new SubjectNotFoundException(createdMatchingRequest.getSubjectId()));
+        Subject subject = findSubjectById(createdMatchingRequest.getSubjectId());
 
         // 과외 매칭 수락
         if (request.getIsAccepted()) {
             return processAcceptedMatching(chatRoom, member, subject, createdMatchingRequest, request);
         }
-        
+
         // 과외 매칭 거절
         log.info("[MATCHING RESPONSE] REJECTED! chatRoomId : {}, matchingId : {}", chatRoom.getId(),
             request.getMatchingId());
@@ -111,4 +106,17 @@ public class MatchingService {
         messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId() + "/response", response);
     }
 
+    private Subject findSubjectById(Long subjectId) {
+        return subjectRepository.findById(subjectId)
+            .orElseThrow(() -> new SubjectNotFoundException(subjectId));
+    }
+
+    private Member findMemberById(Long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
+    }
+
+    private ChatRoom findChatRoomById(Long chatRoomId) {
+        return chatRoomRepository.findById(chatRoomId)
+            .orElseThrow(() -> new ChatRoomNotFoundException(chatRoomId));
+    }
 }
