@@ -61,9 +61,7 @@ public class Tutoring extends BaseTimeEntity {
     }
 
     public void update(ChatRoom chatRoom, Subject subject, Integer hourlyRate,
-        TutoringStatus status,
-        Member student,
-        Member teacher) {
+        TutoringStatus status, Member student, Member teacher) {
         this.chatRoom = chatRoom;
         this.subject = subject;
         this.hourlyRate = hourlyRate;
@@ -71,4 +69,13 @@ public class Tutoring extends BaseTimeEntity {
         this.student = student;
         this.teacher = teacher;
     }
+
+    public void end() {
+        this.status = TutoringStatus.CLOSED;
+    }
+
+    public boolean isTeacherOfTutoring(Member member) {
+        return teacher.equals(member);
+    }
+
 }

@@ -1,8 +1,12 @@
 package com.ioi.haryeom.matching.service;
 
+import com.ioi.haryeom.auth.exception.AuthorizationException;
+import com.ioi.haryeom.chat.domain.ChatMessage;
 import com.ioi.haryeom.chat.domain.ChatRoom;
+import com.ioi.haryeom.chat.dto.ChatMessageResponse;
 import com.ioi.haryeom.chat.dto.CreateMatchingResponse;
 import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
+import com.ioi.haryeom.chat.repository.ChatMessageRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomRepository;
 import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.common.repository.SubjectRepository;
@@ -16,6 +20,7 @@ import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.exception.SubjectNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
+import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +40,7 @@ public class MatchingService {
     private ChatRoomRepository chatRoomRepository;
     private SubjectRepository subjectRepository;
     private TutoringRepository tutoringRepository;
+    private ChatMessageRepository chatMessageRepository;
 
     @Transactional
     public String createMatchingRequest(CreateMatchingRequest request, Long memberId) {
@@ -82,6 +88,28 @@ public class MatchingService {
         return null;
     }
 
+    @Transactional
+    public void endTutoring(Long tutoringId, Long memberId) {
+
+        Tutoring tutoring = findTutoringById(tutoringId);
+
+        ChatRoom chatRoom = tutoring.getChatRoom();
+
+        Member member = findMemberById(memberId);
+
+        validateTeacherOfTutoring(tutoring, member);
+
+        tutoring.end();
+
+        ChatMessage chatMessage = createEndTutoringMessage(tutoring, member);
+
+        ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
+
+        ChatMessageResponse response = ChatMessageResponse.from(savedChatMessage);
+        messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId(), response);
+        //TODO: 지금까지 과외한 거 정산해줘야함
+    }
+
     private Long processAcceptedMatching(ChatRoom chatRoom, Member member, Subject subject,
         CreateMatchingRequest createdMatchingRequest, RespondToMatchingRequest request) {
 
@@ -106,6 +134,24 @@ public class MatchingService {
         messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId() + "/response", response);
     }
 
+    private ChatMessage createEndTutoringMessage(Tutoring tutoring, Member member) {
+
+        String endMessage = String.format("%s 선생님과 %s 학생의 %s 과외가 종료되었습니다.", tutoring.getTeacher().getName(),
+            tutoring.getStudent().getName(), tutoring.getSubject().getName());
+
+        return ChatMessage.builder()
+            .chatRoom(tutoring.getChatRoom())
+            .senderMember(member)
+            .messageContent(endMessage)
+            .build();
+    }
+
+    private void validateTeacherOfTutoring(Tutoring tutoring, Member member) {
+        if (!tutoring.isTeacherOfTutoring(member)) {
+            throw new AuthorizationException("선생님만 과외를 종료할 수 있습니다.");
+        }
+    }
+
     private Subject findSubjectById(Long subjectId) {
         return subjectRepository.findById(subjectId)
             .orElseThrow(() -> new SubjectNotFoundException(subjectId));
@@ -118,5 +164,10 @@ public class MatchingService {
     private ChatRoom findChatRoomById(Long chatRoomId) {
         return chatRoomRepository.findById(chatRoomId)
             .orElseThrow(() -> new ChatRoomNotFoundException(chatRoomId));
+    }
+
+    private Tutoring findTutoringById(Long tutoringId) {
+        return tutoringRepository.findById(tutoringId)
+            .orElseThrow(() -> new TutoringNotFoundException(tutoringId));
     }
 }
