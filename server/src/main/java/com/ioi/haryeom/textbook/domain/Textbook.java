@@ -1,6 +1,7 @@
 package com.ioi.haryeom.textbook.domain;
 
 import com.ioi.haryeom.common.domain.BaseTimeEntity;
+import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.member.domain.Member;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,7 +29,9 @@ public class Textbook extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member teacherMember;
 
-    // subjectId
+    @JoinColumn(name = "subject_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Subject subject;
 
     private String textbookName;
 
@@ -44,9 +47,10 @@ public class Textbook extends BaseTimeEntity {
     private Boolean isDeleted = false;
 
     @Builder
-    public Textbook(Member teacherMember, String textbookName, String textbookUrl,
+    public Textbook(Member teacherMember, Subject subject,String textbookName, String textbookUrl,
         Boolean firstPageCover, Integer totalPage, String coverImg) {
         this.teacherMember = teacherMember;
+        this.subject = subject;
         this.textbookName = textbookName;
         this.textbookUrl = textbookUrl;
         this.firstPageCover = firstPageCover;
