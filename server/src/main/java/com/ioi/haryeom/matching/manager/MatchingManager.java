@@ -14,4 +14,12 @@ public class MatchingManager {
         matchingMap.put(matchingId, matchingRequest);
     }
 
+    public CreateMatchingRequest getMatchingRequestByMatchingId(String matchingId) {
+        return matchingMap.get(matchingId);
+    }
+
+    public void removeMatchingRequestByMatchingId(String matchingId) {
+        matchingMap.remove(matchingId);
+    }
+
 }

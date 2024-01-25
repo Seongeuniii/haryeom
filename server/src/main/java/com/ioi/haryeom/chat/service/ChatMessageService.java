@@ -40,7 +40,7 @@ public class ChatMessageService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
             .orElseThrow(() -> new ChatRoomNotFoundException(chatRoomId));
 
-        Long memberId = sessionManager.findMemberIdBySessionId(sessionId);
+        Long memberId = sessionManager.getMemberIdBySessionId(sessionId);
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
 
         ChatMessage chatMessage = ChatMessage.builder()
@@ -51,7 +51,7 @@ public class ChatMessageService {
         ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
 
         ChatMessageResponse response = ChatMessageResponse.from(savedChatMessage);
-        
+
         messagingTemplate.convertAndSend(String.format("/topic/chatrooms/%s", chatRoomId), response);
     }
 }

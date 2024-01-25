@@ -52,13 +52,10 @@ public class Tutoring extends BaseTimeEntity {
 
 
     @Builder
-    public Tutoring(ChatRoom chatRoom, Subject subject, Integer hourlyRate, TutoringStatus status,
-        Member student,
-        Member teacher) {
+    public Tutoring(ChatRoom chatRoom, Subject subject, Integer hourlyRate, Member student, Member teacher) {
         this.chatRoom = chatRoom;
         this.subject = subject;
         this.hourlyRate = hourlyRate;
-        this.status = status;
         this.student = student;
         this.teacher = teacher;
     }
