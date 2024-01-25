@@ -27,28 +27,28 @@ public class Drawing {
 
     private Integer page;
 
-    private String homeworkDrawingURL;
+    private String homeworkDrawingUrl;
 
-    private String reviewDrawingURL;
+    private String reviewDrawingUrl;
 
-    private String teacherDrawingURL;
+    private String teacherDrawingUrl;
 
     @Builder
-    public Drawing(Homework homework, Integer page, String homeworkDrawingURL,
-        String reviewDrawingURL, String teacherDrawingURL) {
+    public Drawing(Homework homework, Integer page, String homeworkDrawingUrl,
+        String reviewDrawingUrl, String teacherDrawingUrl) {
         this.homework = homework;
         this.page = page;
-        this.homeworkDrawingURL = homeworkDrawingURL;
-        this.reviewDrawingURL = reviewDrawingURL;
-        this.teacherDrawingURL = teacherDrawingURL;
+        this.homeworkDrawingUrl = homeworkDrawingUrl;
+        this.reviewDrawingUrl = reviewDrawingUrl;
+        this.teacherDrawingUrl = teacherDrawingUrl;
     }
 
-    public void update(Homework homework, Integer page, String homeworkDrawingURL,
-        String reviewDrawingURL, String teacherDrawingURL) {
+    public void update(Homework homework, Integer page, String homeworkDrawingUrl,
+        String reviewDrawingUrl, String teacherDrawingUrl) {
         this.homework = homework;
         this.page = page;
-        this.homeworkDrawingURL = homeworkDrawingURL;
-        this.reviewDrawingURL = reviewDrawingURL;
-        this.teacherDrawingURL = teacherDrawingURL;
+        this.homeworkDrawingUrl = homeworkDrawingUrl;
+        this.reviewDrawingUrl = reviewDrawingUrl;
+        this.teacherDrawingUrl = teacherDrawingUrl;
     }
 }

@@ -5,11 +5,13 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import com.ioi.haryeom.advice.exception.BadRequestException;
 import com.ioi.haryeom.advice.exception.NotFoundException;
 import com.ioi.haryeom.advice.exception.UnauthorizedException;
+import com.ioi.haryeom.auth.exception.TokenNotFoundException;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -21,6 +23,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,6 +33,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class TokenService {
@@ -94,6 +98,11 @@ public class TokenService {
 
     public String resolveToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
+
+        if(cookies == null){
+            throw new TokenNotFoundException();
+        }
+
         String accessToken = null;
 
         if (cookies != null) {
@@ -104,11 +113,8 @@ public class TokenService {
             }
         }
 
-//        헤더에서 가져오기
-//        String accessToken = request.getHeader("Authorization");
-
         if (accessToken == null) {
-            throw new BadRequestException("Authorization key가 존재하지 않습니다.");
+            throw new TokenNotFoundException();
         }
 
         return accessToken;

@@ -52,9 +52,16 @@ public class Tutoring extends BaseTimeEntity {
 
 
     @Builder
-    public Tutoring(ChatRoom chatRoom, Subject subject, Integer hourlyRate, TutoringStatus status,
-        Member student,
-        Member teacher) {
+    public Tutoring(ChatRoom chatRoom, Subject subject, Integer hourlyRate, Member student, Member teacher) {
+        this.chatRoom = chatRoom;
+        this.subject = subject;
+        this.hourlyRate = hourlyRate;
+        this.student = student;
+        this.teacher = teacher;
+    }
+
+    public void update(ChatRoom chatRoom, Subject subject, Integer hourlyRate,
+        TutoringStatus status, Member student, Member teacher) {
         this.chatRoom = chatRoom;
         this.subject = subject;
         this.hourlyRate = hourlyRate;
@@ -63,15 +70,12 @@ public class Tutoring extends BaseTimeEntity {
         this.teacher = teacher;
     }
 
-    public void update(ChatRoom chatRoom, Subject subject, Integer hourlyRate,
-        TutoringStatus status,
-        Member student,
-        Member teacher) {
-        this.chatRoom = chatRoom;
-        this.subject = subject;
-        this.hourlyRate = hourlyRate;
-        this.status = status;
-        this.student = student;
-        this.teacher = teacher;
+    public void end() {
+        this.status = TutoringStatus.CLOSED;
     }
+
+    public boolean isTeacherOfTutoring(Member member) {
+        return teacher.equals(member);
+    }
+
 }

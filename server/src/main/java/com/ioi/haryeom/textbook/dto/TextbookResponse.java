@@ -11,11 +11,17 @@ public class TextbookResponse {
     private String textbookUrl;
     private Integer totalPage;
 
-    public TextbookResponse(Textbook textbook){
+    public TextbookResponse(Textbook textbook) {
         this.textbookId = textbook.getId();
         this.textbookName = textbook.getTextbookName();
         this.textbookUrl = textbook.getTextbookUrl();
         this.totalPage = textbook.getTotalPage();
+    }
 
+    public TextbookResponse(Textbook textbook, String newUrl) {
+        this.textbookId = textbook.getId();
+        this.textbookName = textbook.getTextbookName();
+        this.textbookUrl = newUrl;
+        this.totalPage = textbook.getTotalPage();
     }
 }

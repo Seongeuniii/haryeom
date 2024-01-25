@@ -60,6 +60,8 @@ public class KakaoService {
         bw.write(sb);
         bw.flush();
 
+        if(urlConnection.getResponseCode() != 200){}
+
         BufferedReader br = new BufferedReader(
             new InputStreamReader(urlConnection.getInputStream()));
         String line;

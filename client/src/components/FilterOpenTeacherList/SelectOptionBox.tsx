@@ -1,50 +1,25 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 import styled from 'styled-components';
+import { IOptionValue } from './FilterOpenTeacherList';
 
 interface SelectOptionBoxProps {
     children: ReactNode;
-    optionValues: string[];
-    multiple: boolean;
+    optionValues: IOptionValue[];
+    handleSelectOption: (optionValue: IOptionValue, index: number) => void;
 }
 
-const SelectOptionBox = ({ children, optionValues, multiple }: SelectOptionBoxProps) => {
-    const [options, setOptions] = useState(
-        optionValues.map((optionValue) => ({ name: optionValue, selected: false }))
-    );
-
-    const selectOption = (selectedOptionIndex: number) => {
-        if (multiple) {
-            const newOptions = [...options];
-            newOptions[selectedOptionIndex].selected = !newOptions[selectedOptionIndex].selected;
-            setOptions(newOptions);
-        } else {
-            const newOptions = options.map((option, idx) => {
-                if (selectedOptionIndex === idx) {
-                    return {
-                        name: option.name,
-                        selected: !options[selectedOptionIndex].selected,
-                    };
-                }
-                return {
-                    name: option.name,
-                    selected: false,
-                };
-            });
-            setOptions(newOptions);
-        }
-    };
-
+const SelectOptionBox = ({ children, optionValues, handleSelectOption }: SelectOptionBoxProps) => {
     return (
         <StyledSelectOptionValuBox>
             {children}
-            {options.map((option, index) => {
+            {optionValues.map((optionValue: IOptionValue, index: number) => {
                 return (
                     <Option
                         key={`filterOptions_${index}`}
-                        onClick={() => selectOption(index)}
-                        selected={option.selected}
+                        onClick={() => handleSelectOption(optionValue, index)}
+                        selected={optionValue.selected}
                     >
-                        {option.name}
+                        {optionValue.label}
                     </Option>
                 );
             })}
