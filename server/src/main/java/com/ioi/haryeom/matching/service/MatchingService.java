@@ -59,7 +59,7 @@ public class MatchingService {
 
         // TODO: 알림 구현??
         log.info("[MATCHING REQUEST] chatRoomId : {}, matchingId : {}", chatRoom.getId(), matchingId);
-        messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId() + "/request", response);
+        messagingTemplate.convertAndSend("/topic/chatrooms/" + chatRoom.getId() + "/request", response);
         return matchingId;
     }
 
@@ -106,7 +106,7 @@ public class MatchingService {
         ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
 
         ChatMessageResponse response = ChatMessageResponse.from(savedChatMessage);
-        messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId(), response);
+        messagingTemplate.convertAndSend("/topic/chatrooms/" + chatRoom.getId(), response);
         //TODO: 지금까지 과외한 거 정산해줘야함
     }
 
@@ -131,7 +131,7 @@ public class MatchingService {
 
     private void sendResponse(ChatRoom chatRoom, Member member, Subject subject, Boolean isAccepted) {
         RespondToMatchingResponse response = RespondToMatchingResponse.of(chatRoom, member, subject, isAccepted);
-        messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId() + "/response", response);
+        messagingTemplate.convertAndSend("/topic/chatrooms/" + chatRoom.getId() + "/response", response);
     }
 
     private ChatMessage createEndTutoringMessage(Tutoring tutoring, Member member) {
