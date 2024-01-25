@@ -3,6 +3,8 @@ package com.ioi.haryeom.textbook.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.ioi.haryeom.auth.dto.AuthInfo;
+import com.ioi.haryeom.common.domain.Subject;
+import com.ioi.haryeom.common.repository.SubjectRepository;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
@@ -48,6 +50,7 @@ public class TextbookService {
     private final MemberRepository memberRepository;
 
     private final AssignmentRespository assignmentRespository;
+    private final SubjectRepository subjectRepository;
 
     private final TutoringRepository tutoringRepository;
 
@@ -99,9 +102,12 @@ public class TextbookService {
 
             }
             Member teacherMember = findMemberById(authinfo.getMemberId());
+            Subject subject = subjectRepository.findById(request.getSubjectId())
+                    .orElseThrow();
 
             Textbook textbook = Textbook.builder()
                     .teacherMember(teacherMember)
+                    .subject(subject)
                     .textbookName(request.getTextbookName())
                     .textbookUrl(fileUrl)
                     .firstPageCover(request.isFirstPageCover())
