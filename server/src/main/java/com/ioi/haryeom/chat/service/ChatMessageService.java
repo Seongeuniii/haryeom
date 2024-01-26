@@ -7,6 +7,8 @@ import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
 import com.ioi.haryeom.chat.manager.WebSocketSessionManager;
 import com.ioi.haryeom.chat.repository.ChatMessageRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomRepository;
+import com.ioi.haryeom.matching.dto.CreateMatchingResponse;
+import com.ioi.haryeom.matching.manager.MatchingManager;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 public class ChatMessageService {
 
     private final WebSocketSessionManager sessionManager;
+    private final MatchingManager matchingManager;
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
@@ -28,6 +31,14 @@ public class ChatMessageService {
 
     public void connectChatRoom(Long chatRoomId, String sessionId, Long memberId) {
         sessionManager.addSession(chatRoomId, sessionId, memberId);
+
+        // 채팅방의 매칭 요청 여부 확인
+        if (matchingManager.existMatchingResponseByChatRoomId(chatRoomId)) {
+            CreateMatchingResponse response = matchingManager.getTutoringMatchingResponseByChatRoomId(
+                chatRoomId);
+            // 클라이언트에 매칭 요청 전송
+            messagingTemplate.convertAndSend("/topic/chatrooms/" + response.getChatRoomId() + "/request", response);
+        }
     }
 
     public void disconnectChatRoom(String sessionId) {
