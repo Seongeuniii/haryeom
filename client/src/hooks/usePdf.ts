@@ -1,51 +1,64 @@
 import { RefObject, useEffect, useState } from 'react';
-import type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
+import { DocumentCallback, PageCallback } from 'react-pdf/dist/cjs/shared/types';
 
-interface IUsePdf {
-    defaultPageNum?: number;
+export interface IPdfSize {
+    width: number | undefined;
+    height: number | undefined;
 }
 
-const usePdf = ({ defaultPageNum = 1 }: IUsePdf) => {
-    const [pageNum, setPageNum] = useState<number>(defaultPageNum);
-    const [pdfPagesNum, setPdfPagesNum] = useState<number>(0);
-    const [pdfPageSize, setPdfPageSize] = useState<{ width: number; height: number }>({
-        width: 0,
-        height: 0,
+interface IUsePdf {
+    initialSelectedPageNumer?: number;
+}
+
+const usePdf = ({ initialSelectedPageNumer = 1 }: IUsePdf) => {
+    const [totalPagesOfPdfFile, setTotalPagesOfPdfFile] = useState<number>(0);
+    const [selectedPageNumber, setSelectedPageNum] = useState<number>(initialSelectedPageNumer);
+    const [pdfPageCurrentSize, setPdfPageCurrentSize] = useState<IPdfSize>({
+        width: undefined,
+        height: undefined,
     });
+    const [pdfPageOriginalSize, setPdfPageOriginalSize] = useState<IPdfSize>();
     const [resizeTimer, setResizeTimer] = useState<NodeJS.Timeout>();
 
-    const movePage = (selectedPageNumber: number) => {
-        setPageNum(selectedPageNumber);
+    const onDocumentLoadSuccess = (pdfDocument: DocumentCallback) => {
+        const { numPages } = pdfDocument;
+        setTotalPagesOfPdfFile(numPages);
     };
 
-    const updatePdfPageSize = (pdfPageWrapperRef: RefObject<HTMLDivElement>) => {
+    const onPageLoadSuccess = (pdfPage: PageCallback) => {
+        const { originalWidth, originalHeight } = pdfPage;
+        setPdfPageOriginalSize({
+            width: originalWidth,
+            height: originalHeight,
+        });
+    };
+
+    const movePage = (selectedPageNumber: number) => {
+        setSelectedPageNum(selectedPageNumber);
+    };
+
+    const updatePdfPageCurrentSize = (size: IPdfSize) => {
         clearTimeout(resizeTimer);
         const timerId = setTimeout(() => {
-            if (!pdfPageWrapperRef.current) return;
-            const { clientWidth, clientHeight } = pdfPageWrapperRef.current;
-            setPdfPageSize({ width: clientWidth, height: clientHeight });
-        }, 300);
+            const { width, height } = size;
+            setPdfPageCurrentSize({ width, height });
+        }, 200);
         setResizeTimer(timerId);
     };
 
-    const onDocumentLoadSuccess = (pdfDocument: PDFDocumentProxy) => {
-        const { numPages } = pdfDocument;
-        setPdfPagesNum(numPages);
-    };
-
-    const onPageLoadSuccess = (pdfPage: PDFPageProxy) => {
-        const viewport = pdfPage.getViewport({ scale: 1 });
-        // width, height -> canvas 저장 사이즈
-    };
+    useEffect(() => {
+        console.log(pdfPageCurrentSize);
+    }, [pdfPageCurrentSize]);
 
     return {
-        pdfPagesNum,
-        pdfPageSize,
-        pageNum,
+        totalPagesOfPdfFile,
+        selectedPageNumber,
+        pdfPageCurrentSize,
+        pdfPageOriginalSize,
         onDocumentLoadSuccess,
         onPageLoadSuccess,
         movePage,
-        updatePdfPageSize,
+        updatePdfPageCurrentSize,
     };
 };
 

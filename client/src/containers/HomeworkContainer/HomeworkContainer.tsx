@@ -21,14 +21,16 @@ interface IMyHomeworkDrawings {
 const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
     const [myHomeworkDrawings, setMyHomeworkDrawings] = useState<IMyHomeworkDrawings>({});
     const {
-        pdfPagesNum,
-        pdfPageSize,
-        pageNum,
+        totalPagesOfPdfFile,
+        selectedPageNumber,
+        pdfPageCurrentSize,
         onDocumentLoadSuccess,
         onPageLoadSuccess,
         movePage,
-        updatePdfPageSize,
-    } = usePdf({ defaultPageNum: homeworkData.startPage });
+        updatePdfPageCurrentSize,
+    } = usePdf({
+        initialSelectedPageNumer: homeworkData.startPage,
+    });
     const { save } = useMyPaint({ updateImageSource: setMyHomeworkDrawings });
 
     useEffect(() => {
@@ -48,21 +50,21 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
             <StyledHomeworkContainer>
                 <Board>
                     <PdfViewer
-                        pdfUrl={homeworkData.textbook.textbookUrl}
-                        pageNum={pageNum}
+                        pdfFile={homeworkData.textbook.textbookUrl}
+                        selectedPageNumber={selectedPageNumber}
+                        totalPagesOfPdfFile={totalPagesOfPdfFile}
+                        pdfPageCurrentSize={pdfPageCurrentSize}
                         movePage={movePage}
-                        pdfPagesNum={pdfPagesNum}
-                        pdfPageSize={pdfPageSize}
                         onDocumentLoadSuccess={onDocumentLoadSuccess}
                         onPageLoadSuccess={onPageLoadSuccess}
-                        updatePdfPageSize={updatePdfPageSize}
+                        updatePdfPageCurrentSize={updatePdfPageCurrentSize}
                     >
                         <DrawingLayer>
                             <PaintCanvas
-                                imageSource={myHomeworkDrawings[pageNum]}
+                                imageSource={myHomeworkDrawings[selectedPageNumber]}
                                 save={save}
-                                pdfPageSize={pdfPageSize}
-                                pageNum={pageNum}
+                                pdfPageCurrentSize={pdfPageCurrentSize}
+                                pageNum={selectedPageNumber}
                             />
                         </DrawingLayer>
                     </PdfViewer>
