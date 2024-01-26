@@ -9,7 +9,6 @@ public class WebSocketSessionManager {
 
     private final Map<String, Long> sessionMemberMap = new ConcurrentHashMap<>();
     private final Map<String, Long> sessionChatRoomMap = new ConcurrentHashMap<>();
-    private final Map<String, String> sessionMatchingMap = new ConcurrentHashMap<>();
 
     public void addSession(Long chatRoomId, String sessionId, Long memberId) {
         sessionMemberMap.put(sessionId, memberId);
