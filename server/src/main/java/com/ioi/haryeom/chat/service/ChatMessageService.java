@@ -33,8 +33,8 @@ public class ChatMessageService {
         sessionManager.addSession(chatRoomId, sessionId, memberId);
 
         // 채팅방의 매칭 요청 여부 확인
-        if (matchingManager.existMatchingResponseByChatRoomId(chatRoomId)) {
-            CreateMatchingResponse response = matchingManager.getTutoringMatchingResponseByChatRoomId(
+        if (matchingManager.existMatchingRequestByChatRoomId(chatRoomId)) {
+            CreateMatchingResponse response = matchingManager.getTutoringMatchingRequestByChatRoomId(
                 chatRoomId);
             // 클라이언트에 매칭 요청 전송
             messagingTemplate.convertAndSend("/topic/chatrooms/" + response.getChatRoomId() + "/request", response);
