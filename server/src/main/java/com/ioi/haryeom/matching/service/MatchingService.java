@@ -14,6 +14,7 @@ import com.ioi.haryeom.matching.dto.CreateMatchingRequest;
 import com.ioi.haryeom.matching.dto.CreateMatchingResponse;
 import com.ioi.haryeom.matching.dto.RespondToMatchingRequest;
 import com.ioi.haryeom.matching.dto.RespondToMatchingResponse;
+import com.ioi.haryeom.matching.exception.DuplicateMatchingException;
 import com.ioi.haryeom.matching.manager.MatchingManager;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
@@ -47,6 +48,8 @@ public class MatchingService {
 
         ChatRoom chatRoom = findChatRoomById(request.getChatRoomId());
 
+        validateNoExistingMatching(chatRoom);
+
         Member member = findMemberById(memberId);
 
         Subject subject = findSubjectById(request.getSubjectId());
@@ -62,6 +65,12 @@ public class MatchingService {
         log.info("[MATCHING REQUEST] chatRoomId : {}, matchingId : {}", chatRoom.getId(), matchingId);
         messagingTemplate.convertAndSend("/topic/chatrooms/" + chatRoom.getId() + "/request", response);
         return matchingId;
+    }
+
+    private void validateNoExistingMatching(ChatRoom chatRoom) {
+        if (matchingManager.existMatchingResponseByChatRoomId(chatRoom.getId())) {
+            throw new DuplicateMatchingException(chatRoom.getId());
+        }
     }
 
     @Transactional
