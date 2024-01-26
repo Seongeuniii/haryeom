@@ -25,13 +25,17 @@ public class MatchingManager {
         matchingMap.remove(matchingId);
     }
 
-    public CreateMatchingResponse getTutoringMatchingResponseByChatRoomId(Long chatRoomId) {
+    public CreateMatchingResponse getTutoringMatchingRequestByChatRoomId(Long chatRoomId) {
         String matchingId = chatRoomMatchingMap.get(chatRoomId);
         return matchingMap.get(matchingId);
     }
 
-    public boolean existMatchingResponseByChatRoomId(Long chatRoomId) {
+    public boolean existMatchingRequestByChatRoomId(Long chatRoomId) {
         return chatRoomMatchingMap.containsKey(chatRoomId);
+    }
+
+    public boolean existMatchingRequestByMatchingId(String matchingId) {
+        return matchingMap.containsKey(matchingId);
     }
 
 }
