@@ -14,26 +14,12 @@ interface HomeworkContainerProps {
     homeworkData: IHomework;
 }
 
-interface IMyImageDrawingImages {
+interface IMyHomeworkDrawings {
     [pageNum: number]: string | StaticImageData;
 }
 
-const initMyDrawingImages = (homework: IHomework): IMyImageDrawingImages => {
-    const { startPage, endPage } = homework;
-    const drawingImages: IMyImageDrawingImages = {};
-    for (let pageNum = startPage; pageNum <= endPage; pageNum++) {
-        const drawingForPage = homework.drawings.find((drawing) => drawing.page === pageNum);
-        if (drawingForPage) {
-            drawingImages[pageNum] = drawingForPage.homeworkDrawingUrl;
-        } else {
-            drawingImages[pageNum] = '';
-        }
-    }
-    return drawingImages;
-};
-
 const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
-    const [myDrawingImages, setMyDrawingImages] = useState<IMyImageDrawingImages>({});
+    const [myHomeworkDrawings, setMyHomeworkDrawings] = useState<IMyHomeworkDrawings>({});
     const {
         pdfPagesNum,
         pdfPageSize,
@@ -43,10 +29,18 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
         movePage,
         updatePdfPageSize,
     } = usePdf({ defaultPageNum: homeworkData.startPage });
-    const { save } = useMyPaint({ updateImageSource: setMyDrawingImages });
+    const { save } = useMyPaint({ updateImageSource: setMyHomeworkDrawings });
 
     useEffect(() => {
-        setMyDrawingImages(initMyDrawingImages(homeworkData));
+        const { drawings } = homeworkData;
+        const initialMyHomeworkDrawings: IMyHomeworkDrawings = drawings.reduce(
+            (acc, { page, homeworkDrawingUrl }) => {
+                acc[page] = homeworkDrawingUrl;
+                return acc;
+            },
+            {} as IMyHomeworkDrawings
+        );
+        setMyHomeworkDrawings(initialMyHomeworkDrawings);
     }, []);
 
     return (
@@ -65,7 +59,7 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
                     >
                         <DrawingLayer>
                             <PaintCanvas
-                                imageSource={myDrawingImages[pageNum]}
+                                imageSource={myHomeworkDrawings[pageNum]}
                                 save={save}
                                 pdfPageSize={pdfPageSize}
                                 pageNum={pageNum}

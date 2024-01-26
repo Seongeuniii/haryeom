@@ -43,15 +43,18 @@ const PdfViewer = ({
         updatePdfPageSize(pdfPageWrapperRef);
     }, [pdfPageWrapperRef.current?.clientWidth, fitWidth]);
 
+    const container = useRef<HTMLDivElement>(null);
+
     return (
         <StyledPdfViewer>
             <Fit onClick={() => setFitWidth(!fitWidth)}>전체보기</Fit>
-            <PdfThumbnailList>
+            <PdfThumbnailList ref={container}>
                 <Document file={pdfUrl}>
                     {Array.from({ length: pdfPagesNum }, (el, index) => (
                         <PdfThumbnail
                             key={`page_${index + 1}`}
                             thumbnailPageNumber={index + 1}
+                            pageNum={pageNum}
                             movePage={movePage}
                         >
                             <Page
