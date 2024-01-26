@@ -31,6 +31,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    // 학생 등록
     @PostMapping("/students")
     public ResponseEntity<Void> createStudent(@AuthenticationPrincipal Member user,
         @RequestBody StudentCreateRequest createRequest) {
@@ -39,6 +40,7 @@ public class MemberController {
         return ResponseEntity.created(URI.create("/members/students/" + memberId)).build();
     }
 
+    // 학생 선택 조회
     @GetMapping("/students/{memberId}")
     public ResponseEntity<StudentInfoResponse> getStudent(
         @PathVariable("memberId") Long memberId) {
@@ -46,6 +48,7 @@ public class MemberController {
         return ResponseEntity.ok().body(memberService.getStudent(memberId));
     }
 
+    // 학생 수정
     @PutMapping("/students")
     public ResponseEntity<Void> updateStudent(@AuthenticationPrincipal Member user,
         @RequestBody StudentInfoResponse studentRequest) {
@@ -53,6 +56,7 @@ public class MemberController {
         return ResponseEntity.noContent().build();
     }
 
+    //
     @PostMapping("/teachers")
     public ResponseEntity<Void> createTeacher(@AuthenticationPrincipal Member user,
         @RequestBody TeacherCreateRequest teacherRequest) {

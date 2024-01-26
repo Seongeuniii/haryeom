@@ -33,7 +33,7 @@ public class SecurityConfig {
             .permitAll()
             .antMatchers("/api/auth/")
             .hasRole("GUEST")
-            .antMatchers(POST, " /api/members/students", "/api/members/teachers")
+            .antMatchers(POST, "/api/members/students", "/api/members/teachers")
             .hasRole("GUEST")
             .antMatchers("/api/members/students", "/api/members/students/**")
             .hasRole("STUDENT")
