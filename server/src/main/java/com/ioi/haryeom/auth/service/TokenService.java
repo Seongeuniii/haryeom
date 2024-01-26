@@ -1,17 +1,17 @@
 package com.ioi.haryeom.auth.service;
 
+import static com.ioi.haryeom.auth.type.ErrorCode.EMPTY_TOKEN;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import com.ioi.haryeom.advice.exception.BadRequestException;
 import com.ioi.haryeom.advice.exception.NotFoundException;
 import com.ioi.haryeom.advice.exception.UnauthorizedException;
-import com.ioi.haryeom.auth.exception.TokenNotFoundException;
+import com.ioi.haryeom.auth.exception.FilterException;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -100,7 +100,7 @@ public class TokenService {
         Cookie[] cookies = request.getCookies();
 
         if(cookies == null){
-            throw new TokenNotFoundException();
+            throw new FilterException(EMPTY_TOKEN, UNAUTHORIZED);
         }
 
         String accessToken = null;
@@ -114,7 +114,7 @@ public class TokenService {
         }
 
         if (accessToken == null) {
-            throw new TokenNotFoundException();
+            throw new FilterException(EMPTY_TOKEN, UNAUTHORIZED);
         }
 
         return accessToken;
@@ -122,7 +122,7 @@ public class TokenService {
 
     public boolean validateToken(String token) {
         try {
-            Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+            Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
             return claims.getExpiration().after(new Date());
 
         } catch (ExpiredJwtException e) {

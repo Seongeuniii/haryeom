@@ -40,11 +40,17 @@ public class SecurityConfig {
             .antMatchers("/api/members/teachers", "/api/members/teachers/**")
             .hasRole("TEACHER")
             .anyRequest()
-            .authenticated();
+            .authenticated()
+            .and()
+            .addFilterBefore(new JwtAuthenticationFilter(tokenService),
+                UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling()
+            .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+            .accessDeniedHandler(new CustomAccessDeniedHanler());
 
-        http.addFilterBefore(new JwtAuthenticationFilter(tokenService),
-            UsernamePasswordAuthenticationFilter.class);
-        http.exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint());
+//        http.addFilterBefore(new JwtAuthenticationFilter(tokenService),
+//            UsernamePasswordAuthenticationFilter.class);
+//        http.exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint());
 
         return http.build();
     }
