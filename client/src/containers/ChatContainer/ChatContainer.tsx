@@ -37,7 +37,7 @@ const ChatContainer = ({}: ChatContainerProps) => {
                         <ChatRoomPreview
                             chatRoom={{
                                 chatRoomId: 1,
-                                role: 'teacher',
+                                role: 'TEACHER',
                                 profileUrl: '/images/student-boy.png',
                                 name: '김성은',
                                 lastMessage: '안녕하세요!',
@@ -49,7 +49,7 @@ const ChatContainer = ({}: ChatContainerProps) => {
                         <ChatRoomPreview
                             chatRoom={{
                                 chatRoomId: 1,
-                                role: 'teacher',
+                                role: 'TEACHER',
                                 profileUrl: '/images/student-boy.png',
                                 name: '김성은',
                                 lastMessage: '안녕하세요!',
@@ -77,10 +77,10 @@ const ChatContainer = ({}: ChatContainerProps) => {
 
 const ChatButton = styled.button`
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 60px;
-    height: 60px;
+    bottom: 3em;
+    right: 3em;
+    width: 65px;
+    height: 65px;
     z-index: 100;
     background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
     border-radius: 1em;
