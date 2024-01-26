@@ -1,15 +1,16 @@
 import { PointerEvent, RefObject, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { StaticImageData } from 'next/image';
+import { IPdfSize } from '@/hooks/usePdf';
 
 interface PaintCanvasProps {
     imageSource: StaticImageData | string;
     save: (canvasRef: RefObject<HTMLCanvasElement>, pageNum: number) => void;
-    pdfPageSize: { width: number; height: number };
+    pdfPageCurrentSize: IPdfSize;
     pageNum: number;
 }
 
-const PaintCanvas = ({ imageSource, save, pdfPageSize, pageNum }: PaintCanvasProps) => {
+const PaintCanvas = ({ imageSource, save, pdfPageCurrentSize, pageNum }: PaintCanvasProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const contextRef = useRef<CanvasRenderingContext2D | null>(null);
     const canvasInformRef = useRef({
@@ -21,7 +22,7 @@ const PaintCanvas = ({ imageSource, save, pdfPageSize, pageNum }: PaintCanvasPro
 
     useEffect(() => {
         init();
-    }, [pdfPageSize]);
+    }, [pdfPageCurrentSize]);
 
     useEffect(() => {
         init();

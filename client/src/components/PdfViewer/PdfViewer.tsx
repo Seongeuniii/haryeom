@@ -3,58 +3,77 @@ import styled from 'styled-components';
 import { Document, Page, pdfjs } from 'react-pdf';
 import PdfThumbnail from './PdfThumbnail';
 import { OnDocumentLoadSuccess, OnPageLoadSuccess } from 'react-pdf/dist/cjs/shared/types';
+import { IPdfSize } from '@/hooks/usePdf';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 interface PdfViewerProps {
-    pdfUrl: string;
-    pdfPagesNum: number;
-    pdfPageSize: { width: number; height: number };
+    pdfFile: string;
+    totalPagesOfPdfFile: number;
+    pdfPageCurrentSize: IPdfSize;
     children: ReactNode;
-    pageNum: number;
+    selectedPageNumber: number;
     movePage: (selectedPageNumber: number) => void;
     onDocumentLoadSuccess: OnDocumentLoadSuccess;
     onPageLoadSuccess: OnPageLoadSuccess;
-    updatePdfPageSize: (pdfPageWrapperRef: RefObject<HTMLDivElement>) => void;
+    updatePdfPageCurrentSize: (size: IPdfSize) => void;
 }
 
 const PdfViewer = ({
-    pdfUrl,
-    pdfPagesNum,
-    pdfPageSize,
-    pageNum,
-    children,
+    pdfFile,
+    totalPagesOfPdfFile,
+    pdfPageCurrentSize,
+    selectedPageNumber,
     onDocumentLoadSuccess,
     onPageLoadSuccess,
     movePage,
-    updatePdfPageSize,
+    updatePdfPageCurrentSize,
+    children,
 }: PdfViewerProps) => {
     const pdfPageWrapperRef = useRef<HTMLDivElement>(null);
-    const [fitWidth, setFitWidth] = useState<boolean>(false);
+    const thumbnailListcontainer = useRef<HTMLDivElement>(null);
+    const [showFullFile, setShowFullFile] = useState<boolean>(false);
 
     useEffect(() => {
-        updatePdfPageSize(pdfPageWrapperRef);
+        updatePdfPageCurrentSize(getPdfPageWrapperSize());
         window.addEventListener('resize', () => {
-            updatePdfPageSize(pdfPageWrapperRef);
+            updatePdfPageCurrentSize(getPdfPageWrapperSize());
         });
-    }, [pdfPagesNum]);
+    }, [pdfFile]);
 
     useEffect(() => {
-        updatePdfPageSize(pdfPageWrapperRef);
-    }, [pdfPageWrapperRef.current?.clientWidth, fitWidth]);
+        updatePdfPageCurrentSize(getPdfPageWrapperSize());
+    }, [pdfPageWrapperRef.current?.clientWidth, pdfPageWrapperRef.current?.clientHeight]);
 
-    const container = useRef<HTMLDivElement>(null);
+    const getPdfPageWrapperSize = () => {
+        if (!pdfPageWrapperRef.current) return { width: undefined, height: undefined };
+        const { clientWidth, clientHeight } = pdfPageWrapperRef.current;
+        return { width: clientWidth, height: clientHeight };
+    };
+
+    const handleClickShowFullFileButton = () => {
+        const { width, height } = getPdfPageWrapperSize();
+        if (showFullFile) {
+            updatePdfPageCurrentSize({ width, height: undefined });
+        } else {
+            updatePdfPageCurrentSize({ width: undefined, height: height });
+        }
+        setShowFullFile(!showFullFile);
+    };
 
     return (
         <StyledPdfViewer>
-            <Fit onClick={() => setFitWidth(!fitWidth)}>전체보기</Fit>
-            <PdfThumbnailList ref={container}>
-                <Document file={pdfUrl}>
-                    {Array.from({ length: pdfPagesNum }, (el, index) => (
+            <ShowFullFileButton onClick={handleClickShowFullFileButton}>
+                {showFullFile ? '크게보기' : '전체화면'}
+            </ShowFullFileButton>
+            <PdfThumbnailList ref={thumbnailListcontainer}>
+                <Document file={pdfFile}>
+                    {/* pdf 전체 리스트 */}
+                    {Array.from({ length: totalPagesOfPdfFile }, (el, index) => (
                         <PdfThumbnail
                             key={`page_${index + 1}`}
-                            thumbnailPageNumber={index + 1}
-                            pageNum={pageNum}
+                            pageNumber={index + 1}
+                            selectedPageNumber={selectedPageNumber}
                             movePage={movePage}
                         >
                             <Page
@@ -68,14 +87,15 @@ const PdfViewer = ({
                 </Document>
             </PdfThumbnailList>
             <PdfPageWrapper ref={pdfPageWrapperRef}>
-                <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess}>
+                {/* pdf 한 페이지 */}
+                <Document file={pdfFile} onLoadSuccess={onDocumentLoadSuccess}>
                     <Page
-                        pageNumber={pageNum}
+                        pageNumber={selectedPageNumber}
+                        onLoadSuccess={onPageLoadSuccess}
+                        width={pdfPageCurrentSize.width}
+                        height={pdfPageCurrentSize.height}
                         renderAnnotationLayer={false}
                         renderTextLayer={false}
-                        onLoadSuccess={onPageLoadSuccess}
-                        width={!fitWidth ? pdfPageSize.width : undefined}
-                        height={fitWidth ? pdfPageSize.height : undefined}
                     >
                         {children}
                     </Page>
@@ -112,7 +132,7 @@ const PdfPageWrapper = styled.div`
     justify-content: center;
 `;
 
-const Fit = styled.button`
+const ShowFullFileButton = styled.button`
     position: absolute;
     top: 0;
     left: 0;
