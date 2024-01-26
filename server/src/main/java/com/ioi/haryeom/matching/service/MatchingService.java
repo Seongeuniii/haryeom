@@ -1,6 +1,5 @@
 package com.ioi.haryeom.matching.service;
 
-import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.chat.domain.ChatMessage;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.chat.dto.ChatMessageResponse;
@@ -14,6 +13,8 @@ import com.ioi.haryeom.matching.dto.CreateMatchingRequest;
 import com.ioi.haryeom.matching.dto.CreateMatchingResponse;
 import com.ioi.haryeom.matching.dto.RespondToMatchingRequest;
 import com.ioi.haryeom.matching.dto.RespondToMatchingResponse;
+import com.ioi.haryeom.matching.exception.DuplicateMatchingException;
+import com.ioi.haryeom.matching.exception.MatchingNotFoundException;
 import com.ioi.haryeom.matching.manager.MatchingManager;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
@@ -47,6 +48,8 @@ public class MatchingService {
 
         ChatRoom chatRoom = findChatRoomById(request.getChatRoomId());
 
+        validateNoExistingMatching(chatRoom);
+
         Member member = findMemberById(memberId);
 
         Subject subject = findSubjectById(request.getSubjectId());
@@ -67,9 +70,13 @@ public class MatchingService {
     @Transactional
     public Long respondToMatchingRequest(RespondToMatchingRequest request, Long memberId) {
 
+        String matchingId = request.getMatchingId();
+
+        validateMatchingRequestExists(matchingId);
+
         CreateMatchingResponse createdMatchingResponse = matchingManager.getTutoringMatchingRequestByMatchingId(
-            request.getMatchingId());
-        matchingManager.removeTutoringMatchingRequestByMatchingId(request.getMatchingId());
+            matchingId);
+        matchingManager.removeTutoringMatchingRequestByMatchingId(matchingId);
 
         ChatRoom chatRoom = findChatRoomById(createdMatchingResponse.getChatRoomId());
 
@@ -97,8 +104,6 @@ public class MatchingService {
         ChatRoom chatRoom = tutoring.getChatRoom();
 
         Member member = findMemberById(memberId);
-
-        validateTeacherOfTutoring(tutoring, member);
 
         tutoring.end();
 
@@ -147,9 +152,15 @@ public class MatchingService {
             .build();
     }
 
-    private void validateTeacherOfTutoring(Tutoring tutoring, Member member) {
-        if (!tutoring.isTeacherOfTutoring(member)) {
-            throw new AuthorizationException("선생님만 과외를 종료할 수 있습니다.");
+    private void validateNoExistingMatching(ChatRoom chatRoom) {
+        if (matchingManager.existMatchingRequestByChatRoomId(chatRoom.getId())) {
+            throw new DuplicateMatchingException(chatRoom.getId());
+        }
+    }
+
+    private void validateMatchingRequestExists(String matchingId) {
+        if (!matchingManager.existMatchingRequestByMatchingId(matchingId)) {
+            throw new MatchingNotFoundException(matchingId);
         }
     }
 
