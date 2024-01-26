@@ -63,7 +63,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             }
 
         } catch (FilterException e) {
-            request.setAttribute("errorCode", e.getMessage());
+            request.setAttribute("errorCode", e.getErrorCode());
             request.setAttribute("httpStatus", e.getHttpStatus());
         } catch (NotFoundException e) {
             request.setAttribute("errorCode", NOT_FOUND_MEMBER);
