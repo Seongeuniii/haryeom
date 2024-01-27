@@ -86,7 +86,8 @@ pipeline {
         stage('Service Stop & Service Remove') {
             steps {
                 dir('server') {
-                    sh 'docker-compose down'
+                    sh 'docker stop haryeom-be'
+                    sh 'docker rm haryeom-be'
                     sh "docker rmi $latestImage"
                 }
             }
