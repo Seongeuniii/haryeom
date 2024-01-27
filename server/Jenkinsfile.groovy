@@ -1,13 +1,20 @@
 pipeline {
     agent any
 
+    environment {
+        gitBranch = 'develop'
+        gitCredential = 'gitlab-demise1426'
+        gitUrl = 'https://lab.ssafy.com/s10-webmobile1-sub2/S10P12A807'
+        dockerCredential = 'demise1426-docker'
+    }
+
     stages {
-        stage('Checkout') {
-            steps {
-                // Checkout 소스 코드
-                checkout scm
-            }
-        }
+//        stage('Checkout') {
+//            steps {
+//                // Checkout 소스 코드
+//                checkout scm
+//            }
+//        }
         stage('Check Changes') {
             steps {
                 script {
@@ -20,17 +27,17 @@ pipeline {
                     }.flatten()
 
                     // Check if changes include server directory
-                    // def serverChanged = changes.any { it.path.startsWith('server/') }
+                     def serverChanged = changes.any { it.path.startsWith('server/') }
 
-                    def serverChanged = changes.any {
-                        if (it.path.startsWith('server/')) {
-                            echo "Change detected in: ${it.path}"
-                            true
-                        } else {
-                            echo "else Change detected in: ${it.path}"
-                            false
-                        }
-                    }
+//                    def serverChanged = changes.any {
+//                        if (it.path.startsWith('server/')) {
+//                            echo "Change detected in: ${it.path}"
+//                            true
+//                        } else {
+//                            echo "else Change detected in: ${it.path}"
+//                            false
+//                        }
+//                    }
 
                     if (serverChanged) {
                         echo 'Changes detected in server directory. Running the pipeline.'
@@ -42,12 +49,11 @@ pipeline {
                 }
             }
         }
-
         stage('Git Clone') {
             steps {
-                git branch: 'develop',
-                        credentialsId: 'gitlab-demise1426',
-                        url: 'https://lab.ssafy.com/s10-webmobile1-sub2/S10P12A807'
+                git branch: gitBranch,
+                        credentialsId: gitCredential,
+                        url: gitUrl
             }
         }
         stage('Jar Build') {
@@ -55,6 +61,32 @@ pipeline {
                 dir('server') {
                     sh 'chmod +x ./gradlew'
                     sh './gradlew clean bootJar'
+                }
+            }
+        }
+        stage('Docker Image Build & DockerHub Push') {
+            steps {
+                dir('server') {
+                    docker.withRegistry('', dockerCredential) {
+                        // Use the credentials for Docker Hub login
+                        // Build and push Docker image using docker-compose
+                        sh "docker-compose build"
+                        sh "docker-compose push"
+                    }
+                }
+            }
+        }
+        stage('Service Stop & Service Remove') {
+            steps {
+                dir('server') {
+                    sh 'docker-compose down'
+                }
+            }
+        }
+        stage('DockerHub Pull & Service Start') {
+            steps {
+                dir('server') {
+                    sh 'docker-compose up -d'
                 }
             }
         }
