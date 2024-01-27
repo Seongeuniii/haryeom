@@ -12,7 +12,12 @@ pipeline {
             steps {
                 script {
                     // GitLab webhook payload contains information about the changes
-                    def changes = currentBuild.rawBuild.changeSets.collect { it.items }.flatten()
+//                    def changes = currentBuild.rawBuild.changeSets.collect { it.items }.flatten()
+                    def changes = currentBuild.rawBuild.changeSets.collect { changeLogSet ->
+                        changeLogSet.collect { changeSet ->
+                            changeSet.getAffectedFiles()
+                        }
+                    }.flatten()
 
                     // Check if changes include server directory
                     // def serverChanged = changes.any { it.path.startsWith('server/') }
