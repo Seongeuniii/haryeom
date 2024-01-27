@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    tools {
+        gradle "gradle"
+    }
 
     environment {
         gitBranch = 'develop'
