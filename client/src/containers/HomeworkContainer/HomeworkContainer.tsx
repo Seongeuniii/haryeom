@@ -101,7 +101,6 @@ const StyledHomeworkContainer = styled.div`
 const Board = styled.div`
     position: relative;
     width: 100%;
-    flex: 0.93;
     overflow: auto;
     display: flex;
 `;
