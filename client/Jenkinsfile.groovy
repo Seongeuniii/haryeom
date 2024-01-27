@@ -57,7 +57,6 @@ pipeline {
                 dir('client') {
                     script {
                         docker.withRegistry('', dockerCredential) {
-                            // Use the credentials for Docker Hub login
                             // Build and push Docker image using docker-compose
                             sh "docker-compose build"
                             sh "docker-compose push"
