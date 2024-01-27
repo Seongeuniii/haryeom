@@ -10,6 +10,7 @@ pipeline {
         gitCredential = 'gitlab-demise1426'
         gitUrl = 'https://lab.ssafy.com/s10-webmobile1-sub2/S10P12A807'
         dockerCredential = 'demise1426-docker'
+        latestImage = 'demise1426/haryeom-be:latest'
     }
 
     stages {
@@ -86,6 +87,7 @@ pipeline {
             steps {
                 dir('server') {
                     sh 'docker-compose down'
+                    sh "docker rmi $latestImage"
                 }
             }
         }
