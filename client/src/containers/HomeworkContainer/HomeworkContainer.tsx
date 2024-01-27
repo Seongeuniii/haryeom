@@ -28,6 +28,8 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
         onPageLoadSuccess,
         movePage,
         updatePdfPageCurrentSize,
+        ZoomInPdfPageCurrentSize,
+        ZoomOutPdfPageCurrentSize,
     } = usePdf({
         initialSelectedPageNumer: homeworkData.startPage,
     });
@@ -58,6 +60,8 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
                         onDocumentLoadSuccess={onDocumentLoadSuccess}
                         onPageLoadSuccess={onPageLoadSuccess}
                         updatePdfPageCurrentSize={updatePdfPageCurrentSize}
+                        ZoomInPdfPageCurrentSize={ZoomInPdfPageCurrentSize}
+                        ZoomOutPdfPageCurrentSize={ZoomOutPdfPageCurrentSize}
                     >
                         <DrawingLayer>
                             <PaintCanvas
@@ -96,7 +100,7 @@ const StyledHomeworkContainer = styled.div`
 
 const Board = styled.div`
     position: relative;
-    width: 93%;
+    width: 100%;
     flex: 0.93;
     overflow: auto;
     display: flex;

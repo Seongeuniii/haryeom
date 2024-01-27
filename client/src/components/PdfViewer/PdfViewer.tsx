@@ -17,6 +17,8 @@ interface PdfViewerProps {
     onDocumentLoadSuccess: OnDocumentLoadSuccess;
     onPageLoadSuccess: OnPageLoadSuccess;
     updatePdfPageCurrentSize: (size: IPdfSize) => void;
+    ZoomInPdfPageCurrentSize: () => void;
+    ZoomOutPdfPageCurrentSize: () => void;
 }
 
 const PdfViewer = ({
@@ -28,11 +30,12 @@ const PdfViewer = ({
     onPageLoadSuccess,
     movePage,
     updatePdfPageCurrentSize,
+    ZoomInPdfPageCurrentSize,
+    ZoomOutPdfPageCurrentSize,
     children,
 }: PdfViewerProps) => {
     const pdfPageWrapperRef = useRef<HTMLDivElement>(null);
     const thumbnailListcontainer = useRef<HTMLDivElement>(null);
-    const [showFullFile, setShowFullFile] = useState<boolean>(false);
 
     useEffect(() => {
         updatePdfPageCurrentSize(getPdfPageWrapperSize());
@@ -51,24 +54,10 @@ const PdfViewer = ({
         return { width: clientWidth, height: clientHeight };
     };
 
-    const handleClickShowFullFileButton = () => {
-        const { width, height } = getPdfPageWrapperSize();
-        if (showFullFile) {
-            updatePdfPageCurrentSize({ width, height: undefined });
-        } else {
-            updatePdfPageCurrentSize({ width: undefined, height: height });
-        }
-        setShowFullFile(!showFullFile);
-    };
-
     return (
         <StyledPdfViewer>
-            <ShowFullFileButton onClick={handleClickShowFullFileButton}>
-                {showFullFile ? '크게보기' : '전체화면'}
-            </ShowFullFileButton>
             <PdfThumbnailList ref={thumbnailListcontainer}>
                 <Document file={pdfFile}>
-                    {/* pdf 전체 리스트 */}
                     {Array.from({ length: totalPagesOfPdfFile }, (el, index) => (
                         <PdfThumbnail
                             key={`page_${index + 1}`}
@@ -87,26 +76,36 @@ const PdfViewer = ({
                 </Document>
             </PdfThumbnailList>
             <PdfPageWrapper ref={pdfPageWrapperRef}>
-                {/* pdf 한 페이지 */}
-                <Document file={pdfFile} onLoadSuccess={onDocumentLoadSuccess}>
-                    <Page
-                        pageNumber={selectedPageNumber}
-                        onLoadSuccess={onPageLoadSuccess}
-                        width={pdfPageCurrentSize.width}
-                        height={pdfPageCurrentSize.height}
-                        renderAnnotationLayer={false}
-                        renderTextLayer={false}
-                    >
-                        {children}
-                    </Page>
-                </Document>
+                <div
+                    style={{
+                        width: `${pdfPageCurrentSize.width}`,
+                        height: `${pdfPageCurrentSize.height}`,
+                        overflow: 'scroll',
+                    }}
+                >
+                    <Document file={pdfFile} onLoadSuccess={onDocumentLoadSuccess}>
+                        <Page
+                            pageNumber={selectedPageNumber}
+                            onLoadSuccess={onPageLoadSuccess}
+                            width={pdfPageCurrentSize.width}
+                            height={pdfPageCurrentSize.height}
+                            renderAnnotationLayer={false}
+                            renderTextLayer={false}
+                        >
+                            {children}
+                        </Page>
+                    </Document>
+                </div>
+                <ControlPdfSize>
+                    <ZoomButton onClick={ZoomInPdfPageCurrentSize}>+</ZoomButton>
+                    <ZoomButton onClick={ZoomOutPdfPageCurrentSize}>-</ZoomButton>
+                </ControlPdfSize>
             </PdfPageWrapper>
         </StyledPdfViewer>
     );
 };
 
 const StyledPdfViewer = styled.div`
-    width: 100%;
     flex: 1;
     overflow: auto;
     display: flex;
@@ -117,8 +116,9 @@ const PdfThumbnailList = styled.div`
     top: 0;
     left: 0;
     min-width: 125px;
-    height: 100%;
     padding-right: 8px;
+    margin: 1em 0 1em 1em;
+
     overflow: scroll;
     &::-webkit-scrollbar {
         display: none;
@@ -126,17 +126,35 @@ const PdfThumbnailList = styled.div`
 `;
 
 const PdfPageWrapper = styled.div`
-    width: 100%;
-    height: 100%;
+    position: relative;
+    flex: 1;
+    margin: 1em;
     display: flex;
     justify-content: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: auto;
 `;
 
-const ShowFullFileButton = styled.button`
+const ControlPdfSize = styled.div`
     position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 10;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+`;
+
+const ZoomButton = styled.button`
+    width: 30px;
+    height: 30px;
+    border-radius: 100%;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
+    background-color: ${({ theme }) => theme.BORDER_LIGHT};
+
+    &:hover {
+        color: ${({ theme }) => theme.WHITE};
+        background-color: ${({ theme }) => theme.PRIMARY};
+    }
 `;
 
 export default PdfViewer;
