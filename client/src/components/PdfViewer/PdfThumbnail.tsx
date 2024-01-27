@@ -51,7 +51,7 @@ const PageNumber = styled.div`
 
 const PageCanvasWrapper = styled.div<{ $isSelected: boolean }>`
     border: ${({ $isSelected, theme }) =>
-        $isSelected ? `2px solid ${theme.PRIMARY}` : `2px solid ${theme.BORDER_LIGHT}`};
+        $isSelected ? `2px solid ${theme.PRIMARY}` : `1px solid ${theme.BORDER_LIGHT}`};
     border-radius: 8px;
     overflow: hidden;
     ${({ $isSelected }) => $isSelected && 'box-shadow: 0px 0px 20px rgba(105, 105, 105, 0.25)'}
