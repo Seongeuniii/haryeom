@@ -5,6 +5,7 @@ pipeline {
     }
 
     environment {
+        serverPath = 'server/'
         gitBranch = 'develop'
         gitCredential = 'gitlab-demise1426'
         gitUrl = 'https://lab.ssafy.com/s10-webmobile1-sub2/S10P12A807'
@@ -30,7 +31,7 @@ pipeline {
                     }.flatten()
 
                     // Check if changes include server directory
-                     def serverChanged = changes.any { it.path.startsWith('server/') }
+                     def serverChanged = changes.any { it.path.startsWith(serverPath) }
 
 //                    def serverChanged = changes.any {
 //                        if (it.path.startsWith('server/')) {
