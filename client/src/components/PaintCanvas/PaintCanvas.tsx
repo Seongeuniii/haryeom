@@ -4,7 +4,7 @@ import { StaticImageData } from 'next/image';
 import { IPdfSize } from '@/hooks/usePdf';
 
 interface PaintCanvasProps {
-    imageSource: StaticImageData | string;
+    imageSource: StaticImageData | string | undefined;
     save: (canvasRef: RefObject<HTMLCanvasElement>, pageNum: number) => void;
     pdfPageCurrentSize: IPdfSize;
     pageNum: number;

@@ -7,15 +7,15 @@ import PaintCanvas from '@/components/PaintCanvas';
 import HomeworkLayout from '@/components/layouts/HomeworkLayout';
 import { getHomework } from '@/apis/homework/get-homework';
 import { IHomework } from '@/apis/homework/homework';
-import usePdf from '@/hooks/usePdf';
+import usePdf, { IPdfSize } from '@/hooks/usePdf';
 import useMyPaint from '@/components/PaintCanvas/Hook/useMyPaint';
 
 interface HomeworkContainerProps {
     homeworkData: IHomework;
 }
 
-interface IMyHomeworkDrawings {
-    [pageNum: number]: string | StaticImageData;
+export interface IMyHomeworkDrawings {
+    [pageNum: number]: string | StaticImageData | undefined; // undefined: 안그려짐
 }
 
 const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
@@ -24,6 +24,7 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
         totalPagesOfPdfFile,
         selectedPageNumber,
         pdfPageCurrentSize,
+        pdfPageOriginalSize,
         onDocumentLoadSuccess,
         onPageLoadSuccess,
         movePage,
@@ -33,7 +34,10 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
     } = usePdf({
         initialSelectedPageNumer: homeworkData.startPage,
     });
-    const { save } = useMyPaint({ updateImageSource: setMyHomeworkDrawings });
+    const { save } = useMyPaint({
+        updateImageSource: setMyHomeworkDrawings,
+        saveCanvasSize: pdfPageOriginalSize as IPdfSize,
+    });
 
     useEffect(() => {
         const { drawings } = homeworkData;
@@ -44,6 +48,7 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
             },
             {} as IMyHomeworkDrawings
         );
+        console.log(initialMyHomeworkDrawings[2] === undefined);
         setMyHomeworkDrawings(initialMyHomeworkDrawings);
     }, []);
 
@@ -62,6 +67,7 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
                         updatePdfPageCurrentSize={updatePdfPageCurrentSize}
                         ZoomInPdfPageCurrentSize={ZoomInPdfPageCurrentSize}
                         ZoomOutPdfPageCurrentSize={ZoomOutPdfPageCurrentSize}
+                        myHomeworkDrawings={myHomeworkDrawings}
                     >
                         <DrawingLayer>
                             <PaintCanvas

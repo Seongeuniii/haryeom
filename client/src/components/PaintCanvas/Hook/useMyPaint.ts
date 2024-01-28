@@ -1,20 +1,22 @@
 import { Dispatch, RefObject, SetStateAction } from 'react';
 import { StaticImageData } from 'next/image';
+import { IPdfSize } from '@/hooks/usePdf';
 
 interface IUseMyPaint {
     updateImageSource?: Dispatch<
         SetStateAction<{
-            [key: number]: string | StaticImageData;
+            [key: number]: string | StaticImageData | undefined;
         }>
     >;
+    saveCanvasSize: IPdfSize;
 }
 
-const useMyPaint = ({ updateImageSource }: IUseMyPaint) => {
+const useMyPaint = ({ updateImageSource, saveCanvasSize }: IUseMyPaint) => {
     const save = (canvasRef: RefObject<HTMLCanvasElement>, pageNum: number) => {
         if (!updateImageSource) return;
         const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = 538; // 실제값으로
-        tempCanvas.height = 737;
+        tempCanvas.width = saveCanvasSize.width as number; // 실제값으로
+        tempCanvas.height = saveCanvasSize.height as number;
         const tempContext = tempCanvas.getContext('2d');
         if (!tempContext) {
             console.error('Failed to get 2D context from temporary canvas.');
@@ -30,8 +32,8 @@ const useMyPaint = ({ updateImageSource }: IUseMyPaint) => {
             canvasRef.current.height,
             0,
             0,
-            538,
-            737
+            tempCanvas.width,
+            tempCanvas.height
         );
         const image = canvasRef.current?.toDataURL();
         const blob = dataURItoBlob(image as string);

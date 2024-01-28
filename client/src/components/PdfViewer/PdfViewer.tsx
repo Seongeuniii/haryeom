@@ -4,10 +4,15 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import PdfThumbnail from './PdfThumbnail';
 import { OnDocumentLoadSuccess, OnPageLoadSuccess } from 'react-pdf/dist/cjs/shared/types';
 import { IPdfSize } from '@/hooks/usePdf';
+import { IMyHomeworkDrawings } from '@/containers/HomeworkContainer/HomeworkContainer';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
-interface PdfViewerProps {
+interface Homework {
+    myHomeworkDrawings: IMyHomeworkDrawings;
+}
+
+interface PdfViewerProps extends Homework {
     pdfFile: string;
     totalPagesOfPdfFile: number;
     pdfPageCurrentSize: IPdfSize;
@@ -33,6 +38,7 @@ const PdfViewer = ({
     ZoomInPdfPageCurrentSize,
     ZoomOutPdfPageCurrentSize,
     children,
+    myHomeworkDrawings,
 }: PdfViewerProps) => {
     const pdfPageWrapperRef = useRef<HTMLDivElement>(null);
     const thumbnailListcontainer = useRef<HTMLDivElement>(null);
@@ -64,6 +70,9 @@ const PdfViewer = ({
                             pageNumber={index + 1}
                             selectedPageNumber={selectedPageNumber}
                             movePage={movePage}
+                            homeworkStatus={
+                                myHomeworkDrawings[index + 1] === undefined ? 'notStart' : 'done'
+                            }
                         >
                             <Page
                                 pageNumber={index + 1}
