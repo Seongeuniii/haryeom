@@ -74,6 +74,7 @@ const StyledHeader = styled.header`
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    z-index: 1;
 `;
 
 const HeaderWrapper = styled.div`
