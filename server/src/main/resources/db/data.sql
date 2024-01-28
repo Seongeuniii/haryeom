@@ -11,6 +11,13 @@ VALUES (1, '2023-01-05 10:00:00', '2023-01-05 10:00:00', 5, '서울대학교', '
 INSERT INTO teacher (id, created_at, updated_at, career, college, college_email, gender, introduce, major, profile_status, salary, member_id)
 VALUES (4, '2023-01-05 10:00:00', '2023-01-05 10:00:00', 10, '연세대학교', 'teacher4@koreauniv.com', 'FEMALE', '경력 있는 선생님', '수학', true, 60000, 4);
 
+-- Student 테이블 더미 데이터
+INSERT INTO student (id, member_id, grade, school)
+VALUES(1, 2, '고등학교 1학년', 'XX고등학교');
+INSERT INTO haryeom.student (id, member_id, grade, school)
+VALUES(2, 3, '고등학교 2학년', 'YY고등학교');
+INSERT INTO haryeom.student (id, member_id, grade, school)
+VALUES(3, 5, '고등학교 3학년', 'ZZ고등학교');
 
 -- Subject 테이블 더미 데이터
 INSERT INTO subject (id, name) VALUES (1, '수학');
