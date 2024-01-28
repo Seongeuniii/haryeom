@@ -1,9 +1,11 @@
 package com.ioi.haryeom.textbook.dto;
 
 import com.ioi.haryeom.textbook.domain.Textbook;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class TextbookResponse {
 
     private Long textbookId;

@@ -1,11 +1,16 @@
 package com.ioi.haryeom.homework.dto;
 
 import com.ioi.haryeom.homework.domain.Homework;
+import com.querydsl.core.annotations.QueryProjection;
 import java.time.LocalDate;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 @Getter
+@AllArgsConstructor
 public class HomeworkResponse {
 
     private Long homeworkId;
