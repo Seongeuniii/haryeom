@@ -6,9 +6,9 @@ import lombok.Getter;
 @Getter
 public class TutoringScheduleIdsResponse {
 
-    private List<Integer> tutoringScheduleIds;
+    private List<Long> tutoringScheduleIds;
 
-    public TutoringScheduleIdsResponse(List<Integer> tutoringScheduleIds) {
+    public TutoringScheduleIdsResponse(List<Long> tutoringScheduleIds) {
         this.tutoringScheduleIds = tutoringScheduleIds;
     }
 }
