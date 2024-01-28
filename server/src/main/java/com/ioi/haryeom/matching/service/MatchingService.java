@@ -36,12 +36,12 @@ public class MatchingService {
 
 
     private final SimpMessagingTemplate messagingTemplate;
-    private MatchingManager matchingManager;
-    private MemberRepository memberRepository;
-    private ChatRoomRepository chatRoomRepository;
-    private SubjectRepository subjectRepository;
-    private TutoringRepository tutoringRepository;
-    private ChatMessageRepository chatMessageRepository;
+    private final MatchingManager matchingManager;
+    private final MemberRepository memberRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final SubjectRepository subjectRepository;
+    private final TutoringRepository tutoringRepository;
+    private final ChatMessageRepository chatMessageRepository;
 
     @Transactional
     public String createMatchingRequest(CreateMatchingRequest request, Long memberId) {
@@ -63,7 +63,7 @@ public class MatchingService {
 
         // TODO: 알림 구현??
         log.info("[MATCHING REQUEST] chatRoomId : {}, matchingId : {}", chatRoom.getId(), matchingId);
-        messagingTemplate.convertAndSend("/topic/chatrooms/" + chatRoom.getId() + "/request", response);
+        messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId() + "/request", response);
         return matchingId;
     }
 
@@ -112,7 +112,7 @@ public class MatchingService {
         ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
 
         ChatMessageResponse response = ChatMessageResponse.from(savedChatMessage);
-        messagingTemplate.convertAndSend("/topic/chatrooms/" + chatRoom.getId(), response);
+        messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId(), response);
         //TODO: 지금까지 과외한 거 정산해줘야함
     }
 
@@ -137,7 +137,7 @@ public class MatchingService {
 
     private void sendResponse(ChatRoom chatRoom, Member member, Subject subject, Boolean isAccepted) {
         RespondToMatchingResponse response = RespondToMatchingResponse.of(chatRoom, member, subject, isAccepted);
-        messagingTemplate.convertAndSend("/topic/chatrooms/" + chatRoom.getId() + "/response", response);
+        messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId() + "/response", response);
     }
 
     private ChatMessage createEndTutoringMessage(Tutoring tutoring, Member member) {
