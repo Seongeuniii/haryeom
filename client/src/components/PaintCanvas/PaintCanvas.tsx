@@ -4,13 +4,18 @@ import { StaticImageData } from 'next/image';
 import { IPdfSize } from '@/hooks/usePdf';
 
 interface PaintCanvasProps {
-    imageSource: StaticImageData | string;
-    save: (canvasRef: RefObject<HTMLCanvasElement>, pageNum: number) => void;
+    imageSource: StaticImageData | string | undefined;
+    saveCanvasDrawing: (canvasRef: RefObject<HTMLCanvasElement>, pageNum: number) => void;
     pdfPageCurrentSize: IPdfSize;
     pageNum: number;
 }
 
-const PaintCanvas = ({ imageSource, save, pdfPageCurrentSize, pageNum }: PaintCanvasProps) => {
+const PaintCanvas = ({
+    imageSource,
+    saveCanvasDrawing,
+    pdfPageCurrentSize,
+    pageNum,
+}: PaintCanvasProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const contextRef = useRef<CanvasRenderingContext2D | null>(null);
     const canvasInformRef = useRef({
@@ -116,7 +121,9 @@ const PaintCanvas = ({ imageSource, save, pdfPageCurrentSize, pageNum }: PaintCa
 
     return (
         <>
-            <Button onClick={() => save(canvasRef, pageNum)}>저장</Button>
+            <SaveCanvasDrawingButton onClick={() => saveCanvasDrawing(canvasRef, pageNum)}>
+                임시저장
+            </SaveCanvasDrawingButton>
             <Canvas
                 ref={canvasRef}
                 onPointerDown={handlePointerDown}
@@ -134,8 +141,19 @@ const Canvas = styled.canvas`
     z-index: 3;
 `;
 
-const Button = styled.button`
+const SaveCanvasDrawingButton = styled.button`
     position: absolute;
+    top: 8px;
+    left: 8px;
+    padding: 5px;
+    border-radius: 6px;
+    color: ${({ theme }) => theme.WHITE};
+    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+
+    &:hover {
+        color: ${({ theme }) => theme.WHITE};
+        background-color: ${({ theme }) => theme.PRIMARY};
+    }
 `;
 
 export default PaintCanvas;

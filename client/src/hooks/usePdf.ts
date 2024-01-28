@@ -42,13 +42,33 @@ const usePdf = ({ initialSelectedPageNumer = 1 }: IUsePdf) => {
         const timerId = setTimeout(() => {
             const { width, height } = size;
             setPdfPageCurrentSize({ width, height });
+        });
+        setResizeTimer(timerId);
+    };
+
+    const ZoomOutPdfPageCurrentSize = () => {
+        clearTimeout(resizeTimer);
+        const timerId = setTimeout(() => {
+            if (!pdfPageCurrentSize.width || !pdfPageCurrentSize.height) return;
+            setPdfPageCurrentSize({
+                width: pdfPageCurrentSize.width * 0.9,
+                height: pdfPageCurrentSize.height * 0.9,
+            });
         }, 200);
         setResizeTimer(timerId);
     };
 
-    useEffect(() => {
-        console.log(pdfPageCurrentSize);
-    }, [pdfPageCurrentSize]);
+    const ZoomInPdfPageCurrentSize = () => {
+        clearTimeout(resizeTimer);
+        const timerId = setTimeout(() => {
+            if (!pdfPageCurrentSize.width || !pdfPageCurrentSize.height) return;
+            setPdfPageCurrentSize({
+                width: pdfPageCurrentSize.width * 1.1,
+                height: pdfPageCurrentSize.height * 1.1,
+            });
+        }, 200);
+        setResizeTimer(timerId);
+    };
 
     return {
         totalPagesOfPdfFile,
@@ -59,6 +79,8 @@ const usePdf = ({ initialSelectedPageNumer = 1 }: IUsePdf) => {
         onPageLoadSuccess,
         movePage,
         updatePdfPageCurrentSize,
+        ZoomInPdfPageCurrentSize,
+        ZoomOutPdfPageCurrentSize,
     };
 };
 

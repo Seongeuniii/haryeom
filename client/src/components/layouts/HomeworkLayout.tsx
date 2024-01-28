@@ -47,10 +47,15 @@ const StyledHomeworkLayout = styled.div`
 `;
 
 const ContainerWrapper = styled.main`
-    width: 80%;
-    max-width: 1200px;
+    width: 70%;
     height: calc(100% - 3em);
     display: flex;
+
+    @media screen and (max-width: 1200px) {
+        & {
+            width: 100%;
+        }
+    }
 `;
 
 export default HomeworkLayout;
