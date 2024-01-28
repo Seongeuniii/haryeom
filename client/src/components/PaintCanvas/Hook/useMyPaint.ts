@@ -12,7 +12,7 @@ interface IUseMyPaint {
 }
 
 const useMyPaint = ({ updateImageSource, saveCanvasSize }: IUseMyPaint) => {
-    const save = (canvasRef: RefObject<HTMLCanvasElement>, pageNum: number) => {
+    const saveCanvasDrawing = (canvasRef: RefObject<HTMLCanvasElement>, pageNum: number) => {
         if (!updateImageSource) return;
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = saveCanvasSize.width as number; // 실제값으로
@@ -46,7 +46,7 @@ const useMyPaint = ({ updateImageSource, saveCanvasSize }: IUseMyPaint) => {
         });
     };
 
-    return { save };
+    return { saveCanvasDrawing };
 };
 
 export default useMyPaint;

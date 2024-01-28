@@ -146,7 +146,7 @@ const PdfPageWrapper = styled.div`
 
 const ControlPdfSize = styled.div`
     position: absolute;
-    top: 8px;
+    bottom: 8px;
     right: 8px;
     display: flex;
     flex-direction: column;

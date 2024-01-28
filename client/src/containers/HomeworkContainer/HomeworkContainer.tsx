@@ -34,7 +34,7 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
     } = usePdf({
         initialSelectedPageNumer: homeworkData.startPage,
     });
-    const { save } = useMyPaint({
+    const { saveCanvasDrawing } = useMyPaint({
         updateImageSource: setMyHomeworkDrawings,
         saveCanvasSize: pdfPageOriginalSize as IPdfSize,
     });
@@ -48,7 +48,6 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
             },
             {} as IMyHomeworkDrawings
         );
-        console.log(initialMyHomeworkDrawings[2] === undefined);
         setMyHomeworkDrawings(initialMyHomeworkDrawings);
     }, []);
 
@@ -72,7 +71,7 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
                         <DrawingLayer>
                             <PaintCanvas
                                 imageSource={myHomeworkDrawings[selectedPageNumber]}
-                                save={save}
+                                saveCanvasDrawing={saveCanvasDrawing}
                                 pdfPageCurrentSize={pdfPageCurrentSize}
                                 pageNum={selectedPageNumber}
                             />
