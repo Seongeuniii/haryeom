@@ -1,18 +1,19 @@
 import { GetServerSideProps } from 'next';
 import { getCookie } from 'cookies-next';
 import styled from 'styled-components';
-import { IUserRole } from '@/apis/user/user';
+
+import HomeLayout from '@/components/layouts/HomeLayout';
+import SelectedTutoringContainer from './SelectedTutoringContainer';
 import LoginContainer from '@/containers/LoginContainer';
 import RegistUserInfoContainer from '@/containers/RegistUserInfoContainer';
-import HomeLayout from '@/components/layouts/HomeLayout';
 import ClassSchedule from '@/components/ClassSchedule';
-import SelectedTSContainer from './SelectedTSContainer';
 import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
 import { ITutoringSchedules, ITutorings } from '@/apis/tutoring/tutoring';
 import { getHomeworkList } from '@/apis/homework/get-homework-list';
 import { IHomework } from '@/apis/homework/homework';
-import { getYearMonth } from '@/utils/time';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
+import { IUserRole } from '@/apis/user/user';
+import { getYearMonth } from '@/utils/time';
 
 interface ScheduleContainerProps {
     userRole: IUserRole;
@@ -135,7 +136,7 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                 <HomeLayout>
                     <StyledScheduleContainer>
                         <ClassSchedule tutoringSchedules={testTutoringSchedules} />
-                        <SelectedTSContainer homeworkList={homeworkList} />
+                        <SelectedTutoringContainer homeworkList={homeworkList} />
                     </StyledScheduleContainer>
                 </HomeLayout>
             );

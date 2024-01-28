@@ -73,13 +73,12 @@ const StyledHeader = styled.header`
     display: flex;
     align-items: center;
     justify-content: center;
-    border-bottom: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
-    background-color: ${({ theme }) => theme.BACKGROUND};
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    z-index: 1;
 `;
 
 const HeaderWrapper = styled.div`
-    width: 90%;
-    max-width: 1300px;
+    min-width: 1150px;
     display: flex;
     align-items: center;
     justify-content: space-between;

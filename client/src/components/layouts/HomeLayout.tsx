@@ -26,8 +26,8 @@ const StyledHomeLayout = styled.div`
 `;
 
 const ContainerWrapper = styled.main`
-    width: 80%;
-    max-width: 1200px;
+    width: 1150px;
+    min-width: 1150px;
     height: calc(100% - 4em);
     display: flex;
 `;

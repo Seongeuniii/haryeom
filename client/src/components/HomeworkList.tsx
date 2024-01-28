@@ -25,23 +25,24 @@ const HomeworkList = () => {
                     <Scope>p. 1 ~ 10</Scope>
                 </HomeworkCard>
             </HomeworkCards>
-            <div>숙제</div>
-            <Link href={'/review'}>복습하러 가기</Link>
         </StyledHomeworkList>
     );
 };
 
 const StyledHomeworkList = styled.div`
     width: 100%;
-    height: 50%;
+    height: 100%;
     display: flex;
     flex-direction: column;
+    border-radius: 1em;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 1.8em;
 `;
 
 const HomeworkListHeader = styled.div`
     padding: 0.3em 0.6em 1.2em 0.5em;
     font-weight: 600;
-    font-size: 1.2em;
+    font-size: 18px;
 `;
 
 const HomeworkTableTitle = styled.header`

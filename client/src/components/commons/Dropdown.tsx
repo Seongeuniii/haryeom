@@ -18,7 +18,7 @@ const Dropdown = ({ children, ...props }: DropdownnProps) => {
     return (
         <StyledDropDown open={open}>
             <DropdownWrapper {...props}>{children}</DropdownWrapper>
-            <DropdownBackground open={open} onClick={closeDropdown} />
+            <DropdownBackground onClick={closeDropdown} />
         </StyledDropDown>
     );
 };
@@ -37,8 +37,7 @@ const DropdownWrapper = styled.div<StyledProps>`
     z-index: 100;
 `;
 
-const DropdownBackground = styled.div<{ open: boolean }>`
-    ${({ open }) => !open && `display:none;`}
+const DropdownBackground = styled.div`
     position: fixed;
     top: 0;
     left: 0;
