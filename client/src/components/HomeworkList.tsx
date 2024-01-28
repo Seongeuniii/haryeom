@@ -1,10 +1,21 @@
 import styled from 'styled-components';
-import { IHomeworkList } from '@/apis/homework/homework';
+import { IHomeworkList, IHomeworkStatus } from '@/apis/homework/homework';
 import Link from 'next/link';
 
 interface HomeworkListProps {
     homeworkList: IHomeworkList;
 }
+
+const getStatusText = (status: IHomeworkStatus) => {
+    switch (status) {
+        case 'COMPLETED':
+            return '제출완료';
+        case 'IN_PROGRESS':
+            return '진행중';
+        case 'UNCONFIRMED':
+            return '확인안함';
+    }
+};
 
 const HomeworkList = ({ homeworkList }: HomeworkListProps) => {
     return (
@@ -20,7 +31,7 @@ const HomeworkList = ({ homeworkList }: HomeworkListProps) => {
                 {homeworkList.map((homework, index) => (
                     <Link href={`homework/${homework.homeworkId}`} key={`homework_${index}`}>
                         <HomeworkCard>
-                            <State>{homework.status}</State>
+                            <State status={homework.status}>{getStatusText(homework.status)}</State>
                             <Deadline>{homework.deadline}</Deadline>
                             <Resource>{homework.textbookName}</Resource>
                             <Scope>{`p. ${homework.startPage} ~ ${homework.endPage}`}</Scope>
@@ -71,9 +82,12 @@ const HomeworkCard = styled.div`
     text-align: center;
 `;
 
-const State = styled.button`
+const State = styled.button<{ status?: IHomeworkStatus }>`
     width: 18%;
-
+    color: ${({ status, theme }) => {
+        if (status === 'IN_PROGRESS') return theme.PRIMARY;
+        else if (status === 'UNCONFIRMED') return '#ff4e4e';
+    }};
     &.homework-list__header {
         color: ${({ theme }) => theme.LIGHT_BLACK};
     }
