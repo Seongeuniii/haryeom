@@ -18,8 +18,8 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
         + " ON v.tutoring_schedule_id=s.id"
         + " LEFT JOIN tutoring t"
         + " ON t.id=s.tutoring_id"
-        + " WHERE t.subject_id = :subjectId", nativeQuery = true)
-    List<VideoInterface> findAllBySubjectId(@Param("subjectId") Integer subjectId);
+        + " WHERE t.subject_id = :subjectId AND t.student_member_id = :memberId", nativeQuery = true)
+    List<VideoInterface> findAllBySubjectId(@Param("subjectId") Long subjectId, @Param("memberId")Long memberId);
 
     VideoDetailInterface findVideoById(Long videoId);
 }

@@ -1,17 +1,15 @@
 package com.ioi.haryeom.video.dto;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
+
+import java.time.LocalDate;
 
 @Getter
 @Setter
-@ToString
-@NoArgsConstructor
 public class VideoListResponseDto {
-    Long videoId;
-    String title;
-    String scheduleDate;
-    String duration;
+    private Long videoId;
+    private String title;
+    private LocalDate scheduleDate;
+    private String duration;
 }
