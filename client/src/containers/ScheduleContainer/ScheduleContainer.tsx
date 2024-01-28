@@ -9,7 +9,7 @@ import ClassSchedule from '@/components/ClassSchedule';
 import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
 import { ITutoringSchedules, ITutorings } from '@/apis/tutoring/tutoring';
 import { getHomeworkList } from '@/apis/homework/get-homework-list';
-import { IHomework, IHomeworkList } from '@/apis/homework/homework';
+import { IHomework, IHomeworkList, IProgressPercentage } from '@/apis/homework/homework';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
 import { IUserRole } from '@/apis/user/user';
 import { getYearMonth } from '@/utils/time';
@@ -20,7 +20,8 @@ interface ScheduleContainerProps {
     userRole: IUserRole;
     tutorings: ITutorings;
     tutoringSchedules: ITutoringSchedules;
-    homeworkList: IHomework[];
+    homeworkList: IHomeworkList;
+    progressPercentage: IProgressPercentage;
 }
 
 const testTutoringSchedules: ITutoringSchedules = [
@@ -185,9 +186,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
      */
     const tutorings = await getTutorings(userRole);
     const tutoringSchedules = await getTutoringSchedules(userRole, getYearMonth(new Date()));
-    const homeworkList = await getHomeworkList(1); // tutoringId
+    const homeworkListInfo = await getHomeworkList(1); // tutoringId
+    const homeworkList = homeworkListInfo?.homeworkList;
+    const progressPercentage = homeworkListInfo?.progressPercentage;
 
-    return { props: { userRole, tutorings, tutoringSchedules, homeworkList } };
+    return { props: { userRole, tutorings, tutoringSchedules, homeworkList, progressPercentage } };
 };
 
 const StyledScheduleContainer = styled.main`
