@@ -1,7 +1,12 @@
-import Link from 'next/link';
 import styled from 'styled-components';
+import { IHomeworkList } from '@/apis/homework/homework';
+import Link from 'next/link';
 
-const HomeworkList = () => {
+interface HomeworkListProps {
+    homeworkList: IHomeworkList;
+}
+
+const HomeworkList = ({ homeworkList }: HomeworkListProps) => {
     return (
         <StyledHomeworkList>
             <HomeworkListHeader>숙제 목록</HomeworkListHeader>
@@ -12,18 +17,16 @@ const HomeworkList = () => {
                 <Scope className="homework-list__header">범위</Scope>
             </HomeworkTableTitle>
             <HomeworkCards>
-                <HomeworkCard>
-                    <State>진행중</State>
-                    <Deadline>2024. 1. 8 (수)</Deadline>
-                    <Resource>호랭이 문제집</Resource>
-                    <Scope>p. 1 ~ 10</Scope>
-                </HomeworkCard>
-                <HomeworkCard>
-                    <State>진행중</State>
-                    <Deadline>2024. 1. 8 (수)</Deadline>
-                    <Resource>호랭이 문제집</Resource>
-                    <Scope>p. 1 ~ 10</Scope>
-                </HomeworkCard>
+                {homeworkList.map((homework, index) => (
+                    <Link href={`homework/${homework.homeworkId}`} key={`homework_${index}`}>
+                        <HomeworkCard>
+                            <State>{homework.status}</State>
+                            <Deadline>{homework.deadline}</Deadline>
+                            <Resource>{homework.textbookName}</Resource>
+                            <Scope>{`p. ${homework.startPage} ~ ${homework.endPage}`}</Scope>
+                        </HomeworkCard>
+                    </Link>
+                ))}
             </HomeworkCards>
         </StyledHomeworkList>
     );

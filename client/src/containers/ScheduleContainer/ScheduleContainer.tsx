@@ -3,17 +3,18 @@ import { getCookie } from 'cookies-next';
 import styled from 'styled-components';
 
 import HomeLayout from '@/components/layouts/HomeLayout';
-import SelectedTutoringContainer from './SelectedTutoringContainer';
 import LoginContainer from '@/containers/LoginContainer';
 import RegistUserInfoContainer from '@/containers/RegistUserInfoContainer';
 import ClassSchedule from '@/components/ClassSchedule';
 import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
 import { ITutoringSchedules, ITutorings } from '@/apis/tutoring/tutoring';
 import { getHomeworkList } from '@/apis/homework/get-homework-list';
-import { IHomework } from '@/apis/homework/homework';
+import { IHomework, IHomeworkList } from '@/apis/homework/homework';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
 import { IUserRole } from '@/apis/user/user';
 import { getYearMonth } from '@/utils/time';
+import TutoringStudentProfile from '@/components/TutoringStudentProfile';
+import HomeworkList from '@/components/HomeworkList';
 
 interface ScheduleContainerProps {
     userRole: IUserRole;
@@ -127,24 +128,43 @@ const testTutoringSchedules: ITutoringSchedules = [
     },
 ];
 
+const dummyHomeworks: IHomeworkList = [
+    {
+        homeworkId: 2,
+        textbookId: 2,
+        textbookName: 'Resource 2',
+        startPage: 10,
+        endPage: 20,
+        status: 'UNCONFIRMED',
+        deadline: '2023-12-31',
+    },
+    {
+        homeworkId: 1,
+        textbookId: 1,
+        textbookName: 'Resource 1',
+        startPage: 10,
+        endPage: 20,
+        status: 'UNCONFIRMED',
+        deadline: '2023-12-31',
+    },
+];
+
 const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const { userRole = 'TEACHER', tutoringSchedules, homeworkList } = pageProps;
+    if (userRole === 'GUEST') return <RegistUserInfoContainer />;
+    if (!userRole) return <LoginContainer />; // NOT LOGIN
 
-    switch (userRole) {
-        case 'TEACHER' || 'STUDENT':
-            return (
-                <HomeLayout>
-                    <StyledScheduleContainer>
-                        <ClassSchedule tutoringSchedules={testTutoringSchedules} />
-                        <SelectedTutoringContainer homeworkList={homeworkList} />
-                    </StyledScheduleContainer>
-                </HomeLayout>
-            );
-        case 'GUEST':
-            return <RegistUserInfoContainer />;
-        default:
-            return <LoginContainer />; // NOT LOGIN
-    }
+    return (
+        <HomeLayout>
+            <StyledScheduleContainer>
+                <ClassSchedule tutoringSchedules={testTutoringSchedules} />
+                <SelectedTutoring>
+                    <TutoringStudentProfile />
+                    <HomeworkList homeworkList={dummyHomeworks} />
+                </SelectedTutoring>
+            </StyledScheduleContainer>
+        </HomeLayout>
+    );
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -176,6 +196,13 @@ const StyledScheduleContainer = styled.main`
     display: flex;
     align-items: center;
     justify-content: space-between;
+`;
+
+const SelectedTutoring = styled.main`
+    width: 67%;
+    height: 93%;
+    display: flex;
+    flex-direction: column;
 `;
 
 export default ScheduleContainer;
