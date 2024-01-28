@@ -87,13 +87,13 @@ const ClassSchedule = ({ tutoringSchedules }: ClassScheduleProps) => {
 
 const StyledClassSchedule = styled.div`
     width: 30%;
-    height: 90%;
+    height: 93%;
     padding: 1.8em 1.8em 0 1.8em;
     border-radius: 1em;
     background-color: ${({ theme }) => theme.WHITE};
     display: flex;
     flex-direction: column;
-    box-shadow: 0px 0px 20px rgba(105, 105, 105, 0.25);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     position: relative;
 `;
 
@@ -106,7 +106,7 @@ const ClassScheduleHeader = styled.header`
 `;
 
 const Title = styled.span`
-    font-size: 1.2em;
+    font-size: 18px;
     font-weight: 600;
 `;
 
