@@ -1,6 +1,6 @@
 package com.ioi.haryeom.chat.dto;
 
-import com.ioi.haryeom.chat.domain.ChatMessage;
+import com.ioi.haryeom.chat.document.ChatMessage;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,13 +8,13 @@ import lombok.Getter;
 @Getter
 public class ChatMessageResponse {
 
-    private final Long messageId;
+    private final String messageId;
     private final Long senderMemberId;
     private final String content;
     private final LocalDateTime createdAt;
 
     @Builder
-    public ChatMessageResponse(Long senderMemberId, Long messageId, String content, LocalDateTime createdAt) {
+    public ChatMessageResponse(String messageId, Long senderMemberId, String content, LocalDateTime createdAt) {
         this.senderMemberId = senderMemberId;
         this.messageId = messageId;
         this.content = content;
@@ -23,9 +23,9 @@ public class ChatMessageResponse {
 
     public static ChatMessageResponse from(ChatMessage message) {
         return new ChatMessageResponse(
-            message.getSenderMember().getId(),
-            message.getId(),
-            message.getMessageContent(),
+            message.getId().toHexString(),
+            message.getMemberId(),
+            message.getContent(),
             message.getCreatedAt()
         );
     }
