@@ -10,13 +10,11 @@ import com.ioi.haryeom.homework.domain.Drawing;
 import com.ioi.haryeom.homework.domain.Homework;
 import com.ioi.haryeom.homework.domain.HomeworkStatus;
 import com.ioi.haryeom.homework.dto.*;
-import com.ioi.haryeom.homework.exception.HomeworkNotFoundException;
-import com.ioi.haryeom.homework.exception.HomeworkStatusException;
-import com.ioi.haryeom.homework.exception.InvalidDeadlineException;
-import com.ioi.haryeom.homework.exception.InvalidPageRangeException;
+import com.ioi.haryeom.homework.exception.*;
 import com.ioi.haryeom.homework.repository.DrawingRepository;
 import com.ioi.haryeom.homework.repository.HomeworkRepository;
 import com.ioi.haryeom.member.domain.type.Role;
+import com.ioi.haryeom.member.exception.NoStudentException;
 import com.ioi.haryeom.member.exception.NoTeacherException;
 import com.ioi.haryeom.textbook.domain.Textbook;
 import com.ioi.haryeom.textbook.dto.TextbookResponse;
@@ -154,15 +152,19 @@ public class HomeworkService {
     public HomeworkLoadResponse getLoadHomework(Long homeworkId, AuthInfo authInfo) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
+
+        validateStudentRole(authInfo);
+
         // 숙제 상태 변경
         homework.confirm();
 
         Textbook textbook = homework.getTextbook();
         // pdf 숙제 범위만큼 자르기
-        // 추가적으로 : 이미 잘라진 녀석(업로드된)은 자르는 부분을 skip하는 로직도 생각해 보면 좋을듯
         String url = textbook.getTextbookUrl();
         int startPage = homework.getStartPage();
         int endPage = homework.getEndPage();
+
+        validatePageRange(textbook, startPage, endPage);
 
         TextbookResponse textbookInfo = null;
 
@@ -179,7 +181,7 @@ public class HomeworkService {
                 newDoc.addPage(document.getPage(i-1));
             }
 
-            String fileName = "homework_" + textbook.getTextbookName();
+            String fileName = "homework_" + homework.getId() + "_" + textbook.getTextbookName() + ".pdf";
             String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
 
             ByteArrayOutputStream outStream = new ByteArrayOutputStream();
@@ -195,6 +197,10 @@ public class HomeworkService {
 
             textbookInfo = new TextbookResponse(textbook, fileUrl);
 
+            inputStream.close();
+            newInputStream.close();
+            outStream.close();
+
         } catch (Exception e) {
             // 예외처리
             e.printStackTrace();
@@ -202,9 +208,13 @@ public class HomeworkService {
 
         // 드로잉 불러오기
         List<Drawing> drawings =  drawingRepository.findAllByHomework(homework);
-        List<StudentDrawingResponse> drawingResponses = drawings.stream()
-                .map(StudentDrawingResponse::new)
-                .collect(Collectors.toList());
+        List<StudentDrawingResponse> drawingResponses = null;
+
+        if(!drawings.isEmpty()){
+            drawingResponses = drawings.stream()
+            .map(StudentDrawingResponse::new)
+            .collect(Collectors.toList());
+        }
 
         return new HomeworkLoadResponse(homework, textbookInfo, drawingResponses);
 
@@ -214,11 +224,15 @@ public class HomeworkService {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
 
+        validateStudentRole(authInfo);
+
         Textbook textbook = homework.getTextbook();
         // pdf 숙제 범위만큼 자르기
         String url = textbook.getTextbookUrl();
         int startPage = homework.getStartPage();
         int endPage = homework.getEndPage();
+
+        validatePageRange(textbook, startPage, endPage);
 
         TextbookResponse textbookInfo = null;
 
@@ -269,7 +283,7 @@ public class HomeworkService {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
 
-        // TODO: authInfo
+        validateStudentRole(authInfo);
 
         for(MultipartFile file : drawings.getFile()) {
 
@@ -300,7 +314,7 @@ public class HomeworkService {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
 
-        // TODO: authInfo
+        validateStudentRole(authInfo);
 
         for(MultipartFile file : drawings.getFile()) {
 
@@ -331,6 +345,9 @@ public class HomeworkService {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
 
+        validateStudentRole(authInfo);
+        validateHomeworkSubmission(homework);
+
         homework.submit();
     }
 
@@ -338,6 +355,12 @@ public class HomeworkService {
     private void validateTeacherRole(AuthInfo authInfo) {
         if (!Role.TEACHER.name().equals(authInfo.getRole())) {
             throw new NoTeacherException();
+        }
+    }
+
+    private void validateStudentRole(AuthInfo authInfo) {
+        if (!Role.STUDENT.name().equals(authInfo.getRole())) {
+            throw new NoStudentException();
         }
     }
 
@@ -363,6 +386,12 @@ public class HomeworkService {
     private void validateHomeworkUnconfirmed(Homework homework) {
         if (homework.getStatus() != HomeworkStatus.UNCONFIRMED) {
             throw new HomeworkStatusException();
+        }
+    }
+
+    private void validateHomeworkSubmission(Homework homework) {
+        if (homework.getStatus() == HomeworkStatus.COMPLETED) {
+            throw new HomeworkAlreadySubmittedException();
         }
     }
 
