@@ -1,15 +1,19 @@
 package com.ioi.haryeom.video.repository;
 
 import com.ioi.haryeom.homework.domain.HomeworkStatus;
+import com.ioi.haryeom.video.dto.VideoResponseForQuery;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.TimePath;
 import com.querydsl.jpa.JPAExpressions;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.Temporal;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Expr;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Repository;
 
@@ -96,28 +100,38 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository{
             .fetch();
     }
 
-//    @Override
-//    public Page<VideoResponse> findAllBySubjectAndTutoringServiceByTutoringByMember(Long subjectId,
-//        Long memberId, Pageable pageable) {
-//        QueryResults<VideoResponse> results = queryFactory
-//            .select(
-//                Projections.constructor(VideoResponse.class,
-//                    video.id,video.tutoringSchedule.title,video.tutoringSchedule.scheduleDate,
-//                    Expressions.stringTemplate("SEC_TO_TIME({0})",
-//                            calculateDuration(video.startTime,video.endTime)).stringValue()))
-//            .from(video)
-//            .leftJoin(video.tutoringSchedule, tutoringSchedule)
-//            .leftJoin(tutoringSchedule.tutoring, tutoring)
-//            .where(tutoring.subject.id.eq(subjectId),tutoring.student.id.eq(memberId))
-//            .offset(pageable.getOffset())
-//            .limit(pageable.getPageSize())
-//            .orderBy(video.createdAt.desc())
-//            .fetchResults();
-//
-//        List<VideoResponse> content = results.getResults();
-//        Long total = results.getTotal();
-//        return new PageImpl<>(content, pageable, total);
-//    }
+    @Override
+    public Page<VideoResponse> findAllBySubjectAndTutoringServiceByTutoringByMember(Long subjectId,
+        Long memberId, Pageable pageable) {
+        QueryResults<VideoResponseForQuery> results = queryFactory
+            .select(
+                Projections.constructor(VideoResponseForQuery.class,
+                    video.id,video.tutoringSchedule.title,video.tutoringSchedule.scheduleDate,
+                    video.startTime,video.endTime))
+            .from(video)
+            .leftJoin(video.tutoringSchedule, tutoringSchedule)
+            .leftJoin(tutoringSchedule.tutoring, tutoring)
+            .where(tutoring.subject.id.eq(subjectId),tutoring.student.id.eq(memberId))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .orderBy(video.createdAt.desc())
+            .fetchResults();
+
+        //content 옮겨담기 - second to HH:mm:ss
+        List<VideoResponseForQuery> content = results.getResults();
+        List<VideoResponse> response = new ArrayList<VideoResponse>();
+        for(VideoResponseForQuery query:content){
+            Long videoId = query.getVideoId();
+            String title = query.getTitle();
+            LocalDate scheduleDate = query.getScheduleDate();
+            Long seconds = Duration.between(query.getStartTime(),query.getEndTime()).toSeconds();
+            String duration = String.format("%02d:%02d:%02d",seconds/3600, (seconds%3600)/60, seconds%60);
+            VideoResponse resp = new VideoResponse(videoId, title, scheduleDate, duration);
+            response.add(resp);
+        }
+        Long total = results.getTotal();
+        return new PageImpl<>(response, pageable, total);
+    }
     private Long calculateDuration(TimePath<LocalTime> startTime, TimePath<LocalTime> endTime) {
         return Duration.between((Temporal) startTime, (Temporal) endTime).getSeconds();
     }
