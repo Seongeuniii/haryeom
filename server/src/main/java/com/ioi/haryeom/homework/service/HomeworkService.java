@@ -20,7 +20,7 @@ import com.ioi.haryeom.member.domain.type.Role;
 import com.ioi.haryeom.member.exception.NoTeacherException;
 import com.ioi.haryeom.textbook.domain.Textbook;
 import com.ioi.haryeom.textbook.dto.TextbookResponse;
-import com.ioi.haryeom.textbook.exception.TextNotFoundException;
+import com.ioi.haryeom.textbook.exception.TextbookNotFoundException;
 import com.ioi.haryeom.textbook.repository.TextbookRepository;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
 import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
@@ -377,7 +377,7 @@ public class HomeworkService {
 
     private Textbook findTextbookById(Long textbookId) {
         return textbookRepository.findById(textbookId)
-            .orElseThrow(() -> new TextNotFoundException(textbookId));
+            .orElseThrow(() -> new TextbookNotFoundException(textbookId));
     }
 
     private Homework findHomeworkById(Long homeworkId) {

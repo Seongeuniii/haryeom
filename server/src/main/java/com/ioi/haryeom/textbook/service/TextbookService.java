@@ -7,11 +7,13 @@ import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.common.repository.SubjectRepository;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
+import com.ioi.haryeom.member.exception.NoTeacherException;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.textbook.domain.Assignment;
 import com.ioi.haryeom.textbook.domain.Textbook;
 import com.ioi.haryeom.textbook.dto.*;
-import com.ioi.haryeom.textbook.exception.TextNotFoundException;
+import com.ioi.haryeom.textbook.exception.FileValidationException;
+import com.ioi.haryeom.textbook.exception.TextbookNotFoundException;
 import com.ioi.haryeom.textbook.repository.AssignmentRespository;
 import com.ioi.haryeom.textbook.repository.TextbookRepository;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
@@ -31,7 +33,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -54,13 +55,22 @@ public class TextbookService {
 
     private final TutoringRepository tutoringRepository;
 
+    // 학습자료 추가
     @Transactional
     public Long createTextbook(MultipartFile file, TextbookRequest request, AuthInfo authinfo) {
+
+        String allowedExtensions = "pdf"; // pdf만 허용
 
         try {
             // S3 업로드 로직
             String fileName = file.getOriginalFilename();
             String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
+
+            // 파일 Validation
+            String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
+            if(!allowedExtensions.contains(fileExtension)) {
+                throw new FileValidationException(allowedExtensions);
+            }
 
             // S3에 PDF 업로드를 위한 메타데이터 설정
             ObjectMetadata metadata = new ObjectMetadata();
@@ -126,6 +136,7 @@ public class TextbookService {
 
     }
 
+    // 과외별 학습자료 리스트 조회
     public List<TextbookListByTutoringResponse> getTextbookListByTutoring(Long tutoringId) {
         Tutoring tutoring = tutoringRepository.findById(tutoringId)
                 .orElseThrow(() -> new TutoringNotFoundException(tutoringId));
@@ -138,18 +149,21 @@ public class TextbookService {
                 .collect(Collectors.toList());
     }
 
+    // 학습자료 불러오기
     public TextbookResponse getTextbook(Long textbookId) {
         Textbook textbook = findTextbookById(textbookId);
         return new TextbookResponse(textbook);
     }
 
+    // 학습자료 삭제
     public void deleteTextbook(Long textbookId, AuthInfo authInfo) {
-        // TODO: authInfo가 해당 학습 자료 담당자인지?
+        if(authInfo.getRole().equals("TEACHER")) throw new NoTeacherException();
 
         Textbook textbook = findTextbookById(textbookId);
         textbook.delete();
     }
 
+    // 선생님 학습자료 리스트 조회
     public List<TextbookWithStudentsResponse> getTextbooksWithStudents(Long memberId) {
         Member teacherMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberNotFoundException(memberId));
@@ -165,12 +179,13 @@ public class TextbookService {
         }).collect(Collectors.toList());
     }
 
+    // 학습자료별 지정 가능 학생 리스트 조회
     public List<TextbookWithStudentsResponse.StudentInfo> getAssignableStudent(Long textbookId, AuthInfo authInfo) {
 
         List<Tutoring> tutorings = tutoringRepository.findAllByTeacherId(authInfo.getMemberId());
 
         Textbook currentTextbook = textbookRepository.findById(textbookId)
-                .orElseThrow(() -> new TextNotFoundException(textbookId));
+                .orElseThrow(() -> new TextbookNotFoundException(textbookId));
         List<Assignment> currentAssignments = assignmentRespository.findByTextbook(currentTextbook);
         List<Long> assignedStudentIds = currentAssignments.stream()
                 .map(assignment -> assignment.getTutoring().getStudent().getId())
@@ -184,6 +199,7 @@ public class TextbookService {
                 .collect(Collectors.toList());
     }
 
+    // 학습자료 학생 지정
     public void putAssignment(Long textbookId, List<Long> tutoringIds) {
         Textbook textbook = findTextbookById(textbookId);
 
@@ -207,6 +223,6 @@ public class TextbookService {
 
     private Textbook findTextbookById(Long textbookId) {
         return textbookRepository.findById(textbookId)
-                .orElseThrow(() -> new TextNotFoundException(textbookId));
+                .orElseThrow(() -> new TextbookNotFoundException(textbookId));
     }
 }
