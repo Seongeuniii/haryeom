@@ -28,6 +28,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -55,15 +56,19 @@ dependencies {
 //	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 //	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
 
-    //redis
+    //Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    //oauth
+    //OAuth
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    // JSon
     implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
     implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    // JWT
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
+    // UNIVCERT
+    implementation 'com.github.in-seo:univcert:master-SNAPSHOT'
     // S3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
     // S3 SDK
