@@ -29,4 +29,15 @@ public class TeacherTutoringScheduleResponse {
         this.title = tutoringSchedule.getTitle();
     }
 
+    public TeacherTutoringScheduleResponse(TeacherTutoringScheduleQueryDSLResponse teacherTutoringScheduleQueryDSL) {
+        this.tutoringScheduleId = teacherTutoringScheduleQueryDSL.getTutoringScheduleId();
+        this.tutoringId = teacherTutoringScheduleQueryDSL.getTutoringId();
+        this.studentMemberId = teacherTutoringScheduleQueryDSL.getStudentMemberId();
+        this.studentName = teacherTutoringScheduleQueryDSL.getStudentName();
+        this.studentProfileUrl = teacherTutoringScheduleQueryDSL.getStudentProfileUrl();
+        this.startTime = teacherTutoringScheduleQueryDSL.getStartTime();
+        this.duration = teacherTutoringScheduleQueryDSL.getDuration();
+        this.title = teacherTutoringScheduleQueryDSL.getTitle();
+    }
+
 }
