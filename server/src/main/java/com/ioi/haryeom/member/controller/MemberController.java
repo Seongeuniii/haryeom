@@ -4,6 +4,7 @@ package com.ioi.haryeom.member.controller;
 import static org.springframework.http.HttpStatus.CREATED;
 
 import com.ioi.haryeom.member.domain.Member;
+import com.ioi.haryeom.member.dto.CodeCertifyRequest;
 import com.ioi.haryeom.member.dto.EmailCertifyRequest;
 import com.ioi.haryeom.member.dto.StudentCreateRequest;
 import com.ioi.haryeom.member.dto.StudentInfoResponse;
@@ -43,6 +44,11 @@ public class MemberController {
         return ResponseEntity.status(CREATED).build();
     }
 
+    @PostMapping("/emails/certifycode")
+    public ResponseEntity<Void> certifyCode(@RequestBody CodeCertifyRequest certifyRequest) {
+        memberService.certifyCode(certifyRequest);
+        return ResponseEntity.status(CREATED).build();
+    }
 
     @PostMapping(value = "/students", consumes = {MediaType.APPLICATION_JSON_VALUE,
         MediaType.MULTIPART_FORM_DATA_VALUE})

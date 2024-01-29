@@ -11,6 +11,7 @@ import com.ioi.haryeom.member.domain.Student;
 import com.ioi.haryeom.member.domain.Teacher;
 import com.ioi.haryeom.member.domain.TeacherSubject;
 import com.ioi.haryeom.member.domain.type.Role;
+import com.ioi.haryeom.member.dto.CodeCertifyRequest;
 import com.ioi.haryeom.member.dto.EmailCertifyRequest;
 import com.ioi.haryeom.member.dto.StudentCreateRequest;
 import com.ioi.haryeom.member.dto.StudentInfoResponse;
@@ -63,6 +64,20 @@ public class MemberService {
         try {
             Map<String, Object> response = UnivCert.certify(univKey, certifyRequest.getEmail(),
                 certifyRequest.getUnivName(), true);
+
+            boolean success = Boolean.parseBoolean(String.valueOf(response.get("success")));
+            if (!success) {
+                throw new EmailCertifyException(String.valueOf(response.get("message")));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void certifyCode(CodeCertifyRequest certifyRequest) {
+        try {
+            Map<String, Object> response = UnivCert.certifyCode(univKey, certifyRequest.getEmail(),
+                certifyRequest.getUnivName(), certifyRequest.getCode());
 
             boolean success = Boolean.parseBoolean(String.valueOf(response.get("success")));
             if (!success) {
