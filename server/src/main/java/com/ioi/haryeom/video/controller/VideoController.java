@@ -1,7 +1,7 @@
 package com.ioi.haryeom.video.controller;
 
-import com.ioi.haryeom.video.dto.LessonEndDto;
-import com.ioi.haryeom.video.dto.LessonStartDto;
+import com.ioi.haryeom.video.dto.LessonEnd;
+import com.ioi.haryeom.video.dto.LessonStart;
 import com.ioi.haryeom.video.dto.VideoDetailInterface;
 import com.ioi.haryeom.video.service.VideoService;
 import java.io.IOException;
@@ -28,8 +28,8 @@ public class VideoController {
 
     //수업 시작 클릭
     @PostMapping("/")
-    public ResponseEntity<Void> createVideo(@RequestBody LessonStartDto lessonStartDto) {
-        Long id = videoService.createVideo(lessonStartDto);
+    public ResponseEntity<Void> createVideo(@RequestBody LessonStart lessonStart) {
+        Long id = videoService.createVideo(lessonStart);
         return ResponseEntity.created(URI.create("/video/" + id)).build();
     }
 
@@ -45,8 +45,8 @@ public class VideoController {
 
     @PatchMapping("/{videoId}")
     public ResponseEntity<Void> endVideo(@PathVariable Long videoId,
-        @RequestBody LessonEndDto lessonEndDto) {
-        videoService.updateVideoEndTime(videoId, lessonEndDto);
+        @RequestBody LessonEnd lessonEnd) {
+        videoService.updateVideoEndTime(videoId, lessonEnd);
         return ResponseEntity.noContent().build();
     }
 
