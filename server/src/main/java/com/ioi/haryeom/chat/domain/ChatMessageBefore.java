@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class ChatMessage extends BaseTimeEntity {
+public class ChatMessageBefore extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +34,7 @@ public class ChatMessage extends BaseTimeEntity {
     private String messageContent;
 
     @Builder
-    public ChatMessage(ChatRoom chatRoom, Member senderMember, String messageContent) {
+    public ChatMessageBefore(ChatRoom chatRoom, Member senderMember, String messageContent) {
         this.chatRoom = chatRoom;
         this.senderMember = senderMember;
         this.messageContent = messageContent;

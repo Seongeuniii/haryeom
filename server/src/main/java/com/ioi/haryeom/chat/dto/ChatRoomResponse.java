@@ -1,7 +1,6 @@
 package com.ioi.haryeom.chat.dto;
 
-import com.ioi.haryeom.chat.domain.ChatMessage;
-import com.ioi.haryeom.chat.domain.ChatRoomState;
+import com.ioi.haryeom.chat.document.ChatMessage;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.domain.type.Role;
 import java.time.LocalDateTime;
@@ -25,12 +24,12 @@ public class ChatRoomResponse {
         this.unreadMessageCount = unreadMessageCount;
     }
 
-    public static ChatRoomResponse of(ChatRoomState chatRoomState, ChatMessage lastChatMessage, Member oppositeMember,
+    public static ChatRoomResponse of(Long chatRoomId, ChatMessage lastChatMessage, Member oppositeMember,
         Integer unreadMessageCount) {
-        Long chatRoomId = chatRoomState.getChatRoom().getId();
+
         OppositeMemberResponse oppositeMemberResponse = new OppositeMemberResponse(oppositeMember);
 
-        String lastMessage = (lastChatMessage != null) ? lastChatMessage.getMessageContent() : null;
+        String lastMessage = (lastChatMessage != null) ? lastChatMessage.getContent() : null;
         LocalDateTime lastMessageCreatedAt = (lastChatMessage != null) ? lastChatMessage.getCreatedAt() : null;
 
         return new ChatRoomResponse(chatRoomId, oppositeMemberResponse, lastMessage, lastMessageCreatedAt,

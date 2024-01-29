@@ -3,23 +3,26 @@ import { getCookie } from 'cookies-next';
 import styled from 'styled-components';
 
 import HomeLayout from '@/components/layouts/HomeLayout';
-import SelectedTutoringContainer from './SelectedTutoringContainer';
 import LoginContainer from '@/containers/LoginContainer';
 import RegistUserInfoContainer from '@/containers/RegistUserInfoContainer';
 import ClassSchedule from '@/components/ClassSchedule';
 import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
 import { ITutoringSchedules, ITutorings } from '@/apis/tutoring/tutoring';
 import { getHomeworkList } from '@/apis/homework/get-homework-list';
-import { IHomework } from '@/apis/homework/homework';
+import { IHomework, IHomeworkList, IProgressPercentage } from '@/apis/homework/homework';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
 import { IUserRole } from '@/apis/user/user';
 import { getYearMonth } from '@/utils/time';
+import TutoringStudentProfile from '@/components/TutoringStudentProfile';
+import HomeworkList from '@/components/HomeworkList';
+import { useEffect } from 'react';
 
 interface ScheduleContainerProps {
     userRole: IUserRole;
     tutorings: ITutorings;
     tutoringSchedules: ITutoringSchedules;
-    homeworkList: IHomework[];
+    homeworkList: IHomeworkList;
+    progressPercentage: IProgressPercentage;
 }
 
 const testTutoringSchedules: ITutoringSchedules = [
@@ -129,45 +132,46 @@ const testTutoringSchedules: ITutoringSchedules = [
 
 const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const { userRole = 'TEACHER', tutoringSchedules, homeworkList } = pageProps;
+    if (userRole === 'GUEST') return <RegistUserInfoContainer />;
+    if (!userRole) return <LoginContainer />; // NOT LOGIN
 
-    switch (userRole) {
-        case 'TEACHER' || 'STUDENT':
-            return (
-                <HomeLayout>
-                    <StyledScheduleContainer>
-                        <ClassSchedule tutoringSchedules={testTutoringSchedules} />
-                        <SelectedTutoringContainer homeworkList={homeworkList} />
-                    </StyledScheduleContainer>
-                </HomeLayout>
-            );
-        case 'GUEST':
-            return <RegistUserInfoContainer />;
-        default:
-            return <LoginContainer />; // NOT LOGIN
-    }
+    return (
+        <HomeLayout>
+            <StyledScheduleContainer>
+                <ClassSchedule tutoringSchedules={testTutoringSchedules} />
+                <SelectedTutoring>
+                    <TutoringStudentProfile />
+                    <HomeworkList homeworkList={homeworkList} />
+                </SelectedTutoring>
+            </StyledScheduleContainer>
+        </HomeLayout>
+    );
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { req } = context;
 
     let userRole: IUserRole | undefined;
-    // userRole = getCookie('userRole', { req });
+    // eslint-disable-next-line prefer-const
+    userRole = (getCookie('userRole', { req }) as IUserRole) ? 'TEACHER' : 'TEACHER';
 
-    if (!userRole || userRole === 'GUEST') {
-        return { props: {} };
-    }
+    // if (!userRole || userRole === 'GUEST') {
+    //     return { props: {} };
+    // }
 
     /**
      * tutorings: 과외목록
      * tutoringSchedules: 과외일정
      * homeworkList: 숙제목록
      * tutoringTextbooks: 학습자료
-     */
-    const tutorings = await getTutorings(userRole);
-    const tutoringSchedules = await getTutoringSchedules(userRole, getYearMonth(new Date()));
-    const homeworkList = await getHomeworkList(1); // tutoringId
+    //  */
+    // const tutorings = await getTutorings(userRole);
+    // const tutoringSchedules = await getTutoringSchedules(userRole, getYearMonth(new Date()));
+    const homeworkListInfo = await getHomeworkList(1); // tutoringId
+    const homeworkList = homeworkListInfo?.homeworkList;
+    const progressPercentage = homeworkListInfo?.progressPercentage;
 
-    return { props: { userRole, tutorings, tutoringSchedules, homeworkList } };
+    return { props: { userRole, homeworkList, progressPercentage } };
 };
 
 const StyledScheduleContainer = styled.main`
@@ -176,6 +180,13 @@ const StyledScheduleContainer = styled.main`
     display: flex;
     align-items: center;
     justify-content: space-between;
+`;
+
+const SelectedTutoring = styled.main`
+    width: 67%;
+    height: 93%;
+    display: flex;
+    flex-direction: column;
 `;
 
 export default ScheduleContainer;
