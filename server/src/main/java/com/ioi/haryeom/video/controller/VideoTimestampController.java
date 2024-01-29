@@ -1,7 +1,7 @@
 package com.ioi.haryeom.video.controller;
 
 import com.ioi.haryeom.video.domain.VideoTimestamp;
-import com.ioi.haryeom.video.dto.VideoTimestampDto;
+import com.ioi.haryeom.video.dto.VideoTimestampRequest;
 import com.ioi.haryeom.video.dto.VideoTimestampInterface;
 import com.ioi.haryeom.video.repository.VideoTimestampRepository;
 import com.ioi.haryeom.video.service.VideoTimestampService;
@@ -33,16 +33,16 @@ public class VideoTimestampController {
     }
 
     @PostMapping("/{scheduleId}")
-    public ResponseEntity<Void> createTimestamp(@RequestBody VideoTimestampDto timestampDto,
+    public ResponseEntity<Void> createTimestamp(@RequestBody VideoTimestampRequest timestamp,
         @PathVariable Long scheduleId) {
-        Long timestampId = videoTimestampService.createVideoTimestamp(scheduleId, timestampDto);
+        Long timestampId = videoTimestampService.createVideoTimestamp(scheduleId, timestamp);
         return ResponseEntity.created(URI.create("/timestamp/" + timestampId)).build();
     }
 
     @PutMapping("/{videoId}")
-    public ResponseEntity<Void> updateTimestamp(@RequestBody VideoTimestampDto timestampDto,
+    public ResponseEntity<Void> updateTimestamp(@RequestBody VideoTimestampRequest timestamp,
         @PathVariable Long videoId) {
-        videoTimestampService.updateVideoTimestamp(videoId, timestampDto);
+        videoTimestampService.updateVideoTimestamp(videoId, timestamp);
         return ResponseEntity.noContent().build();
     }
 

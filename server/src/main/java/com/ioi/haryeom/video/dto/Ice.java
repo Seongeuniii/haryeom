@@ -5,9 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class OfferDto {
+public class Ice {
 
-    Object offer;
-    int callerId;
-    int calleeId;
+    private Object iceCandidate;
+    private int peerId;
 }

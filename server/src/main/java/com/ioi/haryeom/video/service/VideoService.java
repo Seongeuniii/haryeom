@@ -5,8 +5,8 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.ioi.haryeom.tutoring.domain.TutoringSchedule;
 import com.ioi.haryeom.tutoring.repository.TutoringScheduleRepository;
 import com.ioi.haryeom.video.domain.Video;
-import com.ioi.haryeom.video.dto.LessonEndDto;
-import com.ioi.haryeom.video.dto.LessonStartDto;
+import com.ioi.haryeom.video.dto.LessonEnd;
+import com.ioi.haryeom.video.dto.LessonStart;
 import com.ioi.haryeom.video.dto.VideoDetailInterface;
 import com.ioi.haryeom.video.repository.VideoRepository;
 import java.io.IOException;
@@ -36,9 +36,9 @@ public class VideoService {
     }
 
     @Transactional
-    public Long createVideo(LessonStartDto lessonStartDto) {
-        LocalTime startTime = parseLocalTime(lessonStartDto.getStartTime());
-        TutoringSchedule tutoringSchedule = tutoringScheduleRepository.findById(lessonStartDto.getTutoringScheduleId()).get();
+    public Long createVideo(LessonStart lessonStart) {
+        LocalTime startTime = parseLocalTime(lessonStart.getStartTime());
+        TutoringSchedule tutoringSchedule = tutoringScheduleRepository.findById(lessonStart.getTutoringScheduleId()).get();
         Video video = Video.builder()
             .tutoringSchedule(tutoringSchedule)
             .startTime(startTime)
@@ -49,10 +49,10 @@ public class VideoService {
     }
 
     @Transactional
-    public void updateVideoEndTime(Long id, LessonEndDto lessonEndDto) {
+    public void updateVideoEndTime(Long id, LessonEnd lessonEnd) {
         Optional<Video> video = videoRepository.findById(id);
         Video updateVideo = video.get();
-        LocalTime endTime = parseLocalTime(lessonEndDto.getEndTime());
+        LocalTime endTime = parseLocalTime(lessonEnd.getEndTime());
         updateVideo.updateVideoEndTime(endTime);
     }
 

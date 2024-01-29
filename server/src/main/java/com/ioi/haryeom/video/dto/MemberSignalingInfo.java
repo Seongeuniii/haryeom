@@ -5,9 +5,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserDto {
+public class MemberSignalingInfo {
 
-    int userId;
-    String userName;
+    private Long memberId;
+    private String memberName;
 
 }

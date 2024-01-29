@@ -13,7 +13,7 @@ const ChatRoomPreview = ({ chatRoom, joinChat }: ChatRoomPreviewProps) => {
             <MiddleBlockWrapper>
                 <Name>
                     {chatRoom.name}
-                    {chatRoom.role === 'teacher' ? ' 선생님' : ' 학생'}
+                    {chatRoom.role === 'TEACHER' ? ' 선생님' : ' 학생'}
                 </Name>
                 <LastMessage>{chatRoom.lastMessage}</LastMessage>
             </MiddleBlockWrapper>

@@ -21,16 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/matching")
 public class MatchingController {
 
-    private MatchingService matchingService;
+    private final MatchingService matchingService;
     private Long memberId = 2L;
 
 
     // 과외 매칭 요청
     @PostMapping("/request")
     public ResponseEntity<Void> createMatchingRequest(@RequestBody CreateMatchingRequest request) {
-
         String matchingId = matchingService.createMatchingRequest(request, memberId);
-
         // 생성된 matchingId 반환
         return ResponseEntity.created(URI.create(String.format("/matching/%s", matchingId))).build();
     }
