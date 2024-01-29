@@ -1,6 +1,7 @@
 package com.ioi.haryeom.auth.service;
 
 import static com.ioi.haryeom.auth.type.ErrorCode.EMPTY_TOKEN;
+import static com.ioi.haryeom.auth.type.ErrorCode.NOT_FOUND_MEMBER;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -87,10 +88,10 @@ public class TokenService {
         Long memberId = getMemberId(token);
 
         Member member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
+            .orElseThrow(() -> new FilterException(NOT_FOUND_MEMBER, UNAUTHORIZED));
 
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        grantedAuthorities.add(new SimpleGrantedAuthority(member.getRole().name()));
+        grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + member.getRole().name()));
 
         return new UsernamePasswordAuthenticationToken(member, "", grantedAuthorities);
     }
@@ -99,7 +100,7 @@ public class TokenService {
     public String resolveToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
 
-        if(cookies == null){
+        if (cookies == null) {
             throw new FilterException(EMPTY_TOKEN, UNAUTHORIZED);
         }
 
@@ -122,7 +123,8 @@ public class TokenService {
 
     public boolean validateToken(String token) {
         try {
-            Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+            Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build()
+                .parseClaimsJws(token).getBody();
             return claims.getExpiration().after(new Date());
 
         } catch (ExpiredJwtException e) {

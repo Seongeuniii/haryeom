@@ -13,6 +13,7 @@ import java.net.URI;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,9 +21,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequestMapping("/api/members")
 @RequiredArgsConstructor
@@ -31,16 +33,16 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    // 학생 등록
-    @PostMapping("/students")
+    @PostMapping(value = "/students", consumes = {MediaType.APPLICATION_JSON_VALUE,
+        MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> createStudent(@AuthenticationPrincipal Member user,
-        @RequestBody StudentCreateRequest createRequest) {
+        @RequestPart(value = "profileImg", required = false) MultipartFile profileImg,
+        @RequestPart("request") StudentCreateRequest createRequest) {
 
-        Long memberId = memberService.createStudent(user, createRequest);
+        Long memberId = memberService.createStudent(user, profileImg, createRequest);
         return ResponseEntity.created(URI.create("/members/students/" + memberId)).build();
     }
 
-    // 학생 선택 조회
     @GetMapping("/students/{memberId}")
     public ResponseEntity<StudentInfoResponse> getStudent(
         @PathVariable("memberId") Long memberId) {
@@ -48,20 +50,22 @@ public class MemberController {
         return ResponseEntity.ok().body(memberService.getStudent(memberId));
     }
 
-    // 학생 수정
-    @PutMapping("/students")
+    @PutMapping(value = "/students", consumes = {MediaType.APPLICATION_JSON_VALUE,
+        MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> updateStudent(@AuthenticationPrincipal Member user,
-        @RequestBody StudentInfoResponse studentRequest) {
-        memberService.updateStudent(user, studentRequest);
+        @RequestPart(value = "profileImg", required = false) MultipartFile profileImg,
+        @RequestPart("request") StudentInfoResponse studentRequest) {
+        memberService.updateStudent(user, profileImg, studentRequest);
         return ResponseEntity.noContent().build();
     }
 
-    //
-    @PostMapping("/teachers")
+    @PostMapping(value = "/teachers", consumes = {MediaType.APPLICATION_JSON_VALUE,
+        MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> createTeacher(@AuthenticationPrincipal Member user,
-        @RequestBody TeacherCreateRequest teacherRequest) {
+        @RequestPart(value = "profileImg", required = false) MultipartFile profileImg,
+        @RequestPart("request") TeacherCreateRequest teacherRequest) {
 
-        Long memberId = memberService.createTeacher(user, teacherRequest);
+        Long memberId = memberService.createTeacher(user, profileImg, teacherRequest);
         return ResponseEntity.created(URI.create("/members/teachers/" + memberId)).build();
     }
 
@@ -70,10 +74,13 @@ public class MemberController {
         return ResponseEntity.ok().body(memberService.getTeacher(memberId));
     }
 
-    @PutMapping("/teachers")
-    public ResponseEntity<Void> updateTeacher(@AuthenticationPrincipal Member user, @RequestBody
-    TeacherUpdateRequest teacherRequest){
-        memberService.updateTeacher(user, teacherRequest);
+    @PutMapping(value = "/teachers", consumes = {MediaType.APPLICATION_JSON_VALUE,
+        MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Void> updateTeacher(@AuthenticationPrincipal Member user,
+        @RequestPart(value = "profileImg", required = false) MultipartFile profileImg,
+        @RequestPart("request")
+        TeacherUpdateRequest teacherRequest) {
+        memberService.updateTeacher(user, profileImg, teacherRequest);
         return ResponseEntity.noContent().build();
     }
 
