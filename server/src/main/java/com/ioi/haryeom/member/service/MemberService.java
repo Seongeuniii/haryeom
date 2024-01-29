@@ -1,6 +1,8 @@
 package com.ioi.haryeom.member.service;
 
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.ioi.haryeom.auth.service.AuthService;
 import com.ioi.haryeom.auth.service.TokenService;
 import com.ioi.haryeom.common.repository.SubjectRepository;
@@ -29,11 +31,18 @@ import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Service
 public class MemberService {
+
+    private final AmazonS3Client amazonS3Client;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     private final AuthService authService;
     private final TokenService tokenService;
@@ -46,23 +55,59 @@ public class MemberService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+//      이전 유저 등록 서비스
+//    @Transactional
+//    public Long createStudent(Member user, StudentCreateRequest createRequest) {
+//
+//        Member member = findMemberById(user.getId());
+//
+//        Student student = Student.builder()
+//            .member(member)
+//            .grade(createRequest.getGrade())
+//            .school(createRequest.getSchool())
+//            .build();
+//
+//        member.createStudent(student, Role.STUDENT, createRequest.getProfileUrl(),
+//            createRequest.getName(), createRequest.getPhone());
+//
+//        studentRepository.save(student);
+//        return member.getId();
+//    }
 
     @Transactional
-    public Long createStudent(Member user, StudentCreateRequest createRequest) {
+    public Long createStudent(Member user, MultipartFile profileImg,
+        StudentCreateRequest createRequest) {
+        try {
+            Member member = findMemberById(user.getId());
 
-        Member member = findMemberById(user.getId());
+            String profileUrl = createRequest.getProfileUrl();
 
-        Student student = Student.builder()
-            .member(member)
-            .grade(createRequest.getGrade())
-            .school(createRequest.getSchool())
-            .build();
+            if (profileImg != null) {
+                String fileName = String.valueOf(member.getId());
+                profileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
 
-        member.createStudent(student, Role.STUDENT, createRequest.getProfileUrl(),
-            createRequest.getName(), createRequest.getPhone());
+                ObjectMetadata metadata = new ObjectMetadata();
+                metadata.setContentType(profileImg.getContentType());
+                metadata.setContentLength(profileImg.getSize());
 
-        studentRepository.save(student);
-        return member.getId();
+                amazonS3Client.putObject(bucket, fileName, profileImg.getInputStream(), metadata);
+            }
+
+            Student student = Student.builder()
+                .member(member)
+                .grade(createRequest.getGrade())
+                .school(createRequest.getSchool())
+                .build();
+
+            member.createStudent(student, Role.STUDENT, profileUrl,
+                createRequest.getName(), createRequest.getPhone());
+
+            studentRepository.save(student);
+
+            return member.getId();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public StudentInfoResponse getStudent(Long memberId) {
@@ -77,53 +122,86 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateStudent(Member user, StudentInfoResponse studentRequest) {
-        Member member = findMemberById(user.getId());
+    public void updateStudent(Member user, MultipartFile profileImg,
+        StudentInfoResponse studentRequest) {
+        try {
+            Member member = findMemberById(user.getId());
 
-        Student student = member.getStudent();
+            String profileUrl = studentRequest.getProfileUrl();
+            if (profileImg != null) {
+                String fileName = String.valueOf(member.getId());
+                profileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
 
-        student.updateStudent(studentRequest.getGrade(), studentRequest.getSchool());
+                ObjectMetadata metadata = new ObjectMetadata();
+                metadata.setContentType(profileImg.getContentType());
+                metadata.setContentLength(profileImg.getSize());
 
-        member.updateStudent(studentRequest.getProfileUrl(),
-            studentRequest.getName(), studentRequest.getPhone());
+                amazonS3Client.putObject(bucket, fileName, profileImg.getInputStream(), metadata);
+            }
+
+            Student student = member.getStudent();
+
+            student.updateStudent(studentRequest.getGrade(), studentRequest.getSchool());
+
+            member.updateStudent(profileUrl,
+                studentRequest.getName(), studentRequest.getPhone());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Transactional
-    public Long createTeacher(Member user, TeacherCreateRequest teacherRequest) {
-        Member member = findMemberById(user.getId());
+    public Long createTeacher(Member user, MultipartFile profileImg,
+        TeacherCreateRequest teacherRequest) {
+        try {
+            Member member = findMemberById(user.getId());
 
-        Teacher teacher = Teacher.builder()
-            .member(member)
-            .profileStatus(teacherRequest.getProfileStatus())
-            .college(teacherRequest.getCollege())
-            .collegeEmail(teacherRequest.getCollegeEmail())
-            .gender(teacherRequest.getGender())
-            .salary(teacherRequest.getSalary())
-            .career(teacherRequest.getCareer())
-            .introduce(teacherRequest.getIntroduce())
-            .build();
+            String profileUrl = teacherRequest.getProfileUrl();
+            if (profileImg != null) {
+                String fileName = String.valueOf(member.getId());
+                profileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
 
-        member.createTeacher(teacher, Role.TEACHER, teacherRequest.getProfileUrl(),
-            teacherRequest.getName(), teacherRequest.getPhone());
-        teacherRepository.save(teacher);
+                ObjectMetadata metadata = new ObjectMetadata();
+                metadata.setContentType(profileImg.getContentType());
+                metadata.setContentLength(profileImg.getSize());
 
-        List<SubjectResponse> subjects = teacherRequest.getSubjects();
-        for (SubjectResponse subjectResponse : subjects) {
+                amazonS3Client.putObject(bucket, fileName, profileImg.getInputStream(), metadata);
 
-            TeacherSubject teacherSubject = TeacherSubject.builder()
-                .teacher(teacher)
-                .subject(
-                    subjectRepository.findById(subjectResponse.getSubjectId()).orElseThrow(
-                        () -> new SubjectNotFoundException(subjectResponse.getSubjectId())
-                    )
-                )
+            }
+
+            Teacher teacher = Teacher.builder()
+                .member(member)
+                .profileStatus(teacherRequest.getProfileStatus())
+                .college(teacherRequest.getCollege())
+                .collegeEmail(teacherRequest.getCollegeEmail())
+                .gender(teacherRequest.getGender())
+                .salary(teacherRequest.getSalary())
+                .career(teacherRequest.getCareer())
+                .introduce(teacherRequest.getIntroduce())
                 .build();
 
-            teacherSubjectRepository.save(teacherSubject);
+            member.createTeacher(teacher, Role.TEACHER, profileUrl,
+                teacherRequest.getName(), teacherRequest.getPhone());
+            teacherRepository.save(teacher);
+
+            List<SubjectResponse> subjects = teacherRequest.getSubjects();
+            for (SubjectResponse subjectResponse : subjects) {
+
+                TeacherSubject teacherSubject = TeacherSubject.builder()
+                    .teacher(teacher)
+                    .subject(
+                        subjectRepository.findById(subjectResponse.getSubjectId()).orElseThrow(
+                            () -> new SubjectNotFoundException(subjectResponse.getSubjectId())
+                        )
+                    )
+                    .build();
+
+                teacherSubjectRepository.save(teacherSubject);
+            }
+            return member.getId();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
-
-        return member.getId();
     }
 
     public TeacherInfoResponse getTeacher(Long memberId) {
@@ -150,40 +228,59 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateTeacher(Member user, TeacherUpdateRequest teacherRequest) {
-        Member member = findMemberById(user.getId());
+    public void updateTeacher(Member user, MultipartFile profileImg,
+        TeacherUpdateRequest teacherRequest) {
+        try {
+            Member member = findMemberById(user.getId());
 
-        member.updateTeacher(teacherRequest.getProfileUrl(), teacherRequest.getName(),
-            teacherRequest.getPhone());
+            String profileUrl = teacherRequest.getProfileUrl();
+            if (profileImg != null) {
+                String fileName = String.valueOf(member.getId());
+                profileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
 
-        Teacher teacher = member.getTeacher();
+                ObjectMetadata metadata = new ObjectMetadata();
+                metadata.setContentType(profileImg.getContentType());
+                metadata.setContentLength(profileImg.getSize());
 
-        List<TeacherSubject> teacherSubjects = teacher.getTeacherSubjects();
+                amazonS3Client.putObject(bucket, fileName, profileImg.getInputStream(), metadata);
 
-        teacherSubjectRepository.deleteAll(teacherSubjects);
 
-        List<SubjectResponse> subjects = teacherRequest.getSubjects();
-        for (SubjectResponse subjectResponse : subjects) {
+            }
 
-            TeacherSubject teacherSubject = TeacherSubject.builder()
-                .teacher(teacher)
-                .subject(
-                    subjectRepository.findById(subjectResponse.getSubjectId()).orElseThrow(
-                        () -> new SubjectNotFoundException(subjectResponse.getSubjectId())
+            member.updateTeacher(profileUrl, teacherRequest.getName(),
+                teacherRequest.getPhone());
+
+            Teacher teacher = member.getTeacher();
+
+            List<TeacherSubject> teacherSubjects = teacher.getTeacherSubjects();
+
+            teacherSubjectRepository.deleteAll(teacherSubjects);
+
+            List<SubjectResponse> subjects = teacherRequest.getSubjects();
+            for (SubjectResponse subjectResponse : subjects) {
+
+                TeacherSubject teacherSubject = TeacherSubject.builder()
+                    .teacher(teacher)
+                    .subject(
+                        subjectRepository.findById(subjectResponse.getSubjectId()).orElseThrow(
+                            () -> new SubjectNotFoundException(subjectResponse.getSubjectId())
+                        )
                     )
-                )
-                .build();
+                    .build();
 
-            teacherSubjectRepository.save(teacherSubject);
+                teacherSubjectRepository.save(teacherSubject);
+            }
+
+            teacher.updateTeacher(teacherRequest.getProfileStatus(),
+                teacherRequest.getCollege(),
+                teacherRequest.getCollegeEmail(),
+                teacherRequest.getGender(),
+                teacherRequest.getSalary(),
+                teacherRequest.getCareer(),
+                teacherRequest.getIntroduce());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
-        teacher.updateTeacher(teacherRequest.getProfileStatus(),
-            teacherRequest.getCollege(),
-            teacherRequest.getCollegeEmail(),
-            teacherRequest.getGender(),
-            teacherRequest.getSalary(),
-            teacherRequest.getCareer(),
-            teacherRequest.getIntroduce());
     }
 
     @Transactional
@@ -207,4 +304,6 @@ public class MemberService {
             .map(SubjectResponse::from)
             .collect(Collectors.toList());
     }
+
+
 }
