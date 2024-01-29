@@ -1,14 +1,14 @@
 package com.ioi.haryeom.chat.service;
 
 import com.ioi.haryeom.auth.exception.AuthorizationException;
-import com.ioi.haryeom.chat.domain.ChatMessage;
+import com.ioi.haryeom.chat.domain.ChatMessageBefore;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.chat.domain.ChatRoomState;
 import com.ioi.haryeom.chat.dto.ChatMessageResponse;
 import com.ioi.haryeom.chat.dto.ChatRoomResponse;
 import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
 import com.ioi.haryeom.chat.exception.ChatRoomStateNotFoundException;
-import com.ioi.haryeom.chat.repository.ChatMessageRepository;
+import com.ioi.haryeom.chat.repository.ChatMessageRepositoryBefore;
 import com.ioi.haryeom.chat.repository.ChatRoomRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomStateRepository;
 import com.ioi.haryeom.common.domain.Subject;
@@ -46,7 +46,7 @@ public class ChatRoomService {
     private final MemberRepository memberRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomStateRepository chatRoomStateRepository;
-    private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageRepositoryBefore chatMessageRepositoryBefore;
     private final TutoringRepository tutoringRepository;
 
     // 채팅방 생성
@@ -119,7 +119,7 @@ public class ChatRoomService {
 
         Pageable pageable = createPageable(size);
 
-        Page<ChatMessage> chatMessagePage = getChatMessages(lastMessageId, chatRoom, pageable);
+        Page<ChatMessageBefore> chatMessagePage = getChatMessages(lastMessageId, chatRoom, pageable);
 
         return chatMessagePage.getContent()
             .stream()
@@ -179,24 +179,24 @@ public class ChatRoomService {
         Long lastReadMessageId = chatRoomState.getLastReadMessageId();
         ChatRoom chatRoom = chatRoomState.getChatRoom();
 
-        ChatMessage lastChatMessage = chatMessageRepository.findFirstByChatRoomOrderByCreatedAtDesc(chatRoom);
-        Integer unreadMessageCount = chatMessageRepository.countAllByChatRoomAndIdGreaterThan(chatRoom,
+        ChatMessageBefore lastChatMessageBefore = chatMessageRepositoryBefore.findFirstByChatRoomOrderByCreatedAtDesc(chatRoom);
+        Integer unreadMessageCount = chatMessageRepositoryBefore.countAllByChatRoomAndIdGreaterThan(chatRoom,
             lastReadMessageId);
         Member oppositeMember = chatRoom.getOppositeMember(member);
 
-        return ChatRoomResponse.of(chatRoomState, lastChatMessage, oppositeMember, unreadMessageCount);
+        return ChatRoomResponse.of(chatRoomState, lastChatMessageBefore, oppositeMember, unreadMessageCount);
     }
 
     private Pageable createPageable(Integer size) {
         return PageRequest.of(0, size, Sort.by("createdAt").descending());
     }
 
-    private Page<ChatMessage> getChatMessages(Long lastMessageId, ChatRoom chatRoom, Pageable pageable) {
-        Page<ChatMessage> chatMessagePage;
+    private Page<ChatMessageBefore> getChatMessages(Long lastMessageId, ChatRoom chatRoom, Pageable pageable) {
+        Page<ChatMessageBefore> chatMessagePage;
         if (lastMessageId == null) {
-            chatMessagePage = chatMessageRepository.findByChatRoom(chatRoom, pageable);
+            chatMessagePage = chatMessageRepositoryBefore.findByChatRoom(chatRoom, pageable);
         } else {
-            chatMessagePage = chatMessageRepository.findByChatRoomAndIdLessThan(chatRoom, lastMessageId, pageable);
+            chatMessagePage = chatMessageRepositoryBefore.findByChatRoomAndIdLessThan(chatRoom, lastMessageId, pageable);
         }
         return chatMessagePage;
     }

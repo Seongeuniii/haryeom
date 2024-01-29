@@ -1,10 +1,10 @@
 package com.ioi.haryeom.matching.service;
 
-import com.ioi.haryeom.chat.domain.ChatMessage;
+import com.ioi.haryeom.chat.domain.ChatMessageBefore;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.chat.dto.ChatMessageResponse;
 import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
-import com.ioi.haryeom.chat.repository.ChatMessageRepository;
+import com.ioi.haryeom.chat.repository.ChatMessageRepositoryBefore;
 import com.ioi.haryeom.chat.repository.ChatRoomRepository;
 import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.common.repository.SubjectRepository;
@@ -41,7 +41,7 @@ public class MatchingService {
     private final ChatRoomRepository chatRoomRepository;
     private final SubjectRepository subjectRepository;
     private final TutoringRepository tutoringRepository;
-    private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageRepositoryBefore chatMessageRepositoryBefore;
 
     @Transactional
     public String createMatchingRequest(CreateMatchingRequest request, Long memberId) {
@@ -107,11 +107,11 @@ public class MatchingService {
 
         tutoring.end();
 
-        ChatMessage chatMessage = createEndTutoringMessage(tutoring, member);
+        ChatMessageBefore chatMessageBefore = createEndTutoringMessage(tutoring, member);
 
-        ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
+        ChatMessageBefore savedChatMessageBefore = chatMessageRepositoryBefore.save(chatMessageBefore);
 
-        ChatMessageResponse response = ChatMessageResponse.from(savedChatMessage);
+        ChatMessageResponse response = ChatMessageResponse.from(savedChatMessageBefore);
         messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId(), response);
         //TODO: 지금까지 과외한 거 정산해줘야함
     }
@@ -140,12 +140,12 @@ public class MatchingService {
         messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId() + "/response", response);
     }
 
-    private ChatMessage createEndTutoringMessage(Tutoring tutoring, Member member) {
+    private ChatMessageBefore createEndTutoringMessage(Tutoring tutoring, Member member) {
 
         String endMessage = String.format("%s 선생님과 %s 학생의 %s 과외가 종료되었습니다.", tutoring.getTeacher().getName(),
             tutoring.getStudent().getName(), tutoring.getSubject().getName());
 
-        return ChatMessage.builder()
+        return ChatMessageBefore.builder()
             .chatRoom(tutoring.getChatRoom())
             .senderMember(member)
             .messageContent(endMessage)
