@@ -1,8 +1,7 @@
 package com.ioi.haryeom.chat.service;
 
 import com.ioi.haryeom.auth.exception.AuthorizationException;
-import com.ioi.haryeom.chat.domain.ChatMessage;
-import com.ioi.haryeom.chat.domain.ChatMessageBefore;
+import com.ioi.haryeom.chat.document.ChatMessage;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.chat.domain.ChatRoomState;
 import com.ioi.haryeom.chat.dto.ChatMessageResponse;
@@ -191,7 +190,7 @@ public class ChatRoomService {
     }
 
     private Pageable createPageable(Integer size) {
-        return PageRequest.of(0, size, Sort.by("createdAt").descending());
+        return PageRequest.of(0, size, Sort.by("id").descending());
     }
 
     private Page<ChatMessage> getChatMessages(String lastMessageId, Long chatRoomId, Pageable pageable) {
