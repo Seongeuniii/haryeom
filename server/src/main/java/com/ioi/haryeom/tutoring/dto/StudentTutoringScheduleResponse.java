@@ -27,4 +27,14 @@ public class StudentTutoringScheduleResponse {
         this.duration = tutoringSchedule.getDuration();
         this.title = tutoringSchedule.getTitle();
     }
+
+    public StudentTutoringScheduleResponse(StudentTutoringScheduleQueryDSLResponse studentTutoringScheduleQueryDSL) {
+        this.tutoringScheduleId = studentTutoringScheduleQueryDSL.getTutoringScheduleId();
+        this.tutoringId = studentTutoringScheduleQueryDSL.getTutoringId();
+        this.teacherMemberId = studentTutoringScheduleQueryDSL.getTeacherMemberId();
+        this.subject = new SubjectResponse(studentTutoringScheduleQueryDSL.getSubject());
+        this.startTime = studentTutoringScheduleQueryDSL.getStartTime();
+        this.duration = studentTutoringScheduleQueryDSL.getDuration();
+        this.title = studentTutoringScheduleQueryDSL.getTitle();
+    }
 }
