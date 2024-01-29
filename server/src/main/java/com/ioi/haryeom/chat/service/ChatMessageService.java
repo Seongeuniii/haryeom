@@ -52,7 +52,6 @@ public class ChatMessageService {
     }
 
     @Transactional
-
     public void sendChatMessage(Long chatRoomId, String content, String sessionId) {
 
         Long memberId = sessionManager.getMemberIdBySessionId(sessionId);
@@ -71,6 +70,7 @@ public class ChatMessageService {
     }
 
 
+    //-----------before-----------
     @Transactional
     public void sendChatMessageBefore(Long chatRoomId, String content, String sessionId) {
 
