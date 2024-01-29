@@ -47,7 +47,7 @@ VALUES(4, 3, 1, '2023-01-04 10:00:00', '2023-01-08 11:15:00');
 -- Tutoring 세션 1
 INSERT INTO tutoring (id, created_at, updated_at, hourly_rate, status, 
 chat_room_id, student_member_id, subject_id, teacher_member_id) 
-VALUES (1, '2023-01-05 10:00:00', '2023-01-05 11:30:00', 30000, 'COMPLETED', 1, 2, 1, 1); -- 이철수 학생과 김영희 선생님의 튜터링 세션
+VALUES (1, '2023-01-05 10:00:00', '2023-01-05 11:30:00', 30000, 'CLOSED', 1, 2, 1, 1); -- 이철수 학생과 김영희 선생님의 튜터링 세션
 -- Tutoring 세션 2
 INSERT INTO tutoring (id, created_at, updated_at, hourly_rate, status, 
 chat_room_id, student_member_id, subject_id, teacher_member_id)

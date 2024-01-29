@@ -1,11 +1,9 @@
 package com.ioi.haryeom.tutoring.service;
 
-import com.ioi.haryeom.advice.exception.UnauthorizedException;
 import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.member.domain.Member;
-import com.ioi.haryeom.member.domain.type.Role;
-import com.ioi.haryeom.member.exception.NoStudentException;
-import com.ioi.haryeom.member.exception.NoTeacherException;
+import com.ioi.haryeom.member.exception.MemberNotFoundException;
+import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
 import com.ioi.haryeom.tutoring.domain.TutoringSchedule;
 import com.ioi.haryeom.tutoring.domain.TutoringStatus;
@@ -44,28 +42,13 @@ public class TutoringService {
 
     private final TutoringScheduleRepository tutoringScheduleRepository;
 
-    private final String unauthorizedExceptionMessage = "회원 정보가 인증되지 않았습니다.";
+    private final MemberRepository memberRepository;
 
-    private void validateMemberIsTeacher(Member member) {
-        if(member == null || member.getId() == null) {
-            throw new UnauthorizedException(unauthorizedExceptionMessage);
-        } else if(!member.getRole().equals(Role.TEACHER)) {
-            throw new NoTeacherException();
-        }
-    }
+    public TeacherTutoringListResponse getTeacherTutoringList(Long teacherMemberId) {
+        Member teacher = memberRepository.findById(teacherMemberId)
+            .orElseThrow(() -> new MemberNotFoundException(teacherMemberId));
 
-    private void validateMemberIsStudent(Member member) {
-        if(member == null || member.getId() == null) {
-            throw new UnauthorizedException(unauthorizedExceptionMessage);
-        } else if(!member.getRole().equals(Role.STUDENT)) {
-            throw new NoStudentException();
-        }
-    }
-
-    public TeacherTutoringListResponse getTeacherTutoringList(Member member) {
-        validateMemberIsTeacher(member);
-
-        List<Tutoring> teacherTutoringList = tutoringRepository.findAllByTeacherIdAndStatus(member.getId(), TutoringStatus.IN_PROGRESS);
+        List<Tutoring> teacherTutoringList = tutoringRepository.findAllByTeacherAndStatus(teacher, TutoringStatus.IN_PROGRESS);
 
         List<TeacherTutoringResponse> teacherTutoringResponses = teacherTutoringList
             .stream()
@@ -75,10 +58,11 @@ public class TutoringService {
         return new TeacherTutoringListResponse(teacherTutoringResponses);
     }
 
-    public StudentTutoringListResponse getStudentTutoringList(Member member) {
-        validateMemberIsStudent(member);
+    public StudentTutoringListResponse getStudentTutoringList(Long studentMemberId) {
+        Member student = memberRepository.findById(studentMemberId)
+            .orElseThrow(() -> new MemberNotFoundException(studentMemberId));
 
-        List<Tutoring> studentTutoringList = tutoringRepository.findAllByStudentIdAndStatus(member.getId(), TutoringStatus.IN_PROGRESS);
+        List<Tutoring> studentTutoringList = tutoringRepository.findAllByStudentAndStatus(student, TutoringStatus.IN_PROGRESS);
 
         List<StudentTutoringResponse> studentTutoringResponses = studentTutoringList
             .stream()
@@ -91,8 +75,6 @@ public class TutoringService {
 
     @Transactional
     public TutoringScheduleIdsResponse createTutoringSchedules(Member member, TutoringScheduleListRequest request) {
-        validateMemberIsTeacher(member);
-
         Tutoring tutoring = tutoringRepository.findByIdAndTeacherId(request.getTutoringId(), member.getId())
             .orElseThrow(() ->  new TutoringNotFoundException(request.getTutoringId()));
 
@@ -117,8 +99,6 @@ public class TutoringService {
     }
 
     public TutoringScheduleResponse getTutoringSchedule(Member member, Long tutoringScheduleId) {
-        validateMemberIsTeacher(member);
-
         TutoringSchedule tutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId)
             .orElseThrow(() -> new TutoringScheduleNotFoundException(tutoringScheduleId));
         if(!tutoringSchedule.getTutoring().getTeacher().getId().equals(member.getId())) {
@@ -130,8 +110,6 @@ public class TutoringService {
 
     @Transactional
     public void updateTutoringSchedule(Member member, Long tutoringScheduleId, TutoringScheduleRequest request) {
-        validateMemberIsTeacher(member);
-
         TutoringSchedule tutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId)
             .orElseThrow(() -> new TutoringScheduleNotFoundException(tutoringScheduleId));
         if(!tutoringSchedule.getTutoring().getTeacher().getId().equals(member.getId())) {
@@ -147,8 +125,6 @@ public class TutoringService {
 
     @Transactional
     public void deleteTutoringSchedule(Member member, Long tutoringScheduleId) {
-        validateMemberIsTeacher(member);
-
         TutoringSchedule tutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId)
             .orElseThrow(() -> new TutoringScheduleNotFoundException(tutoringScheduleId));
         if(!tutoringSchedule.getTutoring().getTeacher().getId().equals(member.getId())) {
@@ -159,7 +135,6 @@ public class TutoringService {
     }
 
 //    public MonthlyTeacherTutoringScheduleListResponse getMonthlyTeacherTutoringScheduleList(Member member, String yearmonth) {
-//        validateMemberIsTeacher(member);
 //
 //        int year = Integer.parseInt(yearmonth.substring(0, 4));
 //        int month = Integer.parseInt(yearmonth.substring(4));
@@ -170,7 +145,6 @@ public class TutoringService {
 //    }
 //
 //    public MonthlyStudentTutoringScheduleListResponse getMonthlyStudentTutoringScheduleList(Member member, String yearmonth) {
-//        validateMemberIsTeacher(member);
 //
 //        int year = Integer.parseInt(yearmonth.substring(0, 4));
 //        int month = Integer.parseInt(yearmonth.substring(4));
