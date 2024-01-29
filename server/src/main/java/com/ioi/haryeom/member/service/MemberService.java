@@ -88,6 +88,19 @@ public class MemberService {
         }
     }
 
+    public void certifyUniv(String univName) {
+        try {
+            Map<String, Object> response = UnivCert.check(univName);
+
+            boolean success = Boolean.parseBoolean(String.valueOf(response.get("success")));
+            if (!success) {
+                throw new EmailCertifyException(String.valueOf(response.get("message")));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Transactional
     public Long createStudent(Member user, MultipartFile profileImg,
         StudentCreateRequest createRequest) {

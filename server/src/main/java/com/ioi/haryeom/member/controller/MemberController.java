@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,6 +49,12 @@ public class MemberController {
     public ResponseEntity<Void> certifyCode(@RequestBody CodeCertifyRequest certifyRequest) {
         memberService.certifyCode(certifyRequest);
         return ResponseEntity.status(CREATED).build();
+    }
+
+    @GetMapping("/emails/check")
+    public ResponseEntity<Void> certifyUniv(@RequestParam String univName) {
+        memberService.certifyUniv(univName);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/students", consumes = {MediaType.APPLICATION_JSON_VALUE,
