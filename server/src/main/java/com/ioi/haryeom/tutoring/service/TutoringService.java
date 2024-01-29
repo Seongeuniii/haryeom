@@ -12,9 +12,13 @@ import com.ioi.haryeom.tutoring.dto.MonthlyTeacherTutoringScheduleListResponse;
 import com.ioi.haryeom.tutoring.dto.StudentTutoringListResponse;
 import com.ioi.haryeom.tutoring.dto.StudentTutoringResponse;
 import com.ioi.haryeom.tutoring.dto.StudentTutoringScheduleListResponse;
+import com.ioi.haryeom.tutoring.dto.StudentTutoringScheduleQueryDSLResponse;
+import com.ioi.haryeom.tutoring.dto.StudentTutoringScheduleResponse;
 import com.ioi.haryeom.tutoring.dto.TeacherTutoringListResponse;
 import com.ioi.haryeom.tutoring.dto.TeacherTutoringResponse;
 import com.ioi.haryeom.tutoring.dto.TeacherTutoringScheduleListResponse;
+import com.ioi.haryeom.tutoring.dto.TeacherTutoringScheduleQueryDSLResponse;
+import com.ioi.haryeom.tutoring.dto.TeacherTutoringScheduleResponse;
 import com.ioi.haryeom.tutoring.dto.TutoringScheduleIdsResponse;
 import com.ioi.haryeom.tutoring.dto.TutoringScheduleListRequest;
 import com.ioi.haryeom.tutoring.dto.TutoringScheduleRequest;
@@ -23,6 +27,7 @@ import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
 import com.ioi.haryeom.tutoring.exception.TutoringScheduleNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import com.ioi.haryeom.tutoring.repository.TutoringScheduleRepository;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -86,12 +91,12 @@ public class TutoringService {
         List<Long> savedScheduleIds = new ArrayList<>();
         for(TutoringScheduleRequest scheduleRequest : request.getSchedules()) {
             TutoringSchedule schedule = TutoringSchedule.builder()
-                    .tutoring(tutoring)
-                        .scheduleDate(scheduleRequest.getScheduleDate())
-                            .startTime(scheduleRequest.getStartTime())
-                                .duration(scheduleRequest.getDuration())
-                                    .title(scheduleRequest.getTitle())
-                                        .build();
+                .tutoring(tutoring)
+                .scheduleDate(scheduleRequest.getScheduleDate())
+                .startTime(scheduleRequest.getStartTime())
+                .duration(scheduleRequest.getDuration())
+                .title(scheduleRequest.getTitle())
+                .build();
 
             TutoringSchedule savedSchedule = tutoringScheduleRepository.save(schedule);
 
@@ -137,23 +142,52 @@ public class TutoringService {
         tutoringScheduleRepository.delete(tutoringSchedule);
     }
 
-//    public MonthlyTeacherTutoringScheduleListResponse getMonthlyTeacherTutoringScheduleList(Member member, String yearmonth) {
-//
-//        int year = Integer.parseInt(yearmonth.substring(0, 4));
-//        int month = Integer.parseInt(yearmonth.substring(4));
-//
-//        List<TeacherTutoringScheduleListResponse> list = tutoringScheduleRepository.getMonthlyTeacherTutoringScheduleList(member.getId(), year, month);
-//
-//        return new MonthlyTeacherTutoringScheduleListResponse(list);
-//    }
-//
-//    public MonthlyStudentTutoringScheduleListResponse getMonthlyStudentTutoringScheduleList(Member member, String yearmonth) {
-//
-//        int year = Integer.parseInt(yearmonth.substring(0, 4));
-//        int month = Integer.parseInt(yearmonth.substring(4));
-//
-//        List<StudentTutoringScheduleListResponse> list = tutoringScheduleRepository.getMonthlyStudentTutoringScheduleList(member.getId(), year, month);
-//
-//        return new MonthlyStudentTutoringScheduleListResponse(list);
-//    }
+    public MonthlyTeacherTutoringScheduleListResponse getMonthlyTeacherTutoringScheduleList(Long teacherMemberId, String yearmonth) {
+        Member teacher = memberRepository.findById(teacherMemberId)
+            .orElseThrow(() -> new MemberNotFoundException(teacherMemberId));
+
+        int year = Integer.parseInt(yearmonth.substring(0, 4));
+        int month = Integer.parseInt(yearmonth.substring(4));
+
+        List<LocalDate> existScheduleDates = tutoringScheduleRepository.getDateExistingScheduleByTeacherAndYearMonth(teacherMemberId, year, month);
+        List<TeacherTutoringScheduleQueryDSLResponse> schedules = tutoringScheduleRepository.getTutoringScheduleListByTeacherAndYearMonth(teacherMemberId, existScheduleDates);
+
+
+        List<TeacherTutoringScheduleListResponse> list = new ArrayList<>();
+        for(LocalDate scheduleDate : existScheduleDates) {
+            List<TeacherTutoringScheduleResponse> filteSchedules = schedules
+                .stream()
+                .filter(sch -> sch.getScheduleDate().equals(scheduleDate))
+                .map(TeacherTutoringScheduleResponse::new)
+                .collect(Collectors.toList());
+
+            list.add(new TeacherTutoringScheduleListResponse(scheduleDate, filteSchedules.size(), filteSchedules));
+        }
+
+        return new MonthlyTeacherTutoringScheduleListResponse(list);
+    }
+
+    public MonthlyStudentTutoringScheduleListResponse getMonthlyStudentTutoringScheduleList(Long studentMemberId, String yearmonth) {
+        Member student = memberRepository.findById(studentMemberId)
+            .orElseThrow(() -> new MemberNotFoundException(studentMemberId));
+
+        int year = Integer.parseInt(yearmonth.substring(0, 4));
+        int month = Integer.parseInt(yearmonth.substring(4));
+
+        List<LocalDate> existScheduleDates = tutoringScheduleRepository.getDateExistingScheduleByStudentAndYearMonth(studentMemberId, year, month);
+        List<StudentTutoringScheduleQueryDSLResponse> schedules = tutoringScheduleRepository.getTutoringScheduleListByStudentAndYearMonth(studentMemberId, existScheduleDates);
+
+        List<StudentTutoringScheduleListResponse> list = new ArrayList<>();
+        for(LocalDate scheduleDate : existScheduleDates) {
+            List<StudentTutoringScheduleResponse> filteSchedules = schedules
+                .stream()
+                .filter(sch -> sch.getScheduleDate().equals(scheduleDate))
+                .map(StudentTutoringScheduleResponse::new)
+                .collect(Collectors.toList());
+
+            list.add(new StudentTutoringScheduleListResponse(scheduleDate, filteSchedules.size(), filteSchedules));
+        }
+
+        return new MonthlyStudentTutoringScheduleListResponse(list);
+    }
 }
