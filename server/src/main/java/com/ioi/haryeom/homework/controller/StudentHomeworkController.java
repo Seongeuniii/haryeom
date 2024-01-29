@@ -8,6 +8,7 @@ import com.ioi.haryeom.homework.dto.HomeworkReviewResponse;
 import com.ioi.haryeom.homework.service.HomeworkService;
 import com.ioi.haryeom.member.domain.type.Role;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,7 +42,7 @@ public class StudentHomeworkController {
     }
 
     // 숙제 저장(숙제 드로잉 저장)
-    @PostMapping("/{homeworkdId}")
+    @PostMapping(value = "/{homeworkdId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> saveHomework(@PathVariable Long homeworkId, @RequestPart HomeworkDrawingRequest drawings) {
 
         homeworkService.saveHomework(homeworkId, drawings, authInfo);
@@ -50,7 +51,7 @@ public class StudentHomeworkController {
     }
 
     // 숙제 저장(복습 드로잉 저장)
-    @PostMapping("/{homeworkId}/review")
+    @PostMapping(value = "/{homeworkId}/review", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> saveHomeworkReview(@PathVariable Long homeworkId, @RequestPart HomeworkDrawingRequest drawings) {
 
         homeworkService.saveHomeworkReview(homeworkId, drawings, authInfo);

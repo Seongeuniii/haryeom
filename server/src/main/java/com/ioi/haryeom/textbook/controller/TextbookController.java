@@ -9,6 +9,7 @@ import com.ioi.haryeom.textbook.dto.TextbookResponse;
 import com.ioi.haryeom.textbook.dto.TextbookWithStudentsResponse;
 import com.ioi.haryeom.textbook.service.TextbookService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,7 +27,7 @@ public class TextbookController {
     AuthInfo authInfo = new AuthInfo(1L, Role.TEACHER.name());
 
     // 학습자료 추가
-    @PostMapping
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Void> createTextbook(@RequestPart("file") MultipartFile file, @RequestPart("request") TextbookRequest request) {
 
         Long textbookId = textbookService.createTextbook(file, request, authInfo);
