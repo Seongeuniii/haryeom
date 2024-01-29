@@ -43,14 +43,14 @@ public class ReviewService {
     }
 
     //학생별 과목별 영상 리스트 조회 - queryDsl 활용, 잘 안 되서 일단은 nativequery로..
-//    public List<VideoResponse> getVideoBySubjectByTutoringByMember(Long subjectId, Long memberId, Pageable pageable){
-//        return reviewCustomRepository.findAllBySubjectAndTutoringServiceByTutoringByMember(subjectId, memberId, pageable).getContent();
-//    }
+    public List<VideoResponse> getVideoBySubjectByTutoringByMember(Long subjectId, Long memberId, Pageable pageable){
+        return reviewCustomRepository.findAllBySubjectAndTutoringServiceByTutoringByMember(subjectId, memberId, pageable).getContent();
+    }
     
     //페이징 미적용상태
-    public List<VideoInterface> getVideoBySubjectByTutoringByMember(Long subjectId, Long memberId, Pageable pageable){
-        return videoRepository.findAllBySubjectId(subjectId, memberId);
-    }
+//    public List<VideoInterface> getVideoBySubjectByTutoringByMember(Long subjectId, Long memberId, Pageable pageable){
+//        return videoRepository.findAllBySubjectId(subjectId, memberId);
+//    }
 
 
     // 비디오 상세조회

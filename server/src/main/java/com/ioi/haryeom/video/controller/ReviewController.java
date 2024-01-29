@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ReviewController {
     private final ReviewService reviewService;
 
-    private Long memberId = 3L; // 임시용 - 학생 멤버아이디 3: 2번과외, 2: 1번과외
+    private Long memberId = 2L; // 임시용 - 학생 멤버아이디 3: 2번과외, 2: 1번과외
 
     //학생이 수강한 과외의 학습자료 리스트 찾기 - ok
     @GetMapping("/homework")
@@ -59,7 +59,7 @@ public class ReviewController {
 
     // 과목별 비디오 리스트 찾기 -- 일단 nativequery로..
     @GetMapping("/video/{subjectId}")
-    public ResponseEntity<List<VideoInterface>> getVideoListBySubject(@PathVariable Long subjectId, @PageableDefault(size = 10, sort = "createdAt", direction = DESC) Pageable pageable){
+    public ResponseEntity<List<VideoResponse>> getVideoListBySubject(@PathVariable Long subjectId, @PageableDefault(size = 10, sort = "createdAt", direction = DESC) Pageable pageable){
 //        Member member = (Member) authentication.getPrincipal();
         //Todo: authentication 적용해서 memberId 구하기
         return ResponseEntity.ok(reviewService.getVideoBySubjectByTutoringByMember(subjectId, memberId, pageable));
