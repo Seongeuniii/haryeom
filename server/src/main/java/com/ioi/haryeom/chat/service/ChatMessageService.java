@@ -1,6 +1,6 @@
 package com.ioi.haryeom.chat.service;
 
-import com.ioi.haryeom.chat.domain.ChatMessage;
+import com.ioi.haryeom.chat.document.ChatMessage;
 import com.ioi.haryeom.chat.domain.ChatMessageBefore;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.chat.dto.ChatMessageResponse;

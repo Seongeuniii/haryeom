@@ -1,6 +1,6 @@
 package com.ioi.haryeom.chat.repository;
 
-import com.ioi.haryeom.chat.domain.ChatMessage;
+import com.ioi.haryeom.chat.document.ChatMessage;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

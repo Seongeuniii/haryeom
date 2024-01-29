@@ -1,4 +1,4 @@
-package com.ioi.haryeom.chat.domain;
+package com.ioi.haryeom.chat.document;
 
 import java.time.LocalDateTime;
 import javax.persistence.Id;
@@ -12,11 +12,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Document
+@Document   // chatMessage 객체를 몽고DB에 영속화시킨다.
 public class ChatMessage {
 
-    @Id
-    private ObjectId id;
+    // 스프링 데이터 몽고DB가 도메인 객체를 몽고 DB 도큐먼트로 변화하거나 반대로 변환하는 과정을 알아서 처리한다.
+
+    @Id     //_id
+    private ObjectId id;    // ObjectId는 도큐먼트를 위해 전역 고유 식별자를 제공
 
     private Long chatRoomId;
     private Long memberId;

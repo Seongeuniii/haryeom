@@ -1,7 +1,6 @@
 package com.ioi.haryeom.chat.dto;
 
-import com.ioi.haryeom.chat.domain.ChatMessage;
-import com.ioi.haryeom.chat.domain.ChatRoomState;
+import com.ioi.haryeom.chat.document.ChatMessage;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.domain.type.Role;
 import java.time.LocalDateTime;

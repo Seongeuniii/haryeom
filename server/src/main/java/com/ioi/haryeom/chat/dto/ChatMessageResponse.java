@@ -1,7 +1,6 @@
 package com.ioi.haryeom.chat.dto;
 
-import com.ioi.haryeom.chat.domain.ChatMessage;
-import com.ioi.haryeom.chat.domain.ChatMessageBefore;
+import com.ioi.haryeom.chat.document.ChatMessage;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
