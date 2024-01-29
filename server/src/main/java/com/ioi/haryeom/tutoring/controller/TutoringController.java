@@ -60,69 +60,69 @@ public class TutoringController {
 
     /**
      * 선생님이 본인 과외 중 특정 과외에 대한 일정들을 등록
-     * @param member
+     * @param teacherMemberId
      * @param request
      * @return
      */
     @PostMapping("/schedule")
-    public ResponseEntity<TutoringScheduleIdsResponse> createTutoringSchedules(@AuthenticationPrincipal Member member, @RequestBody @Validated TutoringScheduleListRequest request) {
-        TutoringScheduleIdsResponse tutoringScheduleIds = tutoringService.createTutoringSchedules(member, request);
+    public ResponseEntity<TutoringScheduleIdsResponse> createTutoringSchedules(@AuthMemberId Long teacherMemberId, @RequestBody @Validated TutoringScheduleListRequest request) {
+        TutoringScheduleIdsResponse tutoringScheduleIds = tutoringService.createTutoringSchedules(teacherMemberId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(tutoringScheduleIds);
     }
 
     /**
      * 선생님이 본인 과외 일정에 대해 상세 조회
-     * @param member
+     * @param teacherMemberId
      * @param tutoringScheduleId
      * @return
      */
     @GetMapping("/schedule/{tutoringScheduleId}")
-    public ResponseEntity<TutoringScheduleResponse> getTutoringSchedule(@AuthenticationPrincipal Member member, @PathVariable Long tutoringScheduleId) {
-        TutoringScheduleResponse response = tutoringService.getTutoringSchedule(member, tutoringScheduleId);
+    public ResponseEntity<TutoringScheduleResponse> getTutoringSchedule(@AuthMemberId Long teacherMemberId, @PathVariable Long tutoringScheduleId) {
+        TutoringScheduleResponse response = tutoringService.getTutoringSchedule(teacherMemberId, tutoringScheduleId);
 
         return ResponseEntity.ok(response);
     }
 
     /**
      * 선생님이 본인 과외 일정에 대해 수정(날짜, 시작 시간, 진행시간, 커리큘럼명만 수정 가능)
-     * @param member
+     * @param teacherMemberId
      * @param tutoringScheduleId
      * @param request
      * @return
      */
     @PutMapping("/schedule/{tutoringScheduleId}")
-    public ResponseEntity<Void> updateTutoringSchedule(@AuthenticationPrincipal Member member, @PathVariable Long tutoringScheduleId, @RequestBody TutoringScheduleRequest request) {
-        tutoringService.updateTutoringSchedule(member, tutoringScheduleId, request);
+    public ResponseEntity<Void> updateTutoringSchedule(@AuthMemberId Long teacherMemberId, @PathVariable Long tutoringScheduleId, @RequestBody TutoringScheduleRequest request) {
+        tutoringService.updateTutoringSchedule(teacherMemberId, tutoringScheduleId, request);
 
         return ResponseEntity.noContent().build();
     }
 
     /**
      * 선생님이 본인 과외 일정을 삭제
-     * @param member
+     * @param teacherMemberId
      * @param tutoringScheduleId
      * @return
      */
     @DeleteMapping("/schedule/{tutoringScheduleId}")
-    public ResponseEntity<Void> deleteTutoringSchedule(@AuthenticationPrincipal Member member, @PathVariable Long tutoringScheduleId) {
-        tutoringService.deleteTutoringSchedule(member, tutoringScheduleId);
+    public ResponseEntity<Void> deleteTutoringSchedule(@AuthMemberId Long teacherMemberId, @PathVariable Long tutoringScheduleId) {
+        tutoringService.deleteTutoringSchedule(teacherMemberId, tutoringScheduleId);
 
         return ResponseEntity.noContent().build();
     }
 
 
 //    @GetMapping("/schedule/teacher")
-//    public ResponseEntity<MonthlyTeacherTutoringScheduleListResponse> getMonthlyTeacherTutoringScheduleList(@AuthenticationPrincipal Member member, @RequestParam String yearmonth) {
-//        MonthlyTeacherTutoringScheduleListResponse response = tutoringService.getMonthlyTeacherTutoringScheduleList(member, yearmonth);
+//    public ResponseEntity<MonthlyTeacherTutoringScheduleListResponse> getMonthlyTeacherTutoringScheduleList(@AuthMemberId Long teacherMemberId, @RequestParam String yearmonth) {
+//        MonthlyTeacherTutoringScheduleListResponse response = tutoringService.getMonthlyTeacherTutoringScheduleList(teacherMemberId, yearmonth);
 //
 //        return ResponseEntity.ok(response);
 //    }
 //
 //
 //    @GetMapping("/schedule/student")
-//    public ResponseEntity<MonthlyStudentTutoringScheduleListResponse> getMonthlyStudentTutoringScheduleList(@AuthenticationPrincipal Member member, @RequestParam String yearmonth) {
-//        MonthlyStudentTutoringScheduleListResponse response = tutoringService.getMonthlyStudentTutoringScheduleList(member, yearmonth);
+//    public ResponseEntity<MonthlyStudentTutoringScheduleListResponse> getMonthlyStudentTutoringScheduleList(@AuthMemberId Long studentMemberId, @RequestParam String yearmonth) {
+//        MonthlyStudentTutoringScheduleListResponse response = tutoringService.getMonthlyStudentTutoringScheduleList(studentMemberId, yearmonth);
 //
 //        return ResponseEntity.ok(response);
 //    }

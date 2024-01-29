@@ -20,6 +20,6 @@ public class TutoringScheduleRequest {
     private Integer duration;
 
     @NotNull
-    private String titile;
+    private String title;
 
 }
