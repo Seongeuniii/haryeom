@@ -11,7 +11,7 @@ interface ReturnType {
 export const getTutorings = async (userRole: IUserRole) => {
     try {
         const res = await axios.get<ReturnType>(
-            `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${userRole}`
+            `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${userRole.toLocaleLowerCase()}s`
         );
         return res.data;
     } catch (e) {
