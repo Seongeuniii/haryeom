@@ -1,42 +1,34 @@
 package com.ioi.haryeom.chat.domain;
 
-import com.ioi.haryeom.common.domain.BaseTimeEntity;
-import com.ioi.haryeom.member.domain.Member;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import java.time.LocalDateTime;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-public class ChatMessage extends BaseTimeEntity {
+@Document
+public class ChatMessage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private ObjectId id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_room_id")
-    private ChatRoom chatRoom;
+    private Long chatRoomId;
+    private Long memberId;
+    private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member senderMember;
-
-    private String messageContent;
+    @CreatedDate
+    private LocalDateTime createdAt;
 
     @Builder
-    public ChatMessage(ChatRoom chatRoom, Member senderMember, String messageContent) {
-        this.chatRoom = chatRoom;
-        this.senderMember = senderMember;
-        this.messageContent = messageContent;
+    public ChatMessage(Long chatRoomId, Long memberId, String content) {
+        this.chatRoomId = chatRoomId;
+        this.memberId = memberId;
+        this.content = content;
     }
 }
