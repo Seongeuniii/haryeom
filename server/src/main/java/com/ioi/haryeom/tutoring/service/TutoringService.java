@@ -74,9 +74,12 @@ public class TutoringService {
 
 
     @Transactional
-    public TutoringScheduleIdsResponse createTutoringSchedules(Member member, TutoringScheduleListRequest request) {
-        Tutoring tutoring = tutoringRepository.findByIdAndTeacherId(request.getTutoringId(), member.getId())
+    public TutoringScheduleIdsResponse createTutoringSchedules(Long teacherMemberId, TutoringScheduleListRequest request) {
+        Tutoring tutoring = tutoringRepository.findById(request.getTutoringId())
             .orElseThrow(() ->  new TutoringNotFoundException(request.getTutoringId()));
+        if(!tutoring.getTeacher().getId().equals(teacherMemberId)) {
+            throw new AuthorizationException(teacherMemberId);
+        }
 
         // TODO: 겹치는 과외 일정 있는 경우 예외 처리 필요
 
@@ -87,7 +90,7 @@ public class TutoringService {
                         .scheduleDate(scheduleRequest.getScheduleDate())
                             .startTime(scheduleRequest.getStartTime())
                                 .duration(scheduleRequest.getDuration())
-                                    .title(scheduleRequest.getTitile())
+                                    .title(scheduleRequest.getTitle())
                                         .build();
 
             TutoringSchedule savedSchedule = tutoringScheduleRepository.save(schedule);
@@ -98,37 +101,37 @@ public class TutoringService {
         return new TutoringScheduleIdsResponse(savedScheduleIds);
     }
 
-    public TutoringScheduleResponse getTutoringSchedule(Member member, Long tutoringScheduleId) {
+    public TutoringScheduleResponse getTutoringSchedule(Long teacherMemberId, Long tutoringScheduleId) {
         TutoringSchedule tutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId)
             .orElseThrow(() -> new TutoringScheduleNotFoundException(tutoringScheduleId));
-        if(!tutoringSchedule.getTutoring().getTeacher().getId().equals(member.getId())) {
-            throw new AuthorizationException(member.getId());
+        if(!tutoringSchedule.getTutoring().getTeacher().getId().equals(teacherMemberId)) {
+            throw new AuthorizationException(teacherMemberId);
         }
 
         return new TutoringScheduleResponse(tutoringSchedule);
     }
 
     @Transactional
-    public void updateTutoringSchedule(Member member, Long tutoringScheduleId, TutoringScheduleRequest request) {
+    public void updateTutoringSchedule(Long teacherMemberId, Long tutoringScheduleId, TutoringScheduleRequest request) {
         TutoringSchedule tutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId)
             .orElseThrow(() -> new TutoringScheduleNotFoundException(tutoringScheduleId));
-        if(!tutoringSchedule.getTutoring().getTeacher().getId().equals(member.getId())) {
-            throw new AuthorizationException(member.getId());
+        if(!tutoringSchedule.getTutoring().getTeacher().getId().equals(teacherMemberId)) {
+            throw new AuthorizationException(teacherMemberId);
         }
 
         // TODO: 겹치는 과외 일정 있는 경우 예외 처리 필요
 
-        tutoringSchedule.update(tutoringSchedule.getTutoring(), request.getScheduleDate(), request.getStartTime(), request.getDuration(), request.getTitile());
+        tutoringSchedule.update(tutoringSchedule.getTutoring(), request.getScheduleDate(), request.getStartTime(), request.getDuration(), request.getTitle());
 
         tutoringScheduleRepository.save(tutoringSchedule);
     }
 
     @Transactional
-    public void deleteTutoringSchedule(Member member, Long tutoringScheduleId) {
+    public void deleteTutoringSchedule(Long teacherMemberId, Long tutoringScheduleId) {
         TutoringSchedule tutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId)
             .orElseThrow(() -> new TutoringScheduleNotFoundException(tutoringScheduleId));
-        if(!tutoringSchedule.getTutoring().getTeacher().getId().equals(member.getId())) {
-            throw new AuthorizationException(member.getId());
+        if(!tutoringSchedule.getTutoring().getTeacher().getId().equals(teacherMemberId)) {
+            throw new AuthorizationException(teacherMemberId);
         }
 
         tutoringScheduleRepository.delete(tutoringSchedule);
