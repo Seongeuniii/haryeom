@@ -37,7 +37,7 @@ public class ChatMessageService {
             CreateMatchingResponse response = matchingManager.getTutoringMatchingRequestByChatRoomId(
                 chatRoomId);
             // 클라이언트에 매칭 요청 전송
-            messagingTemplate.convertAndSend("/topic/chatrooms/" + response.getChatRoomId() + "/request", response);
+            messagingTemplate.convertAndSend("/topic/chatroom/" + response.getChatRoomId() + "/request", response);
         }
     }
 
@@ -63,6 +63,6 @@ public class ChatMessageService {
 
         ChatMessageResponse response = ChatMessageResponse.from(savedChatMessage);
 
-        messagingTemplate.convertAndSend(String.format("/topic/chatrooms/%s", chatRoomId), response);
+        messagingTemplate.convertAndSend(String.format("/topic/chatroom/%s", chatRoomId), response);
     }
 }

@@ -16,11 +16,16 @@ public class WebSocketBrokerConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/signal") //최초 소켓 연결
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
+
+        registry.addEndpoint("/chatroom") //최초 소켓 연결
+            .setAllowedOriginPatterns("*")
+            .withSockJS();
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/queue"); // 상대방에게 바로 메세지 넘길 때, 구독 주소
+        registry.enableSimpleBroker("/topic");
         registry.setApplicationDestinationPrefixes("/app"); // 가공 후 넘길 때
     }
 

@@ -2,7 +2,7 @@ package com.ioi.haryeom.video.service;
 
 import com.ioi.haryeom.tutoring.repository.TutoringScheduleRepository;
 import com.ioi.haryeom.video.domain.VideoTimestamp;
-import com.ioi.haryeom.video.dto.VideoTimestampDto;
+import com.ioi.haryeom.video.dto.VideoTimestampRequest;
 import com.ioi.haryeom.video.dto.VideoTimestampInterface;
 import com.ioi.haryeom.video.repository.VideoTimestampRepository;
 import com.ioi.haryeom.video.domain.Video;
@@ -30,11 +30,11 @@ public class VideoTimestampService {
     }
 
     @Transactional
-    public Long createVideoTimestamp(Long tutoringScheduleId, VideoTimestampDto timestampDto) {
+    public Long createVideoTimestamp(Long tutoringScheduleId, VideoTimestampRequest timestampRequest) {
         Video video = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId);
-        LocalTime stampTime = parseStampTime(timestampDto.getStampTime());
+        LocalTime stampTime = parseStampTime(timestampRequest.getStampTime());
         VideoTimestamp timestamp = VideoTimestamp.builder()
-            .video(video).stampTime(stampTime).content(timestampDto.getContent())
+            .video(video).stampTime(stampTime).content(timestampRequest.getContent())
             .build();
 
         VideoTimestamp savedTimestamp = videoTimestampRepository.save(timestamp);
@@ -42,14 +42,14 @@ public class VideoTimestampService {
     }
 
     @Transactional
-    public void updateVideoTimestamp(Long id, VideoTimestampDto timestampDto) {
+    public void updateVideoTimestamp(Long id, VideoTimestampRequest timestampRequest) {
         Optional<VideoTimestamp> optionalTimestamp = videoTimestampRepository.findById(id);
         if (!optionalTimestamp.isPresent()) {
             //exception 날리기
         }
         VideoTimestamp videoTimestamp = optionalTimestamp.get();
-        LocalTime stampTime = parseStampTime(timestampDto.getStampTime());
-        videoTimestamp.update(stampTime, timestampDto.getContent());
+        LocalTime stampTime = parseStampTime(timestampRequest.getStampTime());
+        videoTimestamp.update(stampTime, timestampRequest.getContent());
 
     }
 

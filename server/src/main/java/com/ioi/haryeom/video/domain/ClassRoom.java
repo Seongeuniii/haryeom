@@ -1,6 +1,6 @@
 package com.ioi.haryeom.video.domain;
 
-import com.ioi.haryeom.video.dto.UserDto;
+import com.ioi.haryeom.video.dto.MemberSignalingInfo;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -17,7 +17,7 @@ public class ClassRoom {
         return classRoom;
     }
 
-    private Map<String, List<UserDto>> roomList = new Hashtable<>();
+    private Map<String, List<MemberSignalingInfo>> roomList = new Hashtable<>();
 
     public boolean isFirstJoin(String roomCode) {
         if (!roomList.containsKey(roomCode)) {
@@ -27,11 +27,11 @@ public class ClassRoom {
         return false;
     }
 
-    public List<UserDto> getUserList(String roomCode) {
+    public List<MemberSignalingInfo> getMemberList(String roomCode) {
         return roomList.get(roomCode);
     }
 
-    public void addUser(String roomCode, UserDto userDto) {
+    public void addUser(String roomCode, MemberSignalingInfo userDto) {
         roomList.get(roomCode).add(userDto);
     }
 }
