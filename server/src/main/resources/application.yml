@@ -29,6 +29,8 @@ spring:
       secret-key: QTEwN2phbnNvcnJ5dGVhbWRuZmxya2RsZW1kZ2tmcmpkaWFrZmZsd2xha2RrcnBUc2kK
       refresh-secret-key:
         QTEwN2phbnNvcnJ5dGVhbWZsdm1mcHRubHhoem1zZHBlb2drZ2tzcmtxdGRsc2xSa3Jqc2VtZndsYWsK
+  univcert:
+    api-key: 959145b3-a495-451e-bef0-1dbd11a96616
 cloud:
   aws:
     s3:
