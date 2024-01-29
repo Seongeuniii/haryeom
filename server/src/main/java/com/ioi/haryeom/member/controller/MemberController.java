@@ -1,7 +1,10 @@
 package com.ioi.haryeom.member.controller;
 
 
+import static org.springframework.http.HttpStatus.CREATED;
+
 import com.ioi.haryeom.member.domain.Member;
+import com.ioi.haryeom.member.dto.EmailCertifyRequest;
 import com.ioi.haryeom.member.dto.StudentCreateRequest;
 import com.ioi.haryeom.member.dto.StudentInfoResponse;
 import com.ioi.haryeom.member.dto.TeacherCreateRequest;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,6 +36,13 @@ import org.springframework.web.multipart.MultipartFile;
 public class MemberController {
 
     private final MemberService memberService;
+
+    @PostMapping("/emails/certify")
+    public ResponseEntity<Void> certifyEmail(@RequestBody EmailCertifyRequest certifyRequest) {
+        memberService.certifyEmail(certifyRequest);
+        return ResponseEntity.status(CREATED).build();
+    }
+
 
     @PostMapping(value = "/students", consumes = {MediaType.APPLICATION_JSON_VALUE,
         MediaType.MULTIPART_FORM_DATA_VALUE})
