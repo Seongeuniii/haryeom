@@ -11,7 +11,6 @@ export const useGetTutoringSchedules = (
     const { data, isLoading } = useQuery({
         queryKey: ['teacherTutoringSchedules'],
         queryFn: () => getTutoringSchedules(userRole, yearmonth),
-        initialData: initialData,
         cacheTime: Infinity,
     });
 

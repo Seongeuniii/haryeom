@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import styled from 'styled-components';
-import { IOptionValue } from './FilterOpenTeacherList';
+import { IOptionValue } from './useFilter';
 
 interface SelectOptionBoxProps {
     children: ReactNode;
