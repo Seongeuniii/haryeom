@@ -1,5 +1,6 @@
 package com.ioi.haryeom.tutoring.controller;
 
+import com.ioi.haryeom.common.util.AuthMemberId;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.tutoring.dto.MonthlyStudentTutoringScheduleListResponse;
 import com.ioi.haryeom.tutoring.dto.MonthlyTeacherTutoringScheduleListResponse;
@@ -35,24 +36,24 @@ public class TutoringController {
 
     /**
      * 선생님의 과외 목록(리스트) 조회(현재 진행중 상태(IN_PROGRESS)만 조회)
-     * @param member SpringSecurity로 들어온 사용자 정보
+     * @param teacherMemberId
      * @return
      */
     @GetMapping("/teachers")
-    public ResponseEntity<TeacherTutoringListResponse> getTeacherTutoringList(@AuthenticationPrincipal Member member) {
-        TeacherTutoringListResponse tutoringList = tutoringService.getTeacherTutoringList(member);
+    public ResponseEntity<TeacherTutoringListResponse> getTeacherTutoringList(@AuthMemberId Long teacherMemberId) {
+        TeacherTutoringListResponse tutoringList = tutoringService.getTeacherTutoringList(teacherMemberId);
 
         return ResponseEntity.ok(tutoringList);
     }
 
     /**
      * 학생의 과외 목록(리스트) 조회(현재 진행중 상태(IN_PROGRESS)만 조회)
-     * @param member SpringSecurity로 들어온 사용자 정보
+     * @param studentMemberId
      * @return
      */
     @GetMapping("/students")
-    public ResponseEntity<StudentTutoringListResponse> getStudentTutoringList(@AuthenticationPrincipal Member member) {
-        StudentTutoringListResponse tutoringList = tutoringService.getStudentTutoringList(member);
+    public ResponseEntity<StudentTutoringListResponse> getStudentTutoringList(@AuthMemberId Long studentMemberId) {
+        StudentTutoringListResponse tutoringList = tutoringService.getStudentTutoringList(studentMemberId);
 
         return ResponseEntity.ok(tutoringList);
     }
