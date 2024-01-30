@@ -2,6 +2,7 @@ package com.ioi.haryeom.homework.domain;
 
 
 import com.ioi.haryeom.common.domain.BaseTimeEntity;
+import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.textbook.domain.Textbook;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
 import java.time.LocalDate;
@@ -15,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -81,11 +83,7 @@ public class Homework extends BaseTimeEntity {
         this.status = HomeworkStatus.COMPLETED;
     }
 
-    public boolean isOwner(Long accessMemberId) {
-        if (accessMemberId == null) {
-            return false;
-        }
-
-        return textbook.getTeacherMember().getId().equals(accessMemberId);
+    public boolean isOwner(Member member) {
+        return textbook.getTeacherMember().equals(member);
     }
 }

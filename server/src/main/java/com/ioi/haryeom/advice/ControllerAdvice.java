@@ -2,11 +2,13 @@ package com.ioi.haryeom.advice;
 
 import com.ioi.haryeom.advice.exception.BusinessException;
 import com.ioi.haryeom.common.dto.ErrorResponse;
+import java.net.BindException;
 import java.util.stream.Collectors;
 import javax.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -27,8 +29,18 @@ public class ControllerAdvice {
                 violation.getPropertyPath(),
                 violation.getMessage()))
             .collect(Collectors.joining("; "));
-
         log.error("ConstraintViolationException error message >> {} ", errorMessage);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(errorMessage));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        String errorMessage = e.getBindingResult().getFieldErrors().stream()
+            .map(fieldError -> String.format("Field '%s': %s",
+                fieldError.getField(),
+                fieldError.getDefaultMessage()))
+            .collect(Collectors.joining("; "));
+        log.error("MethodArgumentNotValidException error message >> {} ", errorMessage);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(errorMessage));
     }
 

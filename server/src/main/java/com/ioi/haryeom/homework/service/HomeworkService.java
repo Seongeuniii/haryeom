@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.ioi.haryeom.auth.dto.AuthInfo;
 import com.ioi.haryeom.auth.exception.AuthorizationException;
+import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.aws.S3Upload;
 import com.ioi.haryeom.homework.domain.Drawing;
 import com.ioi.haryeom.homework.domain.Homework;
@@ -14,9 +15,12 @@ import com.ioi.haryeom.homework.dto.*;
 import com.ioi.haryeom.homework.exception.*;
 import com.ioi.haryeom.homework.repository.DrawingRepository;
 import com.ioi.haryeom.homework.repository.HomeworkRepository;
+import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.domain.type.Role;
+import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.exception.NoStudentException;
 import com.ioi.haryeom.member.exception.NoTeacherException;
+import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.textbook.domain.Textbook;
 import com.ioi.haryeom.textbook.dto.TextbookResponse;
 import com.ioi.haryeom.textbook.exception.TextbookNotFoundException;
@@ -51,6 +55,7 @@ public class HomeworkService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+    private final MemberRepository memberRepository;
     private final S3Upload s3Upload;
 
     private final HomeworkRepository homeworkRepository;
@@ -58,9 +63,12 @@ public class HomeworkService {
     private final DrawingRepository drawingRepository;
     private final TutoringRepository tutoringRepository;
 
-    public HomeworkListResponse getHomeworkList(Long tutoringId, Pageable pageable) {
+    // 과외 숙제 리스트 조회
+    public HomeworkListResponse getHomeworkList(Long tutoringId, Pageable pageable, Long memberId) {
 
         Tutoring tutoring = findTutoringById(tutoringId);
+        Member member = findMemberById(memberId);
+        validateMemberInTutoring(tutoring, member);
 
         Page<Homework> homeworkPage = homeworkRepository.findAllByTutoring(tutoring, pageable);
 
@@ -74,13 +82,15 @@ public class HomeworkService {
         return new HomeworkListResponse(homeworkResponses, progressPercentage);
     }
 
+    // 과외 숙제 등록
     @Transactional
-    public Long createHomework(Long tutoringId, HomeworkRequest request, AuthInfo authInfo) {
+    public Long createHomework(Long tutoringId, HomeworkRequest request, Long memberId) {
 
         validateDeadline(request.getDeadline());
-        validateTeacherRole(authInfo);
 
         Tutoring tutoring = findTutoringById(tutoringId);
+        Member member = findMemberById(memberId);
+        validateMemberInTutoring(tutoring, member);
 
         Textbook textbook = findTextbookById(request.getTextbookId());
 
@@ -98,23 +108,27 @@ public class HomeworkService {
         return savedHomework.getId();
     }
 
-    public HomeworkResponse getHomework(Long tutoringId, Long homeworkId) {
+    // 과외 숙제 상세 조회
+    public HomeworkResponse getHomework(Long tutoringId, Long homeworkId, Long memberId) {
 
-        findTutoringById(tutoringId);
+        Tutoring tutoring = findTutoringById(tutoringId);
+        Member member = findMemberById(memberId);
+        validateMemberInTutoring(tutoring, member);
 
         Homework homework = findHomeworkById(homeworkId);
 
         return new HomeworkResponse(homework);
     }
 
+    // 과외 숙제 수정
     @Transactional
-    public void updateHomework(Long tutoringId, Long homeworkId, HomeworkRequest request, AuthInfo authInfo) {
+    public void updateHomework(Long tutoringId, Long homeworkId, HomeworkRequest request, Long memberId) {
 
-        validateTeacherRole(authInfo);
         validateDeadline(request.getDeadline());
 
         Homework homework = findHomeworkById(homeworkId);
-        validateOwner(authInfo, homework);
+        Member member = findMemberById(memberId);
+        validateOwner(member, homework);
         validateHomeworkUnconfirmed(homework);
 
         Tutoring tutoring = findTutoringById(tutoringId);
@@ -126,16 +140,15 @@ public class HomeworkService {
             request.getEndPage());
     }
 
+    // 과외 숙제 삭제
     @Transactional
-    public void deleteHomework(Long tutoringId, Long homeworkId, AuthInfo authInfo) {
-
-        validateTeacherRole(authInfo);
+    public void deleteHomework(Long tutoringId, Long homeworkId, Long memberId) {
 
         findTutoringById(tutoringId);
 
         Homework homework = findHomeworkById(homeworkId);
-
-        validateOwner(authInfo, homework);
+        Member member = findMemberById(memberId);
+        validateOwner(member, homework);
         validateHomeworkUnconfirmed(homework);
 
         homework.delete();
@@ -346,13 +359,6 @@ public class HomeworkService {
         homework.submit();
     }
 
-    //TODO: 회원쪽에서 구현해야함
-    private void validateTeacherRole(AuthInfo authInfo) {
-        if (!Role.TEACHER.name().equals(authInfo.getRole())) {
-            throw new NoTeacherException();
-        }
-    }
-
     private void validateStudentRole(AuthInfo authInfo) {
         if (!Role.STUDENT.name().equals(authInfo.getRole())) {
             throw new NoStudentException();
@@ -378,9 +384,9 @@ public class HomeworkService {
         }
     }
 
-    private void validateOwner(AuthInfo authInfo, Homework homework) {
-        if (!homework.isOwner(authInfo.getMemberId())) {
-            throw new AuthorizationException(authInfo.getMemberId());
+    private void validateOwner(Member member, Homework homework) {
+        if (!homework.isOwner(member)) {
+            throw new AuthorizationException(member.getId());
         }
     }
 
@@ -396,9 +402,18 @@ public class HomeworkService {
         }
     }
 
+    private void validateMemberInTutoring(Tutoring tutoring, Member member) {
+        if (!tutoring.isMemberPartOfTutoring(member)) {
+            throw new AuthorizationException(member.getId());
+        }
+    }
+
     // TODO: Assignment 매칭O -> Assignent-Homework 검증
     // TODO: Assignment 매칭X -> Resource-Tutoring, Homework-Tutoring 검증
 
+    private Member findMemberById(Long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
+    }
 
     private Tutoring findTutoringById(Long tutoringId) {
         return tutoringRepository.findById(tutoringId)
