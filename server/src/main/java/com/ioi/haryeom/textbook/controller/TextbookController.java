@@ -1,6 +1,8 @@
 package com.ioi.haryeom.textbook.controller;
 
 import com.ioi.haryeom.auth.dto.AuthInfo;
+import com.ioi.haryeom.common.util.AuthMemberId;
+import com.ioi.haryeom.common.util.AuthMemberRole;
 import com.ioi.haryeom.member.domain.type.Role;
 import com.ioi.haryeom.textbook.domain.Textbook;
 import com.ioi.haryeom.textbook.dto.TextbookListByTutoringResponse;
@@ -28,9 +30,9 @@ public class TextbookController {
 
     // 학습자료 추가
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Void> createTextbook(@RequestPart("file") MultipartFile file, @RequestPart("request") TextbookRequest request) {
+    public ResponseEntity<Void> createTextbook(@RequestPart("file") MultipartFile file, @RequestPart("request") TextbookRequest request, @AuthMemberId Long teacherMemberId) {
 
-        Long textbookId = textbookService.createTextbook(file, request, authInfo);
+        Long textbookId = textbookService.createTextbook(file, request, teacherMemberId);
         return ResponseEntity.created(URI.create("textbook/" + textbookId)).build();
     }
 
@@ -44,16 +46,16 @@ public class TextbookController {
 
     // 선생님 학습자료 리스트 조회
     @GetMapping("/teachers/{memberId}")
-    public ResponseEntity<List<TextbookWithStudentsResponse>> getTeacherTextbookList(@PathVariable Long memberId) {
-        List<TextbookWithStudentsResponse> textbooks = textbookService.getTextbooksWithStudents(memberId);
+    public ResponseEntity<List<TextbookWithStudentsResponse>> getTeacherTextbookList(@PathVariable Long memberId, @AuthMemberId Long teacherMemberId) {
+        List<TextbookWithStudentsResponse> textbooks = textbookService.getTextbooksWithStudents(memberId, teacherMemberId);
         return ResponseEntity.ok(textbooks);
     }
 
     // 학습자료 삭제
     @DeleteMapping("/{textbookId}")
-    public ResponseEntity<Void> deleteTextbook(@PathVariable Long textbookId) {
+    public ResponseEntity<Void> deleteTextbook(@PathVariable Long textbookId, @AuthMemberId Long teacherMemberId) {
 
-        textbookService.deleteTextbook(textbookId, authInfo);
+        textbookService.deleteTextbook(textbookId, teacherMemberId);
         return ResponseEntity.noContent().build();
     }
 
@@ -67,8 +69,8 @@ public class TextbookController {
 
     // 학습자료별 지정 가능 학생 리스트 조회
     @GetMapping("/{textbookId}/students")
-    public ResponseEntity<List<TextbookWithStudentsResponse.StudentInfo>> getAssignableStudent(@PathVariable Long textbookId) {
-        List<TextbookWithStudentsResponse.StudentInfo> studentInfos = textbookService.getAssignableStudent(textbookId, authInfo);
+    public ResponseEntity<List<TextbookWithStudentsResponse.StudentInfo>> getAssignableStudent(@PathVariable Long textbookId, @AuthMemberId Long teacherMemberId) {
+        List<TextbookWithStudentsResponse.StudentInfo> studentInfos = textbookService.getAssignableStudent(textbookId, teacherMemberId);
 
         return ResponseEntity.ok(studentInfos);
     }

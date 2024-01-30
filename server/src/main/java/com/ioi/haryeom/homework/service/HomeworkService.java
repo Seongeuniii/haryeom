@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.ioi.haryeom.auth.dto.AuthInfo;
 import com.ioi.haryeom.auth.exception.AuthorizationException;
+import com.ioi.haryeom.aws.S3Upload;
 import com.ioi.haryeom.homework.domain.Drawing;
 import com.ioi.haryeom.homework.domain.Homework;
 import com.ioi.haryeom.homework.domain.HomeworkStatus;
@@ -49,6 +50,8 @@ public class HomeworkService {
     private final AmazonS3Client amazonS3Client;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+
+    private final S3Upload s3Upload;
 
     private final HomeworkRepository homeworkRepository;
     private final TextbookRepository textbookRepository;
@@ -182,18 +185,13 @@ public class HomeworkService {
             }
 
             String fileName = "homework_" + homework.getId() + "_" + textbook.getTextbookName() + ".pdf";
-            String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
 
             ByteArrayOutputStream outStream = new ByteArrayOutputStream();
             newDoc.save(outStream);
             byte[] pdfByte = outStream.toByteArray();
             InputStream newInputStream = new ByteArrayInputStream(pdfByte);
 
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(pdfByte.length);
-            metadata.setContentType("/application/pdf");
-
-            amazonS3Client.putObject(bucket, fileName, newInputStream, metadata);
+            String fileUrl = s3Upload.uploadFile(fileName, newInputStream, pdfByte.length, "application/pdf");
 
             textbookInfo = new TextbookResponse(textbook, fileUrl);
 
@@ -250,18 +248,13 @@ public class HomeworkService {
             }
 
             String fileName = "homework_" + textbook.getTextbookName();
-            String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
 
             ByteArrayOutputStream outStream = new ByteArrayOutputStream();
             newDoc.save(outStream);
             byte[] pdfByte = outStream.toByteArray();
             InputStream newInputStream = new ByteArrayInputStream(pdfByte);
 
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(pdfByte.length);
-            metadata.setContentType("/application/pdf");
-
-            amazonS3Client.putObject(bucket, fileName, newInputStream, metadata);
+            String fileUrl = s3Upload.uploadFile(fileName, newInputStream, pdfByte.length, "application/pdf");
 
             textbookInfo = new TextbookResponse(textbook, fileUrl);
 
@@ -320,6 +313,8 @@ public class HomeworkService {
 
             String fileName = file.getOriginalFilename();
             String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
+
+
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
