@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ISubject } from '@/apis/tutoring/tutoring';
 
 const path = '/matching';
 
@@ -9,11 +10,24 @@ export interface IRequestMatching {
 }
 
 export interface IResponseMatching {
+    matchingId: string;
+    isAccepted: boolean;
+}
+
+export interface IRequestMatchingStatus {
+    matchingId: string;
+    receiveMemberId: number;
+    senderName: string;
+    subject: ISubject;
+    hourlyRate: number;
+}
+
+export interface IResponseMatchingStatus {
     receiveMemberId: number;
     isAccepted: boolean;
     teacherName: string;
     studentName: string;
-    subjectName: string;
+    subject: ISubject;
     hourlyRate: number;
 }
 

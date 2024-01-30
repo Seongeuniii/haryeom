@@ -1,4 +1,4 @@
-export interface Subject {
+export interface ISubject {
     subjectId: number;
     name: string;
 }
@@ -14,7 +14,7 @@ export interface StudentReceivingTutoring {
 export interface ITeacherTutoring {
     tutoringId: number;
     student: StudentReceivingTutoring;
-    subject: Subject;
+    subject: ISubject;
 }
 
 export type ITeacherTutorings = ITeacherTutoring[];
@@ -28,7 +28,7 @@ export interface TeacherGivingTutoring {
 export interface IStudentTutoring {
     tutoringId: number;
     teacher: TeacherGivingTutoring;
-    subject: Subject;
+    subject: ISubject;
 }
 
 export type IStudentTutorings = IStudentTutoring[];
@@ -39,7 +39,7 @@ export interface IStudentSchedule {
     tutoringScheduleId: number;
     tutoringId: number;
     teacherMemberId: number;
-    subject: Subject;
+    subject: ISubject;
     startTime: string;
     duration: number;
     title: string;
