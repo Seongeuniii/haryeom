@@ -28,7 +28,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-            .cors().disable()
+//            .cors().disable()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .formLogin().disable()
@@ -139,7 +139,7 @@ public class SecurityConfig {
             // 여기까지 주석 처리
 
             .and()
-//            .addFilter(corsConfig.corsFilter())
+            .addFilter(corsConfig.corsFilter())
             .addFilterBefore(new JwtAuthenticationFilter(tokenService),
                 UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling()
