@@ -1,7 +1,6 @@
 package com.ioi.haryeom.config;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -18,6 +17,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 "http://i10a807.p.ssafy.io:8080", "https://i10a807.p.ssafy.io:8080")
             .allowedHeaders("*")
             .allowCredentials(true)
-            .exposedHeaders(HttpHeaders.LOCATION);
+            .maxAge(3000);
+//            .exposedHeaders(HttpHeaders.LOCATION);
     }
 }
