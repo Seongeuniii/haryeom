@@ -10,27 +10,23 @@ import lombok.Getter;
 public class CreateMatchingResponse {
 
     private String matchingId;
-    private Long chatRoomId;
     private Long recipientMemberId;
     private String senderName;
     private SubjectResponse subject;
     private Integer hourlyRate;
 
-    private CreateMatchingResponse(String matchingId, Long chatRoomId, Long recipientMemberId, String senderName,
+    private CreateMatchingResponse(String matchingId, Long recipientMemberId, String senderName,
         Subject subject, Integer hourlyRate) {
         this.matchingId = matchingId;
-        this.chatRoomId = chatRoomId;
         this.recipientMemberId = recipientMemberId;
         this.senderName = senderName;
         this.subject = new SubjectResponse(subject);
         this.hourlyRate = hourlyRate;
     }
 
-    public static CreateMatchingResponse of(String matchingId, ChatRoom chatRoom, Member member, Subject subject,
-        Integer hourlyRate) {
+    public static CreateMatchingResponse of(String matchingId, ChatRoom chatRoom, Member member, Subject subject, Integer hourlyRate) {
         return new CreateMatchingResponse(
             matchingId,
-            chatRoom.getId(),
             chatRoom.getOppositeMember(member).getId(),
             member.getName(),
             subject,

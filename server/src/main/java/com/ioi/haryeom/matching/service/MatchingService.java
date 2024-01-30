@@ -24,6 +24,7 @@ import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
 import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -58,14 +59,25 @@ public class MatchingService {
 
         String matchingId = IdGenerator.createMatchingId();
 
-        CreateMatchingResponse response = CreateMatchingResponse.of(matchingId, chatRoom, member, subject,
-            request.getHourlyRate());
-
-        matchingManager.addTutoringMatching(matchingId, response);
-
-        // TODO: 알림 구현??
+        CreateMatchingResponse response = CreateMatchingResponse.of(matchingId, chatRoom, member, subject, request.getHourlyRate());
+        
+        // [매칭 요청 정보] 저장
+        matchingManager.addTutoringMatchingRequest(matchingId, response);
         log.info("[MATCHING REQUEST] chatRoomId : {}, matchingId : {}", chatRoom.getId(), matchingId);
+
+        // 매칭 응답 처리
+        boolean isLastResponseRejected = processMatchingResponses(chatRoom.getId());
+
+        // [매칭 요청 정보] 전송
         messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId() + "/request", response);
+
+        // [매칭 응답 정보] 변경이 있는 경우 전송
+        if (isLastResponseRejected) {
+            List<RespondToMatchingResponse> updatedRespondList = matchingManager.getTutoringMatchingResponseByChatRoomId(chatRoom.getId());
+            // [매칭 응답 정보]가 없는 경우 빈 배열 전송
+            messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId() + "/response", updatedRespondList);
+        }
+
         return matchingId;
     }
 
@@ -76,8 +88,10 @@ public class MatchingService {
 
         validateMatchingRequestExists(matchingId);
 
+        // [매칭 요청 정보] 가져오기
         CreateMatchingResponse createdMatchingResponse = matchingManager.getTutoringMatchingRequestByMatchingId(
             matchingId);
+        // [매칭 요청 정보] 삭제
         matchingManager.removeTutoringMatchingRequestByMatchingId(matchingId);
 
         ChatRoom chatRoom = findChatRoomById(createdMatchingResponse.getChatRoomId());
@@ -92,9 +106,9 @@ public class MatchingService {
         }
 
         // 과외 매칭 거절
-        log.info("[MATCHING RESPONSE] REJECTED! chatRoomId : {}, matchingId : {}", chatRoom.getId(),
-            request.getMatchingId());
+        log.info("[MATCHING RESPONSE] REJECTED! chatRoomId : {}, matchingId : {}", chatRoom.getId(), request.getMatchingId());
         sendResponse(chatRoom, member, subject, request.getIsAccepted());
+
         return null;
     }
 
@@ -119,9 +133,30 @@ public class MatchingService {
         //TODO: 지금까지 과외한 거 정산해줘야함
     }
 
-    private Long processAcceptedMatching(ChatRoom chatRoom, Member member, Subject subject,
-        CreateMatchingResponse createdMatchingResponse, RespondToMatchingRequest request) {
 
+    private boolean processMatchingResponses(Long chatRoomId) {
+
+        // 해당 채팅방에 대한 응답이 존재하는지 먼저 확인
+        if(!matchingManager.existMatchingResponseByChatRoomId(chatRoomId)) {
+            return false;
+        }
+
+        List<RespondToMatchingResponse> respondList = matchingManager.getTutoringMatchingResponseByChatRoomId(chatRoomId);
+
+        // 마지막 응답이 거절이 아니면 false
+        if(respondList.get(respondList.size() - 1).getIsAccepted()) {
+            return false;
+        }
+
+        respondList.remove(respondList.size() - 1);
+        matchingManager.updateTutoringMatchingResponse(chatRoomId, respondList);
+        return true;
+    }
+
+
+    private Long processAcceptedMatching(ChatRoom chatRoom, Member member, Subject subject, CreateMatchingResponse createdMatchingResponse, RespondToMatchingRequest request) {
+
+        // 과외 생성
         Tutoring tutoring = Tutoring.builder()
             .chatRoom(chatRoom)
             .subject(subject)
@@ -131,15 +166,18 @@ public class MatchingService {
             .build();
         Tutoring savedTutoring = tutoringRepository.save(tutoring);
 
-        log.info("[MATCHING RESPONSE] ACCEPTED! chatRoomId : {}, matchingId : {}", chatRoom.getId(),
-            request.getMatchingId());
+        log.info("[MATCHING RESPONSE] ACCEPTED! chatRoomId : {}, matchingId : {}", chatRoom.getId(), request.getMatchingId());
         sendResponse(chatRoom, member, subject, request.getIsAccepted());
 
         return savedTutoring.getId();
     }
 
     private void sendResponse(ChatRoom chatRoom, Member member, Subject subject, Boolean isAccepted) {
-        RespondToMatchingResponse response = RespondToMatchingResponse.of(chatRoom, member, subject, isAccepted);
+        RespondToMatchingResponse matchingResponse = RespondToMatchingResponse.of(chatRoom, member, subject, isAccepted);
+        // [매칭 응답 정보] 저장
+        matchingManager.addTutoringMatchingResponse(chatRoom.getId(), matchingResponse);
+        // [매칭 응답 정보 목록] 가져오기
+        List<RespondToMatchingResponse> response = matchingManager.getTutoringMatchingResponseByChatRoomId(chatRoom.getId());
         messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId() + "/response", response);
     }
 
