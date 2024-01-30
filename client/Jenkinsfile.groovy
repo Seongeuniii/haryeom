@@ -11,9 +11,9 @@ pipeline {
         gitUrl = 'https://lab.ssafy.com/s10-webmobile1-sub2/S10P12A807'
         dockerCredential = 'demise1426-docker'
         latestImage = 'demise1426/haryeom-fe:latest'
-        NEXT_PUBLIC_API_SERVER = 'NEXT_PUBLIC_API_SERVER'
-        NEXT_PUBLIC_REST_API_KEY = 'NEXT_PUBLIC_REST_API_KEY'
-        NEXT_PUBLIC_REDIRECT_URI = 'NEXT_PUBLIC_REDIRECT_URI'
+        NEXT_PUBLIC_API_SERVER = 'https://i10a807.p.ssafy.io/api'
+        NEXT_PUBLIC_REST_API_KEY = 'af99408e6a2d5e359657ca95e2e040ea'
+        NEXT_PUBLIC_REDIRECT_URI = 'https://i10a807.p.ssafy.io/login'
     }
 
     stages {
