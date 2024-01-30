@@ -3,6 +3,7 @@ import { CompatClient, Stomp, messageCallbackType } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 export interface ISubscription {
+    name: string;
     destination: string;
     callback: messageCallbackType;
 }
