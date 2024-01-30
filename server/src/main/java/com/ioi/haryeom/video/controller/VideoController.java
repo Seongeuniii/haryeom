@@ -3,6 +3,7 @@ package com.ioi.haryeom.video.controller;
 import com.ioi.haryeom.video.dto.LessonEnd;
 import com.ioi.haryeom.video.dto.LessonStart;
 import com.ioi.haryeom.video.dto.VideoDetailInterface;
+import com.ioi.haryeom.video.dto.VideoDetailResponse;
 import com.ioi.haryeom.video.service.VideoService;
 import java.io.IOException;
 import java.net.URI;
@@ -50,9 +51,4 @@ public class VideoController {
         return ResponseEntity.noContent().build();
     }
 
-    // 방 상세 정보 보기
-    @GetMapping("/detail/{videoId}")
-    public ResponseEntity<VideoDetailInterface> getVideoDetail(@PathVariable Long videoId){
-        return ResponseEntity.ok(videoService.getVideoDetail(videoId));
-    }
 }
