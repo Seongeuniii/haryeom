@@ -8,6 +8,8 @@ import com.ioi.haryeom.video.domain.Video;
 import com.ioi.haryeom.video.dto.LessonEnd;
 import com.ioi.haryeom.video.dto.LessonStart;
 import com.ioi.haryeom.video.dto.VideoDetailInterface;
+import com.ioi.haryeom.video.dto.VideoDetailResponse;
+import com.ioi.haryeom.video.exception.VideoNotFoundException;
 import com.ioi.haryeom.video.repository.VideoRepository;
 import java.io.IOException;
 import java.time.LocalTime;
@@ -31,10 +33,6 @@ public class VideoService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public VideoDetailInterface getVideoDetail(Long videoId){
-        return videoRepository.findVideoById(videoId);
-    }
-
     @Transactional
     public Long createVideo(LessonStart lessonStart) {
         LocalTime startTime = parseLocalTime(lessonStart.getStartTime());
@@ -44,13 +42,15 @@ public class VideoService {
             .startTime(startTime)
             .build();
         Video savedVideo = videoRepository.save(video);
-        System.out.println(savedVideo.toString());
         return savedVideo.getId();
     }
 
     @Transactional
     public void updateVideoEndTime(Long id, LessonEnd lessonEnd) {
         Optional<Video> video = videoRepository.findById(id);
+        if(!video.isPresent()){
+            throw new VideoNotFoundException(id);
+        }
         Video updateVideo = video.get();
         LocalTime endTime = parseLocalTime(lessonEnd.getEndTime());
         updateVideo.updateVideoEndTime(endTime);
@@ -63,6 +63,7 @@ public class VideoService {
         updateVideo.updateVideoURL(videoURL);
     }
 
+    // 영상 삭제: 그런건 없다
     @Transactional
     public void deleteVideo(Long id) {
         videoRepository.deleteById(id);
@@ -81,7 +82,7 @@ public class VideoService {
         metadata.setContentType(uploadFile.getContentType());
 
         amazonS3.putObject(bucket, fileName, uploadFile.getInputStream(), metadata);
-        String videoURL = amazonS3.getUrl(bucket, fileName).toString();
-        return videoURL;
+        String videoUrl = amazonS3.getUrl(bucket, fileName).toString();
+        return videoUrl;
     }
 }

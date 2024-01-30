@@ -2,7 +2,7 @@ package com.ioi.haryeom.video.controller;
 
 import com.ioi.haryeom.video.domain.VideoTimestamp;
 import com.ioi.haryeom.video.dto.VideoTimestampRequest;
-import com.ioi.haryeom.video.dto.VideoTimestampInterface;
+import com.ioi.haryeom.video.dto.VideoTimestampResponse;
 import com.ioi.haryeom.video.repository.VideoTimestampRepository;
 import com.ioi.haryeom.video.service.VideoTimestampService;
 import java.net.URI;
@@ -27,8 +27,8 @@ public class VideoTimestampController {
     private final VideoTimestampRepository videoTimestampRepository;
     
     @GetMapping("/{scheduleId}")
-    public ResponseEntity<List<VideoTimestampInterface>> getTimestampList(@PathVariable Long scheduleId) {
-        List<VideoTimestampInterface> timestampList = videoTimestampService.getTimestampList(scheduleId);
+    public ResponseEntity<List<VideoTimestampResponse>> getTimestampList(@PathVariable Long scheduleId) {
+        List<VideoTimestampResponse> timestampList = videoTimestampService.getTimestampList(scheduleId);
         return ResponseEntity.ok(timestampList);
     }
 
@@ -50,11 +50,5 @@ public class VideoTimestampController {
     public ResponseEntity<Void> deleteTimestamp(@PathVariable Long videoId) {
         videoTimestampService.deleteTimestamp(videoId);
         return ResponseEntity.noContent().build();
-    }
-
-
-    @GetMapping("/test/{id}")
-    public ResponseEntity<VideoTimestamp> getVideoTimestampListTest(@PathVariable Long id){
-        return ResponseEntity.ok(videoTimestampRepository.findById(id).get());
     }
 }
