@@ -52,7 +52,7 @@ public class ChatRoomController {
 
     // 채팅방 메시지 목록 조회
     @GetMapping("/{chatRoomId}/messages")
-    public ResponseEntity<List<ChatMessageResponse>> getChatMessageList(@PathVariable Long chatRoomId, @RequestParam(required = false) Long lastMessageId,
+    public ResponseEntity<List<ChatMessageResponse>> getChatMessageList(@PathVariable Long chatRoomId, @RequestParam(required = false) String lastMessageId,
         @RequestParam(defaultValue = "20") Integer size) {
         List<ChatMessageResponse> response = chatRoomService.getChatMessageList(chatRoomId, lastMessageId, size, memberId);
         return ResponseEntity.ok(response);

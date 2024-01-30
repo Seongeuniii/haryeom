@@ -20,6 +20,8 @@ spring:
     redis:
       host: i10a807.p.ssafy.io
       port: 6379
+    mongodb:
+      uri: mongodb://localhost:27017/haryeom
   servlet:
     multipart:
       max-file-size: 10MB

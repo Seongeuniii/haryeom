@@ -1,7 +1,7 @@
 package com.ioi.haryeom.chat.service;
 
 import com.ioi.haryeom.auth.exception.AuthorizationException;
-import com.ioi.haryeom.chat.domain.ChatMessage;
+import com.ioi.haryeom.chat.document.ChatMessage;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.chat.domain.ChatRoomState;
 import com.ioi.haryeom.chat.dto.ChatMessageResponse;
@@ -9,6 +9,7 @@ import com.ioi.haryeom.chat.dto.ChatRoomResponse;
 import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
 import com.ioi.haryeom.chat.exception.ChatRoomStateNotFoundException;
 import com.ioi.haryeom.chat.repository.ChatMessageRepository;
+import com.ioi.haryeom.chat.repository.ChatMessageRepositoryBefore;
 import com.ioi.haryeom.chat.repository.ChatRoomRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomStateRepository;
 import com.ioi.haryeom.common.domain.Subject;
@@ -29,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,8 +48,9 @@ public class ChatRoomService {
     private final MemberRepository memberRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomStateRepository chatRoomStateRepository;
-    private final ChatMessageRepository chatMessageRepository;
     private final TutoringRepository tutoringRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageRepositoryBefore chatMessageRepositoryBefore;
 
     // 채팅방 생성
     // 선생님이 선생님 찾기를 통해서 연락할 수 있다.
@@ -110,7 +113,7 @@ public class ChatRoomService {
     }
 
     // 채팅방 메시지 목록 조회
-    public List<ChatMessageResponse> getChatMessageList(Long chatRoomId, Long lastMessageId, Integer size, Long memberId) {
+    public List<ChatMessageResponse> getChatMessageList(Long chatRoomId, String lastMessageId, Integer size, Long memberId) {
 
         ChatRoom chatRoom = findChatRoomById(chatRoomId);
         Member member = findMemberById(memberId);
@@ -119,7 +122,7 @@ public class ChatRoomService {
 
         Pageable pageable = createPageable(size);
 
-        Page<ChatMessage> chatMessagePage = getChatMessages(lastMessageId, chatRoom, pageable);
+        Page<ChatMessage> chatMessagePage = getChatMessages(lastMessageId, chatRoomId, pageable);
 
         return chatMessagePage.getContent()
             .stream()
@@ -176,27 +179,26 @@ public class ChatRoomService {
     }
 
     private ChatRoomResponse createChatRoomResponse(ChatRoomState chatRoomState, Member member) {
-        Long lastReadMessageId = chatRoomState.getLastReadMessageId();
-        ChatRoom chatRoom = chatRoomState.getChatRoom();
+        String lastReadMessageId = chatRoomState.getLastReadMessageId();
+        Long chatRoomId = chatRoomState.getChatRoom().getId();
 
-        ChatMessage lastChatMessage = chatMessageRepository.findFirstByChatRoomOrderByCreatedAtDesc(chatRoom);
-        Integer unreadMessageCount = chatMessageRepository.countAllByChatRoomAndIdGreaterThan(chatRoom,
-            lastReadMessageId);
-        Member oppositeMember = chatRoom.getOppositeMember(member);
+        ChatMessage lastChatMessage = chatMessageRepository.findFirstByChatRoomIdOrderByCreatedAtDesc(chatRoomId);
+        Integer unreadMessageCount = chatMessageRepository.countAllByChatRoomIdAndIdGreaterThan(chatRoomId, new ObjectId(lastReadMessageId));
+        Member oppositeMember = chatRoomState.getChatRoom().getOppositeMember(member);
 
-        return ChatRoomResponse.of(chatRoomState, lastChatMessage, oppositeMember, unreadMessageCount);
+        return ChatRoomResponse.of(chatRoomId, lastChatMessage, oppositeMember, unreadMessageCount);
     }
 
     private Pageable createPageable(Integer size) {
-        return PageRequest.of(0, size, Sort.by("createdAt").descending());
+        return PageRequest.of(0, size, Sort.by("id").descending());
     }
 
-    private Page<ChatMessage> getChatMessages(Long lastMessageId, ChatRoom chatRoom, Pageable pageable) {
+    private Page<ChatMessage> getChatMessages(String lastMessageId, Long chatRoomId, Pageable pageable) {
         Page<ChatMessage> chatMessagePage;
         if (lastMessageId == null) {
-            chatMessagePage = chatMessageRepository.findByChatRoom(chatRoom, pageable);
+            chatMessagePage = chatMessageRepository.findByChatRoomId(chatRoomId, pageable);
         } else {
-            chatMessagePage = chatMessageRepository.findByChatRoomAndIdLessThan(chatRoom, lastMessageId, pageable);
+            chatMessagePage = chatMessageRepository.findByChatRoomIdAndIdLessThan(chatRoomId, new ObjectId(lastMessageId), pageable);
         }
         return chatMessagePage;
     }

@@ -10,14 +10,10 @@ import javax.validation.constraints.NotNull;
 public class TextbookRequest {
 
     @NotNull
-    private Long teacherMemberId;
-    @NotNull
     private Long subjectId;
     @NotNull
     private String textbookName;
     @NotNull
     private boolean firstPageCover;
-    @NotNull
-    private Integer totalPage;
 
 }

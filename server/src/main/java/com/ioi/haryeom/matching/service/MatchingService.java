@@ -1,10 +1,11 @@
 package com.ioi.haryeom.matching.service;
 
-import com.ioi.haryeom.chat.domain.ChatMessage;
+import com.ioi.haryeom.chat.document.ChatMessage;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.chat.dto.ChatMessageResponse;
 import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
 import com.ioi.haryeom.chat.repository.ChatMessageRepository;
+import com.ioi.haryeom.chat.repository.ChatMessageRepositoryBefore;
 import com.ioi.haryeom.chat.repository.ChatRoomRepository;
 import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.common.repository.SubjectRepository;
@@ -42,6 +43,7 @@ public class MatchingService {
     private final SubjectRepository subjectRepository;
     private final TutoringRepository tutoringRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageRepositoryBefore chatMessageRepositoryBefore;
 
     @Transactional
     public String createMatchingRequest(CreateMatchingRequest request, Long memberId) {
@@ -107,6 +109,7 @@ public class MatchingService {
 
         tutoring.end();
 
+
         ChatMessage chatMessage = createEndTutoringMessage(tutoring, member);
 
         ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
@@ -146,9 +149,9 @@ public class MatchingService {
             tutoring.getStudent().getName(), tutoring.getSubject().getName());
 
         return ChatMessage.builder()
-            .chatRoom(tutoring.getChatRoom())
-            .senderMember(member)
-            .messageContent(endMessage)
+            .chatRoomId(tutoring.getChatRoom().getId())
+            .memberId(member.getId())
+            .content(endMessage)
             .build();
     }
 

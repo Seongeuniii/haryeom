@@ -1,5 +1,6 @@
 package com.ioi.haryeom.homework.controller;
 
+import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import com.ioi.haryeom.auth.dto.AuthInfo;
@@ -34,7 +35,7 @@ public class HomeworkController {
 
     // 과외 숙제 리스트 조회
     @GetMapping("/{tutoringId}/homework")
-    public ResponseEntity<HomeworkListResponse> getHomeworkList(@PathVariable Long tutoringId, @PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable) {
+    public ResponseEntity<HomeworkListResponse> getHomeworkList(@PathVariable Long tutoringId, @PageableDefault(sort = "deadline", direction = ASC) Pageable pageable) {
         HomeworkListResponse homeworkList = homeworkService.getHomeworkList(tutoringId, pageable);
         return ResponseEntity.ok(homeworkList);
     }

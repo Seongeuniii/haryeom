@@ -50,6 +50,8 @@ dependencies {
 //    runtimeOnly 'com.h2database:h2'
     // mariadb
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+    // mongodb
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     // swagger
 //	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 //	implementation 'io.springfox:springfox-swagger-ui:3.0.0'

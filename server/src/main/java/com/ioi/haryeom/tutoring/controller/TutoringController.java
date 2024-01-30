@@ -111,19 +111,29 @@ public class TutoringController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * 선생님이 본인의 월별 과외 일정을 조회
+     * @param teacherMemberId
+     * @param yearmonth
+     * @return
+     */
+    @GetMapping("/schedule/teacher")
+    public ResponseEntity<MonthlyTeacherTutoringScheduleListResponse> getMonthlyTeacherTutoringScheduleList(@AuthMemberId Long teacherMemberId, @RequestParam String yearmonth) {
+        MonthlyTeacherTutoringScheduleListResponse response = tutoringService.getMonthlyTeacherTutoringScheduleList(teacherMemberId, yearmonth);
 
-//    @GetMapping("/schedule/teacher")
-//    public ResponseEntity<MonthlyTeacherTutoringScheduleListResponse> getMonthlyTeacherTutoringScheduleList(@AuthMemberId Long teacherMemberId, @RequestParam String yearmonth) {
-//        MonthlyTeacherTutoringScheduleListResponse response = tutoringService.getMonthlyTeacherTutoringScheduleList(teacherMemberId, yearmonth);
-//
-//        return ResponseEntity.ok(response);
-//    }
-//
-//
-//    @GetMapping("/schedule/student")
-//    public ResponseEntity<MonthlyStudentTutoringScheduleListResponse> getMonthlyStudentTutoringScheduleList(@AuthMemberId Long studentMemberId, @RequestParam String yearmonth) {
-//        MonthlyStudentTutoringScheduleListResponse response = tutoringService.getMonthlyStudentTutoringScheduleList(studentMemberId, yearmonth);
-//
-//        return ResponseEntity.ok(response);
-//    }
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 학생이 본인의 월별 과외 일정을 조회
+     * @param studentMemberId
+     * @param yearmonth
+     * @return
+     */
+    @GetMapping("/schedule/student")
+    public ResponseEntity<MonthlyStudentTutoringScheduleListResponse> getMonthlyStudentTutoringScheduleList(@AuthMemberId Long studentMemberId, @RequestParam String yearmonth) {
+        MonthlyStudentTutoringScheduleListResponse response = tutoringService.getMonthlyStudentTutoringScheduleList(studentMemberId, yearmonth);
+
+        return ResponseEntity.ok(response);
+    }
 }
