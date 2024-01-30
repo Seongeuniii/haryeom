@@ -6,15 +6,22 @@ import com.ioi.haryeom.homework.domain.Homework;
 import com.ioi.haryeom.homework.domain.HomeworkStatus;
 import com.ioi.haryeom.homework.dto.HomeworkResponse;
 import com.ioi.haryeom.homework.repository.HomeworkRepository;
+import com.ioi.haryeom.member.domain.Member;
+import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.textbook.dto.TextbookResponse;
+import com.ioi.haryeom.tutoring.domain.Tutoring;
+import com.ioi.haryeom.tutoring.domain.TutoringSchedule;
+import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import com.ioi.haryeom.video.domain.Video;
 import com.ioi.haryeom.video.dto.VideoDetailInterface;
 import com.ioi.haryeom.video.dto.VideoDetailResponse;
 import com.ioi.haryeom.video.dto.VideoInterface;
 import com.ioi.haryeom.video.dto.VideoResponse;
+import com.ioi.haryeom.video.exception.VideoNotFoundException;
 import com.ioi.haryeom.video.repository.ReviewCustomRepositoryImpl;
 import com.ioi.haryeom.video.repository.VideoRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -27,6 +34,7 @@ public class ReviewService {
     private final HomeworkRepository homeworkRepository;
     private final VideoRepository videoRepository;
     private final ReviewCustomRepositoryImpl reviewCustomRepository;
+    private final TutoringRepository tutoringRepository;
 
     // 학생별 학습자료 리스트 조회
     public List<TextbookResponse> getTextbookListByAssignmentByTutoringByMember(Long memberId){
@@ -55,9 +63,15 @@ public class ReviewService {
 
     // 비디오 상세조회
     public VideoDetailResponse getVideoDetail(Long memberId, Long videoId){
+        Optional<Video> videoOptional=videoRepository.findById(videoId);
+        if(!videoOptional.isPresent()){
+            throw new VideoNotFoundException(videoId);
+        }
         Video video = videoRepository.findById(videoId).get();
-        // Todo: 보려는 영상이 학생과 무관한 경우 auth filter 적용
-
-        return new VideoDetailResponse(videoRepository.findById(videoId).get());
+        Long studentId = video.getTutoringSchedule().getTutoring().getStudent().getId();
+        if(memberId!=studentId){
+            throw new AuthorizationException(memberId);
+        }
+        return new VideoDetailResponse(video);
     }
 }

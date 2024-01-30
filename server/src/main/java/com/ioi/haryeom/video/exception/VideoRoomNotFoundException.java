@@ -4,7 +4,7 @@ import com.ioi.haryeom.advice.exception.NotFoundException;
 
 public class VideoRoomNotFoundException extends NotFoundException {
 
-    private static final String MESSAGE = "화상 과외방에 입장할 수 없는 과외일정입니다. 과외일정 id: %d";
+    private static final String MESSAGE = "예정된 과외일정이 오늘이 아닙니다. 과외일정id: %d";
     public VideoRoomNotFoundException(Long tutoringScheduleId) {
         super(String.format(MESSAGE,tutoringScheduleId));
     }
