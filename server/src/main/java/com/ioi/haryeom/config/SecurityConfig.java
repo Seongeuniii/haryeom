@@ -38,6 +38,7 @@ public class SecurityConfig {
             .antMatchers("/api/auth/kakao/login").permitAll()
             .antMatchers(POST, "/api/auth/refresh").permitAll()
             .antMatchers(POST, "/api/auth/kakao/logout").authenticated()
+            .antMatchers("/api/members/emails/**").hasRole("GUEST")
             .antMatchers(POST, "/api/members/students").hasRole("GUEST")
             .antMatchers(GET, "/api/members/students/{memberId}").hasRole("STUDENT")
             .antMatchers(PUT, "/api/members/students").hasRole("STUDENT")

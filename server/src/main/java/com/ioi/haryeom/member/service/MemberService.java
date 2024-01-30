@@ -11,26 +11,29 @@ import com.ioi.haryeom.member.domain.Student;
 import com.ioi.haryeom.member.domain.Teacher;
 import com.ioi.haryeom.member.domain.TeacherSubject;
 import com.ioi.haryeom.member.domain.type.Role;
+import com.ioi.haryeom.member.dto.CodeCertifyRequest;
+import com.ioi.haryeom.member.dto.EmailCertifyRequest;
 import com.ioi.haryeom.member.dto.StudentCreateRequest;
 import com.ioi.haryeom.member.dto.StudentInfoResponse;
 import com.ioi.haryeom.member.dto.SubjectResponse;
 import com.ioi.haryeom.member.dto.TeacherCreateRequest;
 import com.ioi.haryeom.member.dto.TeacherInfoResponse;
 import com.ioi.haryeom.member.dto.TeacherUpdateRequest;
+import com.ioi.haryeom.member.exception.EmailCertifyException;
 import com.ioi.haryeom.member.exception.StudentNotFoundException;
 import com.ioi.haryeom.member.exception.SubjectNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.member.repository.StudentRepository;
 import com.ioi.haryeom.member.repository.TeacherRepository;
 import com.ioi.haryeom.member.repository.TeacherSubjectRepository;
+import com.univcert.api.UnivCert;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,6 +47,9 @@ public class MemberService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+    @Value("${spring.univcert.api-key}")
+    private String univKey;
+
     private final AuthService authService;
     private final TokenService tokenService;
 
@@ -53,26 +59,47 @@ public class MemberService {
     private final TeacherSubjectRepository teacherSubjectRepository;
     private final SubjectRepository subjectRepository;
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
 
-//      이전 유저 등록 서비스
-//    @Transactional
-//    public Long createStudent(Member user, StudentCreateRequest createRequest) {
-//
-//        Member member = findMemberById(user.getId());
-//
-//        Student student = Student.builder()
-//            .member(member)
-//            .grade(createRequest.getGrade())
-//            .school(createRequest.getSchool())
-//            .build();
-//
-//        member.createStudent(student, Role.STUDENT, createRequest.getProfileUrl(),
-//            createRequest.getName(), createRequest.getPhone());
-//
-//        studentRepository.save(student);
-//        return member.getId();
-//    }
+    public void certifyEmail(EmailCertifyRequest certifyRequest) {
+        try {
+            Map<String, Object> response = UnivCert.certify(univKey, certifyRequest.getEmail(),
+                certifyRequest.getUnivName(), true);
+
+            boolean success = Boolean.parseBoolean(String.valueOf(response.get("success")));
+            if (!success) {
+                throw new EmailCertifyException(String.valueOf(response.get("message")));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void certifyCode(CodeCertifyRequest certifyRequest) {
+        try {
+            Map<String, Object> response = UnivCert.certifyCode(univKey, certifyRequest.getEmail(),
+                certifyRequest.getUnivName(), certifyRequest.getCode());
+
+            boolean success = Boolean.parseBoolean(String.valueOf(response.get("success")));
+            if (!success) {
+                throw new EmailCertifyException(String.valueOf(response.get("message")));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void certifyUniv(String univName) {
+        try {
+            Map<String, Object> response = UnivCert.check(univName);
+
+            boolean success = Boolean.parseBoolean(String.valueOf(response.get("success")));
+            if (!success) {
+                throw new EmailCertifyException(String.valueOf(response.get("message")));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Transactional
     public Long createStudent(Member user, MultipartFile profileImg,
@@ -207,11 +234,6 @@ public class MemberService {
     public TeacherInfoResponse getTeacher(Long memberId) {
         Member member = findMemberById(memberId);
 
-        List<SubjectResponse> list = findSubjectsById(memberId);
-        for (SubjectResponse sub : list) {
-            log.info("ID : " + sub.getSubjectId() + " 과목명 : " + sub.getName());
-        }
-
         return TeacherInfoResponse.builder()
             .profileUrl(member.getProfileUrl())
             .name(member.getName())
@@ -304,6 +326,4 @@ public class MemberService {
             .map(SubjectResponse::from)
             .collect(Collectors.toList());
     }
-
-
 }

@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TutoringScheduleRepository extends JpaRepository<TutoringSchedule, Long> {
+public interface TutoringScheduleRepository extends JpaRepository<TutoringSchedule, Long>, TutoringScheduleRepositoryCustom {
     List<TutoringSchedule> findAllByScheduleDate(LocalDate scheduleDate);
 }
