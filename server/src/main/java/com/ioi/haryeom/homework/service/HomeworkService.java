@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.ioi.haryeom.auth.dto.AuthInfo;
 import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.chat.domain.ChatRoom;
+import com.ioi.haryeom.aws.S3Upload;
 import com.ioi.haryeom.homework.domain.Drawing;
 import com.ioi.haryeom.homework.domain.Homework;
 import com.ioi.haryeom.homework.domain.HomeworkStatus;
@@ -55,6 +56,8 @@ public class HomeworkService {
     private String bucket;
 
     private final MemberRepository memberRepository;
+    private final S3Upload s3Upload;
+
     private final HomeworkRepository homeworkRepository;
     private final TextbookRepository textbookRepository;
     private final DrawingRepository drawingRepository;
@@ -162,11 +165,11 @@ public class HomeworkService {
 
     //// 학생 숙제
 
-    public HomeworkLoadResponse getLoadHomework(Long homeworkId, AuthInfo authInfo) {
+    public HomeworkLoadResponse getLoadHomework(Long homeworkId, Role role) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
 
-        validateStudentRole(authInfo);
+        validateStudentRole(role);
 
         // 숙제 상태 변경
         homework.confirm();
@@ -195,18 +198,13 @@ public class HomeworkService {
             }
 
             String fileName = "homework_" + homework.getId() + "_" + textbook.getTextbookName() + ".pdf";
-            String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
 
             ByteArrayOutputStream outStream = new ByteArrayOutputStream();
             newDoc.save(outStream);
             byte[] pdfByte = outStream.toByteArray();
             InputStream newInputStream = new ByteArrayInputStream(pdfByte);
 
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(pdfByte.length);
-            metadata.setContentType("/application/pdf");
-
-            amazonS3Client.putObject(bucket, fileName, newInputStream, metadata);
+            String fileUrl = s3Upload.uploadFile(fileName, newInputStream, pdfByte.length, "application/pdf");
 
             textbookInfo = new TextbookResponse(textbook, fileUrl);
 
@@ -233,11 +231,11 @@ public class HomeworkService {
 
     }
 
-    public HomeworkReviewResponse getReviewHomework(Long homeworkId, AuthInfo authInfo) {
+    public HomeworkReviewResponse getReviewHomework(Long homeworkId, Role role) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
 
-        validateStudentRole(authInfo);
+        validateStudentRole(role);
 
         Textbook textbook = homework.getTextbook();
         // pdf 숙제 범위만큼 자르기
@@ -263,18 +261,13 @@ public class HomeworkService {
             }
 
             String fileName = "homework_" + textbook.getTextbookName();
-            String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
 
             ByteArrayOutputStream outStream = new ByteArrayOutputStream();
             newDoc.save(outStream);
             byte[] pdfByte = outStream.toByteArray();
             InputStream newInputStream = new ByteArrayInputStream(pdfByte);
 
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(pdfByte.length);
-            metadata.setContentType("/application/pdf");
-
-            amazonS3Client.putObject(bucket, fileName, newInputStream, metadata);
+            String fileUrl = s3Upload.uploadFile(fileName, newInputStream, pdfByte.length, "application/pdf");
 
             textbookInfo = new TextbookResponse(textbook, fileUrl);
 
@@ -292,11 +285,11 @@ public class HomeworkService {
         return new HomeworkReviewResponse(homework, textbookInfo, drawingResponses);
     }
 
-    public void saveHomework(Long homeworkId, HomeworkDrawingRequest drawings, AuthInfo authInfo) {
+    public void saveHomework(Long homeworkId, HomeworkDrawingRequest drawings, Role role) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
 
-        validateStudentRole(authInfo);
+        validateStudentRole(role);
 
         for(MultipartFile file : drawings.getFile()) {
 
@@ -309,8 +302,8 @@ public class HomeworkService {
             try {
                 amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
             } catch (IOException e) {
-                // TODO: 예외처리
                 e.printStackTrace();
+                throw new RuntimeException("S3 업로드 실패");
             }
 
             Drawing drawing = Drawing.builder()
@@ -323,16 +316,18 @@ public class HomeworkService {
         }
     }
 
-    public void saveHomeworkReview(Long homeworkId, HomeworkDrawingRequest drawings, AuthInfo authInfo) {
+    public void saveHomeworkReview(Long homeworkId, HomeworkDrawingRequest drawings, Role role) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
 
-        validateStudentRole(authInfo);
+        validateStudentRole(role);
 
         for(MultipartFile file : drawings.getFile()) {
 
             String fileName = file.getOriginalFilename();
             String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
+
+
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
@@ -354,11 +349,11 @@ public class HomeworkService {
         }
     }
 
-    public void submitHomework(Long homeworkId, AuthInfo authInfo) {
+    public void submitHomework(Long homeworkId, Role role) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
 
-        validateStudentRole(authInfo);
+        validateStudentRole(role);
         validateHomeworkSubmission(homework);
 
         homework.submit();
@@ -366,6 +361,12 @@ public class HomeworkService {
 
     private void validateStudentRole(AuthInfo authInfo) {
         if (!Role.STUDENT.name().equals(authInfo.getRole())) {
+            throw new NoStudentException();
+        }
+    }
+
+    private void validateStudentRole(Role role) {
+        if (!role.equals("STUDENT")){
             throw new NoStudentException();
         }
     }

@@ -30,7 +30,7 @@ public class SecurityConfig {
             .cors(AbstractHttpConfigurer::disable)
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
-            .formLogin().disable()
+            .formLogin(AbstractHttpConfigurer::disable)
             .authorizeRequests()
 
             // 이태호
@@ -143,10 +143,6 @@ public class SecurityConfig {
             .exceptionHandling()
             .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
             .accessDeniedHandler(new CustomAccessDeniedHanler());
-
-//        http.addFilterBefore(new JwtAuthenticationFilter(tokenService),
-//            UsernamePasswordAuthenticationFilter.class);
-//        http.exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint());
 
         return http.build();
     }

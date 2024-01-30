@@ -132,6 +132,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository{
         Long total = results.getTotal();
         return new PageImpl<>(response, pageable, total);
     }
+
     private Long calculateDuration(TimePath<LocalTime> startTime, TimePath<LocalTime> endTime) {
         return Duration.between((Temporal) startTime, (Temporal) endTime).getSeconds();
     }

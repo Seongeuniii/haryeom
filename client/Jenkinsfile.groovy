@@ -11,6 +11,9 @@ pipeline {
         gitUrl = 'https://lab.ssafy.com/s10-webmobile1-sub2/S10P12A807'
         dockerCredential = 'demise1426-docker'
         latestImage = 'demise1426/haryeom-fe:latest'
+        NEXT_PUBLIC_API_SERVER = credentials('NEXT_PUBLIC_API_SERVER')
+        NEXT_PUBLIC_REST_API_KEY = credentials('NEXT_PUBLIC_REST_API_KEY')
+        NEXT_PUBLIC_REDIRECT_URI = credentials('NEXT_PUBLIC_REDIRECT_URI')
     }
 
     stages {
@@ -47,6 +50,9 @@ pipeline {
         stage('Node Build') {
             steps {
                 dir('client') {
+                    sh "echo 'NEXT_PUBLIC_API_SERVER=${NEXT_PUBLIC_API_SERVER}' > .env"
+                    sh "echo 'NEXT_PUBLIC_REST_API_KEY=${NEXT_PUBLIC_REST_API_KEY}' >> .env"
+                    sh "echo 'NEXT_PUBLIC_REDIRECT_URI=${NEXT_PUBLIC_REDIRECT_URI}' >> .env"
                     sh 'npm install'
                     sh 'npm run build'
                 }

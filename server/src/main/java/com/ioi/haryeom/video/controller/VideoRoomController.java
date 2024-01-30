@@ -1,5 +1,7 @@
 package com.ioi.haryeom.video.controller;
 
+import com.ioi.haryeom.common.util.AuthMemberId;
+import com.ioi.haryeom.video.dto.VideoRoomResponse;
 import com.ioi.haryeom.video.service.VideoRoomService;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,11 +22,9 @@ public class VideoRoomController {
 
     // 방 입장하기 위해 방 코드 찾기
     @GetMapping("/{scheduleId}")
-    public ResponseEntity<Map<String,String>> enterRoom(@PathVariable("scheduleId") Long scheduleId){
-        String roomCode=videoRoomService.getVideoRoomByScheduleId(scheduleId);
-        Map<String, String> response = new HashMap<>();
-        response.put("roomCode", roomCode);
+    public ResponseEntity<VideoRoomResponse> enterRoom(@PathVariable("scheduleId") Long scheduleId, @AuthMemberId Long memberId){
+        String roomCode=videoRoomService.getVideoRoomByScheduleId(scheduleId, memberId);
+        VideoRoomResponse response = new VideoRoomResponse(roomCode);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
 }

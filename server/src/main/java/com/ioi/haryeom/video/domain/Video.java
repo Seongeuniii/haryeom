@@ -49,7 +49,7 @@ public class Video extends BaseTimeEntity {
         this.endTime = endTime;
     }
 
-    public void updateVideoURL(String videoURL) {
-        this.videoUrl = videoURL;
+    public void updateVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 }

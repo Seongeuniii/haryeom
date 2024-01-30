@@ -10,12 +10,13 @@ import org.springframework.data.domain.Pageable;
 
 public interface ReviewCustomRepository {
     // 학생별 학습자료 리스트 조회
-    public List<TextbookResponse> findAllByAssignmentByTutoringByMember(Long memberId);
+    List<TextbookResponse> findAllByAssignmentByTutoringByMember(Long memberId);
 
     //학생별 학습자료별 완료 숙제 리스트 조회
-    public Page<HomeworkResponse> findAllByTextbookByTutoringByMember(Long textbookId, Long memberId, Pageable pageable);
+    Page<HomeworkResponse> findAllByTextbookByTutoringByMember(Long textbookId, Long memberId, Pageable pageable);
     // 학생별 과목 리스트 조회
-    public List<SubjectResponse> findAllByTutoringByMember(Long memberId);
+    List<SubjectResponse> findAllByTutoringByMember(Long memberId);
     //학생별 과목별 영상 리스트 조회
-    public Page<VideoResponse> findAllBySubjectAndTutoringServiceByTutoringByMember(Long subjectId, Long memberId, Pageable pageable);
+    Page<VideoResponse> findAllBySubjectAndTutoringServiceByTutoringByMember(Long subjectId, Long memberId, Pageable pageable);
+
 }
