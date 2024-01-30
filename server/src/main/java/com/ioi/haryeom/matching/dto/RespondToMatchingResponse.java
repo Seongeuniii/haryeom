@@ -8,16 +8,17 @@ import lombok.Getter;
 @Getter
 public class RespondToMatchingResponse {
 
-    private Long receiveMemberId;
+    private Long recipientMemberId;
     private Boolean isAccepted;
     private String teacherName;
     private String studentName;
     private String subjectName;
 
 
-    private RespondToMatchingResponse(Long receiveMemberId, String teacherName, String studentName, String subjectName,
+    private RespondToMatchingResponse(Long recipientMemberId, String teacherName, String studentName,
+        String subjectName,
         Boolean isAccepted) {
-        this.receiveMemberId = receiveMemberId;
+        this.recipientMemberId = recipientMemberId;
         this.teacherName = teacherName;
         this.studentName = studentName;
         this.subjectName = subjectName;
