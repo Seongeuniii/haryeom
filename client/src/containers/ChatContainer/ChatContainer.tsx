@@ -1,78 +1,106 @@
-import { useState } from 'react';
+import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 import ChatRoomPreview from '@/components/ChatRoomPreview';
 import Chatting from '@/components/Chatting';
 import Chat from '@/components/icons/Chat';
 import Close from '@/components/icons/Close';
 import GoBack from '@/components/icons/GoBack';
+import chatSessionAtom from '@/recoil/atoms/chat';
 
-interface ChatContainerProps {}
+const ChatContainer = () => {
+    const [chatSession, setChatSession] = useRecoilState(chatSessionAtom);
 
-// eslint-disable-next-line no-empty-pattern
-const ChatContainer = ({}: ChatContainerProps) => {
-    const [open, setOpen] = useState(false);
-    const [joinChatRoom, setJoinChatRoom] = useState(false);
-    const [selectedChatRoomId, setSelectedChatRoomId] = useState<number | null>(null);
-
-    const joinChat = (chatRoomId: number) => {
-        setSelectedChatRoomId(chatRoomId);
-        setJoinChatRoom(true);
-    };
-
-    if (!open) {
+    if (!chatSession.openChat) {
         return (
-            <ChatButton onClick={() => setOpen(true)}>
+            <ChatButton
+                onClick={() =>
+                    setChatSession((prev) => {
+                        return { ...prev, openChat: true };
+                    })
+                }
+            >
                 <Chat />
             </ChatButton>
         );
-    } else {
+    }
+    if (!chatSession.chatRoomId) {
         return (
             <StyledChatContainer>
-                <CloseChatButton onClick={() => setOpen(false)}>
+                <CloseChatButton
+                    onClick={() =>
+                        setChatSession((prev) => {
+                            return { ...prev, openChat: false };
+                        })
+                    }
+                >
                     <Close />
                 </CloseChatButton>
-                {!joinChatRoom ? (
-                    <ChatRoomList>
-                        <Header>채팅</Header>
-                        <ChatRoomPreview
-                            chatRoom={{
-                                chatRoomId: 1,
-                                role: 'TEACHER',
-                                profileUrl: '/images/student-boy.png',
-                                name: '김성은',
-                                lastMessage: '안녕하세요!',
-                                lastMessageCreatedAt: '오전 10:00',
-                                unreadMessageCount: 2,
-                            }}
-                            joinChat={joinChat}
-                        />
-                        <ChatRoomPreview
-                            chatRoom={{
-                                chatRoomId: 1,
-                                role: 'TEACHER',
-                                profileUrl: '/images/student-boy.png',
-                                name: '김성은',
-                                lastMessage: '안녕하세요!',
-                                lastMessageCreatedAt: '오전 10:00',
-                                unreadMessageCount: 2,
-                            }}
-                            joinChat={joinChat}
-                        />
-                    </ChatRoomList>
-                ) : (
-                    <ChatRoom>
-                        <Header>
-                            <GoChatRoomListButton onClick={() => setJoinChatRoom(false)}>
-                                <GoBack />
-                            </GoChatRoomListButton>
-                            <span>김성은 선생님</span>
-                        </Header>
-                        {selectedChatRoomId && <Chatting chatRoomId={selectedChatRoomId} />}
-                    </ChatRoom>
-                )}
+                <ChatRoomList>
+                    <Header>채팅</Header>
+                    <ChatRoomPreview
+                        chatRoom={{
+                            chatRoomId: 1,
+                            role: 'TEACHER',
+                            profileUrl: '/images/student-boy.png',
+                            name: '김성은',
+                            lastMessage: '안녕하세요!',
+                            lastMessageCreatedAt: '오전 10:00',
+                            unreadMessageCount: 2,
+                        }}
+                        joinChat={() =>
+                            setChatSession((prev) => {
+                                return { ...prev, chatRoomId: 1 };
+                            })
+                        }
+                    />
+                    <ChatRoomPreview
+                        chatRoom={{
+                            chatRoomId: 1,
+                            role: 'TEACHER',
+                            profileUrl: '/images/student-boy.png',
+                            name: '김성은',
+                            lastMessage: '안녕하세요!',
+                            lastMessageCreatedAt: '오전 10:00',
+                            unreadMessageCount: 2,
+                        }}
+                        joinChat={() => {
+                            setChatSession((prev) => {
+                                return { ...prev, chatRoomId: 1 };
+                            });
+                        }}
+                    />
+                </ChatRoomList>
             </StyledChatContainer>
         );
     }
+    return (
+        <StyledChatContainer>
+            <CloseChatButton
+                onClick={() =>
+                    setChatSession((prev) => {
+                        return { ...prev, openChat: false };
+                    })
+                }
+            >
+                <Close />
+            </CloseChatButton>
+            <ChatRoom>
+                <Header>
+                    <GoChatRoomListButton
+                        onClick={() =>
+                            setChatSession((prev) => {
+                                return { ...prev, chatRoomId: null };
+                            })
+                        }
+                    >
+                        <GoBack />
+                    </GoChatRoomListButton>
+                    <span>김성은 선생님</span>
+                </Header>
+                <Chatting chatRoomId={chatSession.chatRoomId} chattingWithName={''} />
+            </ChatRoom>
+        </StyledChatContainer>
+    );
 };
 
 const ChatButton = styled.button`
