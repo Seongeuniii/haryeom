@@ -30,7 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class HomeworkController {
 
     private final HomeworkService homeworkService;
-    //TODO: 인증 관련 로직 개발 후 변경 예정
+    
+    //TODO: 삭제 후 어노테이션 적용해야함
     AuthInfo authInfo = new AuthInfo(1L, Role.TEACHER.name());
 
     // 과외 숙제 리스트 조회
@@ -43,7 +44,6 @@ public class HomeworkController {
     // 과외 숙제 등록
     @PostMapping("/{tutoringId}/homework")
     public ResponseEntity<Void> createHomework(@PathVariable Long tutoringId, @RequestBody @Validated HomeworkRequest request) {
-
         Long homeworkId = homeworkService.createHomework(tutoringId, request, authInfo);
         return ResponseEntity.created(URI.create("/homework/" + homeworkId)).build();
     }
@@ -51,7 +51,6 @@ public class HomeworkController {
     // 과외 숙제 상세 조회
     @GetMapping("/{tutoringId}/homework/{homeworkId}")
     public ResponseEntity<HomeworkResponse> getHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId) {
-
         HomeworkResponse response = homeworkService.getHomework(tutoringId, homeworkId);
         return ResponseEntity.ok(response);
     }
@@ -59,7 +58,6 @@ public class HomeworkController {
     // 과외 숙제 수정
     @PutMapping("/{tutoringId}/homework/{homeworkId}")
     public ResponseEntity<Void> updateHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId, @RequestBody HomeworkRequest request) {
-
         homeworkService.updateHomework(tutoringId, homeworkId, request, authInfo);
         return ResponseEntity.noContent().build();
     }
@@ -67,7 +65,6 @@ public class HomeworkController {
     // 과외 숙제 삭제
     @DeleteMapping("/{tutoringId}/homework/{homeworkId}")
     public ResponseEntity<Void> deleteHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId) {
-
         homeworkService.deleteHomework(tutoringId, homeworkId, authInfo);
         return ResponseEntity.noContent().build();
     }

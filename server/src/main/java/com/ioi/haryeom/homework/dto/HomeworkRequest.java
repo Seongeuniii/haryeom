@@ -11,14 +11,17 @@ import lombok.Setter;
 public class HomeworkRequest {
 
     @Positive
-    @NotNull
+    @NotNull(message = "학습자료 ID는 필수 항목입니다.")
     private Long textbookId;
+
     @Positive
-    @NotNull
+    @NotNull(message = "시작 페이지는 필수 항목입니다.")
     private Integer startPage;
+
     @Positive
-    @NotNull
+    @NotNull(message = "끝 페이지는 필수 항목입니다.")
     private Integer endPage;
-    @NotNull
+
+    @NotNull(message = "마감 기한은 필수 항목입니다.")
     private LocalDate deadline;
 }
