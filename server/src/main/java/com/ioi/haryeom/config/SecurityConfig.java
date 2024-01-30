@@ -23,11 +23,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final TokenService tokenService;
+    private final CorsConfig corsConfig;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-            .cors(AbstractHttpConfigurer::disable)
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .formLogin().disable()
@@ -138,6 +138,7 @@ public class SecurityConfig {
             // 여기까지 주석 처리
 
             .and()
+            .addFilter(corsConfig.corsFilter())
             .addFilterBefore(new JwtAuthenticationFilter(tokenService),
                 UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling()
