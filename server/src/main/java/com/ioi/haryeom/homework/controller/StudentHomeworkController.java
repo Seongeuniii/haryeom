@@ -1,6 +1,5 @@
 package com.ioi.haryeom.homework.controller;
 
-import com.amazonaws.Response;
 import com.ioi.haryeom.auth.dto.AuthInfo;
 import com.ioi.haryeom.homework.dto.HomeworkDrawingRequest;
 import com.ioi.haryeom.homework.dto.HomeworkLoadResponse;
@@ -11,10 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.net.URI;
-import java.util.List;
 
 @RequestMapping("/api/homework")
 @RequiredArgsConstructor

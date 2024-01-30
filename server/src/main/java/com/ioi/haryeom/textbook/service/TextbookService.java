@@ -3,8 +3,10 @@ package com.ioi.haryeom.textbook.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.ioi.haryeom.auth.dto.AuthInfo;
+import com.ioi.haryeom.aws.S3Upload;
 import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.common.repository.SubjectRepository;
+import com.ioi.haryeom.common.util.AuthMemberId;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.exception.NoTeacherException;
@@ -13,6 +15,8 @@ import com.ioi.haryeom.textbook.domain.Assignment;
 import com.ioi.haryeom.textbook.domain.Textbook;
 import com.ioi.haryeom.textbook.dto.*;
 import com.ioi.haryeom.textbook.exception.FileValidationException;
+import com.ioi.haryeom.textbook.exception.RegisteredTextbookNotFoundException;
+import com.ioi.haryeom.textbook.exception.SelectedTextbookNotFoundException;
 import com.ioi.haryeom.textbook.exception.TextbookNotFoundException;
 import com.ioi.haryeom.textbook.repository.AssignmentRespository;
 import com.ioi.haryeom.textbook.repository.TextbookRepository;
@@ -41,10 +45,7 @@ import java.util.stream.Collectors;
 @Service
 public class TextbookService {
 
-    private final AmazonS3Client amazonS3Client;
-
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
+    private final S3Upload s3Upload;
 
     private final TextbookRepository textbookRepository;
 
@@ -57,14 +58,13 @@ public class TextbookService {
 
     // 학습자료 추가
     @Transactional
-    public Long createTextbook(MultipartFile file, TextbookRequest request, AuthInfo authinfo) {
+    public Long createTextbook(MultipartFile file, TextbookRequest request, Long teacherMemberId) {
 
         String allowedExtensions = "pdf"; // pdf만 허용
 
         try {
             // S3 업로드 로직
             String fileName = file.getOriginalFilename();
-            String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
 
             // 파일 Validation
             String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
@@ -72,18 +72,16 @@ public class TextbookService {
                 throw new FileValidationException(allowedExtensions);
             }
 
-            // S3에 PDF 업로드를 위한 메타데이터 설정
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType(file.getContentType());
-            metadata.setContentLength(file.getSize());
-
-            amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
+            String fileUrl = s3Upload.uploadFile(fileName, file.getInputStream(), file.getSize(), file.getContentType());
 
             // PDF 첫 페이지 PNG 저장 로직
+            // 파일 로드해서
+            PDDocument document =PDDocument.load(file.getInputStream());
+
             String coverImg = null;
+            int totalPage = document.getNumberOfPages();
+
             if(request.isFirstPageCover() == true){
-                // 파일 로드해서
-                PDDocument document =PDDocument.load(file.getInputStream());
                 PDFRenderer pdfRenderer = new PDFRenderer(document);
                 // 0번 인덱스 가져오기(표지)
                 PDPage firstPage = document.getPage(0);
@@ -97,21 +95,16 @@ public class TextbookService {
                 byte[] buffer = os.toByteArray();
                 InputStream is = new ByteArrayInputStream(buffer);
 
-                // S3에 이미지 업로드를 위한 메타데이터 설정
-                ObjectMetadata coverImageMetadata = new ObjectMetadata();
-                coverImageMetadata.setContentType("image/png");
-                coverImageMetadata.setContentLength(buffer.length);
-
                 // 적당한 이름 설정 후 S3 업로드
                 String coverImageFileName = request.getTextbookName() + "_cover.png";
-                amazonS3Client.putObject(bucket, coverImageFileName, is, coverImageMetadata);
 
-                coverImg = amazonS3Client.getUrl(bucket, coverImageFileName).toString();
+                coverImg = s3Upload.uploadFile(coverImageFileName, is, buffer.length, "image/png");
+
                 is.close();
                 document.close();
 
             }
-            Member teacherMember = findMemberById(authinfo.getMemberId());
+            Member teacherMember = findMemberById(teacherMemberId);
             Subject subject = subjectRepository.findById(request.getSubjectId())
                     .orElseThrow();
 
@@ -121,7 +114,7 @@ public class TextbookService {
                     .textbookName(request.getTextbookName())
                     .textbookUrl(fileUrl)
                     .firstPageCover(request.isFirstPageCover())
-                    .totalPage(request.getTotalPage())
+                    .totalPage(totalPage)
                     .coverImg(coverImg)
                     .build();
 
@@ -142,6 +135,7 @@ public class TextbookService {
                 .orElseThrow(() -> new TutoringNotFoundException(tutoringId));
 
         List<Assignment> assignments = assignmentRespository.findByTutoringId(tutoring.getId());
+        if(assignments.size() == 0) throw new SelectedTextbookNotFoundException(tutoringId);
         return assignments.stream()
                 .map(Assignment::getTextbook)
                 .distinct()
@@ -156,18 +150,25 @@ public class TextbookService {
     }
 
     // 학습자료 삭제
-    public void deleteTextbook(Long textbookId, AuthInfo authInfo) {
-        if(authInfo.getRole().equals("TEACHER")) throw new NoTeacherException();
-
+    public void deleteTextbook(Long textbookId, Long teacherMemberId) {
         Textbook textbook = findTextbookById(textbookId);
+        Member teacherMember = memberRepository.findById(teacherMemberId)
+                .orElseThrow(() -> new MemberNotFoundException(teacherMemberId));
+        if(textbook.getTeacherMember() != teacherMember) {
+            throw new NoTeacherException();
+        }
+
         textbook.delete();
     }
 
     // 선생님 학습자료 리스트 조회
-    public List<TextbookWithStudentsResponse> getTextbooksWithStudents(Long memberId) {
+    public List<TextbookWithStudentsResponse> getTextbooksWithStudents(Long memberId, Long teacherMemberId) {
+//        if(memberId != teacherMemberId) throw new NoTeacherException();
+
         Member teacherMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberNotFoundException(memberId));
         List<Textbook> textbooks = textbookRepository.findAllByTeacherMember(teacherMember);
+        if(textbooks.size() == 0) throw new RegisteredTextbookNotFoundException(teacherMemberId);
 
         return textbooks.stream().map(textbook -> {
             List<Assignment> assignments = assignmentRespository.findByTextbook(textbook);
@@ -180,9 +181,9 @@ public class TextbookService {
     }
 
     // 학습자료별 지정 가능 학생 리스트 조회
-    public List<TextbookWithStudentsResponse.StudentInfo> getAssignableStudent(Long textbookId, AuthInfo authInfo) {
+    public List<TextbookWithStudentsResponse.StudentInfo> getAssignableStudent(Long textbookId,Long teacherMemberId) {
 
-        List<Tutoring> tutorings = tutoringRepository.findAllByTeacherId(authInfo.getMemberId());
+        List<Tutoring> tutorings = tutoringRepository.findAllByTeacherId(teacherMemberId);
 
         Textbook currentTextbook = textbookRepository.findById(textbookId)
                 .orElseThrow(() -> new TextbookNotFoundException(textbookId));
