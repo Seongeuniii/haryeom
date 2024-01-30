@@ -55,6 +55,7 @@ public class HomeworkService {
     private final DrawingRepository drawingRepository;
     private final TutoringRepository tutoringRepository;
 
+    // 과외 숙제 리스트 조회
     public HomeworkListResponse getHomeworkList(Long tutoringId, Pageable pageable) {
 
         Tutoring tutoring = findTutoringById(tutoringId);
@@ -71,11 +72,11 @@ public class HomeworkService {
         return new HomeworkListResponse(homeworkResponses, progressPercentage);
     }
 
+    // 과외 숙제 등록
     @Transactional
     public Long createHomework(Long tutoringId, HomeworkRequest request, AuthInfo authInfo) {
 
         validateDeadline(request.getDeadline());
-        validateTeacherRole(authInfo);
 
         Tutoring tutoring = findTutoringById(tutoringId);
 
@@ -95,6 +96,7 @@ public class HomeworkService {
         return savedHomework.getId();
     }
 
+    // 과외 숙제 상세 조회
     public HomeworkResponse getHomework(Long tutoringId, Long homeworkId) {
 
         findTutoringById(tutoringId);
@@ -104,10 +106,10 @@ public class HomeworkService {
         return new HomeworkResponse(homework);
     }
 
+    // 과외 숙제 수정
     @Transactional
     public void updateHomework(Long tutoringId, Long homeworkId, HomeworkRequest request, AuthInfo authInfo) {
 
-        validateTeacherRole(authInfo);
         validateDeadline(request.getDeadline());
 
         Homework homework = findHomeworkById(homeworkId);
@@ -123,15 +125,13 @@ public class HomeworkService {
             request.getEndPage());
     }
 
+    // 과외 숙제 삭제
     @Transactional
     public void deleteHomework(Long tutoringId, Long homeworkId, AuthInfo authInfo) {
-
-        validateTeacherRole(authInfo);
 
         findTutoringById(tutoringId);
 
         Homework homework = findHomeworkById(homeworkId);
-
         validateOwner(authInfo, homework);
         validateHomeworkUnconfirmed(homework);
 
@@ -349,13 +349,6 @@ public class HomeworkService {
         validateHomeworkSubmission(homework);
 
         homework.submit();
-    }
-
-    //TODO: 회원쪽에서 구현해야함
-    private void validateTeacherRole(AuthInfo authInfo) {
-        if (!Role.TEACHER.name().equals(authInfo.getRole())) {
-            throw new NoTeacherException();
-        }
     }
 
     private void validateStudentRole(AuthInfo authInfo) {
