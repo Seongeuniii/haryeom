@@ -97,7 +97,10 @@ const ChatContainer = () => {
                     </GoChatRoomListButton>
                     <span>김성은 선생님</span>
                 </Header>
-                <Chatting chatRoomId={chatSession.chatRoomId} chattingWithName={''} />
+                <Chatting
+                    chatRoomId={chatSession.chatRoomId}
+                    chattingWithName={chatSession.chattingWithName}
+                />
             </ChatRoom>
         </StyledChatContainer>
     );
