@@ -1,7 +1,10 @@
-import styled from 'styled-components';
-import ChatStatus from './ChatStatus';
-import useStomp, { ISubscription } from '@/hooks/useStomp';
 import { ChangeEvent, useState } from 'react';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import styled from 'styled-components';
+import useStomp, { ISubscription } from '@/hooks/useStomp';
+import chatSessionAtom from '@/recoil/atoms/chat';
+import MatchingStage from '@/components/MatchingStage';
+import { IRequestMatchingStatus, IResponseMatchingStatus } from '@/apis/matching/matching';
 
 interface IReceiveChat {
     messageId: string;
@@ -10,19 +13,18 @@ interface IReceiveChat {
     createdAt: string;
 }
 
-interface ChattingProps {
-    chatRoomId: number;
-    chattingWithName: string;
-}
-
-const Chatting = ({ chatRoomId, chattingWithName }: ChattingProps) => {
+const Chatting = () => {
+    const chatSession = useRecoilValue(chatSessionAtom);
     const [chatMessages, setChatMessages] = useState<IReceiveChat[]>([]);
     const [message, setMessage] = useState('');
+    const [requestMatchingStatus, setRequestMatchingStatus] = useState<IRequestMatchingStatus>();
+    const [responseMatchingStatus, setResponseMatchingStatus] = useState<IResponseMatchingStatus>();
+
     // TODO: subscriptions 리렌더
     const subscriptions: ISubscription[] = [
         {
             name: 'receiveMessage',
-            destination: `/topic/chatroom/${chatRoomId}`,
+            destination: `/topic/chatroom/${chatSession.chatRoomId}`,
             callback: (message) => {
                 const data = JSON.parse(message.body);
                 const chatMessage: IReceiveChat = data;
@@ -31,7 +33,7 @@ const Chatting = ({ chatRoomId, chattingWithName }: ChattingProps) => {
         },
         {
             name: 'matchingRequest',
-            destination: `/topic/chatroom/${chatRoomId}/request`,
+            destination: `/topic/chatroom/${chatSession.chatRoomId}/request`,
             callback: (message) => {
                 const data = JSON.parse(message.body);
                 console.log(data);
@@ -39,7 +41,7 @@ const Chatting = ({ chatRoomId, chattingWithName }: ChattingProps) => {
         },
         {
             name: 'resultOfMatchingRequest',
-            destination: `/topic/chatroom/${chatRoomId}/response`,
+            destination: `/topic/chatroom/${chatSession.chatRoomId}/response`,
             callback: (message) => {
                 const data = JSON.parse(message.body);
                 console.log(data);
@@ -53,14 +55,17 @@ const Chatting = ({ chatRoomId, chattingWithName }: ChattingProps) => {
     };
     const sendMessage = () => {
         if (!stompClient) return;
-        const destination = `/app/chatroom/${chatRoomId}/message`;
+        const destination = `/app/chatroom/${chatSession.chatRoomId}/message`;
         stompClient.send(destination, {}, JSON.stringify({ content: message }));
         setMessage('');
     };
 
     return (
         <StyledChatting>
-            <ChatStatus chatRoomId={chatRoomId} />
+            <MatchingStage
+                requestStatus={requestMatchingStatus}
+                responseStatus={responseMatchingStatus}
+            />
             <TestForm>
                 <input type="text" value={message} onChange={handleChange} />
                 <button onClick={sendMessage}>전송</button>
@@ -77,6 +82,8 @@ const Chatting = ({ chatRoomId, chattingWithName }: ChattingProps) => {
 const StyledChatting = styled.div`
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: column;
 `;
 
 const TestForm = styled.div``;
