@@ -1,6 +1,7 @@
 package com.ioi.haryeom.homework.controller;
 
 import com.ioi.haryeom.auth.dto.AuthInfo;
+import com.ioi.haryeom.common.util.AuthMemberRole;
 import com.ioi.haryeom.homework.dto.HomeworkDrawingRequest;
 import com.ioi.haryeom.homework.dto.HomeworkLoadResponse;
 import com.ioi.haryeom.homework.dto.HomeworkReviewResponse;
@@ -22,42 +23,42 @@ public class StudentHomeworkController {
 
     // 숙제 불러오기
     @GetMapping("/{homeworkId}")
-    public ResponseEntity<HomeworkLoadResponse> getLoadHomework(@PathVariable Long homeworkId) {
-        HomeworkLoadResponse homework = homeworkService.getLoadHomework(homeworkId, authInfo);
+    public ResponseEntity<HomeworkLoadResponse> getLoadHomework(@PathVariable Long homeworkId, @AuthMemberRole Role role) {
+        HomeworkLoadResponse homework = homeworkService.getLoadHomework(homeworkId, role);
 
         return ResponseEntity.ok(homework);
     }
 
     // 숙제 불러오기(복습 시)
     @GetMapping("/review/{homeworkId}")
-    public ResponseEntity<HomeworkReviewResponse> getReviewHomework(@PathVariable Long homeworkId) {
-        HomeworkReviewResponse homework = homeworkService.getReviewHomework(homeworkId, authInfo);
+    public ResponseEntity<HomeworkReviewResponse> getReviewHomework(@PathVariable Long homeworkId, @AuthMemberRole Role role) {
+        HomeworkReviewResponse homework = homeworkService.getReviewHomework(homeworkId, role);
 
         return ResponseEntity.ok(homework);
     }
 
     // 숙제 저장(숙제 드로잉 저장)
     @PostMapping(value = "/{homeworkdId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Void> saveHomework(@PathVariable Long homeworkId, @RequestPart HomeworkDrawingRequest drawings) {
+    public ResponseEntity<Void> saveHomework(@PathVariable Long homeworkId, @RequestPart HomeworkDrawingRequest drawings, @AuthMemberRole Role role) {
 
-        homeworkService.saveHomework(homeworkId, drawings, authInfo);
+        homeworkService.saveHomework(homeworkId, drawings, role);
 
         return ResponseEntity.ok().build();
     }
 
     // 숙제 저장(복습 드로잉 저장)
     @PostMapping(value = "/{homeworkId}/review", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Void> saveHomeworkReview(@PathVariable Long homeworkId, @RequestPart HomeworkDrawingRequest drawings) {
+    public ResponseEntity<Void> saveHomeworkReview(@PathVariable Long homeworkId, @RequestPart HomeworkDrawingRequest drawings, @AuthMemberRole Role role) {
 
-        homeworkService.saveHomeworkReview(homeworkId, drawings, authInfo);
+        homeworkService.saveHomeworkReview(homeworkId, drawings, role);
 
         return ResponseEntity.ok().build();
     }
 
     // 숙제 제출
     @PostMapping("/{homeworkId}")
-    public ResponseEntity<Void> submitHomework(@PathVariable Long homeworkId) {
-        homeworkService.submitHomework(homeworkId, authInfo);
+    public ResponseEntity<Void> submitHomework(@PathVariable Long homeworkId, @AuthMemberRole Role role) {
+        homeworkService.submitHomework(homeworkId, role);
         return ResponseEntity.ok().build();
     }
 

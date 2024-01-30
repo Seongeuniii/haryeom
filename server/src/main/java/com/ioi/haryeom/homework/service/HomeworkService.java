@@ -152,11 +152,11 @@ public class HomeworkService {
 
     //// 학생 숙제
 
-    public HomeworkLoadResponse getLoadHomework(Long homeworkId, AuthInfo authInfo) {
+    public HomeworkLoadResponse getLoadHomework(Long homeworkId, Role role) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
 
-        validateStudentRole(authInfo);
+        validateStudentRole(role);
 
         // 숙제 상태 변경
         homework.confirm();
@@ -218,11 +218,11 @@ public class HomeworkService {
 
     }
 
-    public HomeworkReviewResponse getReviewHomework(Long homeworkId, AuthInfo authInfo) {
+    public HomeworkReviewResponse getReviewHomework(Long homeworkId, Role role) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
 
-        validateStudentRole(authInfo);
+        validateStudentRole(role);
 
         Textbook textbook = homework.getTextbook();
         // pdf 숙제 범위만큼 자르기
@@ -272,11 +272,11 @@ public class HomeworkService {
         return new HomeworkReviewResponse(homework, textbookInfo, drawingResponses);
     }
 
-    public void saveHomework(Long homeworkId, HomeworkDrawingRequest drawings, AuthInfo authInfo) {
+    public void saveHomework(Long homeworkId, HomeworkDrawingRequest drawings, Role role) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
 
-        validateStudentRole(authInfo);
+        validateStudentRole(role);
 
         for(MultipartFile file : drawings.getFile()) {
 
@@ -289,8 +289,8 @@ public class HomeworkService {
             try {
                 amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
             } catch (IOException e) {
-                // TODO: 예외처리
                 e.printStackTrace();
+                throw new RuntimeException("S3 업로드 실패");
             }
 
             Drawing drawing = Drawing.builder()
@@ -303,11 +303,11 @@ public class HomeworkService {
         }
     }
 
-    public void saveHomeworkReview(Long homeworkId, HomeworkDrawingRequest drawings, AuthInfo authInfo) {
+    public void saveHomeworkReview(Long homeworkId, HomeworkDrawingRequest drawings, Role role) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
 
-        validateStudentRole(authInfo);
+        validateStudentRole(role);
 
         for(MultipartFile file : drawings.getFile()) {
 
@@ -336,11 +336,11 @@ public class HomeworkService {
         }
     }
 
-    public void submitHomework(Long homeworkId, AuthInfo authInfo) {
+    public void submitHomework(Long homeworkId, Role role) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
 
-        validateStudentRole(authInfo);
+        validateStudentRole(role);
         validateHomeworkSubmission(homework);
 
         homework.submit();
@@ -355,6 +355,12 @@ public class HomeworkService {
 
     private void validateStudentRole(AuthInfo authInfo) {
         if (!Role.STUDENT.name().equals(authInfo.getRole())) {
+            throw new NoStudentException();
+        }
+    }
+
+    private void validateStudentRole(Role role) {
+        if (!role.equals("STUDENT")){
             throw new NoStudentException();
         }
     }
