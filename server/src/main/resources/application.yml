@@ -21,7 +21,7 @@ spring:
       host: i10a807.p.ssafy.io
       port: 6379
     mongodb:
-      uri: mongodb://localhost:27017/haryeom
+      uri: mongodb://i10a807.p.ssafy.io:27017/haryeom
   servlet:
     multipart:
       max-file-size: 10MB
