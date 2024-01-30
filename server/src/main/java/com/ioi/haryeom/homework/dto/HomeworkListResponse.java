@@ -8,7 +8,7 @@ public class HomeworkListResponse {
 
     private final List<HomeworkResponse> homeworkList;
 
-    private Integer progressPercentage;
+    private final Integer progressPercentage;
 
     public HomeworkListResponse(List<HomeworkResponse> homeworkList, Integer progressPercentage) {
         this.homeworkList = homeworkList;

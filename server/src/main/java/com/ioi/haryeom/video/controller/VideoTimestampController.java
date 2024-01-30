@@ -1,5 +1,6 @@
 package com.ioi.haryeom.video.controller;
 
+import com.ioi.haryeom.common.util.AuthMemberId;
 import com.ioi.haryeom.video.domain.VideoTimestamp;
 import com.ioi.haryeom.video.dto.VideoTimestampRequest;
 import com.ioi.haryeom.video.dto.VideoTimestampResponse;
@@ -10,6 +11,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,28 +29,28 @@ public class VideoTimestampController {
     private final VideoTimestampRepository videoTimestampRepository;
     
     @GetMapping("/{scheduleId}")
-    public ResponseEntity<List<VideoTimestampResponse>> getTimestampList(@PathVariable Long scheduleId) {
-        List<VideoTimestampResponse> timestampList = videoTimestampService.getTimestampList(scheduleId);
+    public ResponseEntity<List<VideoTimestampResponse>> getTimestampList(@PathVariable Long tutoringScheduleId, @AuthMemberId Long memberId) {
+        List<VideoTimestampResponse> timestampList = videoTimestampService.getTimestampList(tutoringScheduleId, memberId);
         return ResponseEntity.ok(timestampList);
     }
 
     @PostMapping("/{scheduleId}")
-    public ResponseEntity<Void> createTimestamp(@RequestBody VideoTimestampRequest timestamp,
-        @PathVariable Long scheduleId) {
-        Long timestampId = videoTimestampService.createVideoTimestamp(scheduleId, timestamp);
+    public ResponseEntity<Void> createTimestamp(@Validated @RequestBody VideoTimestampRequest timestampRequest,
+        @PathVariable Long scheduleId, @AuthMemberId Long memberId) {
+        Long timestampId = videoTimestampService.createVideoTimestamp(scheduleId, timestampRequest, memberId);
         return ResponseEntity.created(URI.create("/timestamp/" + timestampId)).build();
     }
 
     @PutMapping("/{videoId}")
-    public ResponseEntity<Void> updateTimestamp(@RequestBody VideoTimestampRequest timestamp,
-        @PathVariable Long videoId) {
-        videoTimestampService.updateVideoTimestamp(videoId, timestamp);
+    public ResponseEntity<Void> updateTimestamp(@Validated @RequestBody VideoTimestampRequest timestampRequest,
+        @PathVariable Long videoId, @AuthMemberId Long memberId) {
+        videoTimestampService.updateVideoTimestamp(videoId, timestampRequest, memberId);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{videoId}")
-    public ResponseEntity<Void> deleteTimestamp(@PathVariable Long videoId) {
-        videoTimestampService.deleteTimestamp(videoId);
+    public ResponseEntity<Void> deleteTimestamp(@PathVariable Long videoId, @AuthMemberId Long memberId) {
+        videoTimestampService.deleteTimestamp(videoId, memberId);
         return ResponseEntity.noContent().build();
     }
 }

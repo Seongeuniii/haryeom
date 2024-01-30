@@ -74,8 +74,9 @@ public class Tutoring extends BaseTimeEntity {
         this.status = TutoringStatus.CLOSED;
     }
 
-    public boolean isTeacherOfTutoring(Member member) {
-        return teacher.equals(member);
+
+    public boolean isMemberPartOfTutoring(Member member) {
+        return (student.equals(member) || teacher.equals(member));
     }
 
 }

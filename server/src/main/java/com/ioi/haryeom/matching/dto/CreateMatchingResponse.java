@@ -11,16 +11,16 @@ public class CreateMatchingResponse {
 
     private String matchingId;
     private Long chatRoomId;
-    private Long receiveMemberId;
+    private Long recipientMemberId;
     private String senderName;
     private SubjectResponse subject;
     private Integer hourlyRate;
 
-    private CreateMatchingResponse(String matchingId, Long chatRoomId, Long receiveMemberId, String senderName,
+    private CreateMatchingResponse(String matchingId, Long chatRoomId, Long recipientMemberId, String senderName,
         Subject subject, Integer hourlyRate) {
         this.matchingId = matchingId;
         this.chatRoomId = chatRoomId;
-        this.receiveMemberId = receiveMemberId;
+        this.recipientMemberId = recipientMemberId;
         this.senderName = senderName;
         this.subject = new SubjectResponse(subject);
         this.hourlyRate = hourlyRate;
