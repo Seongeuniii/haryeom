@@ -9,11 +9,14 @@ import com.ioi.haryeom.chat.manager.WebSocketSessionManager;
 import com.ioi.haryeom.chat.repository.ChatMessageRepository;
 import com.ioi.haryeom.chat.repository.ChatMessageRepositoryBefore;
 import com.ioi.haryeom.chat.repository.ChatRoomRepository;
+import com.ioi.haryeom.chat.repository.ChatRoomStateRepository;
 import com.ioi.haryeom.matching.dto.CreateMatchingResponse;
+import com.ioi.haryeom.matching.dto.RespondToMatchingResponse;
 import com.ioi.haryeom.matching.manager.MatchingManager;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -30,22 +33,31 @@ public class ChatMessageService {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatRoomRepository chatRoomRepository;
     private final MemberRepository memberRepository;
+    private final ChatRoomStateRepository chatRoomStateRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatMessageRepositoryBefore chatMessageRepositoryBefore;
 
     @Transactional
     public void connectChatRoom(Long chatRoomId, String sessionId, Long memberId) {
+
         sessionManager.addSession(chatRoomId, sessionId, memberId);
 
         // 채팅방의 매칭 요청 여부 확인
-        if (matchingManager.existMatchingRequestByChatRoomId(chatRoomId)) {
-            CreateMatchingResponse response = matchingManager.getTutoringMatchingRequestByChatRoomId(
-                chatRoomId);
+        if (matchingManager.existsMatchingRequestByChatRoomId(chatRoomId)) {
+            CreateMatchingResponse response = matchingManager.getMatchingRequestByChatRoomId(chatRoomId);
             // 클라이언트에 매칭 요청 전송
-            messagingTemplate.convertAndSend("/topic/chatroom/" + response.getChatRoomId() + "/request", response);
+            messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoomId + "/request", response);
         }
+        // 채팅방의 매칭 응답 여부 확인
+        if(matchingManager.existsMatchingResponseByChatRoomId(chatRoomId)) {
+            List<RespondToMatchingResponse> respondList = matchingManager.getMatchingResponseByChatRoomId(chatRoomId);
+            // 클라이언트에 매칭 응답 전송
+            messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoomId + "/response", respondList);
+        }
+
     }
 
+    @Transactional
     public void disconnectChatRoom(String sessionId) {
         //TODO: lastReadMessageId와 업데이트하는 로직 추가
         sessionManager.removeSession(sessionId);

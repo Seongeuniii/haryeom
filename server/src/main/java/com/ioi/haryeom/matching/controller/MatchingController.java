@@ -29,7 +29,6 @@ public class MatchingController {
     @PostMapping("/request")
     public ResponseEntity<Void> createMatchingRequest(@RequestBody CreateMatchingRequest request) {
         String matchingId = matchingService.createMatchingRequest(request, memberId);
-        // 생성된 matchingId 반환
         return ResponseEntity.created(URI.create(String.format("/matching/%s", matchingId))).build();
     }
 
