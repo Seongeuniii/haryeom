@@ -50,9 +50,9 @@ pipeline {
         stage('Node Build') {
             steps {
                 dir('client') {
-                    sh "echo 'NEXT_PUBLIC_API_SERVER=\${NEXT_PUBLIC_API_SERVER}' > .env"
-                    sh "echo 'NEXT_PUBLIC_REST_API_KEY=\${NEXT_PUBLIC_REST_API_KEY}' >> .env"
-                    sh "echo 'NEXT_PUBLIC_REDIRECT_URI=\${NEXT_PUBLIC_REDIRECT_URI}' >> .env"
+                    sh "echo 'NEXT_PUBLIC_API_SERVER=${NEXT_PUBLIC_API_SERVER}' > .env"
+                    sh "echo 'NEXT_PUBLIC_REST_API_KEY=${NEXT_PUBLIC_REST_API_KEY}' >> .env"
+                    sh "echo 'NEXT_PUBLIC_REDIRECT_URI=${NEXT_PUBLIC_REDIRECT_URI}' >> .env"
                     sh 'npm install'
                     sh 'npm run build'
                 }
