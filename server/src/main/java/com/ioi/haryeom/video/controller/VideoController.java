@@ -1,5 +1,6 @@
 package com.ioi.haryeom.video.controller;
 
+import com.ioi.haryeom.common.util.AuthMemberId;
 import com.ioi.haryeom.video.dto.LessonEnd;
 import com.ioi.haryeom.video.dto.LessonStart;
 import com.ioi.haryeom.video.dto.VideoDetailInterface;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,25 +31,25 @@ public class VideoController {
 
     //수업 시작 클릭
     @PostMapping("/")
-    public ResponseEntity<Void> createVideo(@RequestBody LessonStart lessonStart) {
-        Long id = videoService.createVideo(lessonStart);
-        return ResponseEntity.created(URI.create("/video/" + id)).build();
+    public ResponseEntity<Void> createVideo(@Validated @RequestBody LessonStart lessonStart, @AuthMemberId Long memberId) {
+        Long id = videoService.createVideo(lessonStart, memberId);
+        return ResponseEntity.created(URI.create("/lesson/" + id)).build();
     }
 
     @PostMapping(value = "/{videoId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> uploadVideo(@PathVariable Long videoId,
-        @RequestPart MultipartFile uploadFile) throws IOException {
+        @RequestPart MultipartFile uploadFile, @AuthMemberId Long memberId) throws IOException {
 
-        String videoURL = videoService.uploadVideo(uploadFile);
-        videoService.updateVideoURL(videoId, videoURL);
+        String videoUrl = videoService.uploadVideo(uploadFile);
+        videoService.updateVideoUrl(videoId, videoUrl, memberId);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.created(URI.create("/lesson/video/"+videoId)).build();
     }
 
     @PatchMapping("/{videoId}")
     public ResponseEntity<Void> endVideo(@PathVariable Long videoId,
-        @RequestBody LessonEnd lessonEnd) {
-        videoService.updateVideoEndTime(videoId, lessonEnd);
+        @Validated @RequestBody LessonEnd lessonEnd, @AuthMemberId Long memberId) {
+        videoService.updateVideoEndTime(videoId, lessonEnd, memberId);
         return ResponseEntity.noContent().build();
     }
 

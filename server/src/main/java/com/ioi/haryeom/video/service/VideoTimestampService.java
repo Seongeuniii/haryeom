@@ -1,5 +1,6 @@
 package com.ioi.haryeom.video.service;
 
+import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.tutoring.repository.TutoringScheduleRepository;
 import com.ioi.haryeom.video.domain.VideoTimestamp;
 import com.ioi.haryeom.video.dto.VideoTimestampRequest;
@@ -25,10 +26,12 @@ public class VideoTimestampService {
     private final TutoringScheduleRepository tutoringScheduleRepository;
     private final VideoRepository videoRepository;
 
-    public List<VideoTimestampResponse> getTimestampList(Long scheduleId) {
-        //Todo: auth exception
-        Long videoId = videoRepository.findByTutoringSchedule_Id(scheduleId).getId();
-        List<VideoTimestamp> timestampList = videoTimestampRepository.findByVideo_Id(videoId);
+    public List<VideoTimestampResponse> getTimestampList(Long tutoringScheduleId, Long memberId) {
+        Video video = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId);
+        if(video.getTutoringSchedule().getTutoring().getStudent().getId() !=memberId){
+            throw new AuthorizationException(memberId);
+        }
+        List<VideoTimestamp> timestampList = videoTimestampRepository.findByVideo_Id(video.getId());
         List<VideoTimestampResponse> videoTimestampResponseList = new ArrayList<>();
         for(VideoTimestamp timestamp: timestampList){
             videoTimestampResponseList.add(new VideoTimestampResponse(timestamp));
@@ -37,8 +40,11 @@ public class VideoTimestampService {
     }
 
     @Transactional
-    public Long createVideoTimestamp(Long tutoringScheduleId, VideoTimestampRequest timestampRequest) {
+    public Long createVideoTimestamp(Long tutoringScheduleId, VideoTimestampRequest timestampRequest, Long memberId) {
         Video video = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId);
+        if(video.getTutoringSchedule().getTutoring().getStudent().getId() !=memberId){
+            throw new AuthorizationException(memberId);
+        }
         LocalTime stampTime = parseStampTime(timestampRequest.getStampTime());
         VideoTimestamp timestamp = VideoTimestamp.builder()
             .video(video).stampTime(stampTime).content(timestampRequest.getContent())
@@ -51,25 +57,32 @@ public class VideoTimestampService {
     }
 
     @Transactional
-    public void updateVideoTimestamp(Long id, VideoTimestampRequest timestampRequest) {
+    public void updateVideoTimestamp(Long id, VideoTimestampRequest timestampRequest, Long memberId) {
         Optional<VideoTimestamp> optionalTimestamp = videoTimestampRepository.findById(id);
         if (!optionalTimestamp.isPresent()) {
             throw new VideoTimestampNotFoundException(id);
         }
         //Todo: auth exception
         VideoTimestamp videoTimestamp = optionalTimestamp.get();
+        if(videoTimestamp.getVideo().getTutoringSchedule().getTutoring().getStudent().getId() !=memberId){
+            throw new AuthorizationException(memberId);
+        }
         LocalTime stampTime = parseStampTime(timestampRequest.getStampTime());
         videoTimestamp.update(stampTime, timestampRequest.getContent());
     }
 
     @Transactional
-    public void deleteTimestamp(Long id) {
+    public void deleteTimestamp(Long timestampId, Long memberId) {
         //Todo: auth exception
-        Optional<VideoTimestamp> deleteVideo = findVideoById(id);
-        if(!deleteVideo.isPresent()){
-            throw new VideoTimestampNotFoundException(id);
+        Optional<VideoTimestamp> optionalTimestamp = findVideoById(timestampId);
+        if(!optionalTimestamp.isPresent()){
+            throw new VideoTimestampNotFoundException(timestampId);
         }
-        videoTimestampRepository.delete(deleteVideo.get());
+        VideoTimestamp videoTimestamp = optionalTimestamp.get();
+        if(videoTimestamp.getVideo().getTutoringSchedule().getTutoring().getStudent().getId()!=memberId){
+            throw new AuthorizationException(memberId);
+        }
+        videoTimestampRepository.delete(videoTimestamp);
     }
 
     private Optional<VideoTimestamp> findVideoById(Long videoTimestampId) {
