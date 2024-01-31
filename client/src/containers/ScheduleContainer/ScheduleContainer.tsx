@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
 
 import HomeLayout from '@/components/layouts/HomeLayout';
-import RegistUserInfoContainer from '@/containers/RegistUserInfoContainer';
 import ClassSchedule from '@/components/ClassSchedule';
 import { ITutoringSchedules, ITutorings } from '@/apis/tutoring/tutoring';
 import { getHomeworkList } from '@/apis/homework/get-homework-list';
@@ -12,7 +11,6 @@ import { IHomeworkList, IProgressPercentage } from '@/apis/homework/homework';
 import TutoringStudentProfile from '@/components/TutoringStudentProfile';
 import HomeworkList from '@/components/HomeworkList';
 import userSessionAtom from '@/recoil/atoms/userSession';
-import LoginModal from '@/components/LoginModal';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
 import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
 import { getYearMonth } from '@/utils/time';
@@ -52,7 +50,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     const tutorings = await getTutorings('TEACHER');
     const tutoringSchedules = await getTutoringSchedules('TEACHER', getYearMonth(new Date()));
-    const homeworkListInfo = tutorings ? await getHomeworkList(tutorings[1].tutoringId) : undefined;
+    const homeworkListInfo =
+        tutorings && tutorings.length > 0
+            ? await getHomeworkList(tutorings[0].tutoringId)
+            : undefined;
 
     return {
         props: {
