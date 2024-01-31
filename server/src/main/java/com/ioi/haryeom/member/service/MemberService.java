@@ -1,10 +1,9 @@
 package com.ioi.haryeom.member.service;
 
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.ioi.haryeom.auth.service.AuthService;
 import com.ioi.haryeom.auth.service.TokenService;
+import com.ioi.haryeom.aws.S3Upload;
 import com.ioi.haryeom.common.repository.SubjectRepository;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.domain.Student;
@@ -15,6 +14,7 @@ import com.ioi.haryeom.member.dto.CodeCertifyRequest;
 import com.ioi.haryeom.member.dto.EmailCertifyRequest;
 import com.ioi.haryeom.member.dto.StudentCreateRequest;
 import com.ioi.haryeom.member.dto.StudentInfoResponse;
+import com.ioi.haryeom.member.dto.StudentUpdateRequest;
 import com.ioi.haryeom.member.dto.SubjectResponse;
 import com.ioi.haryeom.member.dto.TeacherCreateRequest;
 import com.ioi.haryeom.member.dto.TeacherInfoResponse;
@@ -34,18 +34,17 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class MemberService {
 
-    private final AmazonS3Client amazonS3Client;
-
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
+    private final S3Upload s3Upload;
 
     @Value("${spring.univcert.api-key}")
     private String univKey;
@@ -109,15 +108,9 @@ public class MemberService {
 
             String profileUrl = createRequest.getProfileUrl();
 
-            if (profileImg != null) {
-                String fileName = String.valueOf(member.getId());
-                profileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
-
-                ObjectMetadata metadata = new ObjectMetadata();
-                metadata.setContentType(profileImg.getContentType());
-                metadata.setContentLength(profileImg.getSize());
-
-                amazonS3Client.putObject(bucket, fileName, profileImg.getInputStream(), metadata);
+            if (profileImg != null && profileImg.getSize() != 0) {
+                profileUrl = s3Upload.uploadFile(String.valueOf(userId),
+                    profileImg.getInputStream(), profileImg.getSize(), profileImg.getContentType());
             }
 
             Student student = Student.builder()
@@ -150,20 +143,14 @@ public class MemberService {
 
     @Transactional
     public void updateStudent(Long userId, MultipartFile profileImg,
-        StudentInfoResponse studentRequest) {
+        StudentUpdateRequest studentRequest) {
         try {
             Member member = findMemberById(userId);
 
             String profileUrl = studentRequest.getProfileUrl();
-            if (profileImg != null) {
-                String fileName = String.valueOf(member.getId());
-                profileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
-
-                ObjectMetadata metadata = new ObjectMetadata();
-                metadata.setContentType(profileImg.getContentType());
-                metadata.setContentLength(profileImg.getSize());
-
-                amazonS3Client.putObject(bucket, fileName, profileImg.getInputStream(), metadata);
+            if (profileImg != null && profileImg.getSize() != 0) {
+                profileUrl = s3Upload.uploadFile(String.valueOf(userId),
+                    profileImg.getInputStream(), profileImg.getSize(), profileImg.getContentType());
             }
 
             Student student = member.getStudent();
@@ -184,16 +171,9 @@ public class MemberService {
             Member member = findMemberById(userId);
 
             String profileUrl = teacherRequest.getProfileUrl();
-            if (profileImg != null) {
-                String fileName = String.valueOf(member.getId());
-                profileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
-
-                ObjectMetadata metadata = new ObjectMetadata();
-                metadata.setContentType(profileImg.getContentType());
-                metadata.setContentLength(profileImg.getSize());
-
-                amazonS3Client.putObject(bucket, fileName, profileImg.getInputStream(), metadata);
-
+            if (profileImg != null && profileImg.getSize() != 0) {
+                profileUrl = s3Upload.uploadFile(String.valueOf(userId),
+                    profileImg.getInputStream(), profileImg.getSize(), profileImg.getContentType());
             }
 
             Teacher teacher = Teacher.builder()
@@ -255,17 +235,9 @@ public class MemberService {
             Member member = findMemberById(userId);
 
             String profileUrl = teacherRequest.getProfileUrl();
-            if (profileImg != null) {
-                String fileName = String.valueOf(member.getId());
-                profileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
-
-                ObjectMetadata metadata = new ObjectMetadata();
-                metadata.setContentType(profileImg.getContentType());
-                metadata.setContentLength(profileImg.getSize());
-
-                amazonS3Client.putObject(bucket, fileName, profileImg.getInputStream(), metadata);
-
-
+            if (profileImg != null && profileImg.getSize() != 0) {
+                profileUrl = s3Upload.uploadFile(String.valueOf(userId),
+                    profileImg.getInputStream(), profileImg.getSize(), profileImg.getContentType());
             }
 
             member.updateTeacher(profileUrl, teacherRequest.getName(),
