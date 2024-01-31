@@ -106,11 +106,9 @@ public class TokenService {
 
         String accessToken = null;
 
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("accessToken")) {
-                    accessToken = cookie.getValue();
-                }
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("accessToken")) {
+                accessToken = cookie.getValue();
             }
         }
 
