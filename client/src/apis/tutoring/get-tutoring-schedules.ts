@@ -12,7 +12,7 @@ interface ReturnType {
 export const getTutoringSchedules = async (userRole: IUserRole, yearmonth: string) => {
     try {
         const res = await axios.get<ReturnType>(
-            `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${userRole}?yearmonth=${yearmonth}`
+            `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${userRole.toLocaleLowerCase()}?yearmonth=${yearmonth}`
         );
         return res.data;
     } catch (e) {
