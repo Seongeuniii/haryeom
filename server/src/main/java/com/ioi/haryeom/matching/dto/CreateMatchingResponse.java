@@ -9,11 +9,11 @@ import lombok.Getter;
 @Getter
 public class CreateMatchingResponse {
 
-    private String matchingId;
-    private Long recipientMemberId;
-    private String senderName;
-    private SubjectResponse subject;
-    private Integer hourlyRate;
+    private final String matchingId;
+    private final Long recipientMemberId;
+    private final String senderName;
+    private final SubjectResponse subject;
+    private final Integer hourlyRate;
 
     private CreateMatchingResponse(String matchingId, Long recipientMemberId, String senderName,
         Subject subject, Integer hourlyRate) {
