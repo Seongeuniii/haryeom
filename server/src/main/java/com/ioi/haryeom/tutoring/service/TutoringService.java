@@ -142,8 +142,6 @@ public class TutoringService {
         checkDuplicateScheduleByStudent(tutoringSchedule.getTutoring().getStudent().getId(), request.getScheduleDate(), request.getStartTime(), request.getDuration());
 
         tutoringSchedule.update(tutoringSchedule.getTutoring(), request.getScheduleDate(), request.getStartTime(), request.getDuration(), request.getTitle());
-
-        tutoringScheduleRepository.save(tutoringSchedule);
     }
 
     @Transactional
