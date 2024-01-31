@@ -17,6 +17,7 @@ import { getTutorings } from '@/apis/tutoring/get-tutorings';
 import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
 import { getYearMonth } from '@/utils/time';
 import { useEffect } from 'react';
+import { createTutorings } from '@/apis/tutoring/create-tutorings';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -43,19 +44,19 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const test1 = async () => {
         if (!userSession) return;
         const tutorings = await getTutorings(userSession.role);
-        console.log('과외 목록: ', tutorings);
+        console.log('과외 목록 조회: ', tutorings);
     };
 
     const test2 = async () => {
         if (!userSession) return;
         const tutoringSchedules = await getTutoringSchedules(userSession.role, '202401');
-        console.log('월별 과외 일정: ', tutoringSchedules);
+        console.log('월별 과외 일정 조회: ', tutoringSchedules);
     };
 
     const test3 = async () => {
         if (!userSession) return;
-        const tutoringSchedules = await getTutoringSchedules(userSession.role, '202401');
-        console.log('월별 과외 일정: ', tutoringSchedules);
+        const tutoringSchedules = await createTutorings();
+        console.log('월별 과외 일정 등록: ', tutoringSchedules);
     };
 
     return (

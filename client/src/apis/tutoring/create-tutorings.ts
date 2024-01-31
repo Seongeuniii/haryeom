@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const path = '/tutoring/schedule';
 
-export const registHomework = async () => {
+export const createTutorings = async () => {
     const newTutorings = {
         tutoringId: 7,
         schedules: [
@@ -70,7 +70,11 @@ export const registHomework = async () => {
     };
 
     try {
-        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_SERVER}${path}`, newTutorings);
+        const res = await axios.post(
+            `${process.env.NEXT_PUBLIC_API_SERVER}${path}`,
+            JSON.stringify(newTutorings),
+            { headers: { 'Content-Type': 'application/json' } }
+        );
         return res.data;
     } catch (e) {
         return null;
