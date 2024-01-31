@@ -12,6 +12,8 @@ public class StudentTutoringScheduleResponse {
 
     private Long tutoringId;
     private Long teacherMemberId;
+    private String teacherName;
+    private String teacherProfileUrl;
     private SubjectResponse subject;
 
     private LocalTime startTime;
@@ -22,6 +24,8 @@ public class StudentTutoringScheduleResponse {
         this.tutoringScheduleId = tutoringSchedule.getId();
         this.tutoringId = tutoringSchedule.getTutoring().getId();
         this.teacherMemberId = tutoringSchedule.getTutoring().getTeacher().getId();
+        this.teacherName = tutoringSchedule.getTutoring().getTeacher().getName();
+        this.teacherProfileUrl = tutoringSchedule.getTutoring().getTeacher().getProfileUrl();
         this.subject = new SubjectResponse(tutoringSchedule.getTutoring().getSubject());
         this.startTime = tutoringSchedule.getStartTime();
         this.duration = tutoringSchedule.getDuration();
@@ -32,6 +36,8 @@ public class StudentTutoringScheduleResponse {
         this.tutoringScheduleId = studentTutoringScheduleQueryDSL.getTutoringScheduleId();
         this.tutoringId = studentTutoringScheduleQueryDSL.getTutoringId();
         this.teacherMemberId = studentTutoringScheduleQueryDSL.getTeacherMemberId();
+        this.teacherName = studentTutoringScheduleQueryDSL.getTeacherName();
+        this.teacherProfileUrl = studentTutoringScheduleQueryDSL.getTeacherProfileUrl();
         this.subject = new SubjectResponse(studentTutoringScheduleQueryDSL.getSubject());
         this.startTime = studentTutoringScheduleQueryDSL.getStartTime();
         this.duration = studentTutoringScheduleQueryDSL.getDuration();

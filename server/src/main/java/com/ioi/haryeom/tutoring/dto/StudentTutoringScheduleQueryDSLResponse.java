@@ -13,6 +13,8 @@ public class StudentTutoringScheduleQueryDSLResponse {
 
     private Long tutoringId;
     private Long teacherMemberId;
+    private String teacherName;
+    private String teacherProfileUrl;
     private Subject subject;
 
     private LocalDate scheduleDate;
@@ -22,11 +24,13 @@ public class StudentTutoringScheduleQueryDSLResponse {
 
     @QueryProjection
     public StudentTutoringScheduleQueryDSLResponse(Long tutoringScheduleId, Long tutoringId,
-        Long teacherMemberId, Subject subject, LocalDate scheduleDate, LocalTime startTime,
+        Long teacherMemberId, String teacherName, String teacherProfileUrl, Subject subject, LocalDate scheduleDate, LocalTime startTime,
         Integer duration, String title) {
         this.tutoringScheduleId = tutoringScheduleId;
         this.tutoringId = tutoringId;
         this.teacherMemberId = teacherMemberId;
+        this.teacherName = teacherName;
+        this.teacherProfileUrl = teacherProfileUrl;
         this.subject = subject;
         this.scheduleDate = scheduleDate;
         this.startTime = startTime;
