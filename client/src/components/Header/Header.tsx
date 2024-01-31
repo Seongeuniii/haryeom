@@ -1,9 +1,9 @@
 import Link from 'next/link';
+import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import { IUserRole } from '@/apis/user/user';
 import Dropdown from '@/components/commons/Dropdown';
 import useDropdown from '@/hooks/useDropdown';
-import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
 
 export interface Page {
@@ -35,8 +35,6 @@ const navLinks: { [key in IUserRole]: Page[] } = {
     GUEST: [],
 };
 
-const testUserRole: IUserRole = 'STUDENT';
-
 const Header = () => {
     const { open, openDropdown, closeDropdown } = useDropdown();
     const userSession = useRecoilValue(userSessionAtom);
@@ -48,29 +46,26 @@ const Header = () => {
                     <Link href="/find">
                         <Logo src="/images/logo.png" alt="logo" />
                     </Link>
-                    {navLinks[testUserRole].map((page, index) => (
+                    {/* userSession?.role as IUserRole) */}
+                    {navLinks['GUEST'].map((page, index) => (
                         <Link href={page.link} key={`nav_${index}`}>
                             {page.name}
                         </Link>
                     ))}
                 </Nav>
-                <User onClick={!open ? openDropdown : undefined}>
-                    {userSession ? (
-                        <>
-                            <span>{userSession?.name}</span>
-                            <Dropdown open={open} closeDropdown={closeDropdown}>
-                                <UserControlBox>
-                                    <Button>마이페이지</Button>
-                                    <Button>로그아웃</Button>
-                                </UserControlBox>
-                            </Dropdown>
-                        </>
-                    ) : (
-                        <>
-                            <Link href={'/login'}>로그인</Link>
-                        </>
-                    )}
-                </User>
+                {userSession ? (
+                    <User onClick={!open ? openDropdown : undefined}>
+                        <Name>{userSession?.name}</Name>
+                        <Dropdown open={open} closeDropdown={closeDropdown}>
+                            <UserControlBox>
+                                <Button>마이페이지</Button>
+                                <Button>로그아웃</Button>
+                            </UserControlBox>
+                        </Dropdown>
+                    </User>
+                ) : (
+                    <Link href={'/login'}>로그인</Link>
+                )}
             </HeaderWrapper>
         </StyledHeader>
     );
@@ -89,7 +84,8 @@ const StyledHeader = styled.header`
 `;
 
 const HeaderWrapper = styled.div`
-    min-width: 1150px;
+    width: 90%;
+    max-width: 1150px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -110,6 +106,8 @@ const Nav = styled.nav`
 const User = styled.button`
     position: relative;
 `;
+
+const Name = styled.div``;
 
 const UserControlBox = styled.div`
     width: 6em;
