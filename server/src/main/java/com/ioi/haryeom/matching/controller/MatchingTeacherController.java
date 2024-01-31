@@ -30,7 +30,6 @@ public class MatchingTeacherController {
     public ResponseEntity<List<TeacherResponse>> getTeacherList(
         @ModelAttribute @Validated MatchingTeacherRequest request,
         @PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable) {
-
         List<TeacherResponse> response = matchingTeacherService.getTeacherList(request, pageable);
         return ResponseEntity.ok(response);
     }
@@ -38,7 +37,6 @@ public class MatchingTeacherController {
     // 선생님 상세 조회
     @GetMapping("/{teacherId}")
     public ResponseEntity<TeacherDetailResponse> getTeacher(@PathVariable Long teacherId) {
-
         TeacherDetailResponse response = matchingTeacherService.getTeacher(teacherId);
         return ResponseEntity.ok(response);
     }

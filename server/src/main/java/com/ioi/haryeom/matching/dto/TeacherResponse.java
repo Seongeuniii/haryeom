@@ -10,14 +10,14 @@ import lombok.Getter;
 @Getter
 public class TeacherResponse {
 
-    private Long teacherId;
-    private String profileUrl;
-    private String name;
-    private String college;
-    private Integer career;
-    private String gender;
-    private Integer salary;
-    private List<SubjectResponse> subjects;
+    private final Long teacherId;
+    private final String profileUrl;
+    private final String name;
+    private final String college;
+    private final Integer career;
+    private final String gender;
+    private final Integer salary;
+    private final List<SubjectResponse> subjects;
 
     private TeacherResponse(Long teacherId, String profileUrl, String name, String college, Integer career,
         String gender, Integer salary, List<SubjectResponse> subjects) {

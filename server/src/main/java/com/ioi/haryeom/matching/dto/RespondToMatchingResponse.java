@@ -9,15 +9,16 @@ import lombok.Getter;
 @Getter
 public class RespondToMatchingResponse {
 
-    private Long recipientMemberId;
-    private Boolean isAccepted;
-    private String teacherName;
-    private String studentName;
-    private SubjectResponse subject;
-    private Integer hourlyRate;
+    private final Long recipientMemberId;
+    private final Boolean isAccepted;
+    private final String teacherName;
+    private final String studentName;
+    private final SubjectResponse subject;
+    private final Integer hourlyRate;
 
 
-    private RespondToMatchingResponse(Long recipientMemberId, String teacherName, String studentName, Boolean isAccepted, Subject subject, Integer hourlyRate) {
+    private RespondToMatchingResponse(Long recipientMemberId, String teacherName, String studentName, Boolean isAccepted, Subject subject,
+        Integer hourlyRate) {
         this.recipientMemberId = recipientMemberId;
         this.teacherName = teacherName;
         this.studentName = studentName;
