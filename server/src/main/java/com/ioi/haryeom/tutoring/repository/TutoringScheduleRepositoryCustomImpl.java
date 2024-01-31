@@ -35,14 +35,16 @@ public class TutoringScheduleRepositoryCustomImpl implements TutoringScheduleRep
     public List<TeacherTutoringScheduleQueryDSLResponse> getTutoringScheduleListByTeacherAndYearMonth(Long teacherMemberId, List<LocalDate> scheduleDates) {
         QTutoringSchedule tutoringSchedule = QTutoringSchedule.tutoringSchedule;
         QTutoring tutoring = QTutoring.tutoring;
+        QSubject subject = QSubject.subject;
         QMember member = QMember.member;
 
         return queryFactory
             .select(new QTeacherTutoringScheduleQueryDSLResponse(tutoringSchedule.id, tutoring.id,
-                member.id, member.name, member.profileUrl, tutoringSchedule.scheduleDate,
+                member.id, member.name, member.profileUrl, subject, tutoringSchedule.scheduleDate,
                 tutoringSchedule.startTime, tutoringSchedule.duration, tutoringSchedule.title))
             .from(tutoringSchedule)
             .join(tutoringSchedule.tutoring, tutoring)
+            .join(tutoring.subject, subject)
             .join(tutoring.student, member)
             .where(tutoringSchedule.tutoring.teacher.id.eq(teacherMemberId), tutoringSchedule.scheduleDate.in(scheduleDates))
             .orderBy(tutoringSchedule.scheduleDate.asc(), tutoringSchedule.startTime.asc())
@@ -71,7 +73,7 @@ public class TutoringScheduleRepositoryCustomImpl implements TutoringScheduleRep
 
         return queryFactory
             .select(new QStudentTutoringScheduleQueryDSLResponse(tutoringSchedule.id, tutoring.id,
-                member.id, subject, tutoringSchedule.scheduleDate,
+                member.id, member.name, member.profileUrl, subject, tutoringSchedule.scheduleDate,
                 tutoringSchedule.startTime, tutoringSchedule.duration, tutoringSchedule.title))
             .from(tutoringSchedule)
             .join(tutoringSchedule.tutoring, tutoring)
