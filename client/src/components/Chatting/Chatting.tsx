@@ -1,7 +1,12 @@
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
-import ChatStatus from './ChatStatus';
 import useStomp, { ISubscription } from '@/hooks/useStomp';
-import { ChangeEvent, useState } from 'react';
+import chatSessionAtom from '@/recoil/atoms/chat';
+import MatchingStage from '@/components/MatchingStage';
+import { IRequestMatchingStatus, IResponseMatchingStatus } from '@/apis/matching/matching';
+import Send from '../icons/Send';
+import Chat from './Chat';
 
 interface IReceiveChat {
     messageId: string;
@@ -10,19 +15,19 @@ interface IReceiveChat {
     createdAt: string;
 }
 
-interface ChattingProps {
-    chatRoomId: number;
-    chattingWithName: string;
-}
-
-const Chatting = ({ chatRoomId, chattingWithName }: ChattingProps) => {
+const Chatting = () => {
+    const chatSession = useRecoilValue(chatSessionAtom);
     const [chatMessages, setChatMessages] = useState<IReceiveChat[]>([]);
     const [message, setMessage] = useState('');
+    const [requestMatchingStatus, setRequestMatchingStatus] = useState<IRequestMatchingStatus>();
+    const [responseMatchingStatus, setResponseMatchingStatus] = useState<IResponseMatchingStatus>();
+    const lastChatRef = useRef<HTMLDivElement | null>(null);
+
     // TODO: subscriptions 리렌더
     const subscriptions: ISubscription[] = [
         {
             name: 'receiveMessage',
-            destination: `/topic/chatroom/${chatRoomId}`,
+            destination: `/topic/chatroom/${chatSession.chatRoomId}`,
             callback: (message) => {
                 const data = JSON.parse(message.body);
                 const chatMessage: IReceiveChat = data;
@@ -31,45 +36,61 @@ const Chatting = ({ chatRoomId, chattingWithName }: ChattingProps) => {
         },
         {
             name: 'matchingRequest',
-            destination: `/topic/chatroom/${chatRoomId}/request`,
+            destination: `/topic/chatroom/${chatSession.chatRoomId}/request`,
             callback: (message) => {
                 const data = JSON.parse(message.body);
-                console.log(data);
+                setRequestMatchingStatus(data);
             },
         },
         {
             name: 'resultOfMatchingRequest',
-            destination: `/topic/chatroom/${chatRoomId}/response`,
+            destination: `/topic/chatroom/${chatSession.chatRoomId}/response`,
             callback: (message) => {
                 const data = JSON.parse(message.body);
-                console.log(data);
+                setResponseMatchingStatus(data);
             },
         },
     ];
-    const { stompClient } = useStomp({ subscriptions });
+    const { stompClient } = useStomp({ subscriptions, roomId: chatSession.chatRoomId as number });
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setMessage(e.target.value);
-    };
     const sendMessage = () => {
-        if (!stompClient) return;
-        const destination = `/app/chatroom/${chatRoomId}/message`;
+        if (!stompClient || !message) return;
+        const destination = `/app/chatroom/${chatSession.chatRoomId}/message`;
         stompClient.send(destination, {}, JSON.stringify({ content: message }));
         setMessage('');
     };
 
+    useEffect(() => {
+        if (!lastChatRef.current) return;
+        lastChatRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+        });
+    }, [chatMessages.length]);
+
     return (
         <StyledChatting>
-            <ChatStatus chatRoomId={chatRoomId} />
-            <TestForm>
-                <input type="text" value={message} onChange={handleChange} />
-                <button onClick={sendMessage}>전송</button>
-            </TestForm>
+            <MatchingStage
+                requestStatus={requestMatchingStatus}
+                responseStatus={responseMatchingStatus}
+            />
             <ChatList>
                 {chatMessages.map((chat, index) => (
-                    <div key={`chat_${index}`}>{chat.content}</div>
+                    <Chat message={chat.content} isMyChat={true} key={`chat_${index}`} />
                 ))}
+                <div ref={lastChatRef}></div>
             </ChatList>
+            <ChatForm onSubmit={(e) => e.preventDefault()}>
+                <ChatInput
+                    type="text"
+                    value={message}
+                    placeholder="메시지를 입력하세요"
+                    onChange={(e) => setMessage(e.target.value)}
+                />
+                <SendButton onClick={sendMessage}>
+                    <Send />
+                </SendButton>
+            </ChatForm>
         </StyledChatting>
     );
 };
@@ -77,10 +98,49 @@ const Chatting = ({ chatRoomId, chattingWithName }: ChattingProps) => {
 const StyledChatting = styled.div`
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: column;
 `;
 
-const TestForm = styled.div``;
+const ChatList = styled.div`
+    flex: 1;
+    overflow-y: scroll;
+`;
 
-const ChatList = styled.div``;
+const ChatForm = styled.form`
+    width: 100%;
+    margin: 1em 0 2em 0;
+    padding: 7px 10px;
+    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    border-radius: 9px;
+    display: flex;
+    justify-content: space-between;
+`;
+
+const ChatInput = styled.input`
+    width: 80%;
+    font-size: 14px;
+    border: none;
+    &:focus {
+        outline: none;
+    }
+`;
+
+const SendButton = styled.button`
+    width: 27px;
+    height: 27px;
+    padding-top: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%;
+    cursor: pointer;
+    border: none;
+    background: ${({ theme }) => theme.BORDER_LIGHT};
+
+    &:hover {
+        background-color: ${({ theme }) => theme.PRIMARY};
+    }
+`;
 
 export default Chatting;

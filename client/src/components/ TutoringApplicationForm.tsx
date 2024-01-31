@@ -1,7 +1,8 @@
 import styled from 'styled-components';
 import SelectForm from '@/components/commons/SelectForm';
 import InputForm from '@/components/commons/InputForm';
-import { ChangeEvent } from 'react';
+import { requestMatching } from '@/apis/matching/matching';
+import { subjectDefaultOptions } from './FilterOpenTeacherList/filterDefaultOptions';
 
 const TutoringApplicationForm = () => {
     return (
@@ -12,7 +13,7 @@ const TutoringApplicationForm = () => {
                 <SelectForm
                     label={'선택'}
                     name={''}
-                    optionList={[]}
+                    optionList={subjectDefaultOptions}
                     handleSelect={() => {}}
                     height="40px"
                 />
@@ -22,7 +23,17 @@ const TutoringApplicationForm = () => {
                 <InputForm label={''} name={''} handleChange={() => {}} />
                 <span>만원</span>
             </InputTutoringFee>
-            <SubmitButton>신청하기</SubmitButton>
+            <SubmitButton
+                onClick={async () =>
+                    await requestMatching({
+                        chatRoomId: 1,
+                        subjectId: 1,
+                        hourlyRate: 30000,
+                    })
+                }
+            >
+                신청하기
+            </SubmitButton>
         </ApplyTutoringForm>
     );
 };

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ISubject } from '@/apis/tutoring/tutoring';
 
 const path = '/matching';
 
@@ -9,11 +10,24 @@ export interface IRequestMatching {
 }
 
 export interface IResponseMatching {
+    matchingId: string;
+    isAccepted: boolean;
+}
+
+export interface IRequestMatchingStatus {
+    matchingId: string;
     receiveMemberId: number;
+    senderName: string;
+    subject: ISubject;
+    hourlyRate: number;
+}
+
+export interface IResponseMatchingStatus {
+    recipientMemberId: number;
     isAccepted: boolean;
     teacherName: string;
     studentName: string;
-    subjectName: string;
+    subject: ISubject;
     hourlyRate: number;
 }
 
@@ -21,7 +35,8 @@ export const requestMatching = async (requestMatching: IRequestMatching) => {
     try {
         const res = await axios.post(
             `${process.env.NEXT_PUBLIC_API_SERVER}${path}/request`,
-            requestMatching
+            JSON.stringify(requestMatching),
+            { headers: { 'Content-Type': `application/json` } }
         );
         console.log(res.headers.location);
         return res.headers.location;
@@ -30,11 +45,11 @@ export const requestMatching = async (requestMatching: IRequestMatching) => {
     }
 };
 
-export const responseMatching = async (requestMatching: IResponseMatching[]) => {
+export const responseMatching = async (responsetMatching: IResponseMatching) => {
     try {
         const res = await axios.post(
             `${process.env.NEXT_PUBLIC_API_SERVER}${path}/response`,
-            requestMatching
+            responsetMatching
         );
         console.log(res.headers.location);
         return res.headers.location;

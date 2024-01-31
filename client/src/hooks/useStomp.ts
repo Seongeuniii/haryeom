@@ -10,9 +10,10 @@ export interface ISubscription {
 
 interface IUseStompProps {
     subscriptions: ISubscription[];
+    roomId: number;
 }
 
-const useStomp = ({ subscriptions }: IUseStompProps) => {
+const useStomp = ({ subscriptions, roomId }: IUseStompProps) => {
     const [stompClient, setStompClient] = useState<CompatClient>();
 
     useEffect(() => {
@@ -31,6 +32,12 @@ const useStomp = ({ subscriptions }: IUseStompProps) => {
             stompClient?.disconnect();
         };
     }, []);
+
+    useEffect(() => {
+        if (!stompClient) return;
+        const destination = `/app/chatroom/${roomId}/connect`;
+        stompClient.send(destination);
+    }, [stompClient]);
 
     return { stompClient };
 };
