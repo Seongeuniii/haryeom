@@ -1,11 +1,12 @@
 package com.ioi.haryeom.tutoring.controller;
 
 import com.ioi.haryeom.common.util.AuthMemberId;
-import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.tutoring.dto.MonthlyStudentTutoringScheduleListResponse;
 import com.ioi.haryeom.tutoring.dto.MonthlyTeacherTutoringScheduleListResponse;
 import com.ioi.haryeom.tutoring.dto.StudentTutoringListResponse;
 import com.ioi.haryeom.tutoring.dto.TeacherTutoringListResponse;
+import com.ioi.haryeom.tutoring.dto.TutoringScheduleDuplicateCheckRequest;
+import com.ioi.haryeom.tutoring.dto.TutoringScheduleDuplicateCheckResponse;
 import com.ioi.haryeom.tutoring.dto.TutoringScheduleIdsResponse;
 import com.ioi.haryeom.tutoring.dto.TutoringScheduleListRequest;
 import com.ioi.haryeom.tutoring.dto.TutoringScheduleRequest;
@@ -14,7 +15,6 @@ import com.ioi.haryeom.tutoring.service.TutoringService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -133,6 +133,19 @@ public class TutoringController {
     @GetMapping("/schedule/student")
     public ResponseEntity<MonthlyStudentTutoringScheduleListResponse> getMonthlyStudentTutoringScheduleList(@AuthMemberId Long studentMemberId, @RequestParam String yearmonth) {
         MonthlyStudentTutoringScheduleListResponse response = tutoringService.getMonthlyStudentTutoringScheduleList(studentMemberId, yearmonth);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 과외 일정의 Duplicate 여부 확인
+     * @param memberId
+     * @param request
+     * @return
+     */
+    @GetMapping("/schedule/duplicate")
+    public ResponseEntity<TutoringScheduleDuplicateCheckResponse> checkDuplicateTutoringScheduleExist(@AuthMemberId Long memberId, @RequestBody @Validated TutoringScheduleDuplicateCheckRequest request) {
+        TutoringScheduleDuplicateCheckResponse response = tutoringService.checkDuplicateTutoringScheduleExist(memberId, request);
 
         return ResponseEntity.ok(response);
     }

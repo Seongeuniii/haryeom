@@ -19,6 +19,8 @@ import com.ioi.haryeom.tutoring.dto.TeacherTutoringResponse;
 import com.ioi.haryeom.tutoring.dto.TeacherTutoringScheduleListResponse;
 import com.ioi.haryeom.tutoring.dto.TeacherTutoringScheduleQueryDSLResponse;
 import com.ioi.haryeom.tutoring.dto.TeacherTutoringScheduleResponse;
+import com.ioi.haryeom.tutoring.dto.TutoringScheduleDuplicateCheckRequest;
+import com.ioi.haryeom.tutoring.dto.TutoringScheduleDuplicateCheckResponse;
 import com.ioi.haryeom.tutoring.dto.TutoringScheduleIdsResponse;
 import com.ioi.haryeom.tutoring.dto.TutoringScheduleListRequest;
 import com.ioi.haryeom.tutoring.dto.TutoringScheduleRequest;
@@ -221,6 +223,25 @@ public class TutoringService {
         return new MonthlyStudentTutoringScheduleListResponse(list);
     }
 
+    public TutoringScheduleDuplicateCheckResponse checkDuplicateTutoringScheduleExist(Long memberId, TutoringScheduleDuplicateCheckRequest request) {
+        Tutoring tutoring = tutoringRepository.findByIdAndStatus(request.getTutoringId(), TutoringStatus.IN_PROGRESS)
+            .orElseThrow(() ->  new TutoringNotFoundException(request.getTutoringId()));
+        if(!tutoring.getTeacher().getId().equals(memberId) && !tutoring.getStudent().getId().equals(memberId)) {
+            throw new AuthorizationException(memberId);
+        }
+
+        List<TutoringSchedule> duplicateScheduleByTeacher = getDuplicateScheduleByTeacher(tutoring.getTeacher().getId(), request.getScheduleDate(), request.getStartTime(), request.getDuration());
+        if(!duplicateScheduleByTeacher.isEmpty()) {
+            return new TutoringScheduleDuplicateCheckResponse(true);
+        }
+        List<TutoringSchedule> duplicateScheduleByStudent = getDuplicateScheduleByStudent(tutoring.getStudent().getId(), request.getScheduleDate(), request.getStartTime(), request.getDuration());
+        if(!duplicateScheduleByStudent.isEmpty()) {
+            return new TutoringScheduleDuplicateCheckResponse(true);
+        }
+
+        return new TutoringScheduleDuplicateCheckResponse(false);
+    }
+
     private List<TutoringSchedule> getDuplicateScheduleByTeacher(Long teacherMemberId, LocalDate scheduleDate, LocalTime startTime, int duration) {
         LocalDateTime startDateTime = LocalDateTime.of(scheduleDate, startTime);
         LocalDateTime endDatetime = startDateTime.plusMinutes(duration);
@@ -234,5 +255,4 @@ public class TutoringService {
 
         return tutoringScheduleRepository.findTutoringSchedulesByStudentAndDateRange(studentMemberId, startDateTime, endDatetime);
     }
-
 }
