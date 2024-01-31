@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { IUserRole } from '@/apis/user/user';
 import Dropdown from '@/components/commons/Dropdown';
 import useDropdown from '@/hooks/useDropdown';
+import { useRecoilValue } from 'recoil';
+import userSessionAtom from '@/recoil/atoms/userSession';
 
 export interface Page {
     name: string;
@@ -37,6 +39,7 @@ const testUserRole: IUserRole = 'STUDENT';
 
 const Header = () => {
     const { open, openDropdown, closeDropdown } = useDropdown();
+    const userSession = useRecoilValue(userSessionAtom);
 
     return (
         <StyledHeader>
@@ -52,13 +55,21 @@ const Header = () => {
                     ))}
                 </Nav>
                 <User onClick={!open ? openDropdown : undefined}>
-                    <span>김성은</span>
-                    <Dropdown open={open} closeDropdown={closeDropdown}>
-                        <UserControlBox>
-                            <Button>마이페이지</Button>
-                            <Button>로그아웃</Button>
-                        </UserControlBox>
-                    </Dropdown>
+                    {userSession ? (
+                        <>
+                            <span>{userSession?.name}</span>
+                            <Dropdown open={open} closeDropdown={closeDropdown}>
+                                <UserControlBox>
+                                    <Button>마이페이지</Button>
+                                    <Button>로그아웃</Button>
+                                </UserControlBox>
+                            </Dropdown>
+                        </>
+                    ) : (
+                        <>
+                            <Link href={'/login'}>로그인</Link>
+                        </>
+                    )}
                 </User>
             </HeaderWrapper>
         </StyledHeader>

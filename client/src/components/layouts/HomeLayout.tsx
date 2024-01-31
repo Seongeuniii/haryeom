@@ -2,17 +2,21 @@ import { ReactNode } from 'react';
 import styled from 'styled-components';
 import Header from '@/components//Header';
 import ChatContainer from '@/containers/ChatContainer';
+import { useRecoilValue } from 'recoil';
+import userSessionAtom from '@/recoil/atoms/userSession';
 
 interface HomeLayoutProps {
     children: ReactNode;
 }
 
 const HomeLayout = ({ children }: HomeLayoutProps) => {
+    const userSession = useRecoilValue(userSessionAtom);
+
     return (
         <StyledHomeLayout>
             <Header />
             <ContainerWrapper>{children}</ContainerWrapper>
-            <ChatContainer />
+            {userSession && <ChatContainer />}
         </StyledHomeLayout>
     );
 };

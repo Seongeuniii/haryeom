@@ -1,4 +1,4 @@
-import { GetServerSideProps } from 'next';
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { getCookie } from 'cookies-next';
 import styled from 'styled-components';
 
@@ -16,9 +16,10 @@ import { getYearMonth } from '@/utils/time';
 import TutoringStudentProfile from '@/components/TutoringStudentProfile';
 import HomeworkList from '@/components/HomeworkList';
 import { useEffect } from 'react';
+import { useRecoilValue } from 'recoil';
+import userSessionAtom from '@/recoil/atoms/userSession';
 
 interface ScheduleContainerProps {
-    userRole: IUserRole;
     tutorings: ITutorings;
     tutoringSchedules: ITutoringSchedules;
     homeworkList: IHomeworkList;
@@ -131,9 +132,11 @@ const testTutoringSchedules: ITutoringSchedules = [
 ];
 
 const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
-    const { userRole = 'TEACHER', tutoringSchedules, homeworkList } = pageProps;
-    if (userRole === 'GUEST') return <RegistUserInfoContainer />;
-    if (!userRole) return <LoginContainer />; // NOT LOGIN
+    const userSession = useRecoilValue(userSessionAtom);
+    const { tutoringSchedules, homeworkList } = pageProps;
+
+    if (!userSession) return <LoginContainer />; // NOT LOGIN
+    if (userSession.role === 'GUEST') return <RegistUserInfoContainer />;
 
     return (
         <HomeLayout>
@@ -151,13 +154,14 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { req } = context;
 
-    let userRole: IUserRole | undefined;
-    // eslint-disable-next-line prefer-const
-    userRole = (getCookie('userRole', { req }) as IUserRole) ? 'TEACHER' : 'TEACHER';
-
-    // if (!userRole || userRole === 'GUEST') {
-    //     return { props: {} };
-    // }
+    /**
+     * TODO : check auth hoc 생성
+     */
+    const hasAuth = getCookie('accessToken', { req });
+    console.log(hasAuth);
+    if (!hasAuth) {
+        return { props: {} };
+    }
 
     /**
      * tutorings: 과외목록
@@ -171,7 +175,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const homeworkList = homeworkListInfo?.homeworkList;
     const progressPercentage = homeworkListInfo?.progressPercentage;
 
-    return { props: { userRole, homeworkList, progressPercentage } };
+    return { props: { homeworkList: homeworkList, progressPercentage: progressPercentage } };
 };
 
 const StyledScheduleContainer = styled.main`

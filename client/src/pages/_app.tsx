@@ -8,6 +8,7 @@ import axios from 'axios';
 import { hasCookie, setCookie } from 'cookies-next';
 import GlobalStyle from '@/theme/GlobalStyle';
 import theme from '@/theme';
+import Router from 'next/router';
 import MainLayout from '@/components/layouts/MainLayout';
 import { getUser } from '@/apis/user/get-user';
 import { IUser } from '@/apis/user/user';
@@ -59,7 +60,10 @@ MyApp.getInitialProps = async (appContext: AppContext) => {
     }
 
     const appProps = App.getInitialProps(appContext);
-    return { ...appProps, loginUserData: user };
+    return {
+        ...appProps,
+        loginUserData: user,
+    };
 };
 
 export default MyApp;
