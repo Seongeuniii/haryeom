@@ -24,6 +24,7 @@ import com.ioi.haryeom.textbook.dto.TextbookResponse;
 import com.ioi.haryeom.textbook.exception.TextbookNotFoundException;
 import com.ioi.haryeom.textbook.repository.TextbookRepository;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
+import com.ioi.haryeom.tutoring.domain.TutoringStatus;
 import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 
@@ -387,12 +388,12 @@ public class HomeworkService {
     }
 
     private Tutoring findTutoringById(Long tutoringId) {
-        return tutoringRepository.findById(tutoringId)
+        return tutoringRepository.findByIdAndStatus(tutoringId, TutoringStatus.IN_PROGRESS)
             .orElseThrow(() -> new TutoringNotFoundException(tutoringId));
     }
 
     private Textbook findTextbookById(Long textbookId) {
-        return textbookRepository.findById(textbookId)
+        return textbookRepository.findByIdAndIsDeletedFalse(textbookId)
             .orElseThrow(() -> new TextbookNotFoundException(textbookId));
     }
 

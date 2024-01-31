@@ -22,6 +22,7 @@ import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.exception.SubjectNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
+import com.ioi.haryeom.tutoring.domain.TutoringStatus;
 import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import java.util.List;
@@ -233,12 +234,12 @@ public class MatchingService {
     }
 
     private ChatRoom findChatRoomById(Long chatRoomId) {
-        return chatRoomRepository.findById(chatRoomId)
+        return chatRoomRepository.findByIdAndIsDeletedFalse(chatRoomId)
             .orElseThrow(() -> new ChatRoomNotFoundException(chatRoomId));
     }
 
     private Tutoring findTutoringById(Long tutoringId) {
-        return tutoringRepository.findById(tutoringId)
+        return tutoringRepository.findByIdAndStatus(tutoringId, TutoringStatus.IN_PROGRESS)
             .orElseThrow(() -> new TutoringNotFoundException(tutoringId));
     }
 }

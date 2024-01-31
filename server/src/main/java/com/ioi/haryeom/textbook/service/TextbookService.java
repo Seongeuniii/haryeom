@@ -4,7 +4,6 @@ import com.ioi.haryeom.aws.S3Upload;
 import com.ioi.haryeom.aws.exception.S3UploadException;
 import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.common.repository.SubjectRepository;
-import com.ioi.haryeom.common.util.AuthMemberId;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.exception.NoTeacherException;
@@ -16,6 +15,7 @@ import com.ioi.haryeom.textbook.exception.*;
 import com.ioi.haryeom.textbook.repository.AssignmentRespository;
 import com.ioi.haryeom.textbook.repository.TextbookRepository;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
+import com.ioi.haryeom.tutoring.domain.TutoringStatus;
 import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.rendering.PDFRenderer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -124,7 +123,7 @@ public class TextbookService {
 
     // 과외별 학습자료 리스트 조회
     public List<TextbookListByTutoringResponse> getTextbookListByTutoring(Long tutoringId) {
-        Tutoring tutoring = tutoringRepository.findById(tutoringId)
+        Tutoring tutoring = tutoringRepository.findByIdAndStatus(tutoringId, TutoringStatus.IN_PROGRESS)
                 .orElseThrow(() -> new TutoringNotFoundException(tutoringId));
 
         List<Assignment> assignments = assignmentRespository.findByTutoringId(tutoring.getId());
@@ -160,7 +159,7 @@ public class TextbookService {
 
         Member teacherMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberNotFoundException(memberId));
-        List<Textbook> textbooks = textbookRepository.findAllByTeacherMember(teacherMember);
+        List<Textbook> textbooks = textbookRepository.findAllByTeacherMemberAndIsDeletedFalse(teacherMember);
         if(textbooks.size() == 0) throw new RegisteredTextbookNotFoundException(teacherMemberId);
 
         return textbooks.stream().map(textbook -> {
@@ -176,10 +175,9 @@ public class TextbookService {
     // 학습자료별 지정 가능 학생 리스트 조회
     public List<TextbookWithStudentsResponse.StudentInfo> getAssignableStudent(Long textbookId,Long teacherMemberId) {
 
-        List<Tutoring> tutorings = tutoringRepository.findAllByTeacherId(teacherMemberId);
+        List<Tutoring> tutorings = tutoringRepository.findAllByTeacherIdAndStatus(teacherMemberId, TutoringStatus.IN_PROGRESS);
 
-        Textbook currentTextbook = textbookRepository.findById(textbookId)
-                .orElseThrow(() -> new TextbookNotFoundException(textbookId));
+        Textbook currentTextbook = findTextbookById(textbookId);
         List<Assignment> currentAssignments = assignmentRespository.findByTextbook(currentTextbook);
         List<Long> assignedStudentIds = currentAssignments.stream()
                 .map(assignment -> assignment.getTutoring().getStudent().getId())
@@ -202,7 +200,7 @@ public class TextbookService {
         Textbook textbook = findTextbookById(textbookId);
 
         for(Long tutoringId : tutoringIds) {
-            Tutoring tutoring = tutoringRepository.findById(tutoringId)
+            Tutoring tutoring = tutoringRepository.findByIdAndStatus(tutoringId, TutoringStatus.IN_PROGRESS)
                     .orElseThrow(() -> new TutoringNotFoundException(tutoringId));
 
             Assignment assignment = Assignment.builder()
@@ -220,7 +218,7 @@ public class TextbookService {
     }
 
     private Textbook findTextbookById(Long textbookId) {
-        return textbookRepository.findById(textbookId)
+        return textbookRepository.findByIdAndIsDeletedFalse(textbookId)
                 .orElseThrow(() -> new TextbookNotFoundException(textbookId));
     }
 }

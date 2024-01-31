@@ -84,7 +84,7 @@ public class TutoringService {
 
     @Transactional
     public TutoringScheduleIdsResponse createTutoringSchedules(Long teacherMemberId, TutoringScheduleListRequest request) {
-        Tutoring tutoring = tutoringRepository.findById(request.getTutoringId())
+        Tutoring tutoring = tutoringRepository.findByIdAndStatus(request.getTutoringId(), TutoringStatus.IN_PROGRESS)
             .orElseThrow(() ->  new TutoringNotFoundException(request.getTutoringId()));
         if(!tutoring.getTeacher().getId().equals(teacherMemberId)) {
             throw new AuthorizationException(teacherMemberId);
