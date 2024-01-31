@@ -1,1 +1,1 @@
-export { default } from '@/containers/FindTeacherContainer';
+export { default, getServerSideProps } from '@/containers/FindTeacherContainer';

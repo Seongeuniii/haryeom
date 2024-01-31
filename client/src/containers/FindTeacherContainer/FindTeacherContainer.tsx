@@ -1,9 +1,17 @@
 import styled from 'styled-components';
+import { GetServerSideProps } from 'next';
+import { getCookie } from 'cookies-next';
 import HomeLayout from '@/components/layouts/HomeLayout';
 import FilterOpenTeacherList from '@/components/FilterOpenTeacherList/FilterOpenTeacherList';
 import OpenTeacherList from '@/components/OpenTeacherList';
+import { getOpenTeacherList } from '@/apis/matching/get-open-teacher-list';
+import { IOpenTeacher } from '@/apis/matching/matching';
 
-const FindTeacherContainer = () => {
+interface FindTeacherContainerProps {
+    openTeacherList: IOpenTeacher[];
+}
+
+const FindTeacherContainer = ({ openTeacherList }: FindTeacherContainerProps) => {
     return (
         <HomeLayout>
             <StyledFindTeacherContainer>
@@ -12,10 +20,20 @@ const FindTeacherContainer = () => {
                     <SubTitle>원하는 선생님을 찾아 과외를 신청해보세요.</SubTitle>
                 </FindTeacherContainerHeader>
                 <FilterOpenTeacherList />
-                <OpenTeacherList />
+                <OpenTeacherList openTeacherList={openTeacherList} />
             </StyledFindTeacherContainer>
         </HomeLayout>
     );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const openTeacherList = await getOpenTeacherList();
+
+    return {
+        props: {
+            openTeacherList: openTeacherList || null,
+        },
+    };
 };
 
 const StyledFindTeacherContainer = styled.div`
