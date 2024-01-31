@@ -70,7 +70,7 @@ public class SecurityConfig {
 //            .antMatchers(DELETE, "/api/tutoring/schedule/{tutoringScheduleId}")
 //            .hasRole("TEACHER")
 //            .antMatchers(GET, "/api/tutoring/schedule/duplicate")
-//            .hasAnyRole("STUDENT", "TEACHER")
+//            .hasRole("TEACHER")
 //
 //            // 이상영
 //            .antMatchers(GET, "/api/matching/teachers").hasAnyRole("STUDENT", "TEACHER")

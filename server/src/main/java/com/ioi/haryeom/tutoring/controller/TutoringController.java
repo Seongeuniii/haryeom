@@ -139,13 +139,13 @@ public class TutoringController {
 
     /**
      * 과외 일정의 Duplicate 여부 확인
-     * @param memberId
+     * @param teacherMemberId
      * @param request
      * @return
      */
     @GetMapping("/schedule/duplicate")
-    public ResponseEntity<TutoringScheduleDuplicateCheckResponse> checkDuplicateTutoringScheduleExist(@AuthMemberId Long memberId, @RequestBody @Validated TutoringScheduleDuplicateCheckRequest request) {
-        TutoringScheduleDuplicateCheckResponse response = tutoringService.checkDuplicateTutoringScheduleExist(memberId, request);
+    public ResponseEntity<TutoringScheduleDuplicateCheckResponse> checkDuplicateTutoringScheduleExist(@AuthMemberId Long teacherMemberId, @RequestBody @Validated TutoringScheduleDuplicateCheckRequest request) {
+        TutoringScheduleDuplicateCheckResponse response = tutoringService.checkDuplicateTutoringScheduleExist(teacherMemberId, request);
 
         return ResponseEntity.ok(response);
     }

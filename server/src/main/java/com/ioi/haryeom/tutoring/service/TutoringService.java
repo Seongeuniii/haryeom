@@ -223,14 +223,14 @@ public class TutoringService {
         return new MonthlyStudentTutoringScheduleListResponse(list);
     }
 
-    public TutoringScheduleDuplicateCheckResponse checkDuplicateTutoringScheduleExist(Long memberId, TutoringScheduleDuplicateCheckRequest request) {
+    public TutoringScheduleDuplicateCheckResponse checkDuplicateTutoringScheduleExist(Long teacherMemberId, TutoringScheduleDuplicateCheckRequest request) {
         Tutoring tutoring = tutoringRepository.findByIdAndStatus(request.getTutoringId(), TutoringStatus.IN_PROGRESS)
             .orElseThrow(() ->  new TutoringNotFoundException(request.getTutoringId()));
-        if(!tutoring.getTeacher().getId().equals(memberId) && !tutoring.getStudent().getId().equals(memberId)) {
-            throw new AuthorizationException(memberId);
+        if(!tutoring.getTeacher().getId().equals(teacherMemberId)) {
+            throw new AuthorizationException(teacherMemberId);
         }
 
-        List<TutoringSchedule> duplicateScheduleByTeacher = getDuplicateScheduleByTeacher(tutoring.getTeacher().getId(), request.getScheduleDate(), request.getStartTime(), request.getDuration());
+        List<TutoringSchedule> duplicateScheduleByTeacher = getDuplicateScheduleByTeacher(teacherMemberId, request.getScheduleDate(), request.getStartTime(), request.getDuration());
         if(!duplicateScheduleByTeacher.isEmpty()) {
             return new TutoringScheduleDuplicateCheckResponse(true);
         }
