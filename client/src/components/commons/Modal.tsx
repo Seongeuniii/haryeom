@@ -5,12 +5,11 @@ import Close from '@/components/icons/Close';
 interface ModalProps {
     children: ReactNode;
     open: boolean;
-    closeModal: () => void;
+    closeModal?: () => void;
 }
 
 const Modal = ({ children, ...props }: ModalProps) => {
     const { open, closeModal } = props;
-    console.log(open);
 
     return (
         <StyledModal open={open}>
@@ -50,7 +49,7 @@ const ModalBackground = styled.div<{ open: boolean }>`
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgb(128 128 128 / 39%);
+    background-color: #e3e3e3b0;
 `;
 
 const ModalCloseButton = styled.button`
