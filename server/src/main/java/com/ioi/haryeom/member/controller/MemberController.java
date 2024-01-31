@@ -3,7 +3,7 @@ package com.ioi.haryeom.member.controller;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
-import com.ioi.haryeom.member.domain.Member;
+import com.ioi.haryeom.common.util.AuthMemberId;
 import com.ioi.haryeom.member.dto.CodeCertifyRequest;
 import com.ioi.haryeom.member.dto.EmailCertifyRequest;
 import com.ioi.haryeom.member.dto.StudentCreateRequest;
@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -59,12 +58,13 @@ public class MemberController {
 
     @PostMapping(value = "/students", consumes = {MediaType.APPLICATION_JSON_VALUE,
         MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Void> createStudent(@AuthenticationPrincipal Member user,
+    public ResponseEntity<Void> createStudent(@AuthMemberId Long userId,
         @RequestPart(value = "profileImg", required = false) MultipartFile profileImg,
         @RequestPart("request") StudentCreateRequest createRequest) {
 
-        Long memberId = memberService.createStudent(user, profileImg, createRequest);
-        return ResponseEntity.created(URI.create("/members/students/" + memberId)).build();
+        return ResponseEntity.created(URI.create(
+                "/members/students/" + memberService.createStudent(userId, profileImg, createRequest)))
+            .build();
     }
 
     @GetMapping("/students/{memberId}")
@@ -76,21 +76,22 @@ public class MemberController {
 
     @PutMapping(value = "/students", consumes = {MediaType.APPLICATION_JSON_VALUE,
         MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Void> updateStudent(@AuthenticationPrincipal Member user,
+    public ResponseEntity<Void> updateStudent(@AuthMemberId Long userId,
         @RequestPart(value = "profileImg", required = false) MultipartFile profileImg,
         @RequestPart("request") StudentInfoResponse studentRequest) {
-        memberService.updateStudent(user, profileImg, studentRequest);
+        memberService.updateStudent(userId, profileImg, studentRequest);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping(value = "/teachers", consumes = {MediaType.APPLICATION_JSON_VALUE,
         MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Void> createTeacher(@AuthenticationPrincipal Member user,
+    public ResponseEntity<Void> createTeacher(@AuthMemberId Long userId,
         @RequestPart(value = "profileImg", required = false) MultipartFile profileImg,
         @RequestPart("request") TeacherCreateRequest teacherRequest) {
 
-        Long memberId = memberService.createTeacher(user, profileImg, teacherRequest);
-        return ResponseEntity.created(URI.create("/members/teachers/" + memberId)).build();
+        return ResponseEntity.created(URI.create(
+                "/members/teachers/" + memberService.createTeacher(userId, profileImg, teacherRequest)))
+            .build();
     }
 
     @GetMapping("/teachers/{memberId}")
@@ -100,31 +101,31 @@ public class MemberController {
 
     @PutMapping(value = "/teachers", consumes = {MediaType.APPLICATION_JSON_VALUE,
         MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Void> updateTeacher(@AuthenticationPrincipal Member user,
+    public ResponseEntity<Void> updateTeacher(@AuthMemberId Long userId,
         @RequestPart(value = "profileImg", required = false) MultipartFile profileImg,
         @RequestPart("request")
         TeacherUpdateRequest teacherRequest) {
-        memberService.updateTeacher(user, profileImg, teacherRequest);
+        memberService.updateTeacher(userId, profileImg, teacherRequest);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteMember(@AuthenticationPrincipal Member user,
+    public ResponseEntity<Void> deleteMember(@AuthMemberId Long userId,
         HttpServletResponse response) throws IOException {
-        memberService.deleteMember(user, response);
+        memberService.deleteMember(userId, response);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping("/students/mypage")
     public ResponseEntity<StudentInfoResponse> getMyStudent(
-        @AuthenticationPrincipal Member member) {
-        return ResponseEntity.ok().body(memberService.getStudent(member.getId()));
+        @AuthMemberId Long userId) {
+        return ResponseEntity.ok().body(memberService.getStudent(userId));
     }
 
     @GetMapping("/teachers/mypage")
     public ResponseEntity<TeacherInfoResponse> getMyTeacher(
-        @AuthenticationPrincipal Member member) {
-        return ResponseEntity.ok().body(memberService.getTeacher(member.getId()));
+        @AuthMemberId Long userId) {
+        return ResponseEntity.ok().body(memberService.getTeacher(userId));
     }
 
 }

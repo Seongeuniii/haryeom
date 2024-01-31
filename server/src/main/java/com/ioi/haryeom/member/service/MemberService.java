@@ -102,10 +102,10 @@ public class MemberService {
     }
 
     @Transactional
-    public Long createStudent(Member user, MultipartFile profileImg,
+    public Long createStudent(Long userId, MultipartFile profileImg,
         StudentCreateRequest createRequest) {
         try {
-            Member member = findMemberById(user.getId());
+            Member member = findMemberById(userId);
 
             String profileUrl = createRequest.getProfileUrl();
 
@@ -149,10 +149,10 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateStudent(Member user, MultipartFile profileImg,
+    public void updateStudent(Long userId, MultipartFile profileImg,
         StudentInfoResponse studentRequest) {
         try {
-            Member member = findMemberById(user.getId());
+            Member member = findMemberById(userId);
 
             String profileUrl = studentRequest.getProfileUrl();
             if (profileImg != null) {
@@ -178,10 +178,10 @@ public class MemberService {
     }
 
     @Transactional
-    public Long createTeacher(Member user, MultipartFile profileImg,
+    public Long createTeacher(Long userId, MultipartFile profileImg,
         TeacherCreateRequest teacherRequest) {
         try {
-            Member member = findMemberById(user.getId());
+            Member member = findMemberById(userId);
 
             String profileUrl = teacherRequest.getProfileUrl();
             if (profileImg != null) {
@@ -212,19 +212,18 @@ public class MemberService {
             teacherRepository.save(teacher);
 
             List<SubjectResponse> subjects = teacherRequest.getSubjects();
-            for (SubjectResponse subjectResponse : subjects) {
 
+            subjects.forEach(subjectResponse -> {
                 TeacherSubject teacherSubject = TeacherSubject.builder()
                     .teacher(teacher)
-                    .subject(
-                        subjectRepository.findById(subjectResponse.getSubjectId()).orElseThrow(
-                            () -> new SubjectNotFoundException(subjectResponse.getSubjectId())
-                        )
-                    )
+                    .subject(subjectRepository.findById(subjectResponse.getSubjectId())
+                        .orElseThrow(
+                            () -> new SubjectNotFoundException(subjectResponse.getSubjectId())))
                     .build();
 
                 teacherSubjectRepository.save(teacherSubject);
-            }
+            });
+
             return member.getId();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -250,10 +249,10 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateTeacher(Member user, MultipartFile profileImg,
+    public void updateTeacher(Long userId, MultipartFile profileImg,
         TeacherUpdateRequest teacherRequest) {
         try {
-            Member member = findMemberById(user.getId());
+            Member member = findMemberById(userId);
 
             String profileUrl = teacherRequest.getProfileUrl();
             if (profileImg != null) {
@@ -306,10 +305,10 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteMember(Member user, HttpServletResponse response) throws IOException {
-        Member member = findMemberById(user.getId());
+    public void deleteMember(Long userId, HttpServletResponse response) throws IOException {
+        Member member = findMemberById(userId);
         member.delete();
-        authService.oauthLogout(user.getId(), "KAKAO");
+        authService.oauthLogout(userId, "KAKAO");
         tokenService.resetHeader(response);
     }
 
