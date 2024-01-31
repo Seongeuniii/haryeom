@@ -75,9 +75,9 @@ public class TextbookController {
 
     // 학습자료 학생 지정
     @PutMapping("/{textbookId}/students")
-    public ResponseEntity<Void> putAssignment(@PathVariable Long textbookId, @RequestParam List<Long> tutoringIds) {
+    public ResponseEntity<Void> putAssignment(@PathVariable Long textbookId, @RequestParam List<Long> studentMemberIds, @AuthMemberId Long teacherMemberId) {
 
-        textbookService.putAssignment(textbookId, tutoringIds);
+        textbookService.putAssignment(textbookId, studentMemberIds, teacherMemberId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -147,7 +147,7 @@ public class TextbookService {
         Member teacherMember = memberRepository.findById(teacherMemberId)
                 .orElseThrow(() -> new MemberNotFoundException(teacherMemberId));
         if(textbook.getTeacherMember() != teacherMember) {
-            throw new NoTeacherException();
+            throw new RuntimeException("해당 학습자료를 등록한 선생님이 아닙니다.");
         }
 
         textbook.delete();
@@ -196,12 +196,11 @@ public class TextbookService {
     }
 
     // 학습자료 학생 지정
-    public void putAssignment(Long textbookId, List<Long> tutoringIds) {
+    public void putAssignment(Long textbookId, List<Long> studentMemberIds, Long teacherMemberId) {
         Textbook textbook = findTextbookById(textbookId);
 
-        for(Long tutoringId : tutoringIds) {
-            Tutoring tutoring = tutoringRepository.findByIdAndStatus(tutoringId, TutoringStatus.IN_PROGRESS)
-                    .orElseThrow(() -> new TutoringNotFoundException(tutoringId));
+        for(Long studentMemberId : studentMemberIds) {
+            Tutoring tutoring = tutoringRepository.findAllByTeacherIdAndStudentId(teacherMemberId, studentMemberId);
 
             Assignment assignment = Assignment.builder()
                     .tutoring(tutoring)
