@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
-import { responseMatching } from '@/apis/matching/matching';
+import { responseMatching } from '@/apis/chat/get-matching-status';
 
 const WaitResponse = () => {
     const userSession = useRecoilValue(userSessionAtom);
