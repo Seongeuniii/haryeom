@@ -32,6 +32,7 @@ import java.io.*;
 import java.net.URLDecoder;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -215,7 +216,7 @@ public class HomeworkService {
 
         // 드로잉 불러오기
         List<Drawing> drawings =  drawingRepository.findAllByHomework(homework);
-        List<StudentDrawingResponse> drawingResponses = null;
+        List<StudentDrawingResponse> drawingResponses = Collections.emptyList();
 
         if(!drawings.isEmpty()){
             drawingResponses = drawings.stream()
