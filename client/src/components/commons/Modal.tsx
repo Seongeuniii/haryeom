@@ -10,7 +10,6 @@ interface ModalProps {
 
 const Modal = ({ children, ...props }: ModalProps) => {
     const { open, closeModal } = props;
-    console.log(open);
 
     return (
         <StyledModal open={open}>
