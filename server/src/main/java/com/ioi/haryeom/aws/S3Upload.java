@@ -27,7 +27,9 @@ public class S3Upload {
 
             amazonS3Client.putObject(bucket, fileName, inputStream, metadata);
 
-            return amazonS3Client.getUrl(bucket, fileName).toString();
+            String cloudFrontDomain = "https://d1b632bso7m0wd.cloudfront.net";
+//            return amazonS3Client.getUrl(bucket, fileName).toString();
+            return cloudFrontDomain + "/" + fileName;
         } catch (Exception e) {
             log.error("S3 업로드 중 오류 발생");
             throw new RuntimeException("S3 업로드 실패");
