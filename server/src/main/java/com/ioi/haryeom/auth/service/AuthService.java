@@ -92,12 +92,6 @@ public class AuthService {
             .status(MemberStatus.ACTIVATED)
             .build()));
 
-        // nickname update
-//        if (!member.getNickname().equals(nickName)) {
-//            member.setNickname(nickName);
-//            memberRepository.save(member);
-//        }
-
         return member;
     }
 }
