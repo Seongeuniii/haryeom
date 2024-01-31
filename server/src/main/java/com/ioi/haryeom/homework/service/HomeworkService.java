@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.ioi.haryeom.auth.dto.AuthInfo;
 import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.aws.S3Upload;
+import com.ioi.haryeom.aws.exception.S3UploadException;
 import com.ioi.haryeom.homework.domain.Drawing;
 import com.ioi.haryeom.homework.domain.Homework;
 import com.ioi.haryeom.homework.domain.HomeworkStatus;
@@ -200,8 +201,8 @@ public class HomeworkService {
             outStream.close();
 
         } catch (Exception e) {
-            // 예외처리
             e.printStackTrace();
+            throw new S3UploadException();
         }
 
         // 드로잉 불러오기
@@ -259,8 +260,8 @@ public class HomeworkService {
             textbookInfo = new TextbookResponse(textbook, fileUrl);
 
         } catch (Exception e) {
-            // 예외처리
             e.printStackTrace();
+            throw new S3UploadException();
         }
 
         // 드로잉 불러오기
@@ -281,16 +282,13 @@ public class HomeworkService {
         for(MultipartFile file : drawings.getFile()) {
 
             String fileName = file.getOriginalFilename();
-            String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
+            String fileUrl = "";
 
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType(file.getContentType());
-            metadata.setContentLength(file.getSize());
             try {
-                amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
+                fileUrl = s3Upload.uploadFile(fileName, file.getInputStream(), file.getSize(), file.getContentType());
             } catch (IOException e) {
                 e.printStackTrace();
-                throw new RuntimeException("S3 업로드 실패");
+                throw new S3UploadException();
             }
 
             Drawing drawing = Drawing.builder()
@@ -312,18 +310,13 @@ public class HomeworkService {
         for(MultipartFile file : drawings.getFile()) {
 
             String fileName = file.getOriginalFilename();
-            String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
+            String fileUrl = "";
 
-
-
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType(file.getContentType());
-            metadata.setContentLength(file.getSize());
             try {
-                amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
+                fileUrl = s3Upload.uploadFile(fileName, file.getInputStream(), file.getSize(), file.getContentType());
             } catch (IOException e) {
-                // TODO: 예외처리
                 e.printStackTrace();
+                throw new S3UploadException();
             }
 
             Drawing drawing = Drawing.builder()

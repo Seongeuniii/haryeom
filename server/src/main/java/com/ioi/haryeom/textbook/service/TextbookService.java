@@ -1,9 +1,7 @@
 package com.ioi.haryeom.textbook.service;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.ioi.haryeom.auth.dto.AuthInfo;
 import com.ioi.haryeom.aws.S3Upload;
+import com.ioi.haryeom.aws.exception.S3UploadException;
 import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.common.repository.SubjectRepository;
 import com.ioi.haryeom.common.util.AuthMemberId;
@@ -14,10 +12,7 @@ import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.textbook.domain.Assignment;
 import com.ioi.haryeom.textbook.domain.Textbook;
 import com.ioi.haryeom.textbook.dto.*;
-import com.ioi.haryeom.textbook.exception.FileValidationException;
-import com.ioi.haryeom.textbook.exception.RegisteredTextbookNotFoundException;
-import com.ioi.haryeom.textbook.exception.SelectedTextbookNotFoundException;
-import com.ioi.haryeom.textbook.exception.TextbookNotFoundException;
+import com.ioi.haryeom.textbook.exception.*;
 import com.ioi.haryeom.textbook.repository.AssignmentRespository;
 import com.ioi.haryeom.textbook.repository.TextbookRepository;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
@@ -63,7 +58,6 @@ public class TextbookService {
         String allowedExtensions = "pdf"; // pdf만 허용
 
         try {
-            // S3 업로드 로직
             String fileName = file.getOriginalFilename();
 
             // 파일 Validation
@@ -72,11 +66,12 @@ public class TextbookService {
                 throw new FileValidationException(allowedExtensions);
             }
 
+            // S3 업로드
             String fileUrl = s3Upload.uploadFile(fileName, file.getInputStream(), file.getSize(), file.getContentType());
 
             // PDF 첫 페이지 PNG 저장 로직
             // 파일 로드해서
-            PDDocument document =PDDocument.load(file.getInputStream());
+            PDDocument document = PDDocument.load(file.getInputStream());
 
             String coverImg = null;
             int totalPage = document.getNumberOfPages();
@@ -122,11 +117,9 @@ public class TextbookService {
             return savedTextbook.getId();
 
         } catch (IOException e) {
-            // S3 업로드 실패시
             e.printStackTrace();
-            return -1L;
+            throw new S3UploadException();
         }
-
     }
 
     // 과외별 학습자료 리스트 조회
@@ -192,12 +185,16 @@ public class TextbookService {
                 .map(assignment -> assignment.getTutoring().getStudent().getId())
                 .collect(Collectors.toList());
 
-        return tutorings.stream()
+        List<TextbookWithStudentsResponse.StudentInfo> assignableStudents = tutorings.stream()
                 .map(Tutoring::getStudent)
                 .filter(student -> !assignedStudentIds.contains(student.getStudent()))
                 .distinct()
                 .map(TextbookWithStudentsResponse.StudentInfo::new)
                 .collect(Collectors.toList());
+
+        if(assignableStudents.isEmpty()) throw new AssignStudentNotFoundException();
+
+        return assignableStudents;
     }
 
     // 학습자료 학생 지정
