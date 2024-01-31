@@ -13,6 +13,10 @@ import TutoringStudentProfile from '@/components/TutoringStudentProfile';
 import HomeworkList from '@/components/HomeworkList';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import LoginModal from '@/components/LoginModal';
+import { getTutorings } from '@/apis/tutoring/get-tutorings';
+import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
+import { getYearMonth } from '@/utils/time';
+import { useEffect } from 'react';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -21,17 +25,43 @@ interface ScheduleContainerProps {
     progressPercentage: IProgressPercentage;
 }
 
+// const tutorings = await getTutorings(userRole);
+// const tutoringSchedules = await getTutoringSchedules(userRole, getYearMonth(new Date()));
+// const homeworkListInfo = await getHomeworkList(1); // tutoringId
+// const homeworkList = homeworkListInfo?.homeworkList;
+// const progressPercentage = homeworkListInfo?.progressPercentage;
+
 const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const { tutoringSchedules, homeworkList } = pageProps;
-
     const userSession = useRecoilValue(userSessionAtom);
+    // if (userSession?.role === 'GUEST') return <RegistUserInfoContainer />;
 
-    if (userSession?.role === 'GUEST') return <RegistUserInfoContainer />;
+    useEffect(() => {
+        console.log('USER SESSION: ', userSession);
+    }, [userSession]);
+
+    const test1 = async () => {
+        if (!userSession) return;
+        const tutorings = await getTutorings(userSession.role);
+        console.log('과외 목록: ', tutorings);
+    };
+
+    const test2 = async () => {
+        if (!userSession) return;
+        const tutoringSchedules = await getTutoringSchedules(userSession.role, '202401');
+        console.log('월별 과외 일정: ', tutoringSchedules);
+    };
+
+    const test3 = async () => {
+        if (!userSession) return;
+        const tutoringSchedules = await getTutoringSchedules(userSession.role, '202401');
+        console.log('월별 과외 일정: ', tutoringSchedules);
+    };
 
     return (
         <HomeLayout>
             <StyledScheduleContainer>
-                {!userSession ? (
+                {/* {!userSession ? (
                     <LoginModal />
                 ) : (
                     <>
@@ -41,7 +71,12 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                             <HomeworkList homeworkList={homeworkList} />
                         </SelectedTutoring>
                     </>
-                )}
+                )} */}
+                <Buttons>
+                    <TestButton onClick={test1}>과외 목록 리스트 조회</TestButton>
+                    <TestButton onClick={test2}>과외 스케줄 조회</TestButton>
+                    <TestButton onClick={test3}>과외 일정 등록</TestButton>
+                </Buttons>
             </StyledScheduleContainer>
         </HomeLayout>
     );
@@ -67,11 +102,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     //  */
     // const tutorings = await getTutorings(userRole);
     // const tutoringSchedules = await getTutoringSchedules(userRole, getYearMonth(new Date()));
-    const homeworkListInfo = await getHomeworkList(1); // tutoringId
-    const homeworkList = homeworkListInfo?.homeworkList;
-    const progressPercentage = homeworkListInfo?.progressPercentage;
+    // const homeworkListInfo = await getHomeworkList(1); // tutoringId
+    // const homeworkList = homeworkListInfo?.homeworkList;
+    // const progressPercentage = homeworkListInfo?.progressPercentage;
 
-    return { props: { homeworkList: homeworkList, progressPercentage: progressPercentage } };
+    return { props: {} };
 };
 
 const StyledScheduleContainer = styled.main`
@@ -87,6 +122,17 @@ const SelectedTutoring = styled.main`
     height: 93%;
     display: flex;
     flex-direction: column;
+`;
+
+const Buttons = styled.div`
+    position: absolute;
+    right: 0;
+`;
+
+const TestButton = styled.button`
+    padding: 1em;
+    border: 1px solid black;
+    margin: 1em;
 `;
 
 export default ScheduleContainer;
