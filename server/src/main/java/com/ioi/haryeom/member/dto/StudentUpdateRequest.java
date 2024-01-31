@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.URL;
 
 @Builder
 @Getter
-public class StudentCreateRequest {
+public class StudentUpdateRequest {
 
     @URL(message = "프로필 사진의 형식이 URL이 아닙니다.")
     @NotNull(message = "프로필 사진은 필수 항목입니다.")
