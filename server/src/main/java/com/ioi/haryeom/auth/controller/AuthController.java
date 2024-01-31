@@ -5,6 +5,7 @@ import com.ioi.haryeom.auth.dto.LoginResponse;
 import com.ioi.haryeom.auth.dto.UserInfoResponse;
 import com.ioi.haryeom.auth.service.AuthService;
 import com.ioi.haryeom.auth.service.TokenService;
+import com.ioi.haryeom.common.util.AuthMemberId;
 import com.ioi.haryeom.member.domain.Member;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
@@ -43,11 +44,11 @@ public class AuthController {
     }
 
     @PostMapping("/{provider}/logout")
-    private ResponseEntity<Void> oauthLogout(@AuthenticationPrincipal Member member,
+    private ResponseEntity<Void> oauthLogout(@AuthMemberId Long userId,
         @PathVariable("provider") String provider, HttpServletResponse response)
         throws IOException {
 
-        authService.oauthLogout(member.getId(), provider);
+        authService.oauthLogout(userId, provider);
         tokenService.resetHeader(response);
 
         return ResponseEntity.ok().build();
@@ -57,9 +58,6 @@ public class AuthController {
     private ResponseEntity<AccessTokenResponse> reissueAccessToken(HttpServletRequest request,
         HttpServletResponse response) {
         String accessToken = tokenService.reissueAccessToken(request, response);
-
-//        헤더에 담을 경우
-//        response.setHeader("Authorization", accessToken);
 
         return ResponseEntity.ok().body(new AccessTokenResponse(accessToken));
     }
