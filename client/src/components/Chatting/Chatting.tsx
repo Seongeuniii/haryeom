@@ -4,9 +4,9 @@ import styled from 'styled-components';
 import useStomp, { ISubscription } from '@/hooks/useStomp';
 import chatSessionAtom from '@/recoil/atoms/chat';
 import MatchingStage from '@/components/MatchingStage';
-import { IRequestMatchingStatus, IResponseMatchingStatus } from '@/apis/matching/matching';
 import Send from '../icons/Send';
 import Chat from './Chat';
+import { IRequestMatchingStatus, IResponseMatchingStatus } from '@/apis/chat/chat';
 
 interface IReceiveChat {
     messageId: string;
