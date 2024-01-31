@@ -50,8 +50,8 @@ const ClassSchedule = ({ tutoringSchedules }: ClassScheduleProps) => {
     }, [yearMonth]);
 
     useEffect(() => {
-        console.log(renderedTutoringSchedules);
-    }, [renderedTutoringSchedules]);
+        console.log(tutoringSchedules);
+    }, [tutoringSchedules]);
 
     return (
         <StyledClassSchedule>

@@ -26,6 +26,7 @@ interface ScheduleContainerProps {
 const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const userSession = useRecoilValue(userSessionAtom);
     const { tutorings, tutoringSchedules, homeworkList, progressPercentage } = pageProps;
+    console.log(tutorings, tutoringSchedules, homeworkList, progressPercentage);
 
     return (
         <HomeLayout>

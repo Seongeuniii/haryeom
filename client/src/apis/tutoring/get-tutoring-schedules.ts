@@ -14,7 +14,7 @@ export const getTutoringSchedules = async (userRole: IUserRole, yearmonth: strin
         const res = await axios.get<ReturnType>(
             `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${userRole.toLocaleLowerCase()}?yearmonth=${yearmonth}`
         );
-        return res.data;
+        return res.data.teacherTutoringSchedules;
     } catch (e) {
         console.log(e);
     }
