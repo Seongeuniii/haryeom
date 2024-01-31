@@ -25,8 +25,6 @@ import java.util.List;
 public class TextbookController {
 
     private final TextbookService textbookService;
-    //TODO: 인증 관련 로직 개발 후 변경 예정
-    AuthInfo authInfo = new AuthInfo(1L, Role.TEACHER.name());
 
     // 학습자료 추가
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
