@@ -5,10 +5,9 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ThemeProvider } from 'styled-components';
 import { MutableSnapshot, RecoilRoot } from 'recoil';
 import axios from 'axios';
-import { hasCookie, setCookie } from 'cookies-next';
+import { hasCookie } from 'cookies-next';
 import GlobalStyle from '@/theme/GlobalStyle';
 import theme from '@/theme';
-import Router from 'next/router';
 import MainLayout from '@/components/layouts/MainLayout';
 import { getUser } from '@/apis/user/get-user';
 import { IUser } from '@/apis/user/user';
@@ -53,10 +52,6 @@ MyApp.getInitialProps = async (appContext: AppContext) => {
         cookie = ctx.req.headers.cookie;
         axios.defaults.headers.common['Cookie'] = cookie;
         user = await getUser(ctx);
-    }
-
-    if (user) {
-        setCookie('userRole', user.role, ctx);
     }
 
     const appProps = App.getInitialProps(appContext);
