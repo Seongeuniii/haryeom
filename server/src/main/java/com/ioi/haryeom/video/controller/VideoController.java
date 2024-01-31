@@ -38,11 +38,10 @@ public class VideoController {
 
     @PostMapping(value = "/{videoId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> uploadVideo(@PathVariable Long videoId,
-        @RequestPart MultipartFile uploadFile, @AuthMemberId Long memberId) throws IOException {
-
-        String videoUrl = videoService.uploadVideo(uploadFile);
-        videoService.updateVideoUrl(videoId, videoUrl, memberId);
-
+        @RequestPart MultipartFile file, @AuthMemberId Long memberId) throws IOException {
+        videoService.videoUploadExceptionTest(videoId, memberId);
+        String videoUrl = videoService.uploadVideo(file);
+        videoService.updateVideoUrl(videoId, videoUrl);
         return ResponseEntity.created(URI.create("/lesson/video/"+videoId)).build();
     }
 
@@ -52,5 +51,4 @@ public class VideoController {
         videoService.updateVideoEndTime(videoId, lessonEnd, memberId);
         return ResponseEntity.noContent().build();
     }
-
 }
