@@ -9,6 +9,7 @@ const WithAuth = (Component: any): FC => {
     // eslint-disable-next-line react/display-name
     return (props) => {
         const userSession = useRecoilValue(userSessionAtom);
+        console.log(userSession);
         if (!userSession) return <LoginModal />;
         if (userSession.role === 'GUEST') return <RegistUserInfoContainer />;
         return <Component {...props} />;

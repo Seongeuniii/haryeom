@@ -1,12 +1,10 @@
 package com.ioi.haryeom.homework.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.ioi.haryeom.auth.dto.AuthInfo;
 import com.ioi.haryeom.auth.exception.AuthorizationException;
-import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.aws.S3Upload;
 import com.ioi.haryeom.aws.exception.S3UploadException;
 import com.ioi.haryeom.homework.domain.Drawing;
@@ -20,13 +18,13 @@ import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.domain.type.Role;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.exception.NoStudentException;
-import com.ioi.haryeom.member.exception.NoTeacherException;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.textbook.domain.Textbook;
 import com.ioi.haryeom.textbook.dto.TextbookResponse;
 import com.ioi.haryeom.textbook.exception.TextbookNotFoundException;
 import com.ioi.haryeom.textbook.repository.TextbookRepository;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
+import com.ioi.haryeom.tutoring.domain.TutoringStatus;
 import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 
@@ -72,7 +70,7 @@ public class HomeworkService {
         Member member = findMemberById(memberId);
         validateMemberInTutoring(tutoring, member);
 
-        Page<Homework> homeworkPage = homeworkRepository.findAllByTutoring(tutoring, pageable);
+        Page<Homework> homeworkPage = homeworkRepository.findAllByTutoringAndIsDeletedFalse(tutoring, pageable);
 
         int progressPercentage = calculateProgressPercentage(tutoring);
 
@@ -158,8 +156,8 @@ public class HomeworkService {
 
     private int calculateProgressPercentage(Tutoring tutoring) {
 
-        long totalHomeworkCount = homeworkRepository.countByTutoring(tutoring);
-        long completedHomeworkCount = homeworkRepository.countByTutoringAndStatus(tutoring,
+        long totalHomeworkCount = homeworkRepository.countByTutoringAndIsDeletedFalse(tutoring);
+        long completedHomeworkCount = homeworkRepository.countByTutoringAndStatusAndIsDeletedFalse(tutoring,
             HomeworkStatus.COMPLETED);
 
         return (int) Math.round(((double) completedHomeworkCount / totalHomeworkCount) * 100);
@@ -168,8 +166,7 @@ public class HomeworkService {
     //// 학생 숙제
 
     public HomeworkLoadResponse getLoadHomework(Long homeworkId, Long memberId) {
-        Homework homework = homeworkRepository.findById(homeworkId)
-                .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
+        Homework homework = findHomeworkById(homeworkId);
 
         // 숙제 상태 변경
         homework.confirm();
@@ -232,8 +229,7 @@ public class HomeworkService {
     }
 
     public HomeworkReviewResponse getReviewHomework(Long homeworkId, Long memberId) {
-        Homework homework = homeworkRepository.findById(homeworkId)
-                .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
+        Homework homework = findHomeworkById(homeworkId);
 
         Textbook textbook = homework.getTextbook();
         // pdf 숙제 범위만큼 자르기
@@ -284,8 +280,7 @@ public class HomeworkService {
     }
 
     public void saveHomework(Long homeworkId, HomeworkDrawingRequest drawings, Long MemberId) {
-        Homework homework = homeworkRepository.findById(homeworkId)
-                .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
+        Homework homework = findHomeworkById(homeworkId);
 
         for(MultipartFile file : drawings.getFile()) {
 
@@ -310,8 +305,7 @@ public class HomeworkService {
     }
 
     public void saveHomeworkReview(Long homeworkId, HomeworkDrawingRequest drawings, Long MemberId) {
-        Homework homework = homeworkRepository.findById(homeworkId)
-                .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
+        Homework homework = findHomeworkById(homeworkId);
 
 
         for(MultipartFile file : drawings.getFile()) {
@@ -337,8 +331,7 @@ public class HomeworkService {
     }
 
     public void submitHomework(Long homeworkId, Long MemberId) {
-        Homework homework = homeworkRepository.findById(homeworkId)
-                .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
+        Homework homework = findHomeworkById(homeworkId);
 
         validateHomeworkSubmission(homework);
 
@@ -396,17 +389,17 @@ public class HomeworkService {
     }
 
     private Tutoring findTutoringById(Long tutoringId) {
-        return tutoringRepository.findById(tutoringId)
+        return tutoringRepository.findByIdAndStatus(tutoringId, TutoringStatus.IN_PROGRESS)
             .orElseThrow(() -> new TutoringNotFoundException(tutoringId));
     }
 
     private Textbook findTextbookById(Long textbookId) {
-        return textbookRepository.findById(textbookId)
+        return textbookRepository.findByIdAndIsDeletedFalse(textbookId)
             .orElseThrow(() -> new TextbookNotFoundException(textbookId));
     }
 
     private Homework findHomeworkById(Long homeworkId) {
-        return homeworkRepository.findById(homeworkId)
+        return homeworkRepository.findByIdAndIsDeletedFalse(homeworkId)
             .orElseThrow(() -> new HomeworkNotFoundException(homeworkId));
     }
 

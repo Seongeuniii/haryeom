@@ -19,6 +19,8 @@ import com.ioi.haryeom.tutoring.dto.TeacherTutoringResponse;
 import com.ioi.haryeom.tutoring.dto.TeacherTutoringScheduleListResponse;
 import com.ioi.haryeom.tutoring.dto.TeacherTutoringScheduleQueryDSLResponse;
 import com.ioi.haryeom.tutoring.dto.TeacherTutoringScheduleResponse;
+import com.ioi.haryeom.tutoring.dto.TutoringScheduleDuplicateCheckRequest;
+import com.ioi.haryeom.tutoring.dto.TutoringScheduleDuplicateCheckResponse;
 import com.ioi.haryeom.tutoring.dto.TutoringScheduleIdsResponse;
 import com.ioi.haryeom.tutoring.dto.TutoringScheduleListRequest;
 import com.ioi.haryeom.tutoring.dto.TutoringScheduleRequest;
@@ -84,7 +86,7 @@ public class TutoringService {
 
     @Transactional
     public TutoringScheduleIdsResponse createTutoringSchedules(Long teacherMemberId, TutoringScheduleListRequest request) {
-        Tutoring tutoring = tutoringRepository.findById(request.getTutoringId())
+        Tutoring tutoring = tutoringRepository.findByIdAndStatus(request.getTutoringId(), TutoringStatus.IN_PROGRESS)
             .orElseThrow(() ->  new TutoringNotFoundException(request.getTutoringId()));
         if(!tutoring.getTeacher().getId().equals(teacherMemberId)) {
             throw new AuthorizationException(teacherMemberId);
@@ -96,9 +98,14 @@ public class TutoringService {
 
         List<Long> savedScheduleIds = new ArrayList<>();
         for(TutoringScheduleRequest scheduleRequest : request.getSchedules()) {
-
-            checkDuplicateScheduleByTeacher(teacherMemberId, scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
-            checkDuplicateScheduleByStudent(tutoring.getStudent().getId(), scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
+            List<TutoringSchedule> duplicateScheduleByTeacher = getDuplicateScheduleByTeacher(teacherMemberId, scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
+            if(!duplicateScheduleByTeacher.isEmpty()) {
+                throw new DuplicateTutoringScheduleByTeacherException(scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
+            }
+            List<TutoringSchedule> duplicateScheduleByStudent = getDuplicateScheduleByStudent(tutoring.getStudent().getId(), scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
+            if(!duplicateScheduleByStudent.isEmpty()) {
+                throw new DuplicateTutoringScheduleByStudentException(scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
+            }
 
             TutoringSchedule schedule = TutoringSchedule.builder()
                 .tutoring(tutoring)
@@ -138,12 +145,22 @@ public class TutoringService {
             throw new ScheduleOnlyInProgerssTutoringException();
         }
 
-        checkDuplicateScheduleByTeacher(teacherMemberId, request.getScheduleDate(), request.getStartTime(), request.getDuration());
-        checkDuplicateScheduleByStudent(tutoringSchedule.getTutoring().getStudent().getId(), request.getScheduleDate(), request.getStartTime(), request.getDuration());
+        List<TutoringSchedule> duplicateScheduleByTeacher = getDuplicateScheduleByTeacher(teacherMemberId, request.getScheduleDate(), request.getStartTime(), request.getDuration())
+            .stream()
+            .filter(sch -> !sch.getId().equals(tutoringScheduleId))
+            .collect(Collectors.toList());
+        if(!duplicateScheduleByTeacher.isEmpty()) {
+            throw new DuplicateTutoringScheduleByTeacherException(request.getScheduleDate(), request.getStartTime(), request.getDuration());
+        }
+        List<TutoringSchedule> duplicateScheduleByStudent = getDuplicateScheduleByStudent(tutoringSchedule.getTutoring().getStudent().getId(), request.getScheduleDate(), request.getStartTime(), request.getDuration())
+            .stream()
+            .filter(sch -> !sch.getId().equals(tutoringScheduleId))
+            .collect(Collectors.toList());
+        if(!duplicateScheduleByStudent.isEmpty()) {
+            throw new DuplicateTutoringScheduleByStudentException(request.getScheduleDate(), request.getStartTime(), request.getDuration());
+        }
 
         tutoringSchedule.update(tutoringSchedule.getTutoring(), request.getScheduleDate(), request.getStartTime(), request.getDuration(), request.getTitle());
-
-        tutoringScheduleRepository.save(tutoringSchedule);
     }
 
     @Transactional
@@ -206,26 +223,36 @@ public class TutoringService {
         return new MonthlyStudentTutoringScheduleListResponse(list);
     }
 
-    private void checkDuplicateScheduleByTeacher(Long teacherMemberId, LocalDate scheduleDate, LocalTime startTime, int duration) {
+    public TutoringScheduleDuplicateCheckResponse checkDuplicateTutoringScheduleExist(Long memberId, TutoringScheduleDuplicateCheckRequest request) {
+        Tutoring tutoring = tutoringRepository.findByIdAndStatus(request.getTutoringId(), TutoringStatus.IN_PROGRESS)
+            .orElseThrow(() ->  new TutoringNotFoundException(request.getTutoringId()));
+        if(!tutoring.getTeacher().getId().equals(memberId) && !tutoring.getStudent().getId().equals(memberId)) {
+            throw new AuthorizationException(memberId);
+        }
+
+        List<TutoringSchedule> duplicateScheduleByTeacher = getDuplicateScheduleByTeacher(tutoring.getTeacher().getId(), request.getScheduleDate(), request.getStartTime(), request.getDuration());
+        if(!duplicateScheduleByTeacher.isEmpty()) {
+            return new TutoringScheduleDuplicateCheckResponse(true);
+        }
+        List<TutoringSchedule> duplicateScheduleByStudent = getDuplicateScheduleByStudent(tutoring.getStudent().getId(), request.getScheduleDate(), request.getStartTime(), request.getDuration());
+        if(!duplicateScheduleByStudent.isEmpty()) {
+            return new TutoringScheduleDuplicateCheckResponse(true);
+        }
+
+        return new TutoringScheduleDuplicateCheckResponse(false);
+    }
+
+    private List<TutoringSchedule> getDuplicateScheduleByTeacher(Long teacherMemberId, LocalDate scheduleDate, LocalTime startTime, int duration) {
         LocalDateTime startDateTime = LocalDateTime.of(scheduleDate, startTime);
         LocalDateTime endDatetime = startDateTime.plusMinutes(duration);
 
-        List<TutoringSchedule> duplicateSchedules = tutoringScheduleRepository.findTutoringSchedulesByTeacherAndDateRange(teacherMemberId, startDateTime, endDatetime);
-
-        if(!duplicateSchedules.isEmpty()) {
-            throw new DuplicateTutoringScheduleByTeacherException();
-        }
+        return tutoringScheduleRepository.findTutoringSchedulesByTeacherAndDateRange(teacherMemberId, startDateTime, endDatetime);
     }
 
-    private void checkDuplicateScheduleByStudent(Long studentMemberId, LocalDate scheduleDate, LocalTime startTime, int duration) {
+    private List<TutoringSchedule> getDuplicateScheduleByStudent(Long studentMemberId, LocalDate scheduleDate, LocalTime startTime, int duration) {
         LocalDateTime startDateTime = LocalDateTime.of(scheduleDate, startTime);
         LocalDateTime endDatetime = startDateTime.plusMinutes(duration);
 
-        List<TutoringSchedule> duplicateSchedules = tutoringScheduleRepository.findTutoringSchedulesByStudentAndDateRange(studentMemberId, startDateTime, endDatetime);
-
-        if(!duplicateSchedules.isEmpty()) {
-            throw new DuplicateTutoringScheduleByStudentException();
-        }
+        return tutoringScheduleRepository.findTutoringSchedulesByStudentAndDateRange(studentMemberId, startDateTime, endDatetime);
     }
-
 }

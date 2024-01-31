@@ -1,5 +1,6 @@
 package com.ioi.haryeom.matching.service;
 
+import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.chat.document.ChatMessage;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.chat.dto.ChatMessageResponse;
@@ -21,6 +22,7 @@ import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.exception.SubjectNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
+import com.ioi.haryeom.tutoring.domain.TutoringStatus;
 import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import java.util.List;
@@ -48,10 +50,10 @@ public class MatchingService {
     public String createMatchingRequest(CreateMatchingRequest request, Long memberId) {
 
         ChatRoom chatRoom = findChatRoomById(request.getChatRoomId());
+        Member member = findMemberById(memberId);
+        validateMemberInChatRoom(chatRoom, member);
 
         validateNoExistingMatching(chatRoom);
-
-        Member member = findMemberById(memberId);
 
         Subject subject = findSubjectById(request.getSubjectId());
 
@@ -93,6 +95,7 @@ public class MatchingService {
 
         ChatRoom chatRoom = findChatRoomById(matchingManager.getChatRoomId(matchingId));
         Member member = findMemberById(memberId);
+        validateMemberInChatRoom(chatRoom, member);
 
         // [매칭 요청 정보] 삭제
         log.info("[MATCHING REQUEST INFO] DELETE");
@@ -120,6 +123,8 @@ public class MatchingService {
         ChatRoom chatRoom = tutoring.getChatRoom();
 
         Member member = findMemberById(memberId);
+
+        validateMemberInTutoring(tutoring, member);
 
         tutoring.end();
 
@@ -207,6 +212,18 @@ public class MatchingService {
         }
     }
 
+    private void validateMemberInTutoring(Tutoring tutoring, Member member) {
+        if (!tutoring.isMemberPartOfTutoring(member)) {
+            throw new AuthorizationException(member.getId());
+        }
+    }
+
+    private void validateMemberInChatRoom(ChatRoom chatRoom, Member member) {
+        if (!chatRoom.isMemberPartOfChatRoom(member)) {
+            throw new AuthorizationException(member.getId());
+        }
+    }
+
     private Subject findSubjectById(Long subjectId) {
         return subjectRepository.findById(subjectId)
             .orElseThrow(() -> new SubjectNotFoundException(subjectId));
@@ -217,12 +234,12 @@ public class MatchingService {
     }
 
     private ChatRoom findChatRoomById(Long chatRoomId) {
-        return chatRoomRepository.findById(chatRoomId)
+        return chatRoomRepository.findByIdAndIsDeletedFalse(chatRoomId)
             .orElseThrow(() -> new ChatRoomNotFoundException(chatRoomId));
     }
 
     private Tutoring findTutoringById(Long tutoringId) {
-        return tutoringRepository.findById(tutoringId)
+        return tutoringRepository.findByIdAndStatus(tutoringId, TutoringStatus.IN_PROGRESS)
             .orElseThrow(() -> new TutoringNotFoundException(tutoringId));
     }
 }

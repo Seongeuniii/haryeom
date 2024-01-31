@@ -9,7 +9,6 @@ import com.ioi.haryeom.chat.dto.ChatRoomResponse;
 import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
 import com.ioi.haryeom.chat.exception.ChatRoomStateNotFoundException;
 import com.ioi.haryeom.chat.repository.ChatMessageRepository;
-import com.ioi.haryeom.chat.repository.ChatMessageRepositoryBefore;
 import com.ioi.haryeom.chat.repository.ChatRoomRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomStateRepository;
 import com.ioi.haryeom.common.domain.Subject;
@@ -50,7 +49,6 @@ public class ChatRoomService {
     private final ChatRoomStateRepository chatRoomStateRepository;
     private final TutoringRepository tutoringRepository;
     private final ChatMessageRepository chatMessageRepository;
-    private final ChatMessageRepositoryBefore chatMessageRepositoryBefore;
 
     // 채팅방 생성
     // 선생님이 선생님 찾기를 통해서 연락할 수 있다.
@@ -133,8 +131,7 @@ public class ChatRoomService {
     // 채팅방 구성원 과외 조회
     public List<TutoringResponse> getChatRoomMembersTutoringList(Long chatRoomId, Long memberId) {
 
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-            .orElseThrow(() -> new ChatRoomNotFoundException(chatRoomId));
+        ChatRoom chatRoom = findChatRoomById(chatRoomId);
 
         Member member = findMemberById(memberId);
 
@@ -151,8 +148,7 @@ public class ChatRoomService {
     // 신청 가능한 과목 조회
     public List<SubjectResponse> getAvailableSubjectsForEnrollment(Long chatRoomId, Long memberId) {
 
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-            .orElseThrow(() -> new ChatRoomNotFoundException(chatRoomId));
+        ChatRoom chatRoom = findChatRoomById(chatRoomId);
 
         Member member = findMemberById(memberId);
 
@@ -209,7 +205,7 @@ public class ChatRoomService {
     }
 
     private ChatRoom findChatRoomById(Long chatRoomId) {
-        return chatRoomRepository.findById(chatRoomId)
+        return chatRoomRepository.findByIdAndIsDeletedFalse(chatRoomId)
             .orElseThrow(() -> new ChatRoomNotFoundException(chatRoomId));
     }
 

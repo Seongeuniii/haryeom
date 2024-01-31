@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 import SelectForm from '@/components/commons/SelectForm';
 import InputForm from '@/components/commons/InputForm';
-import { requestMatching } from '@/apis/matching/matching';
 import { subjectDefaultOptions } from './FilterOpenTeacherList/filterDefaultOptions';
+import { requestMatching } from '@/apis/chat/get-matching-status';
 
 const TutoringApplicationForm = () => {
     return (

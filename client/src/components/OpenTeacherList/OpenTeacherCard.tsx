@@ -4,35 +4,39 @@ import CareerIcon from '@/components/icons/Career';
 import DollarIcon from '@/components/icons/Dollar';
 import UserIcon from '@/components/icons/User';
 import BookIcon from '@/components/icons/Book';
+import { IOpenTeacher } from '@/apis/matching/matching';
 
 interface OpenTeacherCardProps {
     onClick: () => void;
+    openTeacher: IOpenTeacher;
 }
 
-const OpenTeacherCard = ({ onClick }: OpenTeacherCardProps) => {
+const OpenTeacherCard = ({ onClick, openTeacher }: OpenTeacherCardProps) => {
     return (
         <StyledOpenTeacherCard onClick={onClick}>
-            <TeacherProfileImg src="/images/cha.png" />
-            <TeacherName>이태호</TeacherName>
+            <TeacherProfileImg src={openTeacher.profileUrl} />
+            <TeacherName>{openTeacher.name}</TeacherName>
             <TeacherInfo>
                 <Section>
                     <Option>
                         <OptionIcon>
                             <BookIcon />
                         </OptionIcon>
-                        <span>국어 수학 영어</span>
+                        {openTeacher.subjects.map((subject) => {
+                            return <span key={subject.subjectId}>{subject.name}</span>;
+                        })}
                     </Option>
                     <Option>
                         <OptionIcon>
                             <GraduationCap />
                         </OptionIcon>
-                        <span>서울대학교</span>
+                        <span>{openTeacher.college}</span>
                     </Option>
                     <Option>
                         <OptionIcon>
                             <CareerIcon />
                         </OptionIcon>
-                        <span>경력 10년 이상</span>
+                        <span>경력 {openTeacher.career}년</span>
                     </Option>
                 </Section>
                 <Section>
@@ -40,13 +44,13 @@ const OpenTeacherCard = ({ onClick }: OpenTeacherCardProps) => {
                         <OptionIcon>
                             <UserIcon />
                         </OptionIcon>
-                        <span>여</span>
+                        <span>{openTeacher.gender === 'MALE' ? '여자' : '남자'}</span>
                     </Option>
                     <Option>
                         <OptionIcon>
                             <DollarIcon />
                         </OptionIcon>
-                        <span>수업료</span>
+                        <span>최소 {openTeacher.salary}원</span>
                     </Option>
                 </Section>
             </TeacherInfo>

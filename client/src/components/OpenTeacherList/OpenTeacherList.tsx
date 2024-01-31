@@ -3,22 +3,35 @@ import OpenTeacherCard from './OpenTeacherCard';
 import Modal from '@/components/commons/Modal';
 import { useModal } from '@/hooks/useModal';
 import OpenTeacherIntroduce from '@/components/OpenTeacherIntroduce';
+import { IOpenTeacher } from '@/apis/matching/matching';
+import { useEffect, useState } from 'react';
 
-const OpenTeacherList = () => {
+interface OpenTeacherListProps {
+    openTeacherList: IOpenTeacher[];
+}
+
+const OpenTeacherList = ({ openTeacherList }: OpenTeacherListProps) => {
     const { open, openModal, closeModal } = useModal();
+
     return (
         <>
             <Modal open={open} closeModal={closeModal}>
                 <OpenTeacherIntroduce />
             </Modal>
             <StyledOpenTeacherList>
-                <OpenTeacherCard onClick={openModal} />
-                <OpenTeacherCard onClick={openModal} />
-                <OpenTeacherCard onClick={openModal} />
-                <OpenTeacherCard onClick={openModal} />
-                <OpenTeacherCard onClick={openModal} />
-                <OpenTeacherCard onClick={openModal} />
-                <OpenTeacherCard onClick={openModal} />
+                {openTeacherList ? (
+                    openTeacherList.map((openTeacher, index) => {
+                        return (
+                            <OpenTeacherCard
+                                openTeacher={openTeacher}
+                                onClick={() => openModal()}
+                                key={`open_teacher_${index}`}
+                            />
+                        );
+                    })
+                ) : (
+                    <>매칭 가능한 선생님이 없어요:)</>
+                )}
             </StyledOpenTeacherList>
         </>
     );

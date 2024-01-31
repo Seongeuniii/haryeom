@@ -1,8 +1,8 @@
-import { IRequestMatchingStatus, IResponseMatchingStatus } from '@/apis/matching/matching';
 import NotRequest from './NotRequest';
 import WaitResponse from './WaitResponse';
 import GetResponse from './GetResponse';
 import styled from 'styled-components';
+import { IRequestMatchingStatus, IResponseMatchingStatus } from '@/apis/chat/chat';
 
 interface MatchingStage {
     requestStatus: IRequestMatchingStatus | undefined;

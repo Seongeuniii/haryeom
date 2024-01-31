@@ -9,7 +9,7 @@ const chatSessionAtom = atom<{
 }>({
     key: ATOM_KEY,
     default: {
-        openChat: true,
+        openChat: false,
         chatRoomId: null,
         chattingWithName: '',
     },

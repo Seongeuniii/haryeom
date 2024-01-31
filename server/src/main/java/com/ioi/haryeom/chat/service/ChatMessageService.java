@@ -1,21 +1,12 @@
 package com.ioi.haryeom.chat.service;
 
 import com.ioi.haryeom.chat.document.ChatMessage;
-import com.ioi.haryeom.chat.domain.ChatMessageBefore;
-import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.chat.dto.ChatMessageResponse;
-import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
 import com.ioi.haryeom.chat.manager.WebSocketSessionManager;
 import com.ioi.haryeom.chat.repository.ChatMessageRepository;
-import com.ioi.haryeom.chat.repository.ChatMessageRepositoryBefore;
-import com.ioi.haryeom.chat.repository.ChatRoomRepository;
-import com.ioi.haryeom.chat.repository.ChatRoomStateRepository;
 import com.ioi.haryeom.matching.dto.CreateMatchingResponse;
 import com.ioi.haryeom.matching.dto.RespondToMatchingResponse;
 import com.ioi.haryeom.matching.manager.MatchingManager;
-import com.ioi.haryeom.member.domain.Member;
-import com.ioi.haryeom.member.exception.MemberNotFoundException;
-import com.ioi.haryeom.member.repository.MemberRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +22,7 @@ public class ChatMessageService {
     private final WebSocketSessionManager sessionManager;
     private final MatchingManager matchingManager;
     private final SimpMessagingTemplate messagingTemplate;
-    private final ChatRoomRepository chatRoomRepository;
-    private final MemberRepository memberRepository;
-    private final ChatRoomStateRepository chatRoomStateRepository;
     private final ChatMessageRepository chatMessageRepository;
-    private final ChatMessageRepositoryBefore chatMessageRepositoryBefore;
 
     @Transactional
     public void connectChatRoom(Long chatRoomId, String sessionId, Long memberId) {
@@ -79,28 +66,5 @@ public class ChatMessageService {
         ChatMessageResponse response = ChatMessageResponse.from(savedChatMessage);
 
         messagingTemplate.convertAndSend(String.format("/topic/chatroom/%s", chatRoomId), response);
-    }
-
-
-    //-----------before-----------
-    @Transactional
-    public void sendChatMessageBefore(Long chatRoomId, String content, String sessionId) {
-
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-            .orElseThrow(() -> new ChatRoomNotFoundException(chatRoomId));
-
-        Long memberId = sessionManager.getMemberIdBySessionId(sessionId);
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
-
-        ChatMessageBefore chatMessageBefore = ChatMessageBefore.builder()
-            .chatRoom(chatRoom)
-            .senderMember(member)
-            .messageContent(content)
-            .build();
-        ChatMessageBefore savedChatMessageBefore = chatMessageRepositoryBefore.save(chatMessageBefore);
-
-//        ChatMessageResponse response = ChatMessageResponse.from(savedChatMessageBefore);
-
-//        messagingTemplate.convertAndSend(String.format("/topic/chatroom/%s", chatRoomId), response);
     }
 }

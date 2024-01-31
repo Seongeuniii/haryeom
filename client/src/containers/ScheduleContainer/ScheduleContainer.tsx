@@ -15,6 +15,7 @@ import { getTutorings } from '@/apis/tutoring/get-tutorings';
 import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
 import { getYearMonth } from '@/utils/time';
 import WithAuth from '@/hocs/withAuth';
+import { useEffect } from 'react';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -27,6 +28,10 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const userSession = useRecoilValue(userSessionAtom);
     const { tutorings, tutoringSchedules, homeworkList, progressPercentage } = pageProps;
     console.log(tutorings, tutoringSchedules, homeworkList, progressPercentage);
+
+    useEffect(() => {
+        console.log(userSession);
+    }, [userSession]);
 
     return (
         <HomeLayout>
