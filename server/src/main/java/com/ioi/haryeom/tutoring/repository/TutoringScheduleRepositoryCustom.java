@@ -1,6 +1,5 @@
 package com.ioi.haryeom.tutoring.repository;
 
-import com.ioi.haryeom.tutoring.domain.TutoringSchedule;
 import com.ioi.haryeom.tutoring.dto.StudentTutoringScheduleQueryDSLResponse;
 import com.ioi.haryeom.tutoring.dto.TeacherTutoringScheduleQueryDSLResponse;
 import java.time.LocalDate;
