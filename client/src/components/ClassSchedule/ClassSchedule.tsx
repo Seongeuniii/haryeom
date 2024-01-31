@@ -11,7 +11,7 @@ import StudentScheduleCard from './StudentScheduleCard';
 import { getFormattedYearMonthDay } from '@/utils/time';
 
 interface ClassScheduleProps {
-    tutoringSchedules: ITutoringSchedules;
+    tutoringSchedules: ITutoringSchedules | undefined;
 }
 
 /**
@@ -32,6 +32,7 @@ const ClassSchedule = ({ tutoringSchedules }: ClassScheduleProps) => {
     );
 
     useEffect(() => {
+        if (!tutoringSchedules) return;
         setRenderedTutoringSchedules(
             tutoringSchedules.filter(
                 (schedule) => schedule.scheduleDate === getFormattedYearMonthDay(day)
@@ -40,12 +41,17 @@ const ClassSchedule = ({ tutoringSchedules }: ClassScheduleProps) => {
     }, [day]);
 
     useEffect(() => {
+        if (!tutoringSchedules) return;
         setRenderedTutoringSchedules(
             tutoringSchedules.filter(
                 (schedule) => new Date(schedule.scheduleDate) >= new Date() // 시간 포함 (오늘 날짜 제외됨, TODO: 시간 추가)
             ) as ITutoringSchedules
         );
     }, [yearMonth]);
+
+    useEffect(() => {
+        console.log(renderedTutoringSchedules);
+    }, [renderedTutoringSchedules]);
 
     return (
         <StyledClassSchedule>

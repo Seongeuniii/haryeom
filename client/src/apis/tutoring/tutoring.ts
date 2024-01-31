@@ -5,12 +5,12 @@ export type IStudentTutorings = IStudentTutoring[];
 export interface ITeacherTutoring {
     tutoringId: number;
     student: StudentReceivingTutoring;
-    subject: Subject;
+    subject: ISubject;
 }
 export interface IStudentTutoring {
     tutoringId: number;
     teacher: TeacherGivingTutoring;
-    subject: Subject;
+    subject: ISubject;
 }
 
 export interface TeacherGivingTutoring {
@@ -47,7 +47,7 @@ export interface ITeacherSchedule {
     studentMemberId: number;
     studentName: string;
     studentProfileUrl: string;
-    subject: Subject;
+    subject: ISubject;
     startTime: string;
     duration: number;
     title: string;
@@ -59,13 +59,13 @@ export interface IStudentSchedule {
     teacherMemberId: number;
     teacherName: string;
     teacherProfileUrl: string;
-    subject: Subject;
+    subject: ISubject;
     startTime: string;
     duration: number;
     title: string;
 }
 
-export interface Subject {
+export interface ISubject {
     subjectId: number;
     name: string;
 }
