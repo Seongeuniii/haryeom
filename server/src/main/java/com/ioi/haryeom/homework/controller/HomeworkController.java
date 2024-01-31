@@ -1,14 +1,12 @@
 package com.ioi.haryeom.homework.controller;
 
 import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.data.domain.Sort.Direction.DESC;
 
-import com.ioi.haryeom.auth.dto.AuthInfo;
+import com.ioi.haryeom.common.util.AuthMemberId;
 import com.ioi.haryeom.homework.dto.HomeworkListResponse;
 import com.ioi.haryeom.homework.dto.HomeworkRequest;
 import com.ioi.haryeom.homework.dto.HomeworkResponse;
 import com.ioi.haryeom.homework.service.HomeworkService;
-import com.ioi.haryeom.member.domain.type.Role;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -30,42 +28,42 @@ import org.springframework.web.bind.annotation.RestController;
 public class HomeworkController {
 
     private final HomeworkService homeworkService;
-    
-    //TODO: 삭제 후 어노테이션 적용해야함
-    AuthInfo authInfo = new AuthInfo(1L, Role.TEACHER.name());
 
     // 과외 숙제 리스트 조회
     @GetMapping("/{tutoringId}/homework")
-    public ResponseEntity<HomeworkListResponse> getHomeworkList(@PathVariable Long tutoringId, @PageableDefault(sort = "deadline", direction = ASC) Pageable pageable) {
-        HomeworkListResponse homeworkList = homeworkService.getHomeworkList(tutoringId, pageable, authInfo.getMemberId());
+    public ResponseEntity<HomeworkListResponse> getHomeworkList(@PathVariable Long tutoringId,
+        @PageableDefault(sort = "deadline", direction = ASC) Pageable pageable, @AuthMemberId Long memberId) {
+        HomeworkListResponse homeworkList = homeworkService.getHomeworkList(tutoringId, pageable, memberId);
         return ResponseEntity.ok(homeworkList);
     }
 
     // 과외 숙제 등록
     @PostMapping("/{tutoringId}/homework")
-    public ResponseEntity<Void> createHomework(@PathVariable Long tutoringId, @RequestBody @Validated HomeworkRequest request) {
-        Long homeworkId = homeworkService.createHomework(tutoringId, request, authInfo.getMemberId());
+    public ResponseEntity<Void> createHomework(@PathVariable Long tutoringId, @RequestBody @Validated HomeworkRequest request,
+        @AuthMemberId Long memberId) {
+        Long homeworkId = homeworkService.createHomework(tutoringId, request, memberId);
         return ResponseEntity.created(URI.create("/homework/" + homeworkId)).build();
     }
 
     // 과외 숙제 상세 조회
     @GetMapping("/{tutoringId}/homework/{homeworkId}")
-    public ResponseEntity<HomeworkResponse> getHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId) {
-        HomeworkResponse response = homeworkService.getHomework(tutoringId, homeworkId, authInfo.getMemberId());
+    public ResponseEntity<HomeworkResponse> getHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId, @AuthMemberId Long memberId) {
+        HomeworkResponse response = homeworkService.getHomework(tutoringId, homeworkId, memberId);
         return ResponseEntity.ok(response);
     }
 
     // 과외 숙제 수정
     @PutMapping("/{tutoringId}/homework/{homeworkId}")
-    public ResponseEntity<Void> updateHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId, @RequestBody HomeworkRequest request) {
-        homeworkService.updateHomework(tutoringId, homeworkId, request, authInfo.getMemberId());
+    public ResponseEntity<Void> updateHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId,
+        @RequestBody @Validated HomeworkRequest request, @AuthMemberId Long memberId) {
+        homeworkService.updateHomework(tutoringId, homeworkId, request, memberId);
         return ResponseEntity.noContent().build();
     }
 
     // 과외 숙제 삭제
     @DeleteMapping("/{tutoringId}/homework/{homeworkId}")
-    public ResponseEntity<Void> deleteHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId) {
-        homeworkService.deleteHomework(tutoringId, homeworkId, authInfo.getMemberId());
+    public ResponseEntity<Void> deleteHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId, @AuthMemberId Long memberId) {
+        homeworkService.deleteHomework(tutoringId, homeworkId, memberId);
         return ResponseEntity.noContent().build();
     }
 }
