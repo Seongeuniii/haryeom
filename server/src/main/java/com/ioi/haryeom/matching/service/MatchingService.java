@@ -1,5 +1,6 @@
 package com.ioi.haryeom.matching.service;
 
+import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.chat.document.ChatMessage;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.chat.dto.ChatMessageResponse;
@@ -48,10 +49,10 @@ public class MatchingService {
     public String createMatchingRequest(CreateMatchingRequest request, Long memberId) {
 
         ChatRoom chatRoom = findChatRoomById(request.getChatRoomId());
+        Member member = findMemberById(memberId);
+        validateMemberInChatRoom(chatRoom, member);
 
         validateNoExistingMatching(chatRoom);
-
-        Member member = findMemberById(memberId);
 
         Subject subject = findSubjectById(request.getSubjectId());
 
@@ -93,6 +94,7 @@ public class MatchingService {
 
         ChatRoom chatRoom = findChatRoomById(matchingManager.getChatRoomId(matchingId));
         Member member = findMemberById(memberId);
+        validateMemberInChatRoom(chatRoom, member);
 
         // [매칭 요청 정보] 삭제
         log.info("[MATCHING REQUEST INFO] DELETE");
@@ -120,6 +122,8 @@ public class MatchingService {
         ChatRoom chatRoom = tutoring.getChatRoom();
 
         Member member = findMemberById(memberId);
+
+        validateMemberInTutoring(tutoring, member);
 
         tutoring.end();
 
@@ -204,6 +208,18 @@ public class MatchingService {
     private void validateMatchingRequestExists(String matchingId) {
         if (!matchingManager.existsMatchingRequestByMatchingId(matchingId)) {
             throw new MatchingNotFoundException(matchingId);
+        }
+    }
+
+    private void validateMemberInTutoring(Tutoring tutoring, Member member) {
+        if (!tutoring.isMemberPartOfTutoring(member)) {
+            throw new AuthorizationException(member.getId());
+        }
+    }
+
+    private void validateMemberInChatRoom(ChatRoom chatRoom, Member member) {
+        if (!chatRoom.isMemberPartOfChatRoom(member)) {
+            throw new AuthorizationException(member.getId());
         }
     }
 
