@@ -25,7 +25,6 @@ import com.ioi.haryeom.tutoring.dto.TutoringScheduleRequest;
 import com.ioi.haryeom.tutoring.dto.TutoringScheduleResponse;
 import com.ioi.haryeom.tutoring.exception.DuplicateTutoringScheduleByStudentException;
 import com.ioi.haryeom.tutoring.exception.DuplicateTutoringScheduleByTeacherException;
-import com.ioi.haryeom.tutoring.exception.NotAllowNegativeNumberForDurationException;
 import com.ioi.haryeom.tutoring.exception.ScheduleOnlyInProgerssTutoringException;
 import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
 import com.ioi.haryeom.tutoring.exception.TutoringScheduleNotFoundException;
@@ -36,7 +35,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -98,9 +96,6 @@ public class TutoringService {
 
         List<Long> savedScheduleIds = new ArrayList<>();
         for(TutoringScheduleRequest scheduleRequest : request.getSchedules()) {
-            if(scheduleRequest.getDuration() < 0) {
-                throw new NotAllowNegativeNumberForDurationException();
-            }
 
             checkDuplicateScheduleByTeacher(teacherMemberId, scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
             checkDuplicateScheduleByStudent(tutoring.getStudent().getId(), scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
@@ -141,10 +136,6 @@ public class TutoringService {
 
         if(!tutoringSchedule.getTutoring().getStatus().equals(TutoringStatus.IN_PROGRESS)) {
             throw new ScheduleOnlyInProgerssTutoringException();
-        }
-
-        if(request.getDuration() < 0) {
-            throw new NotAllowNegativeNumberForDurationException();
         }
 
         checkDuplicateScheduleByTeacher(teacherMemberId, request.getScheduleDate(), request.getStartTime(), request.getDuration());

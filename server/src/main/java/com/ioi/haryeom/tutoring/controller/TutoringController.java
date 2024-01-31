@@ -92,7 +92,7 @@ public class TutoringController {
      * @return
      */
     @PutMapping("/schedule/{tutoringScheduleId}")
-    public ResponseEntity<Void> updateTutoringSchedule(@AuthMemberId Long teacherMemberId, @PathVariable Long tutoringScheduleId, @RequestBody TutoringScheduleRequest request) {
+    public ResponseEntity<Void> updateTutoringSchedule(@AuthMemberId Long teacherMemberId, @PathVariable Long tutoringScheduleId, @RequestBody @Validated TutoringScheduleRequest request) {
         tutoringService.updateTutoringSchedule(teacherMemberId, tutoringScheduleId, request);
 
         return ResponseEntity.noContent().build();
