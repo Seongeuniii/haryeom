@@ -23,7 +23,7 @@ export interface IRequestMatchingStatus {
 }
 
 export interface IResponseMatchingStatus {
-    receiveMemberId: number;
+    recipientMemberId: number;
     isAccepted: boolean;
     teacherName: string;
     studentName: string;
@@ -35,7 +35,8 @@ export const requestMatching = async (requestMatching: IRequestMatching) => {
     try {
         const res = await axios.post(
             `${process.env.NEXT_PUBLIC_API_SERVER}${path}/request`,
-            requestMatching
+            JSON.stringify(requestMatching),
+            { headers: { 'Content-Type': `application/json` } }
         );
         console.log(res.headers.location);
         return res.headers.location;
@@ -44,11 +45,11 @@ export const requestMatching = async (requestMatching: IRequestMatching) => {
     }
 };
 
-export const responseMatching = async (requestMatching: IResponseMatching[]) => {
+export const responseMatching = async (responsetMatching: IResponseMatching) => {
     try {
         const res = await axios.post(
             `${process.env.NEXT_PUBLIC_API_SERVER}${path}/response`,
-            requestMatching
+            responsetMatching
         );
         console.log(res.headers.location);
         return res.headers.location;
