@@ -69,6 +69,8 @@ public class SecurityConfig {
 //            .hasRole("TEACHER")
 //            .antMatchers(DELETE, "/api/tutoring/schedule/{tutoringScheduleId}")
 //            .hasRole("TEACHER")
+//            .antMatchers(GET, "/api/tutoring/schedule/duplicate")
+//            .hasAnyRole("STUDENT", "TEACHER")
 //
 //            // 이상영
 //            .antMatchers(GET, "/api/matching/teachers").hasAnyRole("STUDENT", "TEACHER")
