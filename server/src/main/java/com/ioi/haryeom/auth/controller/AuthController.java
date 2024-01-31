@@ -59,6 +59,7 @@ public class AuthController {
         HttpServletResponse response) {
         String accessToken = tokenService.reissueAccessToken(request, response);
 
-        return ResponseEntity.ok().body(new AccessTokenResponse(accessToken));
+        return ResponseEntity.ok()
+            .body(new AccessTokenResponse(accessToken));
     }
 }
