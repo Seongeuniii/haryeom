@@ -4,7 +4,7 @@ import { IHomeworkList, IHomeworkStatus } from '@/apis/homework/homework';
 import CreateNewHomework from './CreateNewHomework/CreateNewHomework';
 
 interface HomeworkListProps {
-    homeworkList: IHomeworkList;
+    homeworkList: IHomeworkList | undefined;
 }
 
 const getStatusText = (status: IHomeworkStatus) => {
@@ -32,7 +32,7 @@ const HomeworkList = ({ homeworkList }: HomeworkListProps) => {
                 <Scope className="homework-list__header">범위</Scope>
             </HomeworkTableTitle>
             <HomeworkCards>
-                {homeworkList.map((homework, index) => (
+                {homeworkList?.map((homework, index) => (
                     <Link href={`homework/${homework.homeworkId}`} key={`homework_${index}`}>
                         <HomeworkCard>
                             <State status={homework.status}>{getStatusText(homework.status)}</State>
