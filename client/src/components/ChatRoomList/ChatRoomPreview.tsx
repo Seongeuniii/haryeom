@@ -1,5 +1,6 @@
-import { IChatRoom } from '@/apis/chat/chat';
 import styled from 'styled-components';
+import { IChatRoom } from '@/apis/chat/chat';
+import { getFormattedYearMonthDay } from '@/utils/time';
 
 interface ChatRoomPreviewProps {
     chatRoom: IChatRoom;
@@ -9,16 +10,15 @@ interface ChatRoomPreviewProps {
 const ChatRoomPreview = ({ chatRoom, joinChat }: ChatRoomPreviewProps) => {
     return (
         <StyledChatRoomPreview onClick={() => joinChat(chatRoom.chatRoomId)}>
-            <ProfileImg src={chatRoom.profileUrl} alt="프로필 사진" />
+            <ProfileImg src={chatRoom.oppositeMember.profileUrl} alt="프로필 사진" />
             <MiddleBlockWrapper>
-                <Name>
-                    {chatRoom.name}
-                    {chatRoom.role === 'TEACHER' ? ' 선생님' : ' 학생'}
-                </Name>
+                <Name>{chatRoom.oppositeMember.name}</Name>
                 <LastMessage>{chatRoom.lastMessage}</LastMessage>
             </MiddleBlockWrapper>
             <EndBlockWrapper>
-                <LastMessageCreatedAt>{chatRoom.lastMessageCreatedAt}</LastMessageCreatedAt>
+                <LastMessageCreatedAt>
+                    {getFormattedYearMonthDay(new Date(chatRoom.lastMessageCreatedAt))}
+                </LastMessageCreatedAt>
                 <UnreadMessageCount>{chatRoom.unreadMessageCount}</UnreadMessageCount>
             </EndBlockWrapper>
         </StyledChatRoomPreview>
@@ -37,6 +37,7 @@ const StyledChatRoomPreview = styled.div`
 const ProfileImg = styled.img`
     width: 45px;
     height: 45px;
+    margin: 0 12px 0 5px;
     border-radius: 100%;
     background-color: ${({ theme }) => theme.BORDER_LIGHT};
 `;
@@ -49,6 +50,7 @@ const MiddleBlockWrapper = styled.div`
 
 const Name = styled.span`
     font-size: 0.8em;
+    margin-bottom: 3px;
 `;
 
 const LastMessage = styled.span``;
@@ -67,9 +69,10 @@ const LastMessageCreatedAt = styled.span`
 `;
 
 const UnreadMessageCount = styled.div`
-    width: 13px;
-    height: 13px;
-    padding-top: 1px;
+    width: 17px;
+    height: 17px;
+    padding-top: 3px;
+    margin-top: 3px;
     text-align: center;
     border-radius: 100%;
     background-color: ${({ theme }) => theme.PRIMARY};

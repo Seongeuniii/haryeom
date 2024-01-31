@@ -6,63 +6,81 @@ import Close from '@/components/icons/Close';
 import GoBack from '@/components/icons/GoBack';
 import chatSessionAtom from '@/recoil/atoms/chat';
 import ChatRoomList from '@/components/ChatRoomList';
+import { useEffect, useState } from 'react';
+import { getChatRooms } from '@/apis/chat/get-chat-rooms';
+import { IChatRoom } from '@/apis/chat/chat';
 
 const ChatContainer = () => {
     const [chatSession, setChatSession] = useRecoilState(chatSessionAtom);
 
+    const toggleChatContainer = (open: boolean) => {
+        setChatSession((prev) => {
+            return { ...prev, openChat: open };
+        });
+    };
+
+    const exitChatRoom = () => {
+        setChatSession((prev) => {
+            return { ...prev, chatRoomId: null };
+        });
+    };
+
+    const [chatRooms, setChatRooms] = useState<IChatRoom[]>(); // TODO: react-query
+
+    const joinChatRoom = (roomId: number) => {
+        setChatSession((prev) => {
+            return { ...prev, chatRoomId: roomId };
+        });
+    };
+
+    const initData = async () => {
+        const data = await getChatRooms();
+        setChatRooms(data);
+    };
+
+    useEffect(() => {
+        initData();
+    }, []);
+
     if (!chatSession.openChat) {
         return (
-            <ChatButton
-                onClick={() =>
-                    setChatSession((prev) => {
-                        return { ...prev, openChat: true };
-                    })
-                }
-            >
+            <OpenChatButton onClick={() => toggleChatContainer(true)}>
                 <Chat />
-            </ChatButton>
+            </OpenChatButton>
         );
     }
     return (
         <StyledChatContainer>
-            <CloseChatButton
-                onClick={() =>
-                    setChatSession((prev) => {
-                        return { ...prev, openChat: false };
-                    })
-                }
-            >
+            <CloseChatButton onClick={() => toggleChatContainer(false)}>
                 <Close />
             </CloseChatButton>
-            <>
-                {chatSession.chatRoomId ? (
-                    <>
-                        <Header>
-                            <GoChatRoomListButton
-                                onClick={() =>
-                                    setChatSession((prev) => {
-                                        return { ...prev, chatRoomId: null };
-                                    })
-                                }
-                            >
-                                <GoBack />
-                            </GoChatRoomListButton>
-                            <span>김성은 선생님</span>
-                        </Header>
-                        <Chatting />
-                    </>
-                ) : (
-                    <>
-                        <Header>채팅</Header>
-                        <ChatRoomList />
-                    </>
-                )}
-            </>
+            {chatSession.chatRoomId ? (
+                <>
+                    <Header>
+                        <GoChatRoomListButton onClick={exitChatRoom}>
+                            <GoBack />
+                        </GoChatRoomListButton>
+                        <span>
+                            {
+                                chatRooms?.find(
+                                    (chatRoom) => chatRoom.chatRoomId === chatSession.chatRoomId
+                                )?.oppositeMember.name
+                            }
+                        </span>
+                    </Header>
+                    <Chatting />
+                </>
+            ) : (
+                <>
+                    <Header>채팅</Header>
+                    <ChatRoomList chatRooms={chatRooms} joinChatRoom={joinChatRoom} />
+                </>
+            )}
         </StyledChatContainer>
     );
 };
 
-const ChatButton = styled.button`
+const OpenChatButton = styled.button`
     position: fixed;
     bottom: 3em;
     right: 3em;

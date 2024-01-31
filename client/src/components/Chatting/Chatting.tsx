@@ -1,10 +1,12 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import useStomp, { ISubscription } from '@/hooks/useStomp';
 import chatSessionAtom from '@/recoil/atoms/chat';
 import MatchingStage from '@/components/MatchingStage';
 import { IRequestMatchingStatus, IResponseMatchingStatus } from '@/apis/matching/matching';
+import Send from '../icons/Send';
+import Chat from './Chat';
 
 interface IReceiveChat {
     messageId: string;
@@ -19,6 +21,7 @@ const Chatting = () => {
     const [message, setMessage] = useState('');
     const [requestMatchingStatus, setRequestMatchingStatus] = useState<IRequestMatchingStatus>();
     const [responseMatchingStatus, setResponseMatchingStatus] = useState<IResponseMatchingStatus>();
+    const lastChatRef = useRef<HTMLDivElement | null>(null);
 
     // TODO: subscriptions 리렌더
     const subscriptions: ISubscription[] = [
@@ -36,7 +39,7 @@ const Chatting = () => {
             destination: `/topic/chatroom/${chatSession.chatRoomId}/request`,
             callback: (message) => {
                 const data = JSON.parse(message.body);
-                console.log(data);
+                setRequestMatchingStatus(data);
             },
         },
         {
@@ -44,21 +47,26 @@ const Chatting = () => {
             destination: `/topic/chatroom/${chatSession.chatRoomId}/response`,
             callback: (message) => {
                 const data = JSON.parse(message.body);
-                console.log(data);
+                setResponseMatchingStatus(data);
             },
         },
     ];
-    const { stompClient } = useStomp({ subscriptions });
+    const { stompClient } = useStomp({ subscriptions, roomId: chatSession.chatRoomId as number });
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setMessage(e.target.value);
-    };
     const sendMessage = () => {
-        if (!stompClient) return;
+        if (!stompClient || !message) return;
         const destination = `/app/chatroom/${chatSession.chatRoomId}/message`;
         stompClient.send(destination, {}, JSON.stringify({ content: message }));
         setMessage('');
     };
+
+    useEffect(() => {
+        if (!lastChatRef.current) return;
+        lastChatRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+        });
+    }, [chatMessages.length]);
 
     return (
         <StyledChatting>
@@ -66,15 +74,23 @@ const Chatting = () => {
                 requestStatus={requestMatchingStatus}
                 responseStatus={responseMatchingStatus}
             />
-            <TestForm>
-                <input type="text" value={message} onChange={handleChange} />
-                <button onClick={sendMessage}>전송</button>
-            </TestForm>
             <ChatList>
                 {chatMessages.map((chat, index) => (
-                    <div key={`chat_${index}`}>{chat.content}</div>
+                    <Chat message={chat.content} isMyChat={true} key={`chat_${index}`} />
                 ))}
+                <div ref={lastChatRef}></div>
             </ChatList>
+            <ChatForm onSubmit={(e) => e.preventDefault()}>
+                <ChatInput
+                    type="text"
+                    value={message}
+                    placeholder="메시지를 입력하세요"
+                    onChange={(e) => setMessage(e.target.value)}
+                />
+                <SendButton onClick={sendMessage}>
+                    <Send />
+                </SendButton>
+            </ChatForm>
         </StyledChatting>
     );
 };
@@ -86,8 +102,45 @@ const StyledChatting = styled.div`
     flex-direction: column;
 `;
 
-const TestForm = styled.div``;
+const ChatList = styled.div`
+    flex: 1;
+    overflow-y: scroll;
+`;
 
-const ChatList = styled.div``;
+const ChatForm = styled.form`
+    width: 100%;
+    margin: 1em 0 2em 0;
+    padding: 7px 10px;
+    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    border-radius: 9px;
+    display: flex;
+    justify-content: space-between;
+`;
+
+const ChatInput = styled.input`
+    width: 80%;
+    font-size: 14px;
+    border: none;
+    &:focus {
+        outline: none;
+    }
+`;
+
+const SendButton = styled.button`
+    width: 27px;
+    height: 27px;
+    padding-top: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%;
+    cursor: pointer;
+    border: none;
+    background: ${({ theme }) => theme.BORDER_LIGHT};
+
+    &:hover {
+        background-color: ${({ theme }) => theme.PRIMARY};
+    }
+`;
 
 export default Chatting;
