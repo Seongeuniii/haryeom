@@ -18,6 +18,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,8 @@ public class VideoService {
     private final TutoringScheduleRepository tutoringScheduleRepository;
 
     private final AmazonS3 amazonS3;
+
+    private final String cloudFrontUrl = "https://d1b632bso7m0wd.cloudfront.net";
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -72,25 +75,19 @@ public class VideoService {
         LocalTime endTime = parseLocalTime(lessonEnd.getEndTime());
         updateVideo.updateVideoEndTime(endTime);
     }
-    public String uploadVideo(MultipartFile uploadFile) throws IOException {
-        String fileName = uploadFile.getOriginalFilename();
+    public String uploadVideo(MultipartFile file) throws IOException {
+        String fileName = randomString();
         ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(uploadFile.getSize());
-        metadata.setContentType(uploadFile.getContentType());
-        amazonS3.putObject(bucket, fileName, uploadFile.getInputStream(), metadata);
-        String videoUrl = amazonS3.getUrl(bucket, fileName).toString();
+        metadata.setContentLength(file.getSize());
+        metadata.setContentType(file.getContentType());
+        amazonS3.putObject(bucket, "vod/"+ fileName+".webm", file.getInputStream(), metadata);
+        String videoUrl = cloudFrontUrl + "/vod/" + fileName + "/" + fileName + ".m3u8";
         return videoUrl;
     }
     @Transactional
-    public void updateVideoUrl(Long videoId, String videoUrl, Long memberId) {
+    public void updateVideoUrl(Long videoId, String videoUrl) {
         Optional<Video> videoOptional = videoRepository.findById(videoId);
-        if(!videoOptional.isPresent()){
-            throw new VideoNotFoundException(videoId);
-        }
         Video video = videoOptional.get();
-        if(video.getTutoringSchedule().getTutoring().getTeacher().getId()!=memberId){
-            throw new AuthorizationException(memberId);
-        }
         video.updateVideoUrl(videoUrl);
     }
 
@@ -100,9 +97,24 @@ public class VideoService {
         videoRepository.deleteById(videoId);
     }
 
+    public void videoUploadExceptionTest(Long videoId, Long memberId){
+        Optional<Video> videoOptional = videoRepository.findById(videoId);
+        if(!videoOptional.isPresent()){
+            throw new VideoNotFoundException(videoId);
+        }
+        Video video = videoOptional.get();
+        if(video.getTutoringSchedule().getTutoring().getTeacher().getId()!=memberId){
+            throw new AuthorizationException(memberId);
+        }
+    }
+
     private LocalTime parseLocalTime(String stringDateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
         LocalTime localTime = LocalTime.parse(stringDateTime, formatter);
         return localTime;
+    }
+
+    private String randomString(){
+        return RandomStringUtils.randomAlphanumeric(12);
     }
 }
