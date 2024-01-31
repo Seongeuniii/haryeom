@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ThemeProvider } from 'styled-components';
 import { MutableSnapshot, RecoilRoot } from 'recoil';
 import axios from 'axios';
-import { hasCookie } from 'cookies-next';
 import GlobalStyle from '@/theme/GlobalStyle';
 import theme from '@/theme';
 import MainLayout from '@/components/layouts/MainLayout';
@@ -48,7 +47,7 @@ MyApp.getInitialProps = async (appContext: AppContext) => {
     let user: IUser | undefined;
     let cookie: string | undefined;
 
-    if (ctx.req && hasCookie('accessToken', { req: ctx.req })) {
+    if (ctx.req) {
         cookie = ctx.req.headers.cookie;
         axios.defaults.headers.common['Cookie'] = cookie;
         user = await getUser(ctx);

@@ -13,7 +13,7 @@ export const getTutorings = async (userRole: IUserRole) => {
         const res = await axios.get<ReturnType>(
             `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${userRole.toLocaleLowerCase()}s`
         );
-        return res.data;
+        return res.data.tutorings;
     } catch (e) {
         console.log(e);
     }

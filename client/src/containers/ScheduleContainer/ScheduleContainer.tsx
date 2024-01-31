@@ -16,8 +16,7 @@ import LoginModal from '@/components/LoginModal';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
 import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
 import { getYearMonth } from '@/utils/time';
-import { useEffect } from 'react';
-import { createTutorings } from '@/apis/tutoring/create-tutorings';
+import WithAuth from '@/hocs/withAuth';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -26,58 +25,18 @@ interface ScheduleContainerProps {
     progressPercentage: IProgressPercentage;
 }
 
-// const tutorings = await getTutorings(userRole);
-// const tutoringSchedules = await getTutoringSchedules(userRole, getYearMonth(new Date()));
-// const homeworkListInfo = await getHomeworkList(1); // tutoringId
-// const homeworkList = homeworkListInfo?.homeworkList;
-// const progressPercentage = homeworkListInfo?.progressPercentage;
-
 const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
-    const { tutoringSchedules, homeworkList } = pageProps;
     const userSession = useRecoilValue(userSessionAtom);
-    // if (userSession?.role === 'GUEST') return <RegistUserInfoContainer />;
-
-    useEffect(() => {
-        console.log('USER SESSION: ', userSession);
-    }, [userSession]);
-
-    const test1 = async () => {
-        if (!userSession) return;
-        const tutorings = await getTutorings(userSession.role);
-        console.log('과외 목록 조회: ', tutorings);
-    };
-
-    const test2 = async () => {
-        if (!userSession) return;
-        const tutoringSchedules = await getTutoringSchedules(userSession.role, '202401');
-        console.log('월별 과외 일정 조회: ', tutoringSchedules);
-    };
-
-    const test3 = async () => {
-        if (!userSession) return;
-        const tutoringSchedules = await createTutorings();
-        console.log('월별 과외 일정 등록: ', tutoringSchedules);
-    };
+    const { tutorings, tutoringSchedules, homeworkList, progressPercentage } = pageProps;
 
     return (
         <HomeLayout>
             <StyledScheduleContainer>
-                {/* {!userSession ? (
-                    <LoginModal />
-                ) : (
-                    <>
-                        <ClassSchedule tutoringSchedules={tutoringSchedules} />
-                        <SelectedTutoring>
-                            <TutoringStudentProfile />
-                            <HomeworkList homeworkList={homeworkList} />
-                        </SelectedTutoring>
-                    </>
-                )} */}
-                <Buttons>
-                    <TestButton onClick={test1}>과외 목록 리스트 조회</TestButton>
-                    <TestButton onClick={test2}>과외 스케줄 조회</TestButton>
-                    <TestButton onClick={test3}>과외 일정 등록</TestButton>
-                </Buttons>
+                <ClassSchedule tutoringSchedules={tutoringSchedules} />
+                <SelectedTutoring>
+                    <TutoringStudentProfile />
+                    <HomeworkList homeworkList={homeworkList} />
+                </SelectedTutoring>
             </StyledScheduleContainer>
         </HomeLayout>
     );
@@ -86,28 +45,23 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { req } = context;
 
-    /**
-     * TODO : check auth hoc 생성
-     * LoginModal이 컨테이너 내부에 생성되도록
-     */
     const hasAuth = getCookie('accessToken', { req });
     if (!hasAuth) {
         return { props: {} };
     }
 
-    /**
-     * tutorings: 과외목록
-     * tutoringSchedules: 과외일정
-     * homeworkList: 숙제목록
-     * tutoringTextbooks: 학습자료
-    //  */
-    // const tutorings = await getTutorings(userRole);
-    // const tutoringSchedules = await getTutoringSchedules(userRole, getYearMonth(new Date()));
-    // const homeworkListInfo = await getHomeworkList(1); // tutoringId
-    // const homeworkList = homeworkListInfo?.homeworkList;
-    // const progressPercentage = homeworkListInfo?.progressPercentage;
+    const tutorings = await getTutorings('TEACHER');
+    const tutoringSchedules = await getTutoringSchedules('TEACHER', getYearMonth(new Date()));
+    const homeworkListInfo = tutorings ? await getHomeworkList(tutorings[1].tutoringId) : undefined;
 
-    return { props: {} };
+    return {
+        props: {
+            tutorings: tutorings || null,
+            tutoringSchedules: tutoringSchedules || null,
+            homeworkList: homeworkListInfo?.homeworkList || null,
+            progressPercentage: homeworkListInfo?.progressPercentage || null,
+        },
+    };
 };
 
 const StyledScheduleContainer = styled.main`
@@ -125,15 +79,4 @@ const SelectedTutoring = styled.main`
     flex-direction: column;
 `;
 
-const Buttons = styled.div`
-    position: absolute;
-    right: 0;
-`;
-
-const TestButton = styled.button`
-    padding: 1em;
-    border: 1px solid black;
-    margin: 1em;
-`;
-
-export default ScheduleContainer;
+export default WithAuth(ScheduleContainer);

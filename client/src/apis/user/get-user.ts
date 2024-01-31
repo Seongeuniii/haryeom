@@ -22,10 +22,9 @@ export const getUser = async (ctx: NextPageContext) => {
             const res = await axios.get<IUser>(`${process.env.NEXT_PUBLIC_API_SERVER}${path}`);
             return res.data;
         } catch {
-            deleteCookie('accessToken');
-            deleteCookie('refreshToken');
-            deleteCookie('userRole');
-            console.log('재로그인 필요');
+            deleteCookie('accessToken', ctx);
+            deleteCookie('refreshToken', ctx);
+            deleteCookie('userRole', ctx);
         }
     }
 };
