@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TutoringRepository extends JpaRepository<Tutoring, Long> {
 
 
-    List<Tutoring> findAllByTeacherId(Long teacherMemberId);
+    Optional<Tutoring> findByIdAndStatus(Long tutoringId, TutoringStatus status);
+    List<Tutoring> findAllByTeacherIdAndStatus(Long teacherMemberId, TutoringStatus status);
 
     List<Tutoring> findAllByTeacherAndStatus(Member teacherMember, TutoringStatus status);
 
