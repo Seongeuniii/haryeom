@@ -10,6 +10,7 @@ interface MatchingStage {
 }
 
 const MatchingStage = ({ requestStatus, responseStatus }: MatchingStage) => {
+    // 깜빡이는 문제
     if (!requestStatus && !responseStatus) {
         return (
             <StyledMatchingRequest>
@@ -42,9 +43,10 @@ const MatchingStage = ({ requestStatus, responseStatus }: MatchingStage) => {
 
 const StyledMatchingRequest = styled.div`
     width: 100%;
-    font-size: 14px;
+    flex: 0 0 auto;
     margin: 1em 0;
     border-radius: 0.4em;
+    font-size: 14px;
     overflow: hidden;
 `;
 
