@@ -17,8 +17,8 @@ public interface TutoringScheduleRepository extends JpaRepository<TutoringSchedu
         "LEFT JOIN tutoring t ON ts.tutoring_id = t.id " +
         "LEFT JOIN member m ON t.teacher_member_id = m.id " +
         "WHERE m.id = :teacherMemberId " +
-        "AND DATE_ADD(STR_TO_DATE(CONCAT(ts.schedule_date, ' ', ts.start_time), '%Y-%m-%d %H:%i:%s'), INTERVAL ts.duration MINUTE) <= :endDateTime " +
-        "AND STR_TO_DATE(CONCAT(ts.schedule_date, ' ', ts.start_time), '%Y-%m-%d %H:%i:%s') >= :startDateTime",
+        "AND DATE_ADD(STR_TO_DATE(CONCAT(ts.schedule_date, ' ', ts.start_time), '%Y-%m-%d %H:%i:%s'), INTERVAL ts.duration MINUTE) >= :startDateTime " +
+        "AND STR_TO_DATE(CONCAT(ts.schedule_date, ' ', ts.start_time), '%Y-%m-%d %H:%i:%s') <= :endDateTime",
         nativeQuery = true)
     List<TutoringSchedule> findTutoringSchedulesByTeacherAndDateRange(
         @Param("teacherMemberId") Long teacherMemberId,
@@ -29,8 +29,8 @@ public interface TutoringScheduleRepository extends JpaRepository<TutoringSchedu
         "LEFT JOIN tutoring t ON ts.tutoring_id = t.id " +
         "LEFT JOIN member m ON t.student_member_id = m.id " +
         "WHERE m.id = :studentMemberId " +
-        "AND DATE_ADD(STR_TO_DATE(CONCAT(ts.schedule_date, ' ', ts.start_time), '%Y-%m-%d %H:%i:%s'), INTERVAL ts.duration MINUTE) <= :endDateTime " +
-        "AND STR_TO_DATE(CONCAT(ts.schedule_date, ' ', ts.start_time), '%Y-%m-%d %H:%i:%s') >= :startDateTime",
+        "AND DATE_ADD(STR_TO_DATE(CONCAT(ts.schedule_date, ' ', ts.start_time), '%Y-%m-%d %H:%i:%s'), INTERVAL ts.duration MINUTE) >= :startDateTime " +
+        "AND STR_TO_DATE(CONCAT(ts.schedule_date, ' ', ts.start_time), '%Y-%m-%d %H:%i:%s') <= :endDateTime",
         nativeQuery = true)
     List<TutoringSchedule> findTutoringSchedulesByStudentAndDateRange(
         @Param("studentMemberId") Long studentMemberId,
