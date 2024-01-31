@@ -8,7 +8,6 @@ import CareerIcon from '@/components/icons/Career';
 import DollarIcon from '@/components/icons/Dollar';
 import UserIcon from '@/components/icons/User';
 import BookIcon from '@/components/icons/Book';
-import { IFilterOptionValue } from '@/apis/matching/matching';
 import FilterOption from './FilterOption';
 import { subjectDefaultOptions, univDefaultOptions } from './filterDefaultOptions';
 import SelectOptionBox from './SelectOptionBox';
@@ -17,7 +16,8 @@ import useFilter from '@/components/FilterOpenTeacherList/useFilter';
 // import Close from '../icons/Close';
 
 export interface IFilterOption {
-    name: keyof IFilterOptionValue | 'filter';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    name: any | 'filter';
     title: string;
     icon: () => JSX.Element;
     defaultOptionValues?: string[];

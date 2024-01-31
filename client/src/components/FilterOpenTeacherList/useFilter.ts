@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { IFilterOption } from '@/components/FilterOpenTeacherList/FilterOpenTeacherList';
-import { IFilterOptionValue } from '@/apis/matching/matching';
 
 interface IUseFilter {
     filterOptions: IFilterOption[];
 }
 
 export interface IOptionValue {
-    name: keyof IFilterOptionValue;
+    name: keyof IFilterOption;
     label: string;
     multiple: boolean;
     selected: boolean;
