@@ -40,6 +40,7 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
     });
 
     useEffect(() => {
+        console.log(homeworkData);
         const { drawings } = homeworkData;
         const initialMyHomeworkDrawings: IMyHomeworkDrawings = drawings.reduce(
             (acc, { page, homeworkDrawingUrl }) => {
@@ -90,7 +91,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     const homeworkData = await getHomework(homeworkId);
 
-    return { props: { homeworkData } };
+    return { props: { homeworkData: homeworkData || null } };
 };
 
 const StyledHomeworkContainer = styled.div`

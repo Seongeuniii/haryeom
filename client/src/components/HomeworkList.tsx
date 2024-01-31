@@ -32,16 +32,22 @@ const HomeworkList = ({ homeworkList }: HomeworkListProps) => {
                 <Scope className="homework-list__header">범위</Scope>
             </HomeworkTableTitle>
             <HomeworkCards>
-                {homeworkList?.map((homework, index) => (
-                    <Link href={`homework/${homework.homeworkId}`} key={`homework_${index}`}>
-                        <HomeworkCard>
-                            <State status={homework.status}>{getStatusText(homework.status)}</State>
-                            <Deadline>{homework.deadline}</Deadline>
-                            <Resource>{homework.textbookName}</Resource>
-                            <Scope>{`p. ${homework.startPage} ~ ${homework.endPage}`}</Scope>
-                        </HomeworkCard>
-                    </Link>
-                ))}
+                {homeworkList ? (
+                    homeworkList.map((homework, index) => (
+                        <Link href={`homework/${homework.homeworkId}`} key={`homework_${index}`}>
+                            <HomeworkCard>
+                                <State status={homework.status}>
+                                    {getStatusText(homework.status)}
+                                </State>
+                                <Deadline>{homework.deadline}</Deadline>
+                                <Resource>{homework.textbookName}</Resource>
+                                <Scope>{`p. ${homework.startPage} ~ ${homework.endPage}`}</Scope>
+                            </HomeworkCard>
+                        </Link>
+                    ))
+                ) : (
+                    <>숙제가 없어요:)</>
+                )}
             </HomeworkCards>
         </StyledHomeworkList>
     );
