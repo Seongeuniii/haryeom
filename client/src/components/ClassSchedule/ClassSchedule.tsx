@@ -39,6 +39,11 @@ const ClassSchedule = ({ tutoringSchedules: initialData }: ClassScheduleProps) =
     }, [date]);
 
     useEffect(() => {
+        if (!tutoringSchedules) return;
+        setRenderedTutoringSchedules(tutoringSchedules);
+    }, [tutoringSchedules]);
+
+    useEffect(() => {
         console.log(renderedTutoringSchedules);
     }, [renderedTutoringSchedules]);
 
