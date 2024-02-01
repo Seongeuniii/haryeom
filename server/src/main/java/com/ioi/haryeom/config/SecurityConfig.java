@@ -125,7 +125,7 @@ public class SecurityConfig {
                 UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling()
             .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
-            .accessDeniedHandler(new CustomAccessDeniedHanler());
+            .accessDeniedHandler(new CustomAccessDeniedHandler());
 
         return http.build();
     }
