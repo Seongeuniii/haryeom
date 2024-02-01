@@ -4,21 +4,31 @@ import CareerIcon from '@/components/icons/Career';
 import DollarIcon from '@/components/icons/Dollar';
 import UserIcon from '@/components/icons/User';
 import BookIcon from '@/components/icons/Book';
+import { IOpenTeacherDetail } from '@/apis/matching/matching';
 
-const OpenTeacherIntroduce = () => {
+interface IOpenTeacherIntroduceProps {
+    openTeacherDetail: IOpenTeacherDetail | undefined;
+    startChat: () => void;
+}
+
+const OpenTeacherIntroduce = ({ openTeacherDetail, startChat }: IOpenTeacherIntroduceProps) => {
     return (
         <StyledOpenTeacherIntroduce>
-            <StyledOpenTeacherIntroduceHeader>이태호 선생님</StyledOpenTeacherIntroduceHeader>
+            <StyledOpenTeacherIntroduceHeader>
+                {openTeacherDetail?.name} 선생님
+            </StyledOpenTeacherIntroduceHeader>
             <div style={{ display: 'flex' }}>
-                <TeacherProfileImg src="/images/cha.png" />
+                <TeacherProfileImg src={openTeacherDetail?.profileUrl} />
                 <StartMatching>
                     <MatchingButtonDescription>
-                        <span style={{ fontSize: '1.2em', fontWeight: 'bold' }}>이태호 </span>
+                        <span style={{ fontSize: '1.2em', fontWeight: 'bold' }}>
+                            {openTeacherDetail?.name}{' '}
+                        </span>
                         선생님에게
                         <br />
                         원하는 수업에 대해 문의해 보세요!
                     </MatchingButtonDescription>
-                    <StartChattingButton>채팅으로 문의하기</StartChattingButton>
+                    <StartChattingButton onClick={startChat}>채팅으로 문의하기</StartChattingButton>
                 </StartMatching>
             </div>
             <TeacherTutoringInfo>
@@ -27,31 +37,33 @@ const OpenTeacherIntroduce = () => {
                         <Icon>
                             <BookIcon />
                         </Icon>
-                        <span>국어 수학 영어</span>
+                        {openTeacherDetail?.subjects.map((subject) => {
+                            return <span key={subject.subjectId}>{subject.name}</span>;
+                        })}
                     </Info>
                     <Info>
                         <Icon>
                             <GraduationCap />
                         </Icon>
-                        <span>서울대학교</span>
+                        <span>{openTeacherDetail?.college}</span>
                     </Info>
                     <Info>
                         <Icon>
                             <CareerIcon />
                         </Icon>
-                        <span>경력 10년 이상</span>
+                        <span>경력 {openTeacherDetail?.career}년</span>
                     </Info>
                     <Info>
                         <Icon>
                             <UserIcon />
                         </Icon>
-                        <span>여</span>
+                        <span>{openTeacherDetail?.gender === 'MALE' ? '여자' : '남자'}</span>
                     </Info>
                     <Info>
                         <Icon>
                             <DollarIcon />
                         </Icon>
-                        <span>수업료</span>
+                        <span>최소 {openTeacherDetail?.salary}원</span>
                     </Info>
                 </Infos>
                 <TeacherIntroduceText>
