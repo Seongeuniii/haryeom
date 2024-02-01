@@ -19,7 +19,7 @@ const ClassSchedule = ({ tutoringSchedules: initialData }: ClassScheduleProps) =
     const userSession = useRecoilValue(userSessionAtom);
     if (!userSession) return null;
 
-    const { day, yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
+    const { date, yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
     const { data: tutoringSchedules, isLoading } = useGetTutoringSchedules(
         userSession.role,
         yearMonth,
@@ -33,10 +33,10 @@ const ClassSchedule = ({ tutoringSchedules: initialData }: ClassScheduleProps) =
         if (!tutoringSchedules) return;
         setRenderedTutoringSchedules(
             tutoringSchedules.filter(
-                (schedule) => schedule.scheduleDate === getFormattedYearMonthDay(day)
+                (schedule) => schedule.scheduleDate === getFormattedYearMonthDay(date)
             ) as ITutoringSchedules
         );
-    }, [day]);
+    }, [date]);
 
     useEffect(() => {
         console.log(renderedTutoringSchedules);
@@ -49,7 +49,7 @@ const ClassSchedule = ({ tutoringSchedules: initialData }: ClassScheduleProps) =
                 <TodayScheduleButton>오늘</TodayScheduleButton>
             </ClassScheduleHeader>
             <MyCalendar
-                selectedDate={day}
+                selectedDate={date}
                 handleClickDay={handleClickDay}
                 handleYearMonthChange={handleYearMonthChange}
             ></MyCalendar>
