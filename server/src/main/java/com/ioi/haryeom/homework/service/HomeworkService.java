@@ -3,6 +3,9 @@ package com.ioi.haryeom.homework.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ioi.haryeom.auth.dto.AuthInfo;
 import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.aws.S3Upload;
@@ -285,10 +288,18 @@ public class HomeworkService {
     public void saveHomework(Long homeworkId, List<MultipartFile> file,String page, Long MemberId) {
         Homework homework = findHomeworkById(homeworkId);
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Integer> pages = Collections.EMPTY_LIST;
+        try {
+            pages = objectMapper.readValue(page, new TypeReference<List<Integer>>() {});
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("JSON parsing error");
+        }
+
         for(int i = 0; i < file.size(); i++) {
 
             MultipartFile f = file.get(i);
-            Integer p = Integer.parseInt(page);
+            Integer p = pages.get(i);
             String fileName = f.getOriginalFilename();
             String fileUrl = "";
 
@@ -313,11 +324,18 @@ public class HomeworkService {
     public void saveHomeworkReview(Long homeworkId, List<MultipartFile> file, String page, Long MemberId) {
         Homework homework = findHomeworkById(homeworkId);
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Integer> pages = Collections.EMPTY_LIST;
+        try {
+            pages = objectMapper.readValue(page, new TypeReference<List<Integer>>() {});
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("JSON parsing error");
+        }
 
         for(int i = 0; i < file.size(); i++) {
 
             MultipartFile f = file.get(i);
-            Integer p = Integer.parseInt(page);
+            Integer p = pages.get(i);
             String fileName = f.getOriginalFilename();
             String fileUrl = "";
 
