@@ -58,6 +58,8 @@ public class ChatRoomService {
         Teacher teacher = findTeacherById(teacherId);
         Member teacherMember = teacher.getMember();
         Member studentMember = findMemberById(memberId);
+        log.info("[CREAT OR GET CHATROOM] teacherId : {}, teacherMemberId : {}, studentMemberId : {}", teacher.getId(), teacherMember.getId(),
+            studentMember.getId());
 
         return chatRoomRepository.findByTeacherMemberAndStudentMemberAndIsDeletedFalse(teacherMember, studentMember)
             .map(ChatRoom::getId)
@@ -84,6 +86,8 @@ public class ChatRoomService {
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
         chatRoomStateRepository.save(studentChatRoomState);
         chatRoomStateRepository.save(teacherChatRoomState);
+        log.info("[CREAT CHATROOM] chatRoomId : {}, teacherMemberId : {}, studentMemberId : {}", savedChatRoom.getId(), teacherMember.getId(),
+            studentMember.getId());
         return savedChatRoom.getId();
     }
 
