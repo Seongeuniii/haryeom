@@ -4,10 +4,27 @@ import { useModal } from '@/hooks/useModal';
 import Modal from '@/components/commons/Modal';
 import TutoringApplicationForm from '@/components/ TutoringApplicationForm';
 import userSessionAtom from '@/recoil/atoms/userSession';
+import { requestMatching } from '@/apis/chat/get-matching-status';
+import chatSessionAtom from '@/recoil/atoms/chat';
 
 const NotRequest = () => {
     const userSession = useRecoilValue(userSessionAtom);
+    const chatSession = useRecoilValue(chatSessionAtom);
     const { open, openModal, closeModal } = useModal();
+
+    const request = async () => {
+        const data = await requestMatching({
+            chatRoomId: chatSession.chatRoomId as number,
+            subjectId: 1,
+            hourlyRate: 30000,
+        });
+        if (data) {
+            alert('과외 신청을 성공적으로 완료했어요:)');
+            closeModal();
+        } else {
+            alert('과외 신청에 실패했어요.');
+        }
+    };
 
     if (userSession?.role === 'TEACHER') {
         return (
@@ -19,7 +36,7 @@ const NotRequest = () => {
     return (
         <StyledNotRequest>
             <Modal open={open} closeModal={closeModal}>
-                <TutoringApplicationForm />
+                <TutoringApplicationForm request={request} />
             </Modal>
             <ApplyTutoringButton onClick={openModal}>과외 신청하기</ApplyTutoringButton>
         </StyledNotRequest>

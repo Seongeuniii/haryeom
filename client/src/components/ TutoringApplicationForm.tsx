@@ -2,9 +2,12 @@ import styled from 'styled-components';
 import SelectForm from '@/components/commons/SelectForm';
 import InputForm from '@/components/commons/InputForm';
 import { subjectDefaultOptions } from './FilterOpenTeacherList/filterDefaultOptions';
-import { requestMatching } from '@/apis/chat/get-matching-status';
 
-const TutoringApplicationForm = () => {
+interface TutoringApplicationFormProps {
+    request: () => void;
+}
+
+const TutoringApplicationForm = ({ request }: TutoringApplicationFormProps) => {
     return (
         <ApplyTutoringForm>
             <ApplyTutoringFormHeader>과외 신청서</ApplyTutoringFormHeader>
@@ -23,17 +26,7 @@ const TutoringApplicationForm = () => {
                 <InputForm label={''} name={''} handleChange={() => {}} />
                 <span>만원</span>
             </InputTutoringFee>
-            <SubmitButton
-                onClick={async () =>
-                    await requestMatching({
-                        chatRoomId: 1,
-                        subjectId: 1,
-                        hourlyRate: 30000,
-                    })
-                }
-            >
-                신청하기
-            </SubmitButton>
+            <SubmitButton onClick={request}>신청하기</SubmitButton>
         </ApplyTutoringForm>
     );
 };

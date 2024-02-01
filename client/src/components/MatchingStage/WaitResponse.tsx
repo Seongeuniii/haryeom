@@ -3,8 +3,24 @@ import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import { responseMatching } from '@/apis/chat/get-matching-status';
 
-const WaitResponse = () => {
+interface WaitResponseProps {
+    matchingId: string;
+}
+
+const WaitResponse = ({ matchingId }: WaitResponseProps) => {
     const userSession = useRecoilValue(userSessionAtom);
+
+    const response = async (acceptStatus: boolean) => {
+        const data = await responseMatching({
+            matchingId,
+            isAccepted: acceptStatus,
+        });
+        if (data) {
+            alert('과외 수락 완료');
+        } else {
+            alert('과외 거절 완료');
+        }
+    };
 
     return (
         <>
@@ -20,26 +36,8 @@ const WaitResponse = () => {
             </StyledWaitResponse>
             {userSession?.role === 'TEACHER' && (
                 <ResponseButtons>
-                    <ResponseButton
-                        onClick={async () => {
-                            await responseMatching({
-                                matchingId: '3d45ca10-d292-4563-a973-e2b47c36222a',
-                                isAccepted: true,
-                            });
-                        }}
-                    >
-                        수락
-                    </ResponseButton>
-                    <ResponseButton
-                        onClick={async () => {
-                            await responseMatching({
-                                matchingId: 'd47bd6cf-35db-4fa0-a0a9-f89100fed257',
-                                isAccepted: false,
-                            });
-                        }}
-                    >
-                        거절
-                    </ResponseButton>
+                    <ResponseButton onClick={() => response(true)}>수락</ResponseButton>
+                    <ResponseButton onClick={() => response(false)}>거절</ResponseButton>
                 </ResponseButtons>
             )}
         </>

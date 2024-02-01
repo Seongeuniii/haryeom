@@ -22,7 +22,7 @@ const MatchingStage = ({ requestStatus, responseStatus }: MatchingStage) => {
     if (requestStatus && !responseStatus) {
         return (
             <StyledMatchingRequest>
-                <WaitResponse />
+                <WaitResponse matchingId={requestStatus.matchingId} />
             </StyledMatchingRequest>
         );
     }
