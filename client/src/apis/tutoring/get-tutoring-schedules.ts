@@ -1,12 +1,11 @@
 import axios from 'axios';
-import { ITeacherTutoringSchedules, IStudentTutoringSchedules } from './tutoring';
+import { ITutoringSchedules } from './tutoring';
 import { IUserRole } from '../user/user';
 
 const path = '/tutoring/schedule';
 
 interface ReturnType {
-    teacherTutoringSchedules?: ITeacherTutoringSchedules;
-    studentTutoringSchedules?: IStudentTutoringSchedules;
+    [key: string]: ITutoringSchedules;
 }
 
 export const getTutoringSchedules = async (userRole: IUserRole, yearmonth: string) => {
@@ -14,7 +13,7 @@ export const getTutoringSchedules = async (userRole: IUserRole, yearmonth: strin
         const res = await axios.get<ReturnType>(
             `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${userRole.toLocaleLowerCase()}?yearmonth=${yearmonth}`
         );
-        return res.data.teacherTutoringSchedules;
+        return res.data[`${userRole.toLocaleLowerCase()}TutoringSchedules`];
     } catch (e) {
         console.log(e);
     }
