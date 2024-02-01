@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { ITeacherSchedule } from '@/apis/tutoring/tutoring';
-import { addMinutesToTime } from '@/utils/time';
+import { addMinutesToTime, getHourMin } from '@/utils/time';
 
 interface TeacherScheduleCardProps {
     schedule: ITeacherSchedule;
@@ -11,15 +11,15 @@ const TeacherScheduleCard = ({ schedule }: TeacherScheduleCardProps) => {
         <StyledTeacherScheduleCard>
             <div>
                 <ScheduledTime>
-                    <StartTime>{schedule.startTime}</StartTime>
+                    <StartTime>{getHourMin(schedule.startTime)}</StartTime>
                     <Duration>~ {addMinutesToTime(schedule.startTime, schedule.duration)}</Duration>
                 </ScheduledTime>
                 <ClassInfo>
-                    <Subject>{schedule.studentName}</Subject>
+                    <Subject>{schedule.subject.name}</Subject>
                     <Curriculum>| {schedule.title}</Curriculum>
                 </ClassInfo>
             </div>
-            <ClassState>종료</ClassState>
+            {/* <ClassState>종료</ClassState> */}
         </StyledTeacherScheduleCard>
     );
 };

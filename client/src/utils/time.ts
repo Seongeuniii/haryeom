@@ -11,13 +11,21 @@ export const getFormattedYearMonthDay = (date: Date): string => {
     return `${year}-${month}-${day}`;
 };
 
-export const addMinutesToTime = (startTime: string, minutesToAdd: number) => {
-    const startDate = new Date(`2000-01-01T${startTime}:00`);
-    const endTime = new Date(startDate.getTime() + minutesToAdd * 60000);
+// 00:11:00 + 120 = 13:00
+export const addMinutesToTime = (timeString: string, minutesToAdd: number): string => {
+    const [hours, minutes] = timeString.split(':').map(Number);
 
-    const hours = endTime.getHours().toString().padStart(2, '0');
-    const minutes = endTime.getMinutes().toString().padStart(2, '0');
+    const newHours = (hours + Math.floor((minutes + minutesToAdd) / 60)) % 24;
+    const newMinutes = (minutes + minutesToAdd) % 60;
 
-    const formattedEndTime = `${hours}:${minutes}`;
-    return formattedEndTime;
+    const formattedHours = newHours.toString().padStart(2, '0');
+    const formattedMinutes = newMinutes.toString().padStart(2, '0');
+
+    return `${formattedHours}:${formattedMinutes}`;
+};
+
+// 00:00:00 -> 00:00
+export const getHourMin = (timeString: string): string => {
+    const [hours, minutes] = timeString.split(':').slice(1); // "18:00"에서 "18"과 "00"을 추출
+    return `${hours}:${minutes}`;
 };
