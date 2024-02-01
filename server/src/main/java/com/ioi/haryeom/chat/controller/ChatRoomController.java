@@ -28,11 +28,10 @@ public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
 
-    // 채팅방 생성
+    // 채팅방 생성 또는 조회
     @PostMapping("")
-    public ResponseEntity<Void> createChatRoom(@RequestBody @Validated ChatRoomRequest request, @AuthMemberId Long memberId) {
-
-        Long chatRoomId = chatRoomService.createChatRoom(request.getTeacherId(), memberId);
+    public ResponseEntity<Void> createOrGetChatRoom(@RequestBody @Validated ChatRoomRequest request, @AuthMemberId Long memberId) {
+        Long chatRoomId = chatRoomService.createOrGetChatRoom(request.getTeacherId(), memberId);
         return ResponseEntity.created(URI.create("/chatrooms/" + chatRoomId)).build();
     }
 
@@ -45,14 +44,15 @@ public class ChatRoomController {
 
     // 채팅방 나가기
     @DeleteMapping("/{chatRoomId}")
-    public ResponseEntity<Void> exitChatRoom(@PathVariable Long chatRoomId,@AuthMemberId Long memberId) {
+    public ResponseEntity<Void> exitChatRoom(@PathVariable Long chatRoomId, @AuthMemberId Long memberId) {
         chatRoomService.exitChatRoom(memberId, chatRoomId);
         return ResponseEntity.noContent().build();
     }
 
     // 채팅방 메시지 목록 조회
     @GetMapping("/{chatRoomId}/messages")
-    public ResponseEntity<List<ChatMessageResponse>> getChatMessageList(@PathVariable Long chatRoomId, @RequestParam(required = false) String lastMessageId,
+    public ResponseEntity<List<ChatMessageResponse>> getChatMessageList(@PathVariable Long chatRoomId,
+        @RequestParam(required = false) String lastMessageId,
         @RequestParam(defaultValue = "20") Integer size, @AuthMemberId Long memberId) {
         List<ChatMessageResponse> response = chatRoomService.getChatMessageList(chatRoomId, lastMessageId, size, memberId);
         return ResponseEntity.ok(response);
