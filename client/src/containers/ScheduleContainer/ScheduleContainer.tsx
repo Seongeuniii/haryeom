@@ -17,6 +17,7 @@ import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
 import { getYearMonth } from '@/utils/time';
 import WithAuth from '@/hocs/withAuth';
 import { IUserRole } from '@/apis/user/user';
+import { useGetTutorings } from '@/queries/useGetTutorings';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -27,12 +28,16 @@ interface ScheduleContainerProps {
 
 const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const userSession = useRecoilValue(userSessionAtom);
+    if (!userSession) return;
     const { tutorings, tutoringSchedules, homeworkList, progressPercentage } = pageProps;
-    console.log(tutorings, tutoringSchedules, homeworkList, progressPercentage);
 
-    useEffect(() => {
-        console.log(userSession);
-    }, [userSession]);
+    useGetTutorings({
+        userRole: userSession.role,
+        initialData: tutorings,
+    });
+
+    console.log(tutorings, tutoringSchedules, homeworkList, progressPercentage);
+    console.log(userSession);
 
     return (
         <HomeLayout>
