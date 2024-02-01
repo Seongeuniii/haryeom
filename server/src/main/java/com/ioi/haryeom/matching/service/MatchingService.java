@@ -14,6 +14,7 @@ import com.ioi.haryeom.matching.dto.CreateMatchingRequest;
 import com.ioi.haryeom.matching.dto.CreateMatchingResponse;
 import com.ioi.haryeom.matching.dto.RespondToMatchingRequest;
 import com.ioi.haryeom.matching.dto.RespondToMatchingResponse;
+import com.ioi.haryeom.matching.exception.ChatRoomMatchingNotFoundException;
 import com.ioi.haryeom.matching.exception.DuplicateMatchingException;
 import com.ioi.haryeom.matching.exception.MatchingNotFoundException;
 import com.ioi.haryeom.matching.manager.MatchingManager;
@@ -26,6 +27,8 @@ import com.ioi.haryeom.tutoring.domain.TutoringStatus;
 import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import java.util.List;
+import java.util.Optional;
+import javax.swing.text.html.Option;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -87,13 +90,15 @@ public class MatchingService {
 
         String matchingId = request.getMatchingId();
 
-        validateMatchingRequestExists(matchingId);
-
         // [매칭 요청 정보] 가져오기
         log.info("[MATCHING REQUEST INFO] RETRIEVE");
-        CreateMatchingResponse createdMatchingResponse = matchingManager.getMatchingRequestByMatchingId(matchingId);
+        CreateMatchingResponse createdMatchingResponse = Optional.ofNullable(matchingManager.getMatchingRequestByMatchingId(matchingId))
+            .orElseThrow(() -> new MatchingNotFoundException(matchingId));
 
-        ChatRoom chatRoom = findChatRoomById(matchingManager.getChatRoomId(matchingId));
+        Long chatRoomId = Optional.ofNullable(matchingManager.getChatRoomId(matchingId))
+            .orElseThrow(() -> new ChatRoomMatchingNotFoundException(matchingId));
+
+        ChatRoom chatRoom = findChatRoomById(chatRoomId);
         Member member = findMemberById(memberId);
         validateMemberInChatRoom(chatRoom, member);
 
@@ -140,20 +145,14 @@ public class MatchingService {
 
     private boolean processMatchingResponses(Long chatRoomId) {
 
-        // 해당 채팅방에 대한 응답이 존재하는지 먼저 확인
-        if (!matchingManager.existsMatchingResponseByChatRoomId(chatRoomId)) {
+        RespondToMatchingResponse lastResponse = matchingManager.getLastMatchingResponse(chatRoomId);
+
+        // 마지막 응답이 비어있거나 거절이 아니면 false
+        if(lastResponse == null || lastResponse.getIsAccepted()) {
             return false;
         }
 
-        List<RespondToMatchingResponse> respondList = matchingManager.getMatchingResponseByChatRoomId(chatRoomId);
-
-        // 마지막 응답이 거절이 아니면 false
-        if (respondList.get(respondList.size() - 1).getIsAccepted()) {
-            return false;
-        }
-
-        respondList.remove(respondList.size() - 1);
-        matchingManager.updateMatchingResponse(chatRoomId, respondList);
+        matchingManager.removeLastMatchingResponse(chatRoomId);
         return true;
     }
 
@@ -203,12 +202,6 @@ public class MatchingService {
     private void validateNoExistingMatching(ChatRoom chatRoom) {
         if (matchingManager.existsMatchingRequestByChatRoomId(chatRoom.getId())) {
             throw new DuplicateMatchingException(chatRoom.getId());
-        }
-    }
-
-    private void validateMatchingRequestExists(String matchingId) {
-        if (!matchingManager.existsMatchingRequestByMatchingId(matchingId)) {
-            throw new MatchingNotFoundException(matchingId);
         }
     }
 
