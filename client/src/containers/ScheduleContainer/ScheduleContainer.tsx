@@ -2,6 +2,7 @@ import { GetServerSideProps } from 'next';
 import { getCookie } from 'cookies-next';
 import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
+import { useEffect } from 'react';
 
 import HomeLayout from '@/components/layouts/HomeLayout';
 import ClassSchedule from '@/components/ClassSchedule';
@@ -15,7 +16,7 @@ import { getTutorings } from '@/apis/tutoring/get-tutorings';
 import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
 import { getYearMonth } from '@/utils/time';
 import WithAuth from '@/hocs/withAuth';
-import { useEffect } from 'react';
+import { IUserRole } from '@/apis/user/user';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -54,8 +55,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         return { props: {} };
     }
 
-    const tutorings = await getTutorings('TEACHER');
-    const tutoringSchedules = await getTutoringSchedules('TEACHER', getYearMonth(new Date()));
+    const userRole = getCookie('userRole', { req }) as IUserRole;
+
+    const tutorings = await getTutorings(userRole);
+    const tutoringSchedules = await getTutoringSchedules(userRole, getYearMonth(new Date()));
     const homeworkListInfo =
         tutorings && tutorings.length > 0
             ? await getHomeworkList(tutorings[0].tutoringId)

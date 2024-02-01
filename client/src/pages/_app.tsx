@@ -11,6 +11,7 @@ import MainLayout from '@/components/layouts/MainLayout';
 import { getUser } from '@/apis/user/get-user';
 import { IUser } from '@/apis/user/user';
 import userSession from '@/recoil/atoms/userSession';
+import { setCookie } from 'cookies-next';
 
 interface MyAppProps extends AppProps {
     loginUserData: IUser | undefined;
@@ -51,6 +52,10 @@ MyApp.getInitialProps = async (appContext: AppContext) => {
         cookie = ctx.req.headers.cookie;
         axios.defaults.headers.common['Cookie'] = cookie;
         user = await getUser(ctx);
+    }
+
+    if (user) {
+        setCookie('userRole', user.role, ctx);
     }
 
     const appProps = App.getInitialProps(appContext);
