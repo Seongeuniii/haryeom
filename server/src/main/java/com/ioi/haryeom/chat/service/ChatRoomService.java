@@ -8,6 +8,7 @@ import com.ioi.haryeom.chat.dto.ChatMessageResponse;
 import com.ioi.haryeom.chat.dto.ChatRoomResponse;
 import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
 import com.ioi.haryeom.chat.exception.ChatRoomStateNotFoundException;
+import com.ioi.haryeom.chat.exception.SelfChatroomException;
 import com.ioi.haryeom.chat.repository.ChatMessageRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomStateRepository;
@@ -58,6 +59,8 @@ public class ChatRoomService {
         Teacher teacher = findTeacherById(teacherId);
         Member teacherMember = teacher.getMember();
         Member studentMember = findMemberById(memberId);
+        validateSelfChatRoom(teacherMember, studentMember);
+
         log.info("[CREAT OR GET CHATROOM] teacherId : {}, teacherMemberId : {}, studentMemberId : {}", teacher.getId(), teacherMember.getId(),
             studentMember.getId());
 
@@ -192,6 +195,12 @@ public class ChatRoomService {
         Member oppositeMember = chatRoomState.getChatRoom().getOppositeMember(member);
 
         return ChatRoomResponse.of(chatRoomId, lastChatMessage, oppositeMember, unreadMessageCount);
+    }
+
+    private void validateSelfChatRoom(Member teacherMember, Member studentMember) {
+        if (teacherMember.equals(studentMember)) {
+            throw new SelfChatroomException();
+        }
     }
 
     private Pageable createPageable(Integer size) {
