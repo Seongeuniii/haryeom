@@ -53,15 +53,21 @@ public class ChatRoomService {
     // 채팅방 생성
     // 선생님이 선생님 찾기를 통해서 연락할 수 있다.
     @Transactional
-    public Long createChatRoom(Long teacherId, Long memberId) {
+    public Long createOrGetChatRoom(Long teacherId, Long memberId) {
 
         Teacher teacher = findTeacherById(teacherId);
         Member teacherMember = teacher.getMember();
-
         Member studentMember = findMemberById(memberId);
 
+        return chatRoomRepository.findByTeacherMemberAndStudentMemberAndIsDeletedFalse(teacherMember, studentMember)
+            .map(ChatRoom::getId)
+            .orElseGet(() -> createNewChatRoom(teacherMember, studentMember));
+    }
+
+    private Long createNewChatRoom(Member teacherMember, Member studentMember) {
+
         ChatRoom chatRoom = ChatRoom.builder()
-            .teacherMember(teacher.getMember())
+            .teacherMember(teacherMember)
             .studentMember(studentMember)
             .build();
 
@@ -78,7 +84,6 @@ public class ChatRoomService {
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
         chatRoomStateRepository.save(studentChatRoomState);
         chatRoomStateRepository.save(teacherChatRoomState);
-
         return savedChatRoom.getId();
     }
 
