@@ -1,4 +1,5 @@
 import { IStudentInfoKeys, TeacherInfoKeys, IUserRole } from '@/apis/user/user';
+import { subjectDefaultOptions } from '@/components/FilterOpenTeacherList/filterDefaultOptions';
 
 export interface Form {
     inputType: 'select' | 'text';
@@ -23,14 +24,14 @@ export const registUserInfoStep: { [key: number]: string } = {
 
 export const requiredInfos: UserInfos = {
     TEACHER: {
-        profileUrl: { inputType: 'text', label: '프로필 사진' },
+        profileUrl: { inputType: 'file', label: '프로필 사진' },
         name: { inputType: 'text', label: '이름' },
         college: { inputType: 'text', label: '대학교' },
         collegeEmail: { inputType: 'text', label: '대학교 이메일 인증', name: 'collegeEmail' },
         phone: { inputType: 'text', label: '전화번호', name: 'phone' },
     },
     STUDENT: {
-        profileUrl: { inputType: 'text', label: '프로필 사진' },
+        profileUrl: { inputType: 'file', label: '프로필 사진' },
         name: { inputType: 'text', label: '이름' },
         school: { inputType: 'text', label: '학교' },
         grade: {
@@ -62,15 +63,15 @@ export const optionalInfos: UserInfos = {
         profileStatus: {
             inputType: 'select',
             label: '프로필 공개 여부',
-            option: [true, false],
+            option: ['공개', '비공개'],
         },
-        gender: { inputType: 'select', label: '성별', option: ['male', 'female'] },
+        gender: { inputType: 'select', label: '성별', option: ['여자', '남자'] },
         salary: { inputType: 'text', label: '예상 과외비' },
         career: { inputType: 'text', label: '경력' },
         subjects: {
             inputType: 'select',
             label: '가르칠 과목',
-            option: ['국어', '영어', '수학'],
+            option: subjectDefaultOptions,
         },
         introduce: { inputType: 'text', label: '선생님 소개' },
     },

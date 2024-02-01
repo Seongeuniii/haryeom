@@ -1,15 +1,26 @@
 import React from 'react';
 import styled from 'styled-components';
 import SelectForm from '../commons/SelectForm';
+import { useGetTutorings } from '@/queries/useGetTutorings';
+import { useRecoilValue } from 'recoil';
+import userSessionAtom from '@/recoil/atoms/userSession';
+import { ITeacherTutorings } from '@/apis/tutoring/tutoring';
 
 const SelectTutoringId = () => {
+    const userSession = useRecoilValue(userSessionAtom);
+    if (!userSession) return;
+
+    const { data: tutorings } = useGetTutorings({ userRole: userSession.role });
+
     return (
         <StyledSelectTutoringId>
             <SelectTutoringIdHeader>과외 선택</SelectTutoringIdHeader>
             <SelectForm
                 label={'과목 | 학생 선택'}
                 name={'tutoringId'}
-                optionList={['수학 | 김성은 학생', '영어 | 이태호 학생']}
+                optionList={(tutorings as ITeacherTutorings).map(
+                    (tutoring) => `${tutoring.subject.name} | ${tutoring.student.studentName} 학생`
+                )}
                 handleSelect={(name, option) => {
                     console.log(name, option);
                 }}
