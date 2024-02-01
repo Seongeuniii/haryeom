@@ -14,6 +14,8 @@ pipeline {
         NEXT_PUBLIC_API_SERVER = credentials('NEXT_PUBLIC_API_SERVER')
         NEXT_PUBLIC_REST_API_KEY = credentials('NEXT_PUBLIC_REST_API_KEY')
         NEXT_PUBLIC_REDIRECT_URI = credentials('NEXT_PUBLIC_REDIRECT_URI')
+        NEXT_PUBLIC_CHAT_SERVER = credentials('NEXT_PUBLIC_CHAT_SERVER')
+        NEXT_PUBLIC_SIGNALING_SERVER = credentials('NEXT_PUBLIC_SIGNALING_SERVER')
         MATTERMOST_ENDPOINT = credentials('mattermost_endpoint')
         MATTERMOST_CHANNEL = credentials('mattermost_channel')
     }
@@ -55,6 +57,8 @@ pipeline {
                     sh "echo 'NEXT_PUBLIC_API_SERVER=${NEXT_PUBLIC_API_SERVER}' > .env"
                     sh "echo 'NEXT_PUBLIC_REST_API_KEY=${NEXT_PUBLIC_REST_API_KEY}' >> .env"
                     sh "echo 'NEXT_PUBLIC_REDIRECT_URI=${NEXT_PUBLIC_REDIRECT_URI}' >> .env"
+                    sh "echo 'NEXT_PUBLIC_CHAT_SERVER=${NEXT_PUBLIC_CHAT_SERVER}' >> .env"
+                    sh "echo 'NEXT_PUBLIC_SIGNALING_SERVER=${NEXT_PUBLIC_SIGNALING_SERVER}' >> .env"
                     sh 'npm install'
                     sh 'npm run build'
                 }
