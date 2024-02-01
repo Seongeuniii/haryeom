@@ -282,13 +282,13 @@ public class HomeworkService {
     }
 
     @Transactional
-    public void saveHomework(Long homeworkId, List<MultipartFile> file, List<Integer> page, Long MemberId) {
+    public void saveHomework(Long homeworkId, List<MultipartFile> file,String page, Long MemberId) {
         Homework homework = findHomeworkById(homeworkId);
 
         for(int i = 0; i < file.size(); i++) {
 
             MultipartFile f = file.get(i);
-            Integer p = page.get(i);
+            Integer p = Integer.parseInt(page);
             String fileName = f.getOriginalFilename();
             String fileUrl = "";
 
@@ -310,14 +310,14 @@ public class HomeworkService {
     }
 
     @Transactional
-    public void saveHomeworkReview(Long homeworkId, List<MultipartFile> file, List<Integer> page, Long MemberId) {
+    public void saveHomeworkReview(Long homeworkId, List<MultipartFile> file, String page, Long MemberId) {
         Homework homework = findHomeworkById(homeworkId);
 
 
         for(int i = 0; i < file.size(); i++) {
 
             MultipartFile f = file.get(i);
-            Integer p = page.get(i);
+            Integer p = Integer.parseInt(page);
             String fileName = f.getOriginalFilename();
             String fileUrl = "";
 
