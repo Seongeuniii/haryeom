@@ -4,12 +4,18 @@ export type IStudentTutorings = IStudentTutoring[];
 
 export interface ITeacherTutoring {
     tutoringId: number;
-    student: StudentReceivingTutoring;
+    studentMemberId: number;
+    studentName: string;
+    studentProfileUrl: string;
+    studentSchool: string;
+    studentGrade: string;
     subject: ISubject;
 }
 export interface IStudentTutoring {
     tutoringId: number;
-    teacher: TeacherGivingTutoring;
+    teacherId: number;
+    teacherName: string;
+    teacherProfileUrl: string;
     subject: ISubject;
 }
 

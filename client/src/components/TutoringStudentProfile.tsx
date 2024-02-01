@@ -15,19 +15,19 @@ const TutoringStudentProfile = ({ tutoring }: TutoringStudentProfileProps) => {
             ) : (
                 <>
                     <ProfileImage>
-                        <img src={tutoring.student.studentProfileUrl} alt="" />
+                        <img src={tutoring.studentProfileUrl} alt="" />
                     </ProfileImage>
                     <StudentInfo>
                         <SubjectName>
                             <span>{tutoring.subject.name}</span>
-                            <span> (${tutoring.student.studentName} 학생)</span>
+                            <span> (${tutoring.studentName} 학생)</span>
                             <button style={{ width: '14px', marginLeft: '0.4em' }}>
                                 <Select />
                             </button>
                         </SubjectName>
                         <SchoolGrade>
                             <span>
-                                ${tutoring.student.studentSchool} ${tutoring.student.studentGrade}
+                                ${tutoring.studentSchool} ${tutoring.studentGrade}
                             </span>
                         </SchoolGrade>
                     </StudentInfo>
