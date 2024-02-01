@@ -282,16 +282,18 @@ public class HomeworkService {
     }
 
     @Transactional
-    public void saveHomework(Long homeworkId, HomeworkDrawingRequest drawings, Long MemberId) {
+    public void saveHomework(Long homeworkId, List<MultipartFile> file, List<Integer> page, Long MemberId) {
         Homework homework = findHomeworkById(homeworkId);
 
-        for(MultipartFile file : drawings.getFile()) {
+        for(int i = 0; i < file.size(); i++) {
 
-            String fileName = file.getOriginalFilename();
+            MultipartFile f = file.get(i);
+            Integer p = page.get(i);
+            String fileName = f.getOriginalFilename();
             String fileUrl = "";
 
             try {
-                fileUrl = s3Upload.uploadFile(fileName, file.getInputStream(), file.getSize(), file.getContentType());
+                fileUrl = s3Upload.uploadFile(fileName, f.getInputStream(), f.getSize(), f.getContentType());
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new S3UploadException();
@@ -299,7 +301,7 @@ public class HomeworkService {
 
             Drawing drawing = Drawing.builder()
                     .homework(homework)
-                    .page(drawings.getPage())
+                    .page(p)
                     .homeworkDrawingUrl(fileUrl)
                     .build();
 
@@ -308,17 +310,19 @@ public class HomeworkService {
     }
 
     @Transactional
-    public void saveHomeworkReview(Long homeworkId, HomeworkDrawingRequest drawings, Long MemberId) {
+    public void saveHomeworkReview(Long homeworkId, List<MultipartFile> file, List<Integer> page, Long MemberId) {
         Homework homework = findHomeworkById(homeworkId);
 
 
-        for(MultipartFile file : drawings.getFile()) {
+        for(int i = 0; i < file.size(); i++) {
 
-            String fileName = file.getOriginalFilename();
+            MultipartFile f = file.get(i);
+            Integer p = page.get(i);
+            String fileName = f.getOriginalFilename();
             String fileUrl = "";
 
             try {
-                fileUrl = s3Upload.uploadFile(fileName, file.getInputStream(), file.getSize(), file.getContentType());
+                fileUrl = s3Upload.uploadFile(fileName, f.getInputStream(), f.getSize(), f.getContentType());
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new S3UploadException();
@@ -326,7 +330,7 @@ public class HomeworkService {
 
             Drawing drawing = Drawing.builder()
                     .homework(homework)
-                    .page(drawings.getPage())
+                    .page(p)
                     .reviewDrawingUrl(fileUrl)
                     .build();
 
