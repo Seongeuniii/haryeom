@@ -40,8 +40,8 @@ public class StudentHomeworkController {
     }
 
     // 숙제 저장(숙제 드로잉 저장)
-    @PostMapping(value = "/{homeworkdId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Void> saveHomework(@PathVariable Long homeworkId, @RequestPart("file") List<MultipartFile> file, @RequestPart("page") List<Integer> page, @AuthMemberId Long memberId) {
+    @PostMapping(value = "/{homeworkId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Void> saveHomework(@PathVariable Long homeworkId, @RequestPart("file") List<MultipartFile> file, @RequestPart("page") String page, @AuthMemberId Long memberId) {
 
         homeworkService.saveHomework(homeworkId, file, page, memberId);
 
@@ -50,7 +50,7 @@ public class StudentHomeworkController {
 
     // 숙제 저장(복습 드로잉 저장)
     @PostMapping(value = "/{homeworkId}/review", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Void> saveHomeworkReview(@PathVariable Long homeworkId, @RequestPart("file") List<MultipartFile> file, @RequestPart("page") List<Integer> page, @AuthMemberId Long memberId) {
+    public ResponseEntity<Void> saveHomeworkReview(@PathVariable Long homeworkId, @RequestPart("file") List<MultipartFile> file, @RequestPart("page") String page, @AuthMemberId Long memberId) {
 
         homeworkService.saveHomeworkReview(homeworkId, file, page, memberId);
 
