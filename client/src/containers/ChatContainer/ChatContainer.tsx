@@ -75,7 +75,7 @@ const OpenChatButton = styled.button`
     width: 65px;
     height: 65px;
     z-index: 100;
-    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+    background-color: ${({ theme }) => theme.PRIMARY};
     border-radius: 1em;
 `;
 
@@ -88,7 +88,7 @@ const StyledChatContainer = styled.div`
     z-index: 100;
     border-radius: 1.6em;
     background-color: white;
-    border: 2px solid ${({ theme }) => theme.PRIMARY_LIGHT};
+    border: 2px solid ${({ theme }) => theme.PRIMARY};
     box-shadow: 0px 0px 20px rgba(105, 105, 105, 0.25);
     padding: 2.5em;
 `;
