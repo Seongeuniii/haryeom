@@ -54,7 +54,7 @@ const Header = () => {
             <HeaderWrapper>
                 <Nav>
                     <Link href="/find">
-                        <Logo src="/images/logo.png" alt="logo" />
+                        <Logo>하렴</Logo>
                     </Link>
                     {userSession &&
                         navLinks[userSession.role].map((page, index) => (
@@ -101,10 +101,10 @@ const HeaderWrapper = styled.div`
     justify-content: space-between;
 `;
 
-const Logo = styled.img`
-    width: 80px;
-    height: 40px;
-    margin-right: 1em;
+const Logo = styled.span`
+    font-size: 30px;
+    font-weight: bold;
+    color: ${({ theme }) => theme.PRIMARY};
 `;
 
 const Nav = styled.nav`
