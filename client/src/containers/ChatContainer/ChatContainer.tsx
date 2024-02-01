@@ -6,12 +6,11 @@ import Close from '@/components/icons/Close';
 import GoBack from '@/components/icons/GoBack';
 import chatSessionAtom from '@/recoil/atoms/chat';
 import ChatRoomList from '@/components/ChatRoomList';
-import { useEffect, useState } from 'react';
-import { getChatRooms } from '@/apis/chat/get-chat-rooms';
-import { IChatRoom } from '@/apis/chat/chat';
+import { useGetChatRooms } from '@/queries/useGetChatRooms';
 
 const ChatContainer = () => {
     const [chatSession, setChatSession] = useRecoilState(chatSessionAtom);
+    const { data: chatRooms } = useGetChatRooms();
 
     const toggleChatContainer = (open: boolean) => {
         setChatSession((prev) => {
@@ -25,22 +24,11 @@ const ChatContainer = () => {
         });
     };
 
-    const [chatRooms, setChatRooms] = useState<IChatRoom[]>(); // TODO: react-query
-
     const joinChatRoom = (roomId: number) => {
         setChatSession((prev) => {
             return { ...prev, chatRoomId: roomId };
         });
     };
-
-    const initData = async () => {
-        const data = await getChatRooms();
-        setChatRooms(data);
-    };
-
-    useEffect(() => {
-        initData();
-    }, []);
 
     if (!chatSession.openChat) {
         return (
