@@ -5,7 +5,7 @@ import HomeLayout from '@/components/layouts/HomeLayout';
 
 const 변수 = 1; // 컴포넌트 밖에 변수 선언해도 됨.
 
-const Review = () => {
+const Mypage = () => {
     const [name, setName] = useState<number>(1);
 
     useEffect(() => {}, []); // 최초 렌더링 시에만 실행
@@ -16,15 +16,15 @@ const Review = () => {
 
     return (
         <HomeLayout>
-            <StyledReview>
+            <StyledMypage>
                 <div>{name}</div>
                 <button onClick={handleClick}>버튼</button>
-            </StyledReview>
+            </StyledMypage>
         </HomeLayout>
     );
 };
 
-const StyledReview = styled.div`
+const StyledMypage = styled.div`
     width: 100%;
     height: 100%;
     background-color: aliceblue;
@@ -42,4 +42,4 @@ const StyledReview = styled.div`
     }
 `;
 
-export default Review;
+export default Mypage;
