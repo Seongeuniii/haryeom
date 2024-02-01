@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 
 import HomeLayout from '@/components/layouts/HomeLayout';
 import ClassSchedule from '@/components/ClassSchedule';
-import { ITutoringSchedules, ITutorings } from '@/apis/tutoring/tutoring';
+import { ITeacherTutoring, ITutoringSchedules, ITutorings } from '@/apis/tutoring/tutoring';
 import { getHomeworkList } from '@/apis/homework/get-homework-list';
 import { IHomeworkList, IProgressPercentage } from '@/apis/homework/homework';
 import TutoringStudentProfile from '@/components/TutoringStudentProfile';
@@ -39,7 +39,11 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
             <StyledScheduleContainer>
                 <ClassSchedule tutoringSchedules={tutoringSchedules} />
                 <SelectedTutoring>
-                    <TutoringStudentProfile />
+                    {userSession.role === 'TEACHER' ? (
+                        <TutoringStudentProfile tutoring={tutorings[0] as ITeacherTutoring} />
+                    ) : (
+                        <></>
+                    )}
                     <HomeworkList homeworkList={homeworkList} />
                 </SelectedTutoring>
             </StyledScheduleContainer>

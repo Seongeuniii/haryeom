@@ -1,24 +1,38 @@
+import Link from 'next/link';
 import styled from 'styled-components';
 import Select from '@/components/icons/Select';
+import { IStudentTutoring, ITeacherTutoring } from '@/apis/tutoring/tutoring';
 
-const TutoringStudentProfile = () => {
+interface TutoringStudentProfileProps {
+    tutoring: ITeacherTutoring | undefined;
+}
+
+const TutoringStudentProfile = ({ tutoring }: TutoringStudentProfileProps) => {
     return (
         <StyledTutoringStudentProfile>
-            <ProfileImage>
-                <img src="/images/cha.png" alt="" />
-            </ProfileImage>
-            <StudentInfo>
-                <SubjectName>
-                    <span>수학</span>
-                    <span> (김성은 학생)</span>
-                    <button style={{ width: '14px', marginLeft: '0.4em' }}>
-                        <Select />
-                    </button>
-                </SubjectName>
-                <SchoolGrade>
-                    <span>하렴고등학교 2학년</span>
-                </SchoolGrade>
-            </StudentInfo>
+            {!tutoring ? (
+                <Link href={'/find'}>과외 매칭 하러가기</Link>
+            ) : (
+                <>
+                    <ProfileImage>
+                        <img src={tutoring.student.studentProfileUrl} alt="" />
+                    </ProfileImage>
+                    <StudentInfo>
+                        <SubjectName>
+                            <span>{tutoring.subject.name}</span>
+                            <span> (${tutoring.student.studentName} 학생)</span>
+                            <button style={{ width: '14px', marginLeft: '0.4em' }}>
+                                <Select />
+                            </button>
+                        </SubjectName>
+                        <SchoolGrade>
+                            <span>
+                                ${tutoring.student.studentSchool} ${tutoring.student.studentGrade}
+                            </span>
+                        </SchoolGrade>
+                    </StudentInfo>
+                </>
+            )}
             <Icon src="/images/student-girl.png" style={{ bottom: '0', right: '4em' }}></Icon>
             <Icon src="/images/student-boy.png" style={{ bottom: '0', right: '1em' }}></Icon>
         </StyledTutoringStudentProfile>
