@@ -5,6 +5,8 @@ import { IUserRole } from '@/apis/user/user';
 import Dropdown from '@/components/commons/Dropdown';
 import useDropdown from '@/hooks/useDropdown';
 import userSessionAtom from '@/recoil/atoms/userSession';
+import { useRouter } from 'next/router';
+import { deleteCookie } from 'cookies-next';
 
 export interface Page {
     name: string;
@@ -38,6 +40,14 @@ const navLinks: { [key in IUserRole]: Page[] } = {
 const Header = () => {
     const { open, openDropdown, closeDropdown } = useDropdown();
     const userSession = useRecoilValue(userSessionAtom);
+    const router = useRouter();
+
+    const logout = () => {
+        deleteCookie('accessToken');
+        deleteCookie('refreshToken');
+        deleteCookie('userRole');
+        router.reload();
+    };
 
     return (
         <StyledHeader>
@@ -59,7 +69,7 @@ const Header = () => {
                         <Dropdown open={open} closeDropdown={closeDropdown}>
                             <UserControlBox>
                                 <Button>마이페이지</Button>
-                                <Button>로그아웃</Button>
+                                <Button onClick={logout}>로그아웃</Button>
                             </UserControlBox>
                         </Dropdown>
                     </User>
