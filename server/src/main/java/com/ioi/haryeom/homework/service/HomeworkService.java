@@ -165,6 +165,7 @@ public class HomeworkService {
 
     //// 학생 숙제
 
+    @Transactional
     public HomeworkLoadResponse getLoadHomework(Long homeworkId, Long memberId) {
         Homework homework = findHomeworkById(homeworkId);
 
@@ -280,6 +281,7 @@ public class HomeworkService {
         return new HomeworkReviewResponse(homework, textbookInfo, drawingResponses);
     }
 
+    @Transactional
     public void saveHomework(Long homeworkId, HomeworkDrawingRequest drawings, Long MemberId) {
         Homework homework = findHomeworkById(homeworkId);
 
@@ -305,6 +307,7 @@ public class HomeworkService {
         }
     }
 
+    @Transactional
     public void saveHomeworkReview(Long homeworkId, HomeworkDrawingRequest drawings, Long MemberId) {
         Homework homework = findHomeworkById(homeworkId);
 
@@ -331,13 +334,13 @@ public class HomeworkService {
         }
     }
 
+    @Transactional
     public void submitHomework(Long homeworkId, Long MemberId) {
         Homework homework = findHomeworkById(homeworkId);
 
         validateHomeworkSubmission(homework);
 
         homework.submit();
-        homeworkRepository.save(homework);
     }
 
     private void validateStudentRole(AuthInfo authInfo) {
