@@ -14,6 +14,8 @@ pipeline {
         NEXT_PUBLIC_API_SERVER = credentials('NEXT_PUBLIC_API_SERVER')
         NEXT_PUBLIC_REST_API_KEY = credentials('NEXT_PUBLIC_REST_API_KEY')
         NEXT_PUBLIC_REDIRECT_URI = credentials('NEXT_PUBLIC_REDIRECT_URI')
+        MATTERMOST_ENDPOINT = credentials('mattermost_endpoint')
+        MATTERMOST_CHANNEL = credentials('mattermost_channel')
     }
 
     stages {
@@ -85,6 +87,33 @@ pipeline {
                 dir('client') {
                     sh 'docker-compose up -d'
                 }
+            }
+        }
+    }
+
+    post {
+        success {
+        	script {
+                def Author_ID = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
+                def Author_Name = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
+                mattermostSend (
+                    color: 'good', 
+                    message: "Client Build Success: ${env.JOB_NAME} #${env.BUILD_NUMBER} by ${Author_ID}(${Author_Name})\n(<${env.BUILD_URL}|Details>)", 
+                    endpoint: MATTERMOST_ENDPOINT, 
+                    channel: MATTERMOST_CHANNEL
+                )
+            }
+        }
+        failure {
+        	script {
+                def Author_ID = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
+                def Author_Name = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
+                mattermostSend (
+                    color: 'danger', 
+                    message: "Client Build Failure: ${env.JOB_NAME} #${env.BUILD_NUMBER} by ${Author_ID}(${Author_Name})\n(<${env.BUILD_URL}|Details>)", 
+                    endpoint: MATTERMOST_ENDPOINT, 
+                    channel: MATTERMOST_CHANNEL
+                )
             }
         }
     }

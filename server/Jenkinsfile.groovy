@@ -11,6 +11,8 @@ pipeline {
         gitUrl = 'https://lab.ssafy.com/s10-webmobile1-sub2/S10P12A807'
         dockerCredential = 'demise1426-docker'
         latestImage = 'demise1426/haryeom-be:latest'
+        MATTERMOST_ENDPOINT = credentials('mattermost_endpoint')
+        MATTERMOST_CHANNEL = credentials('mattermost_channel')
     }
 
     stages {
@@ -97,6 +99,33 @@ pipeline {
                 dir('server') {
                     sh 'docker-compose up -d'
                 }
+            }
+        }
+    }
+
+    post {
+        success {
+        	script {
+                def Author_ID = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
+                def Author_Name = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
+                mattermostSend (
+                    color: 'good', 
+                    message: "Server Build Success: ${env.JOB_NAME} #${env.BUILD_NUMBER} by ${Author_ID}(${Author_Name})\n(<${env.BUILD_URL}|Details>)", 
+                    endpoint: MATTERMOST_ENDPOINT, 
+                    channel: MATTERMOST_CHANNEL
+                )
+            }
+        }
+        failure {
+        	script {
+                def Author_ID = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
+                def Author_Name = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
+                mattermostSend (
+                    color: 'danger', 
+                    message: "Server Build Failure: ${env.JOB_NAME} #${env.BUILD_NUMBER} by ${Author_ID}(${Author_Name})\n(<${env.BUILD_URL}|Details>)", 
+                    endpoint: MATTERMOST_ENDPOINT, 
+                    channel: MATTERMOST_CHANNEL
+                )
             }
         }
     }
