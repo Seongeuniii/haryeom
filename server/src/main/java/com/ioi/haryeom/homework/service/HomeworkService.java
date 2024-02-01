@@ -170,6 +170,7 @@ public class HomeworkService {
 
         // 숙제 상태 변경
         homework.confirm();
+        homeworkRepository.save(homework);
 
         Textbook textbook = homework.getTextbook();
         // pdf 숙제 범위만큼 자르기
@@ -336,6 +337,7 @@ public class HomeworkService {
         validateHomeworkSubmission(homework);
 
         homework.submit();
+        homeworkRepository.save(homework);
     }
 
     private void validateStudentRole(AuthInfo authInfo) {
