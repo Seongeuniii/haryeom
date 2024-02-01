@@ -2,8 +2,6 @@ package com.ioi.haryeom.homework.controller;
 
 import com.ioi.haryeom.auth.dto.AuthInfo;
 import com.ioi.haryeom.common.util.AuthMemberId;
-import com.ioi.haryeom.common.util.AuthMemberRole;
-import com.ioi.haryeom.homework.dto.HomeworkDrawingRequest;
 import com.ioi.haryeom.homework.dto.HomeworkLoadResponse;
 import com.ioi.haryeom.homework.dto.HomeworkReviewResponse;
 import com.ioi.haryeom.homework.service.HomeworkService;
@@ -12,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RequestMapping("/api/homework")
 @RequiredArgsConstructor
@@ -40,18 +41,18 @@ public class StudentHomeworkController {
 
     // 숙제 저장(숙제 드로잉 저장)
     @PostMapping(value = "/{homeworkdId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Void> saveHomework(@PathVariable Long homeworkId, @RequestPart HomeworkDrawingRequest drawings, @AuthMemberId Long memberId) {
+    public ResponseEntity<Void> saveHomework(@PathVariable Long homeworkId, @RequestPart List<MultipartFile> file, @RequestPart List<Integer> page, @AuthMemberId Long memberId) {
 
-        homeworkService.saveHomework(homeworkId, drawings, memberId);
+        homeworkService.saveHomework(homeworkId, file, page, memberId);
 
         return ResponseEntity.ok().build();
     }
 
     // 숙제 저장(복습 드로잉 저장)
     @PostMapping(value = "/{homeworkId}/review", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Void> saveHomeworkReview(@PathVariable Long homeworkId, @RequestPart HomeworkDrawingRequest drawings, @AuthMemberId Long memberId) {
+    public ResponseEntity<Void> saveHomeworkReview(@PathVariable Long homeworkId, @RequestPart List<MultipartFile> file, @RequestPart List<Integer> page, @AuthMemberId Long memberId) {
 
-        homeworkService.saveHomeworkReview(homeworkId, drawings, memberId);
+        homeworkService.saveHomeworkReview(homeworkId, file, page, memberId);
 
         return ResponseEntity.ok().build();
     }
