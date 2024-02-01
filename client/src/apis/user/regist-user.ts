@@ -1,71 +1,46 @@
 import axios from 'axios';
 import { IUserInfo, IUserRole } from './user';
+import { subjectDefaultOptions } from '@/components/FilterOpenTeacherList/filterDefaultOptions';
 
 const path = '/members';
 
 export const registUser = async (role: IUserRole, form: IUserInfo) => {
     try {
-        const studentInfo = {
-            profile_url: 'https://avatars.githubusercontent.com/u/88070657?v=4',
-            name: form.name,
-            phone: '010-1234-5678',
-            grade: '중학교 3학년',
-            school: '솔빛중학교',
-        };
-
-        const teacherInfo = {
-            profileUrl: 'https://avatars.githubusercontent.com/u/88070657?v=4',
-            name: form.name,
-            phone: '01012345678',
-            profileStatus: true,
-            college: '어디대학교',
-            collegeEmail: 'email@naver.com',
-            gender: 'MALE',
-            salary: 100,
-            subjects: [
-                {
-                    subjectId: 1,
-                    name: '수학',
-                },
-                {
-                    subjectId: 2,
-                    name: '물리학',
-                },
-                {
-                    subjectId: 3,
-                    name: '화학',
-                },
-            ],
-            career: 10,
-            introduce: '안녕하세요. 선생님 이태호입니다.',
-        };
-
-        const createFileFromImageUrl = async (imageUrl: string, fileName: string) => {
-            const response = await fetch(imageUrl);
-            const blob = await response.blob();
-            const file = new File([blob], fileName, { type: blob.type });
-            return file;
-        };
-
-        const imageUrl = 'https://avatars.githubusercontent.com/u/88070657?v=4';
-        const fileName = 'image.jpg';
-
-        const imageFile = await createFileFromImageUrl(imageUrl, fileName);
-        const formData = new FormData();
-
+        let info;
         if (role === 'STUDENT') {
-            formData.append(
-                'request',
-                new Blob([JSON.stringify(studentInfo)], { type: 'application/json' })
-            );
+            info = {
+                profile_url: '',
+                name: form.name,
+                phone: form.phone,
+                grade: form.grade,
+                school: form.school,
+            };
         } else {
-            formData.append(
-                'request',
-                new Blob([JSON.stringify(teacherInfo)], { type: 'application/json' })
-            );
+            info = {
+                profile_url: '',
+                name: form.name,
+                phone: form.phone,
+                profileStatus: form.profileStatus,
+                college: form.college,
+                collegeEmail: form.collegeEmail,
+                gender: form.gender,
+                salary: form.salary,
+                subjects: [
+                    {
+                        subjectId: subjectDefaultOptions.indexOf(form.subjects as string),
+                        name: form.subjects,
+                    },
+                ],
+                career: form.career,
+                introduce: form.introduce,
+            };
         }
 
-        formData.append('profileImg', imageFile);
+        const formData = new FormData();
+        formData.append('request', new Blob([JSON.stringify(info)], { type: 'application/json' }));
+        if (form.profileUrl instanceof File) {
+            formData.append('profileImg', form.profileUrl);
+        }
 
         const res = await axios.post(
             `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${role.toLocaleLowerCase()}s`,

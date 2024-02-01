@@ -12,7 +12,7 @@ export interface IStudentInfo {
     school: string;
     grade: string;
     phone: string;
-    profileUrl: string;
+    profileUrl: File | null;
 }
 export type IStudentInfoKeys = keyof IStudentInfo;
 
@@ -21,7 +21,7 @@ export interface ITeacherInfo {
     college: string;
     collegeEmail: string;
     phone: string;
-    profileUrl: string;
+    profileUrl: File | null;
     profileStatus: boolean;
     gender?: string;
     salary?: number;
