@@ -8,27 +8,25 @@ import userSessionAtom from '@/recoil/atoms/userSession';
 import { useEffect, useState } from 'react';
 import TeacherScheduleCard from './TeacherScheduleCard';
 import StudentScheduleCard from './StudentScheduleCard';
-import { getFormattedYearMonthDay } from '@/utils/time';
+import { getFormattedYearMonthDay, getYearMonth } from '@/utils/time';
+import { useGetTutoringSchedules } from '@/queries/useGetTutoringSchedules';
 
 interface ClassScheduleProps {
     tutoringSchedules: ITutoringSchedules | undefined;
 }
 
-/**
- * 날짜 클릭 -> 해당 날짜 -> 찾으면 객체 한개
- * 최초 로드 -> 해당 이후의 모든 날짜
- * useQuery => 전체 데이터
- * atom =>
- */
-
-const userRole = 'teacher';
-
-const ClassSchedule = ({ tutoringSchedules }: ClassScheduleProps) => {
+const ClassSchedule = ({ tutoringSchedules: initialData }: ClassScheduleProps) => {
     const userSession = useRecoilValue(userSessionAtom);
-    const { day, yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
+    if (!userSession) return null;
 
+    const { day, yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
+    const { data: tutoringSchedules, isLoading } = useGetTutoringSchedules(
+        userSession.role,
+        yearMonth,
+        initialData
+    );
     const [renderedTutoringSchedules, setRenderedTutoringSchedules] = useState<ITutoringSchedules>(
-        []
+        tutoringSchedules || []
     );
 
     useEffect(() => {
@@ -41,17 +39,8 @@ const ClassSchedule = ({ tutoringSchedules }: ClassScheduleProps) => {
     }, [day]);
 
     useEffect(() => {
-        if (!tutoringSchedules) return;
-        setRenderedTutoringSchedules(
-            tutoringSchedules.filter(
-                (schedule) => new Date(schedule.scheduleDate) >= new Date() // 시간 포함 (오늘 날짜 제외됨, TODO: 시간 추가)
-            ) as ITutoringSchedules
-        );
-    }, [yearMonth]);
-
-    useEffect(() => {
-        console.log(tutoringSchedules);
-    }, [tutoringSchedules]);
+        console.log(renderedTutoringSchedules);
+    }, [renderedTutoringSchedules]);
 
     return (
         <StyledClassSchedule>
@@ -65,26 +54,30 @@ const ClassSchedule = ({ tutoringSchedules }: ClassScheduleProps) => {
                 handleYearMonthChange={handleYearMonthChange}
             ></MyCalendar>
             <ScheduleList>
-                {renderedTutoringSchedules.map((daySchedule, index) => (
-                    <SchedulesOfADay key={index}>
-                        <ScheduleDate>{daySchedule.scheduleDate}</ScheduleDate>
-                        <ScheduleCards>
-                            {daySchedule.schedules.map((schedule) => {
-                                return userRole === 'teacher' ? (
-                                    <TeacherScheduleCard
-                                        key={schedule.tutoringId}
-                                        schedule={schedule as ITeacherSchedule}
-                                    />
-                                ) : (
-                                    <StudentScheduleCard
-                                        key={schedule.tutoringId}
-                                        schedule={schedule as IStudentSchedule}
-                                    />
-                                );
-                            })}
-                        </ScheduleCards>
-                    </SchedulesOfADay>
-                ))}
+                {renderedTutoringSchedules ? (
+                    renderedTutoringSchedules.map((daySchedule, index) => (
+                        <SchedulesOfADay key={index}>
+                            <ScheduleDate>{daySchedule.scheduleDate}</ScheduleDate>
+                            <ScheduleCards>
+                                {daySchedule.schedules.map((schedule) => {
+                                    return userSession?.role === 'TEACHER' ? (
+                                        <TeacherScheduleCard
+                                            key={schedule.tutoringId}
+                                            schedule={schedule as ITeacherSchedule}
+                                        />
+                                    ) : (
+                                        <StudentScheduleCard
+                                            key={schedule.tutoringId}
+                                            schedule={schedule as IStudentSchedule}
+                                        />
+                                    );
+                                })}
+                            </ScheduleCards>
+                        </SchedulesOfADay>
+                    ))
+                ) : (
+                    <>과외 일정이 없어요:)</>
+                )}
             </ScheduleList>
             <CreateNewClass />
         </StyledClassSchedule>
