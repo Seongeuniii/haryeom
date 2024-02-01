@@ -51,4 +51,8 @@ public class Drawing {
         this.reviewDrawingUrl = reviewDrawingUrl;
         this.teacherDrawingUrl = teacherDrawingUrl;
     }
+
+    public void update(String newReviewUrl) {
+        this.reviewDrawingUrl = newReviewUrl;
+    }
 }

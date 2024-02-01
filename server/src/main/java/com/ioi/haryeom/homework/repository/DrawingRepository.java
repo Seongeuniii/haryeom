@@ -10,4 +10,6 @@ public interface DrawingRepository extends JpaRepository<Drawing, Long> {
 
     List<Drawing> findAllByHomework(Homework homework);
 
+    Drawing findByHomeworkIdAndPage(Long homeworkId, Integer page);
+
 }
