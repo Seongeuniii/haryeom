@@ -98,14 +98,14 @@ public class TutoringService {
 
         List<Long> savedScheduleIds = new ArrayList<>();
         for(TutoringScheduleRequest scheduleRequest : request.getSchedules()) {
-            List<TutoringSchedule> duplicateScheduleByTeacher = getDuplicateScheduleByTeacher(teacherMemberId, scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
-            if(!duplicateScheduleByTeacher.isEmpty()) {
-                throw new DuplicateTutoringScheduleByTeacherException(scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
-            }
-            List<TutoringSchedule> duplicateScheduleByStudent = getDuplicateScheduleByStudent(tutoring.getStudent().getId(), scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
-            if(!duplicateScheduleByStudent.isEmpty()) {
-                throw new DuplicateTutoringScheduleByStudentException(scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
-            }
+//            List<TutoringSchedule> duplicateScheduleByTeacher = getDuplicateScheduleByTeacher(teacherMemberId, scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
+//            if(!duplicateScheduleByTeacher.isEmpty()) {
+//                throw new DuplicateTutoringScheduleByTeacherException(scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
+//            }
+//            List<TutoringSchedule> duplicateScheduleByStudent = getDuplicateScheduleByStudent(tutoring.getStudent().getId(), scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
+//            if(!duplicateScheduleByStudent.isEmpty()) {
+//                throw new DuplicateTutoringScheduleByStudentException(scheduleRequest.getScheduleDate(), scheduleRequest.getStartTime(), scheduleRequest.getDuration());
+//            }
 
             TutoringSchedule schedule = TutoringSchedule.builder()
                 .tutoring(tutoring)
@@ -145,20 +145,20 @@ public class TutoringService {
             throw new ScheduleOnlyInProgerssTutoringException();
         }
 
-        List<TutoringSchedule> duplicateScheduleByTeacher = getDuplicateScheduleByTeacher(teacherMemberId, request.getScheduleDate(), request.getStartTime(), request.getDuration())
-            .stream()
-            .filter(sch -> !sch.getId().equals(tutoringScheduleId))
-            .collect(Collectors.toList());
-        if(!duplicateScheduleByTeacher.isEmpty()) {
-            throw new DuplicateTutoringScheduleByTeacherException(request.getScheduleDate(), request.getStartTime(), request.getDuration());
-        }
-        List<TutoringSchedule> duplicateScheduleByStudent = getDuplicateScheduleByStudent(tutoringSchedule.getTutoring().getStudent().getId(), request.getScheduleDate(), request.getStartTime(), request.getDuration())
-            .stream()
-            .filter(sch -> !sch.getId().equals(tutoringScheduleId))
-            .collect(Collectors.toList());
-        if(!duplicateScheduleByStudent.isEmpty()) {
-            throw new DuplicateTutoringScheduleByStudentException(request.getScheduleDate(), request.getStartTime(), request.getDuration());
-        }
+//        List<TutoringSchedule> duplicateScheduleByTeacher = getDuplicateScheduleByTeacher(teacherMemberId, request.getScheduleDate(), request.getStartTime(), request.getDuration())
+//            .stream()
+//            .filter(sch -> !sch.getId().equals(tutoringScheduleId))
+//            .collect(Collectors.toList());
+//        if(!duplicateScheduleByTeacher.isEmpty()) {
+//            throw new DuplicateTutoringScheduleByTeacherException(request.getScheduleDate(), request.getStartTime(), request.getDuration());
+//        }
+//        List<TutoringSchedule> duplicateScheduleByStudent = getDuplicateScheduleByStudent(tutoringSchedule.getTutoring().getStudent().getId(), request.getScheduleDate(), request.getStartTime(), request.getDuration())
+//            .stream()
+//            .filter(sch -> !sch.getId().equals(tutoringScheduleId))
+//            .collect(Collectors.toList());
+//        if(!duplicateScheduleByStudent.isEmpty()) {
+//            throw new DuplicateTutoringScheduleByStudentException(request.getScheduleDate(), request.getStartTime(), request.getDuration());
+//        }
 
         tutoringSchedule.update(tutoringSchedule.getTutoring(), request.getScheduleDate(), request.getStartTime(), request.getDuration(), request.getTitle());
     }
