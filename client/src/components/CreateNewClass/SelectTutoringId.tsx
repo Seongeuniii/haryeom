@@ -10,7 +10,7 @@ const SelectTutoringId = () => {
     const userSession = useRecoilValue(userSessionAtom);
     if (!userSession) return;
 
-    const { data: tutorings } = useGetTutorings({ userRole: userSession.role });
+    // const { data: tutorings } = useGetTutorings({ userRole: userSession.role });
 
     return (
         <StyledSelectTutoringId>
@@ -18,9 +18,10 @@ const SelectTutoringId = () => {
             <SelectForm
                 label={'과목 | 학생 선택'}
                 name={'tutoringId'}
-                optionList={(tutorings as ITeacherTutorings).map(
-                    (tutoring) => `${tutoring.subject.name} | ${tutoring.student.studentName} 학생`
-                )}
+                // optionList={(tutorings as ITeacherTutorings).map(
+                //     (tutoring) => `${tutoring.subject.name} | ${tutoring.student.studentName} 학생`
+                // )}
+                optionList={[]}
                 handleSelect={(name, option) => {
                     console.log(name, option);
                 }}

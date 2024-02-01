@@ -31,11 +31,6 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     if (!userSession) return;
     const { tutorings, tutoringSchedules, homeworkList, progressPercentage } = pageProps;
 
-    useGetTutorings({
-        userRole: userSession.role,
-        initialData: tutorings,
-    });
-
     console.log(tutorings, tutoringSchedules, homeworkList, progressPercentage);
     console.log(userSession);
 
