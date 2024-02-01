@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import styled from 'styled-components';
 import Select from '@/components/icons/Select';
-import { IStudentTutoring, ITeacherTutoring } from '@/apis/tutoring/tutoring';
+import { ITeacherTutoring } from '@/apis/tutoring/tutoring';
 
 interface TutoringStudentProfileProps {
     tutoring: ITeacherTutoring | undefined;
@@ -20,14 +20,14 @@ const TutoringStudentProfile = ({ tutoring }: TutoringStudentProfileProps) => {
                     <StudentInfo>
                         <SubjectName>
                             <span>{tutoring.subject.name}</span>
-                            <span> (${tutoring.studentName} 학생)</span>
+                            <span> ({tutoring.studentName} 학생)</span>
                             <button style={{ width: '14px', marginLeft: '0.4em' }}>
                                 <Select />
                             </button>
                         </SubjectName>
                         <SchoolGrade>
                             <span>
-                                ${tutoring.studentSchool} ${tutoring.studentGrade}
+                                {tutoring.studentSchool} {tutoring.studentGrade}
                             </span>
                         </SchoolGrade>
                     </StudentInfo>
