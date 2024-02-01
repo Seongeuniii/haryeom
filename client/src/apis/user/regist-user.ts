@@ -23,7 +23,7 @@ export const registUser = async (role: IUserRole, form: IUserInfo) => {
                 profileStatus: form.profileStatus,
                 college: form.college,
                 collegeEmail: form.collegeEmail,
-                gender: form.gender,
+                gender: form.gender === '여자' ? 'FEMALE' : 'MALE',
                 salary: form.salary,
                 subjects: [
                     {

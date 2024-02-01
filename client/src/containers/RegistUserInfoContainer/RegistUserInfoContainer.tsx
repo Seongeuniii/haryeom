@@ -77,10 +77,7 @@ const RegistUserInfoContainer = () => {
             }
         } else if (step === 3) {
             if (selectedUserRole === 'TEACHER') {
-                if (
-                    userInputValue.profileStatus === '공개' &&
-                    !isAllFieldsFilled(['gender', 'salary', 'career', 'subjects', 'introduce'])
-                ) {
+                if (!isAllFieldsFilled(['gender', 'salary', 'career', 'subjects', 'introduce'])) {
                     alert('모든 항목을 입력해주세요');
                     return;
                 }
