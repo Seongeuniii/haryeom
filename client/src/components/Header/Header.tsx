@@ -46,12 +46,12 @@ const Header = () => {
                     <Link href="/find">
                         <Logo src="/images/logo.png" alt="logo" />
                     </Link>
-                    {/* userSession?.role as IUserRole) */}
-                    {navLinks['GUEST'].map((page, index) => (
-                        <Link href={page.link} key={`nav_${index}`}>
-                            {page.name}
-                        </Link>
-                    ))}
+                    {userSession &&
+                        navLinks[userSession.role].map((page, index) => (
+                            <Link href={page.link} key={`nav_${index}`}>
+                                {page.name}
+                            </Link>
+                        ))}
                 </Nav>
                 {userSession ? (
                     <User onClick={!open ? openDropdown : undefined}>
