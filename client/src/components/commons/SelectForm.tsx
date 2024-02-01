@@ -14,28 +14,31 @@ interface SelectFormProps extends StyledProps {
 
 const SelectForm = ({ label, name, optionList, handleSelect, ...props }: SelectFormProps) => {
     const [selectOption, setSelectedOption] = useState(label);
+    const [isFocused, setIsFocused] = useState(false);
 
     const handleClick = (option: string) => {
         setSelectedOption(option);
         handleSelect(name, option);
+        setIsFocused(false);
     };
-
-    useEffect(() => {
-        console.log(selectOption);
-    }, []);
 
     return (
         <StyledSelectForm>
-            <SelectBox className="select-box__current" tabIndex={1} {...props}>
+            <SelectBox
+                className={`select-box__current ${isFocused ? 'focused' : ''}`}
+                tabIndex={1}
+                {...props}
+                onClick={() => setIsFocused((prev) => !prev)}
+            >
                 <SelectedOption className="select-box__value">{selectOption}</SelectedOption>
                 <DropDownIcon
-                    className="select-box__icon"
+                    className={`select-box__icon ${isFocused ? 'rotate' : ''}`}
                     src="http://cdn.onlinewebfonts.com/svg/img_295694.svg"
                     alt="Arrow Icon"
                     aria-hidden="true"
                 />
             </SelectBox>
-            <OptionList className="select-box__list">
+            <OptionList className={`select-box__list ${isFocused ? 'visible' : ''}`}>
                 {optionList.map((option, index) => (
                     <Option key={`option_${index}`} onClick={() => handleClick(option)}>
                         {option}
@@ -69,16 +72,16 @@ const SelectBox = styled.div<StyledProps>`
         height: 14px;
     }
 
-    &:focus {
+    &.focused {
         border: 2px solid ${({ theme }) => theme.PRIMARY};
     }
 
-    &:focus + .select-box__list {
+    &.focused + .select-box__list {
         opacity: 1;
         animation-name: none;
     }
 
-    &:focus .select-box__icon {
+    &.focused .select-box__icon {
         transform: translateY(-50%) rotate(180deg);
     }
 
@@ -104,6 +107,10 @@ const DropDownIcon = styled.img`
     width: 20px;
     opacity: 0.3;
     transition: 0.2s ease;
+
+    &.rotate {
+        transform: translateY(-50%) rotate(180deg);
+    }
 `;
 
 const OptionList = styled.ul`
