@@ -13,13 +13,13 @@ const Modal = ({ children, ...props }: ModalProps) => {
 
     return (
         <StyledModal open={open}>
+            <ModalBackground open={open} onClick={closeModal} />
             <ModalWrapper>
                 <ModalCloseButton onClick={closeModal}>
                     <Close />
                 </ModalCloseButton>
                 {children}
             </ModalWrapper>
-            <ModalBackground open={open} onClick={closeModal} />
         </StyledModal>
     );
 };
@@ -31,6 +31,7 @@ const StyledModal = styled.div<{ open: boolean }>`
     left: 0;
     width: 100vw;
     height: 100vh;
+    z-index: 100;
 `;
 
 const ModalWrapper = styled.div`
@@ -39,7 +40,6 @@ const ModalWrapper = styled.div`
     left: 50%;
     transform: translate(-50%, -50%);
     align-items: center;
-    z-index: 100;
 `;
 
 const ModalBackground = styled.div<{ open: boolean }>`
