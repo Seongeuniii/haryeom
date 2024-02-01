@@ -346,13 +346,20 @@ public class HomeworkService {
                 throw new S3UploadException();
             }
 
-            Drawing drawing = Drawing.builder()
-                    .homework(homework)
-                    .page(p)
-                    .reviewDrawingUrl(fileUrl)
-                    .build();
+            Drawing homeworkDrawing = drawingRepository.findByHomeworkIdAndPage(homeworkId, p);
 
-            drawingRepository.save(drawing);
+            if(homeworkDrawing != null) {
+                homeworkDrawing.update(fileUrl);
+                drawingRepository.save(homeworkDrawing);
+            } else {
+                Drawing drawing = Drawing.builder()
+                        .homework(homework)
+                        .page(p)
+                        .reviewDrawingUrl(fileUrl)
+                        .build();
+
+                drawingRepository.save(drawing);
+            }
         }
     }
 
