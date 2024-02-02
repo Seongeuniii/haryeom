@@ -6,15 +6,15 @@ import { IUserInfo, IUserRole } from '@/apis/user/user';
 import axios from 'axios';
 import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
-import router from "next/router";
+import router from 'next/router';
 
 const 변수 = 1; // 컴포넌트 밖에 변수 선언해도 됨.
 const path = '/members';
 const Mypage = () => {
-    const userSession = useRecoilValue(userSessionAtom)
+    const userSession = useRecoilValue(userSessionAtom);
 
     const [name, setName] = useState<number>(1);
-    const [profile, setProfile] = useState<IUserInfo>({
+    const [profile, setProfile] = useState<any>({
         name: '김태윤',
         school: '싸피중학교',
         grade: '중학교 2학년',
@@ -26,8 +26,12 @@ const Mypage = () => {
         gender: 'MALE',
         salary: 10,
         career: 3,
-        subjects: [{id:1, name:'수학'}, {id:2, name:'과학'}],
-        introduce: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry',
+        subjects: [
+            { id: 1, name: '수학' },
+            { id: 2, name: '과학' },
+        ],
+        introduce:
+            'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry',
     }); // role에 따라서 student 담거나, teacher 담거나
 
     const [role, setRole] = useState<IUserRole>(); // STUDENT or TEACHER
@@ -40,32 +44,32 @@ const Mypage = () => {
     const subject = () => {
         const result = [];
         for (let i = 0; i < profile.subjects.length; i++) {
-            result.push(<span key={i}>{profile.subjects[i].name}</span>)
+            result.push(<span key={i}>{profile.subjects[i].name}</span>);
         }
         return result;
-    }
+    };
 
     const gender = () => {
         let result = '';
-        if(profile.gender == 'MALE') result = '남성';
+        if (profile.gender == 'MALE') result = '남성';
         else result = '여성';
         return result;
-    }
+    };
 
     const profileStatus = () => {
         let result = '';
         if (profile.profileStatus) result = '공개';
         else result = '비공개';
         return result;
-    }
-    const isTeacher = ()=>{
-        if(role=='TEACHER') return true;
+    };
+    const isTeacher = () => {
+        if (role == 'TEACHER') return true;
         else return false;
-    }
-    const isStudent = ()=>{
-        if(role=='STUDENT') return true;
+    };
+    const isStudent = () => {
+        if (role == 'STUDENT') return true;
         else return false;
-    }
+    };
 
     return (
         <HomeLayout>
@@ -100,61 +104,63 @@ const Mypage = () => {
                             </ProfileInfo>
                         </RequiredInfo>
                     </InfoBody>
-                    {isTeacher() && <InfoBody>
-                        <SubInfoHeader>
-                            <div>선택 정보</div>
-                        </SubInfoHeader>
-                        <OptionalInfo>
-                            <TeacherInfo>
-                                <div className="infoName">프로필 공개 여부</div>
-                                <div>{profileStatus()}</div>
-                                <div className="infoName">성별</div>
-                                <div>{gender()}</div>
-                            </TeacherInfo>
-                            <TeacherInfo>
-                                <div className="infoName">예상 과외비</div>
-                                <div>{profile.salary}만원</div>
-                                <div className="infoName">경력</div>
-                                <div>{profile.career}년</div>
-                            </TeacherInfo>
-                            <InfoContent>
-                                <div className="infoName">가르칠 과목</div>
-                                <div>
-                                    {subject()}
-                                </div>
-                                <div className="infoName">선생님 소개</div>
-                            </InfoContent>
-                            <br/>
-                            <TeacherIntroduce className={role}>
-                                <p>{profile.introduce}</p>
-                            </TeacherIntroduce>
-                        </OptionalInfo>
-                    </InfoBody>}
-                    <FormButton onClick ={() => router.push("/update")}>정보 수정하기</FormButton>
+                    {isTeacher() && (
+                        <InfoBody>
+                            <SubInfoHeader>
+                                <div>선택 정보</div>
+                            </SubInfoHeader>
+                            <OptionalInfo>
+                                <TeacherInfo>
+                                    <div className="infoName">프로필 공개 여부</div>
+                                    <div>{profileStatus()}</div>
+                                    <div className="infoName">성별</div>
+                                    <div>{gender()}</div>
+                                </TeacherInfo>
+                                <TeacherInfo>
+                                    <div className="infoName">예상 과외비</div>
+                                    <div>{profile.salary}만원</div>
+                                    <div className="infoName">경력</div>
+                                    <div>{profile.career}년</div>
+                                </TeacherInfo>
+                                <InfoContent>
+                                    <div className="infoName">가르칠 과목</div>
+                                    <div>{subject()}</div>
+                                    <div className="infoName">선생님 소개</div>
+                                </InfoContent>
+                                <br />
+                                <TeacherIntroduce className={role}>
+                                    <p>{profile.introduce}</p>
+                                </TeacherIntroduce>
+                            </OptionalInfo>
+                        </InfoBody>
+                    )}
+                    <FormButton onClick={() => router.push('/update')}>정보 수정하기</FormButton>
                 </InfoBox>
             </StyledMypage>
         </HomeLayout>
     );
 };
 const StyledMypage = styled.div`
-    margin:auto;
+    margin: auto;
     width: 90%;
-    text-align:center;
+    text-align: center;
 `;
 const InfoBox = styled.div`
-position: relative;
-min-width: 500px;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: space-between;
-padding: 1em;
-background-color: white;
-box-shadow: 15px 0px 20px rgba(105, 105, 105, 0.25), -15px 0px 20px rgba(105, 105, 105, 0.25);
--webkit-user-select:none;
--moz-user-select:none;
--ms-user-select:none;
-user-select:none
+    position: relative;
+    min-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1em;
+    background-color: white;
+    box-shadow:
+        15px 0px 20px rgba(105, 105, 105, 0.25),
+        -15px 0px 20px rgba(105, 105, 105, 0.25);
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 `;
 const InfoHeader = styled.div`
     width: 100%;
@@ -165,8 +171,8 @@ const InfoHeader = styled.div`
     padding: 1.5em 0;
 `;
 const InfoBody = styled.div`
-width:100%;
-padding: 0.5em 0 0;
+    width: 100%;
+    padding: 0.5em 0 0;
 `;
 const SubInfoHeader = styled.div`
     width: 100%;
@@ -179,90 +185,90 @@ const SubInfoHeader = styled.div`
 
 const RequiredInfo = styled.div`
     margin: auto;
-    width:50%;
-    display:flex;
-    align-items:center;
-    justify-content:space-around;
-    text-align:center;
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    text-align: center;
 `;
 
 const ProfileImg = styled.div`
-    background-color:skyblue;
+    background-color: skyblue;
     width: 150px;
-    height: 150px; 
+    height: 150px;
     border-radius: 30%;
     overflow: hidden;
-    img{
+    img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
 `;
 const ProfileInfo = styled.div`
-    display:flex;
-    justify-content:flex-start;
+    display: flex;
+    justify-content: flex-start;
 `;
 const InfoName = styled.div`
-    div{
+    div {
         padding: 0.5em 1em;
     }
-    text-align:left;
+    text-align: left;
 
-    font-weight:500;
+    font-weight: 500;
 `;
 const InfoContent = styled.div`
-div{
-    padding: 0.5em 1em;
-}
-span{
-    display:inline-block;
-    margin: 0 0.5em;
-    min-width: 4em;
-    padding: 0.5em 0.5em;
-    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
-    color: ${({ theme }) => theme.WHITE};
-    &:hover {
-        background-color: ${({ theme }) => theme.PRIMARY};
+    div {
+        padding: 0.5em 1em;
     }
-    text-align: center;
-    border-radius:0.4em;
-}
-text-align:left;
+    span {
+        display: inline-block;
+        margin: 0 0.5em;
+        min-width: 4em;
+        padding: 0.5em 0.5em;
+        background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+        color: ${({ theme }) => theme.WHITE};
+        &:hover {
+            background-color: ${({ theme }) => theme.PRIMARY};
+        }
+        text-align: center;
+        border-radius: 0.4em;
+    }
+    text-align: left;
 `;
 
 const OptionalInfo = styled.div`
-    margin:auto;
-    width:50%;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-around;
-    .infoName{
-        font-weight:500;
+    margin: auto;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    .infoName {
+        font-weight: 500;
     }
-    text-align:left;
+    text-align: left;
 `;
 
 const TeacherInfo = styled.div`
-display:flex;
-justify-content:space-around;
-padding: 0.5em;
-div:nth-child(1){
-    flex-basis:30%;
-}
-div{
-    flex-basis:25%;
-    padding: 0 0.5em;
-}
+    display: flex;
+    justify-content: space-around;
+    padding: 0.5em;
+    div:nth-child(1) {
+        flex-basis: 30%;
+    }
+    div {
+        flex-basis: 25%;
+        padding: 0 0.5em;
+    }
 `;
 const TeacherIntroduce = styled.div`
-width:90%;
-min-height:200px;
-margin:auto;
-border-radius: 0.8em;
-padding: 2em;
-background-color: white;
-text-align:left;
-box-shadow: 0px 0px 10px rgba(105, 105, 105, 0.25);
+    width: 90%;
+    min-height: 200px;
+    margin: auto;
+    border-radius: 0.8em;
+    padding: 2em;
+    background-color: white;
+    text-align: left;
+    box-shadow: 0px 0px 10px rgba(105, 105, 105, 0.25);
 `;
 
 const FormButton = styled.button`
