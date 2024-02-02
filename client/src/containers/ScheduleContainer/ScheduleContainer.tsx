@@ -6,7 +6,12 @@ import { useEffect } from 'react';
 
 import HomeLayout from '@/components/layouts/HomeLayout';
 import ClassSchedule from '@/components/ClassSchedule';
-import { ITeacherTutoring, ITutoringSchedules, ITutorings } from '@/apis/tutoring/tutoring';
+import {
+    IStudentTutoring,
+    ITeacherTutoring,
+    ITutoringSchedules,
+    ITutorings,
+} from '@/apis/tutoring/tutoring';
 import { getHomeworkList } from '@/apis/homework/get-homework-list';
 import { IHomeworkList, IProgressPercentage } from '@/apis/homework/homework';
 import TutoringStudentProfile from '@/components/TutoringStudentProfile';
@@ -17,7 +22,7 @@ import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
 import { getYearMonth } from '@/utils/time';
 import WithAuth from '@/hocs/withAuth';
 import { IUserRole } from '@/apis/user/user';
-import { useGetTutorings } from '@/queries/useGetTutorings';
+import TutoringTeacherProfile from '@/components/TutoringTeacherProfile';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -42,7 +47,7 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                     {userSession.role === 'TEACHER' ? (
                         <TutoringStudentProfile tutoring={tutorings[0] as ITeacherTutoring} />
                     ) : (
-                        <></>
+                        <TutoringTeacherProfile tutoring={tutorings[0] as IStudentTutoring} />
                     )}
                     <HomeworkList homeworkList={homeworkList} />
                 </SelectedTutoring>

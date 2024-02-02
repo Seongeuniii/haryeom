@@ -18,7 +18,7 @@ const RequiredInfoForm = ({ userRole, updateUserInfo }: RequiredInfoFormProps) =
     if (!userSession) return;
 
     const [selectedImage, setSelectedImage] = useState<File | string | undefined>(
-        userSession.profileUrl
+        userSession?.profileUrl
     );
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -32,7 +32,7 @@ const RequiredInfoForm = ({ userRole, updateUserInfo }: RequiredInfoFormProps) =
         const file = event.target.files?.[0];
         if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
             setSelectedImage(file);
-            updateUserInfo(name, file);
+            // updateUserInfo(name, file);
         } else {
             alert('이미지 파일은 PNG 또는 JPEG 형식이어야 합니다.');
         }

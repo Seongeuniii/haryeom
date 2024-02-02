@@ -11,7 +11,7 @@ export const registUser = async (role: IUserRole, form: IUserInfo) => {
         let info;
         if (role === 'STUDENT') {
             info = {
-                profile_url: form.profileUrl,
+                profileUrl: form.profileUrl,
                 name: form.name,
                 phone: form.phone,
                 grade: form.grade,
@@ -19,7 +19,7 @@ export const registUser = async (role: IUserRole, form: IUserInfo) => {
             };
         } else {
             info = {
-                profile_url: form.profileUrl,
+                profileUrl: form.profileUrl,
                 name: form.name,
                 phone: form.phone,
                 profileStatus: form.profileStatus,
