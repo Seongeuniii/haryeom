@@ -5,11 +5,13 @@ import { subjectDefaultOptions } from '@/components/FilterOpenTeacherList/filter
 const path = '/members';
 
 export const registUser = async (role: IUserRole, form: IUserInfo) => {
+    const g = form.gender === '여자' ? 'FEMALE' : 'MALE';
+
     try {
         let info;
         if (role === 'STUDENT') {
             info = {
-                profile_url: '',
+                profile_url: form.profileUrl,
                 name: form.name,
                 phone: form.phone,
                 grade: form.grade,
@@ -17,17 +19,17 @@ export const registUser = async (role: IUserRole, form: IUserInfo) => {
             };
         } else {
             info = {
-                profile_url: '',
+                profile_url: form.profileUrl,
                 name: form.name,
                 phone: form.phone,
                 profileStatus: form.profileStatus,
                 college: form.college,
                 collegeEmail: form.collegeEmail,
-                gender: form.gender === '여자' ? 'FEMALE' : 'MALE',
+                gender: g,
                 salary: form.salary,
                 subjects: [
                     {
-                        subjectId: subjectDefaultOptions.indexOf(form.subjects as string),
+                        subjectId: subjectDefaultOptions.indexOf(form.subjects as string) + 1,
                         name: form.subjects,
                     },
                 ],
