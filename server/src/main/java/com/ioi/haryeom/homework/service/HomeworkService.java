@@ -310,13 +310,22 @@ public class HomeworkService {
                 throw new S3UploadException();
             }
 
-            Drawing drawing = Drawing.builder()
-                    .homework(homework)
-                    .page(p)
-                    .homeworkDrawingUrl(fileUrl)
-                    .build();
+            Drawing homeworkDrawing = drawingRepository.findByHomeworkIdAndPage(homeworkId, p);
 
-            drawingRepository.save(drawing);
+            System.out.println(homeworkDrawing.getId());
+
+            if(homeworkDrawing != null) {
+                homeworkDrawing.ongoingUpdate(fileUrl);
+                drawingRepository.save(homeworkDrawing);
+            } else {
+                Drawing drawing = Drawing.builder()
+                        .homework(homework)
+                        .page(p)
+                        .homeworkDrawingUrl(fileUrl)
+                        .build();
+
+                drawingRepository.save(drawing);
+            }
         }
     }
 
@@ -348,8 +357,10 @@ public class HomeworkService {
 
             Drawing homeworkDrawing = drawingRepository.findByHomeworkIdAndPage(homeworkId, p);
 
+            System.out.println(homeworkDrawing.getId());
+
             if(homeworkDrawing != null) {
-                homeworkDrawing.update(fileUrl);
+                homeworkDrawing.reviewUpdate(fileUrl);
                 drawingRepository.save(homeworkDrawing);
             } else {
                 Drawing drawing = Drawing.builder()
