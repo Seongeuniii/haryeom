@@ -143,7 +143,7 @@ public class MemberService {
 
     @Transactional
     public void updateStudent(Long userId, MultipartFile profileImg,
-        StudentUpdateRequest studentRequest) {
+        StudentUpdateRequest updateRequest) {
         try {
             Member member = findMemberById(userId);
 
@@ -155,10 +155,10 @@ public class MemberService {
 
             Student student = member.getStudent();
 
-            student.updateStudent(studentRequest.getGrade(), studentRequest.getSchool());
+            student.updateStudent(updateRequest.getGrade(), updateRequest.getSchool());
 
             member.updateStudent(profileUrl,
-                studentRequest.getName(), studentRequest.getPhone());
+                updateRequest.getName(), updateRequest.getPhone());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -166,7 +166,7 @@ public class MemberService {
 
     @Transactional
     public Long createTeacher(Long userId, MultipartFile profileImg,
-        TeacherCreateRequest teacherRequest) {
+        TeacherCreateRequest createRequest) {
         try {
             Member member = findMemberById(userId);
 
@@ -178,20 +178,20 @@ public class MemberService {
 
             Teacher teacher = Teacher.builder()
                 .member(member)
-                .profileStatus(teacherRequest.getProfileStatus())
-                .college(teacherRequest.getCollege())
-                .collegeEmail(teacherRequest.getCollegeEmail())
-                .gender(teacherRequest.getGender())
-                .salary(teacherRequest.getSalary())
-                .career(teacherRequest.getCareer())
-                .introduce(teacherRequest.getIntroduce())
+                .profileStatus(createRequest.getProfileStatus())
+                .college(createRequest.getCollege())
+                .collegeEmail(createRequest.getCollegeEmail())
+                .gender(createRequest.getGender())
+                .salary(createRequest.getSalary())
+                .career(createRequest.getCareer())
+                .introduce(createRequest.getIntroduce())
                 .build();
 
             member.createTeacher(teacher, Role.TEACHER, profileUrl,
-                teacherRequest.getName(), teacherRequest.getPhone());
+                createRequest.getName(), createRequest.getPhone());
             teacherRepository.save(teacher);
 
-            List<SubjectResponse> subjects = teacherRequest.getSubjects();
+            List<SubjectResponse> subjects = createRequest.getSubjects();
 
             subjects.forEach(subjectResponse -> {
                 TeacherSubject teacherSubject = TeacherSubject.builder()
@@ -230,7 +230,7 @@ public class MemberService {
 
     @Transactional
     public void updateTeacher(Long userId, MultipartFile profileImg,
-        TeacherUpdateRequest teacherRequest) {
+        TeacherUpdateRequest updateRequest) {
         try {
             Member member = findMemberById(userId);
 
@@ -240,8 +240,8 @@ public class MemberService {
                     profileImg.getInputStream(), profileImg.getSize(), profileImg.getContentType());
             }
 
-            member.updateTeacher(profileUrl, teacherRequest.getName(),
-                teacherRequest.getPhone());
+            member.updateTeacher(profileUrl, updateRequest.getName(),
+                updateRequest.getPhone());
 
             Teacher teacher = member.getTeacher();
 
@@ -249,7 +249,7 @@ public class MemberService {
 
             teacherSubjectRepository.deleteAll(teacherSubjects);
 
-            List<SubjectResponse> subjects = teacherRequest.getSubjects();
+            List<SubjectResponse> subjects = updateRequest.getSubjects();
             for (SubjectResponse subjectResponse : subjects) {
                 TeacherSubject teacherSubject = TeacherSubject.builder()
                     .teacher(teacher)
@@ -263,13 +263,13 @@ public class MemberService {
                 teacherSubjectRepository.save(teacherSubject);
             }
 
-            teacher.updateTeacher(teacherRequest.getProfileStatus(),
-                teacherRequest.getCollege(),
-                teacherRequest.getCollegeEmail(),
-                teacherRequest.getGender(),
-                teacherRequest.getSalary(),
-                teacherRequest.getCareer(),
-                teacherRequest.getIntroduce());
+            teacher.updateTeacher(updateRequest.getProfileStatus(),
+                updateRequest.getCollege(),
+                updateRequest.getCollegeEmail(),
+                updateRequest.getGender(),
+                updateRequest.getSalary(),
+                updateRequest.getCareer(),
+                updateRequest.getIntroduce());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
