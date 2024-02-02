@@ -7,6 +7,8 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 public class RedisConfig {
@@ -33,9 +35,20 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<Long, Object> redisTemplate() {
+    public RedisTemplate<Long, Object> longKeyRedisTemplate() {
         RedisTemplate<Long, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
+
+        return redisTemplate;
+    }
+
+    @Bean
+    public RedisTemplate<String, Object> stringKeyRedisTemplate() {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory());
+
+        redisTemplate.setKeySerializer(new StringRedisSerializer()); // 키 직렬화
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer()); // 값 직렬화
 
         return redisTemplate;
     }
