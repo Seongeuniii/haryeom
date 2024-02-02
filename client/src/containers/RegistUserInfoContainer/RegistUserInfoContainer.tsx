@@ -16,7 +16,7 @@ import WithAuth from '@/hocs/withAuth';
 const RegistUserInfoContainer = () => {
     const router = useRouter();
     const userSession = useRecoilValue(userSessionAtom);
-    if (!userSession) return;
+    // if (!userSession) return;
 
     const [step, setStep] = useState<number>(1);
     const [selectedUserRole, setSelectedUserRole] = useState<IUserRole>('GUEST');
@@ -185,4 +185,4 @@ const FormButton = styled.button`
     }
 `;
 
-export default WithAuth(RegistUserInfoContainer);
+export default RegistUserInfoContainer;
