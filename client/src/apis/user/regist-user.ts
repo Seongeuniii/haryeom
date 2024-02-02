@@ -27,7 +27,7 @@ export const registUser = async (role: IUserRole, form: IUserInfo) => {
                 salary: form.salary,
                 subjects: [
                     {
-                        subjectId: subjectDefaultOptions.indexOf(form.subjects as string),
+                        subjectId: subjectDefaultOptions.indexOf(form.subjects as string) + 1,
                         name: form.subjects,
                     },
                 ],
