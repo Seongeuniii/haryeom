@@ -1,1 +1,1 @@
-export { default, getServerSideProps } from '@/containers/RegistUserInfoContainer';
+export { default, getServerSideProps } from '@/containers/RegisterUserInfoContainer';

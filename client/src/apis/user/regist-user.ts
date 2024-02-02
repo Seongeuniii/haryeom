@@ -5,13 +5,10 @@ import { subjectDefaultOptions } from '@/components/FilterOpenTeacherList/filter
 const path = '/members';
 
 export const registUser = async (role: IUserRole, form: IUserInfo) => {
-    const g = form.gender === '여자' ? 'FEMALE' : 'MALE';
-
     try {
         let info;
         if (role === 'STUDENT') {
             info = {
-                profileUrl: form.profileUrl,
                 name: form.name,
                 phone: form.phone,
                 grade: form.grade,
@@ -19,29 +16,28 @@ export const registUser = async (role: IUserRole, form: IUserInfo) => {
             };
         } else {
             info = {
-                profileUrl: form.profileUrl,
                 name: form.name,
                 phone: form.phone,
-                profileStatus: form.profileStatus,
                 college: form.college,
                 collegeEmail: form.collegeEmail,
-                gender: g,
-                salary: form.salary,
+                profileStatus: form.profileStatus,
+                gender: form.gender === '여자' ? 'FEMALE' : 'MALE',
+                salary: parseInt(String(form.salary), 10),
                 subjects: [
                     {
                         subjectId: subjectDefaultOptions.indexOf(form.subjects as string) + 1,
                         name: form.subjects,
                     },
                 ],
-                career: form.career,
+                career: parseInt(String(form.career), 10),
                 introduce: form.introduce,
             };
         }
 
         const formData = new FormData();
         formData.append('request', new Blob([JSON.stringify(info)], { type: 'application/json' }));
-        if (form.profileUrl instanceof File) {
-            formData.append('profileImg', form.profileUrl);
+        if (form.profileImg instanceof File) {
+            formData.append('profileImg', form.profileImg);
         }
 
         const res = await axios.post(
@@ -54,8 +50,8 @@ export const registUser = async (role: IUserRole, form: IUserInfo) => {
                 withCredentials: true,
             }
         );
-        return '성공';
+        return true;
     } catch {
-        return '실패';
+        return false;
     }
 };

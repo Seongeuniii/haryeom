@@ -21,11 +21,13 @@ public enum Gender {
 
     @JsonCreator
     public static Gender from(String value) {
-        for (Gender gender : values()) {
-            if (gender.value.equalsIgnoreCase(value)) {
-                return gender;
-            }
+        if (value == null) {
+            return NONE;
         }
-        return NONE;
+        try {
+            return valueOf(value.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return NONE;
+        }
     }
 }

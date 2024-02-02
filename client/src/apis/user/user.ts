@@ -7,13 +7,8 @@ export interface IUser {
     profileUrl: string;
 }
 
-export interface IStudentInfo {
-    name: string;
-    school: string;
-    grade: string;
-    phone: string;
-    profileUrl: File | null;
-}
+export interface IUserInfo extends ITeacherInfo, IStudentInfo {}
+export type TeacherInfoKeys = keyof ITeacherInfo;
 export type IStudentInfoKeys = keyof IStudentInfo;
 
 export interface ITeacherInfo {
@@ -21,7 +16,7 @@ export interface ITeacherInfo {
     college: string;
     collegeEmail: string;
     phone: string;
-    profileUrl: File | null;
+    profileImg: File | null;
     profileStatus: boolean;
     gender?: string;
     salary?: number;
@@ -29,6 +24,11 @@ export interface ITeacherInfo {
     subjects?: string;
     introduce?: string;
 }
-export type TeacherInfoKeys = keyof ITeacherInfo;
 
-export interface IUserInfo extends IStudentInfo, ITeacherInfo {}
+export interface IStudentInfo {
+    name: string;
+    school: string;
+    grade: string;
+    phone: string;
+    profileImg: File | null;
+}

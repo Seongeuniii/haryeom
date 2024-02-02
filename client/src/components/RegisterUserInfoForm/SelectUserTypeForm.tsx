@@ -4,15 +4,15 @@ import { IUserRole } from '@/apis/user/user';
 
 interface SelectUserTypeFormProps {
     userRole: IUserRole;
-    setUserRole: Dispatch<SetStateAction<IUserRole>>;
+    setSelectedUserRole: Dispatch<SetStateAction<IUserRole>>;
 }
 
-const SelectUserTypeForm = ({ userRole, setUserRole }: SelectUserTypeFormProps) => {
+const SelectUserTypeForm = ({ userRole, setSelectedUserRole }: SelectUserTypeFormProps) => {
     return (
         <StyledSelectUserTypeForm>
             <UserTypeSection>
                 <SelectButton
-                    onClick={() => setUserRole('TEACHER')}
+                    onClick={() => setSelectedUserRole('TEACHER')}
                     selected={userRole === 'TEACHER'}
                 >
                     <img src="/images/teacher.png" alt="teacher" />
@@ -21,7 +21,7 @@ const SelectUserTypeForm = ({ userRole, setUserRole }: SelectUserTypeFormProps) 
             </UserTypeSection>
             <UserTypeSection>
                 <SelectButton
-                    onClick={() => setUserRole('STUDENT')}
+                    onClick={() => setSelectedUserRole('STUDENT')}
                     selected={userRole === 'STUDENT'}
                 >
                     <img src="/images/student-girl.png" alt="student" />
