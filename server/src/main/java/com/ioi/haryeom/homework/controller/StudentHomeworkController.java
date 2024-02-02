@@ -58,7 +58,7 @@ public class StudentHomeworkController {
     }
 
     // 숙제 제출
-    @PostMapping("/{homeworkId}")
+    @PutMapping("/submit/{homeworkId}")
     public ResponseEntity<Void> submitHomework(@PathVariable Long homeworkId, @AuthMemberId Long memberId) {
         homeworkService.submitHomework(homeworkId, memberId);
         return ResponseEntity.ok().build();
