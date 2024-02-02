@@ -106,7 +106,7 @@ public class MemberService {
         try {
             Member member = findMemberById(userId);
 
-            String profileUrl = createRequest.getProfileUrl();
+            String profileUrl = member.getProfileUrl();
 
             if (profileImg != null && profileImg.getSize() != 0) {
                 profileUrl = s3Upload.uploadFile(String.valueOf(userId),
@@ -147,7 +147,7 @@ public class MemberService {
         try {
             Member member = findMemberById(userId);
 
-            String profileUrl = studentRequest.getProfileUrl();
+            String profileUrl = member.getProfileUrl();
             if (profileImg != null && profileImg.getSize() != 0) {
                 profileUrl = s3Upload.uploadFile(String.valueOf(userId),
                     profileImg.getInputStream(), profileImg.getSize(), profileImg.getContentType());
@@ -170,7 +170,7 @@ public class MemberService {
         try {
             Member member = findMemberById(userId);
 
-            String profileUrl = teacherRequest.getProfileUrl();
+            String profileUrl = member.getProfileUrl();
             if (profileImg != null && profileImg.getSize() != 0) {
                 profileUrl = s3Upload.uploadFile(String.valueOf(userId),
                     profileImg.getInputStream(), profileImg.getSize(), profileImg.getContentType());
@@ -234,7 +234,7 @@ public class MemberService {
         try {
             Member member = findMemberById(userId);
 
-            String profileUrl = teacherRequest.getProfileUrl();
+            String profileUrl = member.getProfileUrl();
             if (profileImg != null && profileImg.getSize() != 0) {
                 profileUrl = s3Upload.uploadFile(String.valueOf(userId),
                     profileImg.getInputStream(), profileImg.getSize(), profileImg.getContentType());
@@ -251,7 +251,6 @@ public class MemberService {
 
             List<SubjectResponse> subjects = teacherRequest.getSubjects();
             for (SubjectResponse subjectResponse : subjects) {
-
                 TeacherSubject teacherSubject = TeacherSubject.builder()
                     .teacher(teacher)
                     .subject(
