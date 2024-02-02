@@ -45,4 +45,7 @@ public class ChatRoomState {
     public void delete() {
         isDeleted = true;
     }
+    public void recovery() {
+        isDeleted = false;
+    }
 }

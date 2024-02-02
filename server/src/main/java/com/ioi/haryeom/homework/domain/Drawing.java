@@ -52,7 +52,11 @@ public class Drawing {
         this.teacherDrawingUrl = teacherDrawingUrl;
     }
 
-    public void update(String newReviewUrl) {
+    public void reviewUpdate(String newReviewUrl) {
         this.reviewDrawingUrl = newReviewUrl;
+    }
+
+    public void ongoingUpdate(String newReviewUrl) {
+        this.homeworkDrawingUrl = newReviewUrl;
     }
 }

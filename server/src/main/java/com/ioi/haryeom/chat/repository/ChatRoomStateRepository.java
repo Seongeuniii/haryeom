@@ -14,4 +14,6 @@ public interface ChatRoomStateRepository extends JpaRepository<ChatRoomState, Lo
     List<ChatRoomState> findAllByMemberAndIsDeletedIsFalse(Member member);
 
     Optional<ChatRoomState> findByChatRoomAndMemberAndIsDeletedIsFalse(ChatRoom chatRoom, Member member);
+
+    Optional<ChatRoomState> findByChatRoomAndMember(ChatRoom chatRoom, Member member);
 }

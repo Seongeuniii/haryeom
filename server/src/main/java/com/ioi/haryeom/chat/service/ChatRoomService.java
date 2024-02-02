@@ -25,6 +25,7 @@ import com.ioi.haryeom.tutoring.domain.Tutoring;
 import com.ioi.haryeom.tutoring.domain.TutoringStatus;
 import com.ioi.haryeom.tutoring.dto.TutoringResponse;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -51,8 +52,9 @@ public class ChatRoomService {
     private final TutoringRepository tutoringRepository;
     private final ChatMessageRepository chatMessageRepository;
 
-    // 채팅방 생성
-    // 선생님이 선생님 찾기를 통해서 연락할 수 있다.
+    // 채팅방 생성 또는 조회
+    // 선생님 상세 조회를 통해 채팅방을 생성 또는 조회한다.
+    // 선생님이 선생님에게 상담 신청해서 채팅방이 생성되면, 신청한 선생님은 학생이 된다.
     @Transactional
     public Long createOrGetChatRoom(Long teacherId, Long memberId) {
 
@@ -61,12 +63,20 @@ public class ChatRoomService {
         Member studentMember = findMemberById(memberId);
         validateSelfChatRoom(teacherMember, studentMember);
 
-        log.info("[CREAT OR GET CHATROOM] teacherId : {}, teacherMemberId : {}, studentMemberId : {}", teacher.getId(), teacherMember.getId(),
-            studentMember.getId());
+        log.info("[CREAT OR GET CHATROOM] teacherId : {}, teacherMemberId : {}, studentMemberId : {}", teacher.getId(), teacherMember.getId(), studentMember.getId());
 
+        // 채팅방이 이미 존재하면, 존재하는 채팅방을 반환한다.
         return chatRoomRepository.findByTeacherMemberAndStudentMemberAndIsDeletedFalse(teacherMember, studentMember)
-            .map(ChatRoom::getId)
+            .map(chatRoom -> recoverChatRoomStateIfDeleted(chatRoom, studentMember))
             .orElseGet(() -> createNewChatRoom(teacherMember, studentMember));
+    }
+
+    private Long recoverChatRoomStateIfDeleted(ChatRoom chatRoom, Member studentMember) {
+        // 만약 생성하는 학생이 채팅방을 나갔으면, 채팅방 목록에 보이도록 복구한다.
+        chatRoomStateRepository.findByChatRoomAndMember(chatRoom, studentMember)
+            .filter(ChatRoomState::getIsDeleted)
+            .ifPresent(ChatRoomState::recovery);
+        return chatRoom.getId();
     }
 
     private Long createNewChatRoom(Member teacherMember, Member studentMember) {
@@ -76,19 +86,11 @@ public class ChatRoomService {
             .studentMember(studentMember)
             .build();
 
-        ChatRoomState studentChatRoomState = ChatRoomState.builder()
-            .chatRoom(chatRoom)
-            .member(studentMember)
-            .build();
-
-        ChatRoomState teacherChatRoomState = ChatRoomState.builder()
-            .chatRoom(chatRoom)
-            .member(teacherMember)
-            .build();
+        chatRoomStateRepository.saveAll(Arrays.asList(
+            ChatRoomState.builder().chatRoom(chatRoom).member(studentMember).build(),
+            ChatRoomState.builder().chatRoom(chatRoom).member(teacherMember).build()));
 
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
-        chatRoomStateRepository.save(studentChatRoomState);
-        chatRoomStateRepository.save(teacherChatRoomState);
         log.info("[CREAT CHATROOM] chatRoomId : {}, teacherMemberId : {}, studentMemberId : {}", savedChatRoom.getId(), teacherMember.getId(),
             studentMember.getId());
         return savedChatRoom.getId();
