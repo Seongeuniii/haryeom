@@ -7,6 +7,7 @@ import MatchingStage from '@/components/MatchingStage';
 import Send from '../icons/Send';
 import Chat from './Chat';
 import { IRequestMatchingStatus, IResponseMatchingStatus } from '@/apis/chat/chat';
+import userSessionAtom from '@/recoil/atoms/userSession';
 
 interface IReceiveChat {
     messageId: string;
@@ -16,6 +17,7 @@ interface IReceiveChat {
 }
 
 const Chatting = () => {
+    const userSession = useRecoilValue(userSessionAtom);
     const chatSession = useRecoilValue(chatSessionAtom);
     const [chatMessages, setChatMessages] = useState<IReceiveChat[]>([]);
     const [message, setMessage] = useState('');
@@ -76,7 +78,11 @@ const Chatting = () => {
             />
             <ChatList>
                 {chatMessages.map((chat, index) => (
-                    <Chat message={chat.content} isMyChat={true} key={`chat_${index}`} />
+                    <Chat
+                        message={chat.content}
+                        isMyChat={chat.senderMemberId === userSession?.memberId}
+                        key={`chat_${index}`}
+                    />
                 ))}
                 <div ref={lastChatRef}></div>
             </ChatList>
