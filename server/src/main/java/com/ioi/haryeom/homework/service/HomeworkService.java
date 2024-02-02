@@ -312,8 +312,6 @@ public class HomeworkService {
 
             Drawing homeworkDrawing = drawingRepository.findByHomeworkIdAndPage(homeworkId, p);
 
-            System.out.println(homeworkDrawing.getId());
-
             if(homeworkDrawing != null) {
                 homeworkDrawing.ongoingUpdate(fileUrl);
                 drawingRepository.save(homeworkDrawing);
@@ -356,8 +354,6 @@ public class HomeworkService {
             }
 
             Drawing homeworkDrawing = drawingRepository.findByHomeworkIdAndPage(homeworkId, p);
-
-            System.out.println(homeworkDrawing.getId());
 
             if(homeworkDrawing != null) {
                 homeworkDrawing.reviewUpdate(fileUrl);
