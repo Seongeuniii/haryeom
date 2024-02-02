@@ -67,8 +67,8 @@ const RegistUserInfoContainer = () => {
                     return;
                 }
                 const message = await registUser(selectedUserRole, userInputValue);
-                alert(`회원 등록에 ${message}했어요:)`);
                 router.push('/');
+                alert(`회원 등록에 ${message}했어요:)`);
             } else {
                 if (!isAllFieldsFilled(['name', 'college', 'collegeEmail', 'phone'])) {
                     alert('모든 항목을 입력해주세요');
@@ -83,8 +83,8 @@ const RegistUserInfoContainer = () => {
                     return;
                 }
                 const message = await registUser(selectedUserRole, userInputValue);
-                alert(`회원 등록에 ${message}했어요:)`);
                 router.push('/');
+                alert(`회원 등록에 ${message}했어요:)`);
             } else {
                 setStep((prev) => prev + 1);
             }
