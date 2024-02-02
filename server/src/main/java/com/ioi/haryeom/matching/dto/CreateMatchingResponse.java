@@ -4,16 +4,22 @@ import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.common.dto.SubjectResponse;
 import com.ioi.haryeom.member.domain.Member;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
 @Getter
 public class CreateMatchingResponse {
 
-    private final String matchingId;
-    private final Long recipientMemberId;
-    private final String senderName;
-    private final SubjectResponse subject;
-    private final Integer hourlyRate;
+    private String matchingId;
+    private Long recipientMemberId;
+    private String senderName;
+    private SubjectResponse subject;
+    private Integer hourlyRate;
 
     private CreateMatchingResponse(String matchingId, Long recipientMemberId, String senderName,
         Subject subject, Integer hourlyRate) {
