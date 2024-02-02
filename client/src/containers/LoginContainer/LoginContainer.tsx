@@ -7,6 +7,7 @@ import KakaoLoginButton from '@/components/KakaoLoginButton';
 import ServiceImg from '@/components/icons/ServiceImg';
 import { getToken } from '@/apis/user/get-token';
 import userSessionAtom from '@/recoil/atoms/userSession';
+import WithAuth from '@/hocs/withAuth';
 
 const LoginContainer = () => {
     const userSession = useRecoilValue(userSessionAtom);
@@ -97,4 +98,4 @@ const Logo = styled.div`
     font-weight: bold;
 `;
 
-export default LoginContainer;
+export default WithAuth(LoginContainer);
