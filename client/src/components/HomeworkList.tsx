@@ -46,7 +46,14 @@ const HomeworkList = ({ homeworkList }: HomeworkListProps) => {
                         </Link>
                     ))
                 ) : (
-                    <>숙제가 없어요:)</>
+                    <Link href={`homework/1`}>
+                        <HomeworkCard>
+                            <State status={'IN_PROGRESS'}>{getStatusText('IN_PROGRESS')}</State>
+                            <Deadline>{'2024. 02. 14'}</Deadline>
+                            <Resource>{'수능특강 수학'}</Resource>
+                            <Scope>{`p. 10 ~ 11`}</Scope>
+                        </HomeworkCard>
+                    </Link>
                 )}
             </HomeworkCards>
         </StyledHomeworkList>
