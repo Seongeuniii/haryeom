@@ -28,7 +28,6 @@ import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import java.util.List;
 import java.util.Optional;
-import javax.swing.text.html.Option;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -74,6 +73,7 @@ public class MatchingService {
 
         // [매칭 요청 정보] 전송
         messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId() + "/request", response);
+        log.info("[MATCHING REQUEST INFO] SEND");
 
         // [매칭 응답 정보] 변경이 있는 경우 전송 (마지막 응답이 거절인 경우)
         if (isLastResponseRejected) {
@@ -91,7 +91,7 @@ public class MatchingService {
         String matchingId = request.getMatchingId();
 
         // [매칭 요청 정보] 가져오기
-        log.info("[MATCHING REQUEST INFO] RETRIEVE");
+        log.info("[MATCHING REQUEST INFO] RETRIEVE matchingId : {}", matchingId);
         CreateMatchingResponse createdMatchingResponse = Optional.ofNullable(matchingManager.getMatchingRequestByMatchingId(matchingId))
             .orElseThrow(() -> new MatchingNotFoundException(matchingId));
 
@@ -146,9 +146,10 @@ public class MatchingService {
     private boolean processMatchingResponses(Long chatRoomId) {
 
         RespondToMatchingResponse lastResponse = matchingManager.getLastMatchingResponse(chatRoomId);
+        log.info("[MATCHING REQUEST] success get lastResponse");
 
         // 마지막 응답이 비어있거나 거절이 아니면 false
-        if(lastResponse == null || lastResponse.getIsAccepted()) {
+        if (lastResponse == null || lastResponse.getIsAccepted()) {
             return false;
         }
 
