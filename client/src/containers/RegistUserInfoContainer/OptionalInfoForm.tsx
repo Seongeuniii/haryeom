@@ -5,6 +5,7 @@ import InputForm from '@/components/commons/InputForm';
 import SelectForm from '@/components/commons/SelectForm';
 import { IUserRole } from '@/apis/user/user';
 import ToggleButton from '@/components/commons/ToggleButton';
+import { subjectDefaultOptions } from '@/components/FilterOpenTeacherList/filterDefaultOptions';
 
 interface OptionalInfoFormProps {
     userRole: IUserRole;
@@ -26,6 +27,12 @@ const OptionalInfoForm = ({ userRole, updateUserInfo }: OptionalInfoFormProps) =
                 <span>{isProfilePublic ? '프로필 공개' : '프로필 비공개'}</span>
                 <ToggleButton isChecked={isProfilePublic} onChange={handleToggleChange} />
             </ProfilePrivacy>
+            <SelectForm
+                label={'과목'}
+                name={'subjects'}
+                optionList={subjectDefaultOptions}
+                handleSelect={updateUserInfo}
+            />
             <SelectForm
                 label={'성별'}
                 name={'gender'}

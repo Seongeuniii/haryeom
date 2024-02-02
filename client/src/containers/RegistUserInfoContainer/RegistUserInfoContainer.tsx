@@ -11,6 +11,7 @@ import { IUserRole } from '@/apis/user/user';
 import RegisterLayout from '@/components/layouts/RegisterLayout';
 import { registUser } from '@/apis/user/regist-user';
 import userSessionAtom from '@/recoil/atoms/userSession';
+import WithAuth from '@/hocs/withAuth';
 
 const RegistUserInfoContainer = () => {
     const router = useRouter();
@@ -184,4 +185,4 @@ const FormButton = styled.button`
     }
 `;
 
-export default RegistUserInfoContainer;
+export default WithAuth(RegistUserInfoContainer);
