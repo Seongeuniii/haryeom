@@ -29,3 +29,10 @@ export const getHourMin = (timeString: string): string => {
     const [hours, minutes] = timeString.split(':').slice(1); // "18:00"에서 "18"과 "00"을 추출
     return `${hours}:${minutes}`;
 };
+
+// 요일
+export const getDayOfWeek = (timeString: string) => {
+    const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
+    const dayOfWeekIndex = new Date(timeString).getDay();
+    return daysOfWeek[dayOfWeekIndex];
+};
