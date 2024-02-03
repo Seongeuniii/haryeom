@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const path = '/textbook/students/';
+const path = '/textbook/students';
 
 export const getTextbooks = async (tutoringId: number) => {
     try {
