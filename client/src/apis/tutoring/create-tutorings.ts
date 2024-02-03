@@ -1,55 +1,17 @@
 import axios from 'axios';
+import { INewSchedule } from './tutoring';
 
 const path = '/tutoring/schedule';
 
-export const createTutorings = async () => {
-    const newTutorings = {
-        tutoringId: 7,
-        schedules: [
-            {
-                scheduleDate: '2024-03-01',
-                startTime: '18:30',
-                duration: 120,
-                title: '커리큘럼명1',
-            },
-            {
-                scheduleDate: '2024-03-02',
-                startTime: '18:30',
-                duration: 120,
-                title: '커리큘럼명2',
-            },
-            {
-                scheduleDate: '2024-03-02',
-                startTime: '12:30',
-                duration: 120,
-                title: '커리큘럼명1',
-            },
-            {
-                scheduleDate: '2024-03-02',
-                startTime: '09:30',
-                duration: 120,
-                title: '커리큘럼명2',
-            },
-            {
-                scheduleDate: '2024-03-09',
-                startTime: '18:30',
-                duration: 120,
-                title: '커리큘럼명1',
-            },
-            {
-                scheduleDate: '2024-03-10',
-                startTime: '18:30',
-                duration: 120,
-                title: '커리큘럼명2',
-            },
-        ],
-    };
-
+export const createTutorings = async (tutoringId: number, schedules: INewSchedule[]) => {
     try {
         const res = await axios.post(
             `${process.env.NEXT_PUBLIC_API_SERVER}${path}`,
-            JSON.stringify(newTutorings),
-            { headers: { 'Content-Type': 'application/json' } }
+            JSON.stringify({
+                tutoringId,
+                schedules,
+            }),
+            { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
         );
         return res.data;
     } catch (e) {

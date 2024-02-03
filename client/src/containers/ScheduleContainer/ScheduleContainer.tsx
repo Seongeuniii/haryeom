@@ -2,19 +2,18 @@ import { GetServerSideProps } from 'next';
 import { getCookie } from 'cookies-next';
 import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
-import { useEffect } from 'react';
 
 import HomeLayout from '@/components/layouts/HomeLayout';
 import ClassSchedule from '@/components/ClassSchedule';
 import {
     IStudentTutoring,
     ITeacherTutoring,
+    ITeacherTutorings,
     ITutoringSchedules,
     ITutorings,
 } from '@/apis/tutoring/tutoring';
 import { getHomeworkList } from '@/apis/homework/get-homework-list';
 import { IHomeworkList, IProgressPercentage } from '@/apis/homework/homework';
-import TutoringStudentProfile from '@/components/TutoringStudentProfile';
 import HomeworkList from '@/components/HomeworkList';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
@@ -23,6 +22,8 @@ import { getYearMonth } from '@/utils/time';
 import WithAuth from '@/hocs/withAuth';
 import { IUserRole } from '@/apis/user/user';
 import TutoringTeacherProfile from '@/components/TutoringTeacherProfile';
+import TutoringStudentProfile from '@/components/TutoringStudentProfile';
+import CreateNewClass from '@/components/CreateNewClass';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -42,7 +43,14 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     return (
         <HomeLayout>
             <StyledScheduleContainer>
-                <ClassSchedule tutoringSchedules={tutoringSchedules} />
+                <ClassSchedule
+                    tutoringSchedules={tutoringSchedules}
+                    CreateNewSchedule={
+                        userSession.role === 'TEACHER' && tutorings
+                            ? () => CreateNewClass({ tutorings: tutorings as ITeacherTutorings })
+                            : undefined
+                    }
+                />
                 <SelectedTutoring>
                     {userSession.role === 'TEACHER' ? (
                         <TutoringStudentProfile tutoring={tutorings[0] as ITeacherTutoring} />

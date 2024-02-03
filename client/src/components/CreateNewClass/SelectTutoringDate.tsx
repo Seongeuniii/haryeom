@@ -1,9 +1,20 @@
 import styled from 'styled-components';
 import MyCalendar from '../Calendar';
 import useCalendar from '@/hooks/useCalendar';
+import { Dispatch, SetStateAction, useEffect } from 'react';
+import { INewSchedule } from '@/apis/tutoring/tutoring';
 
-const SelectTutoringDate = () => {
-    const { date, yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
+interface SelectTutoringDateProps {
+    updateSchedules: (date: Date) => void;
+}
+
+const SelectTutoringDate = ({ updateSchedules }: SelectTutoringDateProps) => {
+    const { date, handleClickDay, handleYearMonthChange } = useCalendar();
+
+    useEffect(() => {
+        if (!date) return;
+        updateSchedules(date);
+    }, [date]);
 
     return (
         <StyledSelectTutoringDate>

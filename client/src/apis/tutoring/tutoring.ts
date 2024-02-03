@@ -71,6 +71,13 @@ export interface IStudentSchedule {
     title: string;
 }
 
+export interface INewSchedule {
+    scheduleDate: string;
+    startTime: string;
+    duration: number;
+    title: string;
+}
+
 export interface ISubject {
     subjectId: number;
     name: string;

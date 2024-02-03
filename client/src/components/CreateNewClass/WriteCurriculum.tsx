@@ -1,18 +1,18 @@
 import styled from 'styled-components';
 import InputForm from '@/components/commons/InputForm';
+import { INewSchedule } from '@/apis/tutoring/tutoring';
 
-const WriteCurriculum = () => {
+interface WriteCurriculum {
+    newSchedules: INewSchedule[];
+}
+
+const WriteCurriculum = ({ newSchedules }: WriteCurriculum) => {
     return (
         <WriteCurriculumForm>
             <Header>커리큘럼 작성</Header>
-            {/* <WriteCurriculumCard>
-                <InputForm
-                    label={'2024. 1. 20 (금) 18:00 ~ 20:00'}
-                    name={''}
-                    handleChange={() => {}}
-                />
-                <DeleteButton>-</DeleteButton>
-            </WriteCurriculumCard>
+            {newSchedules.map((newscedule) => (
+                <>{newscedule.duration}</>
+            ))}
             <WriteCurriculumCard>
                 <InputForm
                     label={'2024. 1. 20 (금) 18:00 ~ 20:00'}
@@ -36,7 +36,15 @@ const WriteCurriculum = () => {
                     handleChange={() => {}}
                 />
                 <DeleteButton>-</DeleteButton>
-            </WriteCurriculumCard> */}
+            </WriteCurriculumCard>
+            <WriteCurriculumCard>
+                <InputForm
+                    label={'2024. 1. 20 (금) 18:00 ~ 20:00'}
+                    name={''}
+                    handleChange={() => {}}
+                />
+                <DeleteButton>-</DeleteButton>
+            </WriteCurriculumCard>
             <HelpMessage>- 날짜를 선택하여 커리큘럼을 추가하세요 -</HelpMessage>
         </WriteCurriculumForm>
     );

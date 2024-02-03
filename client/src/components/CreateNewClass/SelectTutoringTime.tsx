@@ -7,23 +7,39 @@ const SelectTutoringTime = () => {
             <SelectTutoringTimeFormHeader>일정 선택</SelectTutoringTimeFormHeader>
             <SelectTutoringFormWrapper>
                 <SelectForm
-                    label={'시작시간'}
+                    label={'18'}
                     name={'tutoringId'}
-                    optionList={['18:00', '19:00']}
+                    optionList={Array.from({ length: 24 }, (_, index) => `${index}`)}
                     handleSelect={(name, option) => {
                         console.log(name, option);
                     }}
                     height="35px"
                 />
+                시
                 <SelectForm
-                    label={'진행시간'}
+                    label={'30'}
                     name={'tutoringId'}
-                    optionList={['1시간', '2시간']}
+                    optionList={Array.from({ length: 60 }, (_, index) => `${index}`)}
                     handleSelect={(name, option) => {
                         console.log(name, option);
                     }}
                     height="35px"
                 />
+                <div style={{ whiteSpace: 'nowrap' }}>분 부터</div>
+                <div style={{ width: '150%' }}>
+                    <SelectForm
+                        label={'60분'}
+                        name={'tutoringId'}
+                        optionList={Array.from(
+                            { length: 18 },
+                            (_, index) => `${(index + 1) * 10} 분`
+                        )}
+                        handleSelect={(name, option) => {
+                            console.log(name, option);
+                        }}
+                        height="35px"
+                    />
+                </div>
             </SelectTutoringFormWrapper>
         </StyledSelectTutoringTime>
     );
@@ -49,7 +65,8 @@ const SelectTutoringTimeFormHeader = styled.div`
 const SelectTutoringFormWrapper = styled.div`
     width: 100%;
     display: flex;
-    gap: 10px;
+    align-items: center;
+    gap: 6px;
 `;
 
 export default SelectTutoringTime;
