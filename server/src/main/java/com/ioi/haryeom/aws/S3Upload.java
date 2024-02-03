@@ -20,6 +20,11 @@ public class S3Upload {
     private String bucket;
 
     public String uploadFile(String fileName, InputStream inputStream, long contentLength, String contentType) {
+
+        if(amazonS3Client.doesObjectExist(bucket, fileName)){
+            amazonS3Client.deleteObject(bucket, fileName);
+        }
+
         try {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(contentLength);
