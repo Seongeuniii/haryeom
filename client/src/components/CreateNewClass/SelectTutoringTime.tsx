@@ -1,7 +1,18 @@
+import { Dispatch, SetStateAction } from 'react';
 import styled from 'styled-components';
-import SelectForm from '../commons/SelectForm';
+import SelectForm from '@/components/commons/SelectForm';
 
-const SelectTutoringTime = () => {
+interface SelectTutoringTimeProps {
+    setSelectedStartHour: Dispatch<SetStateAction<string>>;
+    setSelectedStartMin: Dispatch<SetStateAction<string>>;
+    setSelectedDuration: Dispatch<SetStateAction<number>>;
+}
+
+const SelectTutoringTime = ({
+    setSelectedStartHour,
+    setSelectedStartMin,
+    setSelectedDuration,
+}: SelectTutoringTimeProps) => {
     return (
         <StyledSelectTutoringTime>
             <SelectTutoringTimeFormHeader>일정 선택</SelectTutoringTimeFormHeader>
@@ -9,9 +20,12 @@ const SelectTutoringTime = () => {
                 <SelectForm
                     label={'18'}
                     name={'tutoringId'}
-                    optionList={Array.from({ length: 24 }, (_, index) => `${index}`)}
+                    optionList={Array.from(
+                        { length: 24 },
+                        (_, index) => (index < 10 ? '0' : '') + index
+                    )}
                     handleSelect={(name, option) => {
-                        console.log(name, option);
+                        setSelectedStartHour(option as string);
                     }}
                     height="35px"
                 />
@@ -19,27 +33,28 @@ const SelectTutoringTime = () => {
                 <SelectForm
                     label={'30'}
                     name={'tutoringId'}
-                    optionList={Array.from({ length: 60 }, (_, index) => `${index}`)}
+                    optionList={Array.from(
+                        { length: 60 },
+                        (_, index) => (index < 10 ? '0' : '') + index
+                    )}
                     handleSelect={(name, option) => {
-                        console.log(name, option);
+                        setSelectedStartMin(option as string);
                     }}
                     height="35px"
                 />
                 <div style={{ whiteSpace: 'nowrap' }}>분 부터</div>
-                <div style={{ width: '150%' }}>
+                <div style={{ width: '100%' }}>
                     <SelectForm
-                        label={'60분'}
+                        label={'60'}
                         name={'tutoringId'}
-                        optionList={Array.from(
-                            { length: 18 },
-                            (_, index) => `${(index + 1) * 10} 분`
-                        )}
+                        optionList={Array.from({ length: 18 }, (_, index) => `${(index + 1) * 10}`)}
                         handleSelect={(name, option) => {
-                            console.log(name, option);
+                            setSelectedDuration(parseInt(option as string));
                         }}
                         height="35px"
                     />
                 </div>
+                <div style={{ whiteSpace: 'nowrap' }}>분 동안</div>
             </SelectTutoringFormWrapper>
         </StyledSelectTutoringTime>
     );

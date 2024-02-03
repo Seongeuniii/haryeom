@@ -17,14 +17,15 @@ interface CreateNewClassProps {
 const CreateNewClass = ({ tutorings }: CreateNewClassProps) => {
     const { open, openModal, closeModal } = useModal();
     const [selectedTutoringId, setSelectedTutoringId] = useState<number>();
-    const [selectedStartHour, setSelectedStartHour] = useState<string>('18:30');
+    const [selectedStartHour, setSelectedStartHour] = useState<string>('18');
+    const [selectedStartMin, setSelectedStartMin] = useState<string>('30');
     const [selectedSuration, setSelectedDuration] = useState<number>(60);
     const [newSchedules, setNewSchedules] = useState<INewSchedule[]>([]);
 
     const updateSchedules = (date: Date) => {
         const newSchedule: INewSchedule = {
             scheduleDate: getFormattedYearMonthDay(date),
-            startTime: selectedStartHour,
+            startTime: selectedStartHour + ':' + selectedStartMin,
             duration: selectedSuration,
             title: '시험 3일전 수업',
         };
@@ -59,11 +60,18 @@ const CreateNewClass = ({ tutorings }: CreateNewClassProps) => {
                                 tutorings={tutorings}
                                 setSelectedTutoringId={setSelectedTutoringId}
                             />
-                            <SelectTutoringTime />
+                            <SelectTutoringTime
+                                setSelectedStartHour={setSelectedStartHour}
+                                setSelectedStartMin={setSelectedStartMin}
+                                setSelectedDuration={setSelectedDuration}
+                            />
                             <SelectTutoringDate updateSchedules={updateSchedules} />
                         </LeftSection>
                         <RightSection>
-                            <WriteCurriculum newSchedules={newSchedules} />
+                            <WriteCurriculum
+                                newSchedules={newSchedules}
+                                setNewSchedules={setNewSchedules}
+                            />
                         </RightSection>
                     </div>
                     <SubmitButton onClick={submit}>등록</SubmitButton>
