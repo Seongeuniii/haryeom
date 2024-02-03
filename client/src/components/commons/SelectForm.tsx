@@ -102,7 +102,7 @@ const SelectedOption = styled.div`
 const DropDownIcon = styled.img`
     position: absolute;
     top: 50%;
-    right: 15px;
+    right: 9px;
     transform: translateY(-50%);
     width: 20px;
     opacity: 0.3;
