@@ -27,6 +27,7 @@ import TutoringStudentProfile from '@/components/TutoringStudentProfile';
 import CreateNewClass from '@/components/CreateNewClass';
 import { useEffect } from 'react';
 import { getTextbooks } from '@/apis/tutoring/get-textbooks';
+import CreateNewHomework from '@/components/CreateNewHomework';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -63,7 +64,14 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                     ) : (
                         <TutoringTeacherProfile tutoring={tutorings[0] as IStudentTutoring} />
                     )}
-                    <HomeworkList homeworkList={homeworkList} />
+                    <HomeworkList
+                        homeworkList={homeworkList}
+                        CreateNewHomework={
+                            userSession.role === 'TEACHER' && tutorings
+                                ? () => CreateNewHomework({ tutoringTextbooks })
+                                : undefined
+                        }
+                    />
                 </SelectedTutoring>
             </StyledScheduleContainer>
         </HomeLayout>
