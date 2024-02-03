@@ -11,6 +11,9 @@ import axios from 'axios';
 import useCalendar from '@/hooks/useCalendar';
 import MyCalendar from '@/components/Calendar';
 import { getFormattedYearMonthDay } from '@/utils/time';
+import { ITextbook } from '@/apis/homework/homework';
+import { getTextbookDetail } from '@/apis/tutoring/get-textbook-detail';
+import { useGetTextbook } from '@/queries/useGetTextbook';
 
 export interface INewHomework {
     [key: string]: string | number;
@@ -34,43 +37,13 @@ const CreateNewHomework = ({ tutoringTextbooks }: CreateNewHomeworkProps) => {
         startPage: 0,
         endPage: 0,
     });
-    const [textbookInfo, setTextbookInfo] = useState();
-
-    // {
-    //     "textbookId" : 1,
-    //     "textbookName" : "호랭이문제집",
-    //     "textbookURL" : "encoded-pdf-file",
-    //     "totalPage" : 40
-    // }
-
-    // const handleChange = (e) => {
-    //     const { name, value } = e.target;
-    //     const newValue = typeof homeworkData[name] === 'number' ? parseInt(value, 10) : value;
-    //     const newHomeworkData = { ...homeworkData, [name]: newValue };
-    //     setHomeworkData(newHomeworkData);
-    // };
+    const { data: textbookInfo } = useGetTextbook(homeworkData.textbookId);
 
     const registForm = async () => {
         const data = await registHomework(homeworkData);
         if (data) closeModal();
         else alert('등록에 실패했어요:)');
     };
-
-    const updateTextbookInfo = async () => {
-        try {
-            const res = await axios.get(
-                `${process.env.NEXT_PUBLIC_API_SERVER}/textbook/${homeworkData.textbookId}`
-            );
-            console.log(res.data);
-            return res.data;
-        } catch (e) {
-            console.log(e);
-        }
-    };
-
-    useEffect(() => {
-        updateTextbookInfo();
-    }, [homeworkData.textbookId]);
 
     return (
         <>
@@ -109,6 +82,17 @@ const CreateNewHomework = ({ tutoringTextbooks }: CreateNewHomeworkProps) => {
                                 }
                                 height="40px"
                             />
+                            {textbookInfo && (
+                                <TextbookPreview>
+                                    <div>전체 페이지 수: p.{textbookInfo.totalPage}</div>
+                                    <Link
+                                        href={'/'}
+                                        style={{ color: '#8d8d8d', textDecoration: 'underline' }}
+                                    >
+                                        교재보기
+                                    </Link>
+                                </TextbookPreview>
+                            )}
                             <InputForm
                                 label={'시작페이지'}
                                 name={'startPage'}
@@ -189,7 +173,6 @@ const Title = styled.span`
     margin-left: 20px;
     font-size: 16px;
     font-weight: 700;
-    /* color: ${({ theme }) => theme.PRIMARY}; */
 `;
 
 const SubmitButton = styled.button`
@@ -203,6 +186,15 @@ const SubmitButton = styled.button`
     &:hover {
         background-color: ${({ theme }) => theme.PRIMARY};
     }
+`;
+
+const TextbookPreview = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
 `;
 
 const OpenModalButton = styled.button`
