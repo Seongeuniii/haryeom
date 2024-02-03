@@ -82,3 +82,10 @@ export interface ISubject {
     subjectId: number;
     name: string;
 }
+
+export interface ITutoringTextbook {
+    textbookId: number;
+    textbookName: string;
+    firstPageCover: boolean;
+    coverImg: string;
+}

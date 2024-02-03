@@ -10,6 +10,7 @@ import {
     ITeacherTutoring,
     ITeacherTutorings,
     ITutoringSchedules,
+    ITutoringTextbook,
     ITutorings,
 } from '@/apis/tutoring/tutoring';
 import { getHomeworkList } from '@/apis/homework/get-homework-list';
@@ -32,26 +33,18 @@ interface ScheduleContainerProps {
     tutoringSchedules: ITutoringSchedules;
     homeworkList: IHomeworkList;
     progressPercentage: IProgressPercentage;
+    tutoringTextbooks: ITutoringTextbook[];
 }
 
 const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const userSession = useRecoilValue(userSessionAtom);
     if (!userSession) return;
-    const { tutorings, tutoringSchedules, homeworkList, progressPercentage } = pageProps;
 
-    console.log(tutorings, tutoringSchedules, homeworkList, progressPercentage);
+    const { tutorings, tutoringSchedules, homeworkList, progressPercentage, tutoringTextbooks } =
+        pageProps;
+
+    console.log(tutorings, tutoringSchedules, homeworkList, progressPercentage, tutoringTextbooks);
     console.log(userSession);
-
-    const getContents = async () => {
-        if (!tutorings) return;
-        const promises = tutorings.map((tutoring) => getTextbooks(tutoring.tutoringId));
-        const textbooksArray = await Promise.all(promises);
-        console.log(textbooksArray);
-    };
-
-    useEffect(() => {
-        getContents();
-    }, []);
 
     return (
         <HomeLayout>
@@ -89,10 +82,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     const tutorings = await getTutorings(userRole);
     const tutoringSchedules = await getTutoringSchedules(userRole, getYearMonth(new Date()));
-    const homeworkListInfo =
-        tutorings && tutorings.length > 0
-            ? await getHomeworkList(tutorings[0].tutoringId)
-            : undefined;
+    let homeworkListInfo;
+    let tutoringTextbooks;
+
+    if (tutorings && tutorings.length > 0) {
+        homeworkListInfo = await getHomeworkList(tutorings[0].tutoringId);
+        tutoringTextbooks = await getTextbooks(tutorings[0].tutoringId);
+    }
 
     return {
         props: {
@@ -100,6 +96,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             tutoringSchedules: tutoringSchedules || null,
             homeworkList: homeworkListInfo?.homeworkList || null,
             progressPercentage: homeworkListInfo?.progressPercentage || null,
+            tutoringTextbooks: tutoringTextbooks || null,
         },
     };
 };
