@@ -63,7 +63,10 @@ const CreateNewClass = ({ tutorings }: CreateNewClassProps) => {
                             <SelectTutoringDate updateSchedules={updateSchedules} />
                         </LeftSection>
                         <RightSection>
-                            <WriteCurriculum newSchedules={newSchedules} />
+                            <WriteCurriculum
+                                newSchedules={newSchedules}
+                                setNewSchedules={setNewSchedules}
+                            />
                         </RightSection>
                     </div>
                     <SubmitButton onClick={submit}>등록</SubmitButton>
