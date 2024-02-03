@@ -13,13 +13,17 @@ import { useGetTutoringSchedules } from '@/queries/useGetTutoringSchedules';
 
 interface ClassScheduleProps {
     tutoringSchedules: ITutoringSchedules | undefined;
+    CreateNewSchedule?: () => JSX.Element;
 }
 
-const ClassSchedule = ({ tutoringSchedules: initialData }: ClassScheduleProps) => {
+const ClassSchedule = ({
+    tutoringSchedules: initialData,
+    CreateNewSchedule,
+}: ClassScheduleProps) => {
     const userSession = useRecoilValue(userSessionAtom);
     if (!userSession) return null;
 
-    const { date, yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
+    const { date = new Date(), yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
     const { data: tutoringSchedules, isLoading } = useGetTutoringSchedules(
         userSession.role,
         yearMonth,
@@ -84,7 +88,7 @@ const ClassSchedule = ({ tutoringSchedules: initialData }: ClassScheduleProps) =
                     <>과외 일정이 없어요:)</>
                 )}
             </ScheduleList>
-            <CreateNewClass />
+            {CreateNewSchedule && <CreateNewSchedule />}
         </StyledClassSchedule>
     );
 };
