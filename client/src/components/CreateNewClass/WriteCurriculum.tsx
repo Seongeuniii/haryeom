@@ -32,7 +32,15 @@ const WriteCurriculum = ({ newSchedules, setNewSchedules }: WriteCurriculum) => 
                                         )}
                                     </Time>
                                 </ScheduleInfo>
-                                <DeleteButton>--</DeleteButton>
+                                <DeleteButton
+                                    onClick={() =>
+                                        setNewSchedules((prev) =>
+                                            prev.filter((_, i) => i !== index)
+                                        )
+                                    }
+                                >
+                                    --
+                                </DeleteButton>
                             </FormControl>
                             <InputForm
                                 label={'커리큘럼 내용'}
