@@ -8,6 +8,9 @@ import { ITutoringTextbook } from '@/apis/tutoring/tutoring';
 import Link from 'next/link';
 import SelectForm from '../commons/SelectForm';
 import axios from 'axios';
+import useCalendar from '@/hooks/useCalendar';
+import MyCalendar from '@/components/Calendar';
+import { getFormattedYearMonthDay } from '@/utils/time';
 
 export interface INewHomework {
     [key: string]: string | number;
@@ -23,6 +26,8 @@ interface CreateNewHomeworkProps {
 
 const CreateNewHomework = ({ tutoringTextbooks }: CreateNewHomeworkProps) => {
     const { open, openModal, closeModal } = useModal();
+    const { date, handleClickDay, handleYearMonthChange } = useCalendar();
+
     const [homeworkData, setHomeworkData] = useState<INewHomework>({
         textbookId: 0,
         deadline: '',
@@ -71,7 +76,7 @@ const CreateNewHomework = ({ tutoringTextbooks }: CreateNewHomeworkProps) => {
         <>
             <Modal open={open} closeModal={closeModal}>
                 <StyledCreateNewHomeworkForm>
-                    <CreateNewHomeworkFormHeader>학생 숙제 등록</CreateNewHomeworkFormHeader>
+                    <CreateNewHomeworkFormHeader>숙제 등록</CreateNewHomeworkFormHeader>
                     {!tutoringTextbooks ? (
                         <NoContents>
                             <span>학습자료가 없어요.</span>
@@ -79,11 +84,14 @@ const CreateNewHomework = ({ tutoringTextbooks }: CreateNewHomeworkProps) => {
                         </NoContents>
                     ) : (
                         <>
-                            <InputForm
-                                label={'마감일자'}
-                                name={'deadline'}
-                                handleChange={(e) => {}}
-                            />
+                            <Title>숙제 기한 : {getFormattedYearMonthDay(date)}</Title>
+                            <CalendarWrapper>
+                                <MyCalendar
+                                    selectedDate={date}
+                                    handleClickDay={handleClickDay}
+                                    handleYearMonthChange={handleYearMonthChange}
+                                ></MyCalendar>
+                            </CalendarWrapper>
                             <SelectForm
                                 label={'학습자료 선택'}
                                 name={'tutoringId'}
@@ -137,14 +145,16 @@ const StyledCreateNewHomework = styled.div`
 `;
 
 const StyledCreateNewHomeworkForm = styled.div`
-    min-width: 500px;
+    min-width: 400px;
     padding: 2em;
     background-color: white;
     display: flex;
     flex-direction: column;
-    gap: 1em;
+    align-items: center;
+    gap: 1.3em;
     text-align: start;
     border-radius: 1em;
+    font-size: 16px;
 `;
 
 const CreateNewHomeworkFormHeader = styled.div`
@@ -169,6 +179,17 @@ const NoContents = styled.div`
         color: ${({ theme }) => theme.PRIMARY};
         font-size: 16px;
     }
+`;
+
+const CalendarWrapper = styled.div`
+    width: 300px;
+`;
+
+const Title = styled.span`
+    margin-left: 20px;
+    font-size: 16px;
+    font-weight: 700;
+    /* color: ${({ theme }) => theme.PRIMARY}; */
 `;
 
 const SubmitButton = styled.button`
