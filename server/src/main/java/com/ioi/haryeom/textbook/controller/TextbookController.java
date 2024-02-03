@@ -50,10 +50,10 @@ public class TextbookController {
     }
 
     // 학습자료 삭제
-    @DeleteMapping("/{textbookId}")
-    public ResponseEntity<Void> deleteTextbook(@PathVariable Long textbookId, @AuthMemberId Long teacherMemberId) {
+    @DeleteMapping
+    public ResponseEntity<Void> deleteTextbook(@RequestParam List<Long> textbookIds, @AuthMemberId Long teacherMemberId) {
 
-        textbookService.deleteTextbook(textbookId, teacherMemberId);
+        textbookService.deleteTextbook(textbookIds, teacherMemberId);
         return ResponseEntity.noContent().build();
     }
 
