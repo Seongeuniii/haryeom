@@ -1,35 +1,62 @@
+import { Dispatch, SetStateAction } from 'react';
 import Link from 'next/link';
 import styled from 'styled-components';
 import Select from '@/components/icons/Select';
-import { IStudentTutoring, ITeacherTutoring } from '@/apis/tutoring/tutoring';
+import { IStudentTutoring, IStudentTutorings } from '@/apis/tutoring/tutoring';
+import Dropdown from './commons/Dropdown';
+import useDropdown from '@/hooks/useDropdown';
 
 interface TutoringTeacherProfileProps {
-    tutoring: IStudentTutoring | undefined;
+    seletedTutoring: IStudentTutoring | undefined;
+    setSelectedTutoring: Dispatch<SetStateAction<IStudentTutoring>>;
+    tutorings: IStudentTutorings;
 }
 
-const TutoringTeacherProfile = ({ tutoring }: TutoringTeacherProfileProps) => {
+const TutoringTeacherProfile = ({
+    seletedTutoring,
+    setSelectedTutoring,
+    tutorings,
+}: TutoringTeacherProfileProps) => {
+    const { open, openDropdown, closeDropdown } = useDropdown();
+
     return (
         <StyledTutoringTeacherProfile>
-            {!tutoring ? (
+            {!seletedTutoring ? (
                 <Link href={'/find'}>과외 매칭 하러가기</Link>
             ) : (
                 <>
                     <ProfileImage>
-                        <img src={tutoring.teacherProfileUrl} alt="" />
+                        <img src={seletedTutoring.teacherProfileUrl} alt="" />
                     </ProfileImage>
-                    <TeacherInfo>
+                    <TeacherInfo onClick={!open ? openDropdown : undefined}>
                         <SubjectName>
-                            <span>{tutoring.subject.name}</span>
-                            <span> (${tutoring.teacherName} 선생님)</span>
+                            <span>{seletedTutoring.subject.name}</span>
+                            <span> ({seletedTutoring.teacherName} 선생님)</span>
                             <button style={{ width: '14px', marginLeft: '0.4em' }}>
                                 <Select />
                             </button>
                         </SubjectName>
+                        <Dropdown open={open} closeDropdown={closeDropdown} top="27px">
+                            <SelectTeacherBox>
+                                {tutorings.map((tutoring, index) => {
+                                    return (
+                                        <Button
+                                            onClick={() => {
+                                                closeDropdown();
+                                                setSelectedTutoring(() => tutoring);
+                                            }}
+                                            key={`select_teacher_${index}`}
+                                        >
+                                            {tutoring.subject.name} | {tutoring.teacherName} 선생님
+                                        </Button>
+                                    );
+                                })}
+                            </SelectTeacherBox>
+                        </Dropdown>
                     </TeacherInfo>
                 </>
             )}
-            <Icon src="/images/Teacher-girl.png" style={{ bottom: '0', right: '4em' }}></Icon>
-            <Icon src="/images/Teacher-boy.png" style={{ bottom: '0', right: '1em' }}></Icon>
+            <Icon src="/images/teacher.png" style={{ bottom: '0', right: '1em' }}></Icon>
         </StyledTutoringTeacherProfile>
     );
 };
@@ -59,11 +86,12 @@ const ProfileImage = styled.div`
 `;
 
 const TeacherInfo = styled.div`
-    flex: 1%;
+    position: relative;
     margin-left: 1.4em;
     padding-bottom: 1em;
     display: flex;
     flex-direction: column;
+    cursor: pointer;
 `;
 
 const SubjectName = styled.span`
@@ -82,6 +110,33 @@ const SchoolGrade = styled.span`
 const Icon = styled.img`
     position: absolute;
     height: 60px;
+`;
+
+const SelectTeacherBox = styled.div`
+    padding: 0.5em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background-color: white;
+    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    border-radius: 0.3em;
+    white-space: nowrap;
+`;
+
+const Button = styled.button`
+    width: 100%;
+    height: 30px;
+    padding: 0 1em;
+    border-radius: 0.2em;
+    text-align: center;
+    cursor: pointer;
+
+    &:hover {
+        background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+        transition: all 0.5s;
+    }
 `;
 
 export default TutoringTeacherProfile;

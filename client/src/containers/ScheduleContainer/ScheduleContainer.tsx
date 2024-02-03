@@ -7,6 +7,7 @@ import HomeLayout from '@/components/layouts/HomeLayout';
 import ClassSchedule from '@/components/ClassSchedule';
 import {
     IStudentTutoring,
+    IStudentTutorings,
     ITeacherTutoring,
     ITeacherTutorings,
     ITutoringSchedules,
@@ -17,7 +18,6 @@ import { getHomeworkList } from '@/apis/homework/get-homework-list';
 import { IHomeworkList, IProgressPercentage } from '@/apis/homework/homework';
 import HomeworkList from '@/components/HomeworkList';
 import userSessionAtom from '@/recoil/atoms/userSession';
-import { getTutorings } from '@/apis/tutoring/get-tutorings';
 import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
 import { getYearMonth } from '@/utils/time';
 import WithAuth from '@/hocs/withAuth';
@@ -25,9 +25,10 @@ import { IUserRole } from '@/apis/user/user';
 import TutoringTeacherProfile from '@/components/TutoringTeacherProfile';
 import TutoringStudentProfile from '@/components/TutoringStudentProfile';
 import CreateNewClass from '@/components/CreateNewClass';
-import { useEffect } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { getTextbooks } from '@/apis/tutoring/get-textbooks';
 import CreateNewHomework from '@/components/CreateNewHomework';
+import { getTutorings } from '@/apis/tutoring/get-tutorings';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -47,6 +48,10 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     console.log(tutorings, tutoringSchedules, homeworkList, progressPercentage, tutoringTextbooks);
     console.log(userSession);
 
+    const [seletedTutoring, setSelectedTutoring] = useState<ITeacherTutoring | IStudentTutoring>(
+        tutorings[0]
+    );
+
     return (
         <HomeLayout>
             <StyledScheduleContainer>
@@ -60,9 +65,21 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                 />
                 <SelectedTutoring>
                     {userSession.role === 'TEACHER' ? (
-                        <TutoringStudentProfile tutoring={tutorings[0] as ITeacherTutoring} />
+                        <TutoringStudentProfile
+                            seletedTutoring={seletedTutoring as ITeacherTutoring}
+                            setSelectedTutoring={
+                                setSelectedTutoring as Dispatch<SetStateAction<ITeacherTutoring>>
+                            }
+                            tutorings={tutorings as ITeacherTutorings}
+                        />
                     ) : (
-                        <TutoringTeacherProfile tutoring={tutorings[0] as IStudentTutoring} />
+                        <TutoringTeacherProfile
+                            seletedTutoring={seletedTutoring as IStudentTutoring}
+                            setSelectedTutoring={
+                                setSelectedTutoring as Dispatch<SetStateAction<IStudentTutoring>>
+                            }
+                            tutorings={tutorings as IStudentTutorings}
+                        />
                     )}
                     <HomeworkList
                         homeworkList={homeworkList}
@@ -70,7 +87,7 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                             userSession.role === 'TEACHER' && tutorings
                                 ? () =>
                                       CreateNewHomework({
-                                          tutoringId: tutorings[0].tutoringId,
+                                          tutoringId: seletedTutoring.tutoringId,
                                           tutoringTextbooks,
                                       })
                                 : undefined
@@ -96,7 +113,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const tutoringSchedules = await getTutoringSchedules(userRole, getYearMonth(new Date()));
     let homeworkListInfo;
     let tutoringTextbooks;
-
     if (tutorings && tutorings.length > 0) {
         homeworkListInfo = await getHomeworkList(tutorings[0].tutoringId);
         tutoringTextbooks = await getTextbooks(tutorings[0].tutoringId);
