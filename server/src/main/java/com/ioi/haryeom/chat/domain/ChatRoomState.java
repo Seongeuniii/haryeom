@@ -31,7 +31,7 @@ public class ChatRoomState {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private String lastReadMessageId = "ffffffffffffffffffffffff";
+    private String lastReadMessageId = "000000000000000000000000";
 
     @Column(columnDefinition = "TINYINT(1)")
     private Boolean isDeleted = false;

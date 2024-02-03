@@ -37,8 +37,8 @@ public class ChatMessageController {
     // 채팅 메시지 보내기
     @MessageMapping("/chatroom/{chatRoomId}/message")
     public void sendChatMessage(@DestinationVariable Long chatRoomId, @Payload ChatMessageRequest request,
-        SimpMessageHeaderAccessor headerAccessor) {
+        SimpMessageHeaderAccessor headerAccessor, @AuthMemberId Long memberId) {
         log.info("[SEND CHAT MESSAGE] CHAT ROOM ID : {} CONTENT : {}", chatRoomId, request.getContent());
-        chatMessageService.sendChatMessage(chatRoomId, request.getContent(), headerAccessor.getSessionId());
+        chatMessageService.sendChatMessage(chatRoomId, request.getContent(), headerAccessor.getSessionId(), memberId);
     }
 }
