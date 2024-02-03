@@ -24,6 +24,8 @@ import { IUserRole } from '@/apis/user/user';
 import TutoringTeacherProfile from '@/components/TutoringTeacherProfile';
 import TutoringStudentProfile from '@/components/TutoringStudentProfile';
 import CreateNewClass from '@/components/CreateNewClass';
+import { useEffect } from 'react';
+import { getTextbooks } from '@/apis/tutoring/get-textbooks';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -39,6 +41,17 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
 
     console.log(tutorings, tutoringSchedules, homeworkList, progressPercentage);
     console.log(userSession);
+
+    const getContents = async () => {
+        if (!tutorings) return;
+        const promises = tutorings.map((tutoring) => getTextbooks(tutoring.tutoringId));
+        const textbooksArray = await Promise.all(promises);
+        console.log(textbooksArray);
+    };
+
+    useEffect(() => {
+        getContents();
+    }, []);
 
     return (
         <HomeLayout>
