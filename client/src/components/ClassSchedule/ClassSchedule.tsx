@@ -63,7 +63,7 @@ const ClassSchedule = ({
                 handleYearMonthChange={handleYearMonthChange}
             ></MyCalendar>
             <ScheduleList>
-                {renderedTutoringSchedules ? (
+                {renderedTutoringSchedules.length > 0 ? (
                     renderedTutoringSchedules.map((daySchedule, index) => (
                         <SchedulesOfADay key={index}>
                             <ScheduleDate>{daySchedule.scheduleDate}</ScheduleDate>
@@ -85,7 +85,9 @@ const ClassSchedule = ({
                         </SchedulesOfADay>
                     ))
                 ) : (
-                    <>과외 일정이 없어요:)</>
+                    <NoSchedule>
+                        <span>과외 일정 없음</span>
+                    </NoSchedule>
                 )}
             </ScheduleList>
             {CreateNewSchedule && <CreateNewSchedule />}
@@ -125,6 +127,8 @@ const TodayScheduleButton = styled.span`
 `;
 
 const ScheduleList = styled.div`
+    width: 100%;
+    height: 100%;
     overflow: scroll;
     margin-top: 1em;
     padding-bottom: 3em;
@@ -142,5 +146,15 @@ const ScheduleDate = styled.div`
 `;
 
 const ScheduleCards = styled.div``;
+
+const NoSchedule = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
+`;
 
 export default ClassSchedule;
