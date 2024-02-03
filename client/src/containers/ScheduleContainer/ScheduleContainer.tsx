@@ -68,7 +68,11 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                         homeworkList={homeworkList}
                         CreateNewHomework={
                             userSession.role === 'TEACHER' && tutorings
-                                ? () => CreateNewHomework({ tutoringTextbooks })
+                                ? () =>
+                                      CreateNewHomework({
+                                          tutoringId: tutorings[0].tutoringId,
+                                          tutoringTextbooks,
+                                      })
                                 : undefined
                         }
                     />

@@ -1,18 +1,16 @@
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useModal } from '@/hooks/useModal';
+import Link from 'next/link';
+
 import Modal from '@/components/commons/Modal';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { useModal } from '@/hooks/useModal';
 import { registHomework } from '@/apis/homework/regist-homework';
 import InputForm from '@/components/commons/InputForm';
 import { ITutoringTextbook } from '@/apis/tutoring/tutoring';
-import Link from 'next/link';
 import SelectForm from '../commons/SelectForm';
-import axios from 'axios';
 import useCalendar from '@/hooks/useCalendar';
 import MyCalendar from '@/components/Calendar';
 import { getFormattedYearMonthDay } from '@/utils/time';
-import { ITextbook } from '@/apis/homework/homework';
-import { getTextbookDetail } from '@/apis/tutoring/get-textbook-detail';
 import { useGetTextbook } from '@/queries/useGetTextbook';
 
 export interface INewHomework {
@@ -24,10 +22,11 @@ export interface INewHomework {
 }
 
 interface CreateNewHomeworkProps {
+    tutoringId: number;
     tutoringTextbooks: ITutoringTextbook[];
 }
 
-const CreateNewHomework = ({ tutoringTextbooks }: CreateNewHomeworkProps) => {
+const CreateNewHomework = ({ tutoringId, tutoringTextbooks }: CreateNewHomeworkProps) => {
     const { open, openModal, closeModal } = useModal();
     const { date, handleClickDay, handleYearMonthChange } = useCalendar();
 
@@ -39,8 +38,15 @@ const CreateNewHomework = ({ tutoringTextbooks }: CreateNewHomeworkProps) => {
     });
     const { data: textbookInfo } = useGetTextbook(homeworkData.textbookId);
 
+    useEffect(() => {
+        setHomeworkData((prev) => ({
+            ...prev,
+            deadline: getFormattedYearMonthDay(date),
+        }));
+    }, [date]);
+
     const registForm = async () => {
-        const data = await registHomework(homeworkData);
+        const data = await registHomework(tutoringId, homeworkData);
         if (data) closeModal();
         else alert('등록에 실패했어요:)');
     };
@@ -96,12 +102,22 @@ const CreateNewHomework = ({ tutoringTextbooks }: CreateNewHomeworkProps) => {
                             <InputForm
                                 label={'시작페이지'}
                                 name={'startPage'}
-                                handleChange={(e) => {}}
+                                handleChange={(e) =>
+                                    setHomeworkData((prev) => ({
+                                        ...prev,
+                                        startPage: parseInt(e.target.value),
+                                    }))
+                                }
                             />
                             <InputForm
                                 label={'끝페이지'}
                                 name={'endPage'}
-                                handleChange={(e) => {}}
+                                handleChange={(e) =>
+                                    setHomeworkData((prev) => ({
+                                        ...prev,
+                                        endPage: parseInt(e.target.value),
+                                    }))
+                                }
                             />
                             <SubmitButton onClick={registForm}>등록</SubmitButton>
                         </>
