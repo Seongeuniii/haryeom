@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { OnArgs } from 'react-calendar';
 
 const useCalendar = () => {
-    const [date, setDate] = useState<Date>();
+    const [date, setDate] = useState<Date>(new Date());
     const [yearMonth, setyearMonth] = useState<string>(getYearMonth(new Date()));
 
     const handleClickDay = (clickedDate: Date): void => {

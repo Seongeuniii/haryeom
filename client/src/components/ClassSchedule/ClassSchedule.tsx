@@ -23,7 +23,7 @@ const ClassSchedule = ({
     const userSession = useRecoilValue(userSessionAtom);
     if (!userSession) return null;
 
-    const { date = new Date(), yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
+    const { date, yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
     const { data: tutoringSchedules, isLoading } = useGetTutoringSchedules(
         userSession.role,
         yearMonth,
