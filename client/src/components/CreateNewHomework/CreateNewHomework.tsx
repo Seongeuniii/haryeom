@@ -1,11 +1,13 @@
 import styled from 'styled-components';
 import { useModal } from '@/hooks/useModal';
 import Modal from '@/components/commons/Modal';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { registHomework } from '@/apis/homework/regist-homework';
 import InputForm from '@/components/commons/InputForm';
 import { ITutoringTextbook } from '@/apis/tutoring/tutoring';
 import Link from 'next/link';
+import SelectForm from '../commons/SelectForm';
+import axios from 'axios';
 
 export interface INewHomework {
     [key: string]: string | number;
@@ -27,13 +29,21 @@ const CreateNewHomework = ({ tutoringTextbooks }: CreateNewHomeworkProps) => {
         startPage: 0,
         endPage: 0,
     });
+    const [textbookInfo, setTextbookInfo] = useState();
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        const newValue = typeof homeworkData[name] === 'number' ? parseInt(value, 10) : value;
-        const newHomeworkData = { ...homeworkData, [name]: newValue };
-        setHomeworkData(newHomeworkData);
-    };
+    // {
+    //     "textbookId" : 1,
+    //     "textbookName" : "호랭이문제집",
+    //     "textbookURL" : "encoded-pdf-file",
+    //     "totalPage" : 40
+    // }
+
+    // const handleChange = (e) => {
+    //     const { name, value } = e.target;
+    //     const newValue = typeof homeworkData[name] === 'number' ? parseInt(value, 10) : value;
+    //     const newHomeworkData = { ...homeworkData, [name]: newValue };
+    //     setHomeworkData(newHomeworkData);
+    // };
 
     const registForm = async () => {
         const data = await registHomework(homeworkData);
@@ -41,7 +51,21 @@ const CreateNewHomework = ({ tutoringTextbooks }: CreateNewHomeworkProps) => {
         else alert('등록에 실패했어요:)');
     };
 
-    console.log(tutoringTextbooks);
+    const updateTextbookInfo = async () => {
+        try {
+            const res = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_SERVER}/textbook/${homeworkData.textbookId}`
+            );
+            console.log(res.data);
+            return res.data;
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+    useEffect(() => {
+        updateTextbookInfo();
+    }, [homeworkData.textbookId]);
 
     return (
         <>
@@ -58,22 +82,34 @@ const CreateNewHomework = ({ tutoringTextbooks }: CreateNewHomeworkProps) => {
                             <InputForm
                                 label={'마감일자'}
                                 name={'deadline'}
-                                handleChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e)}
+                                handleChange={(e) => {}}
                             />
-                            <InputForm
+                            <SelectForm
                                 label={'학습자료 선택'}
-                                name={'textbookId'}
-                                handleChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e)}
+                                name={'tutoringId'}
+                                optionList={tutoringTextbooks.map(
+                                    (tutoringTextbook) => `${tutoringTextbook.textbookName}`
+                                )}
+                                handleSelect={(name, option) =>
+                                    setHomeworkData((prev) => ({
+                                        ...prev,
+                                        textbookId: tutoringTextbooks.find(
+                                            (tutoringTextbook) =>
+                                                `${tutoringTextbook.textbookName}` === option
+                                        )?.textbookId as number,
+                                    }))
+                                }
+                                height="40px"
                             />
                             <InputForm
                                 label={'시작페이지'}
                                 name={'startPage'}
-                                handleChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e)}
+                                handleChange={(e) => {}}
                             />
                             <InputForm
                                 label={'끝페이지'}
                                 name={'endPage'}
-                                handleChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e)}
+                                handleChange={(e) => {}}
                             />
                             <SubmitButton onClick={registForm}>등록</SubmitButton>
                         </>
@@ -86,6 +122,13 @@ const CreateNewHomework = ({ tutoringTextbooks }: CreateNewHomeworkProps) => {
         </>
     );
 };
+
+// {
+//     "textbookId" : 2,
+//       "deadline" : "2024-02-16",
+//       "startPage" : 1,
+//       "endPage" : 8
+//   }
 
 const StyledCreateNewHomework = styled.div`
     bottom: 1.5em;
