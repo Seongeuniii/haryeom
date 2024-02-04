@@ -29,6 +29,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 import { getTextbooks } from '@/apis/tutoring/get-textbooks';
 import CreateNewHomework from '@/components/CreateNewHomework';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
+import { useGetHomeworkList } from '@/queries/useGetHomeworkList';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -42,15 +43,34 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const userSession = useRecoilValue(userSessionAtom);
     if (!userSession) return;
 
-    const { tutorings, tutoringSchedules, homeworkList, progressPercentage, tutoringTextbooks } =
-        pageProps;
+    const {
+        tutorings,
+        tutoringSchedules,
+        homeworkList: initHomeworkList,
+        progressPercentage: initProgressPercentage,
+        tutoringTextbooks,
+    } = pageProps;
 
-    console.log(tutorings, tutoringSchedules, homeworkList, progressPercentage, tutoringTextbooks);
+    console.log(
+        tutorings,
+        tutoringSchedules,
+        initHomeworkList,
+        initProgressPercentage,
+        tutoringTextbooks
+    );
     console.log(userSession);
 
     const [seletedTutoring, setSelectedTutoring] = useState<ITeacherTutoring | IStudentTutoring>(
         tutorings[0]
     );
+    const {
+        data: { homeworkList, progressPercentage },
+    } = useGetHomeworkList(seletedTutoring.tutoringId, {
+        homeworkList: initHomeworkList,
+        progressPercentage: initProgressPercentage,
+    }) as {
+        data: { homeworkList: IHomeworkList; progressPercentage: IProgressPercentage };
+    };
 
     return (
         <HomeLayout>
