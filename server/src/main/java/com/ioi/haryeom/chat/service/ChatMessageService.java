@@ -3,7 +3,6 @@ package com.ioi.haryeom.chat.service;
 import com.ioi.haryeom.chat.document.ChatMessage;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.chat.domain.ChatRoomState;
-import com.ioi.haryeom.chat.dto.ChatMessageResponse;
 import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
 import com.ioi.haryeom.chat.manager.WebSocketSessionManager;
 import com.ioi.haryeom.chat.repository.ChatMessageRepository;
@@ -13,8 +12,6 @@ import com.ioi.haryeom.matching.manager.MatchingManager;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatMessageService {
 
 
-    private static final String CHANNEL_NAME = "chatroom";
+    private static final String CHAT_ROOM_CHANNEL_NAME = "chatroom";
+
     private final SimpMessagingTemplate messagingTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
     private final WebSocketSessionManager sessionManager;
@@ -75,7 +73,7 @@ public class ChatMessageService {
                 .build();
 
             ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
-            redisTemplate.convertAndSend(CHANNEL_NAME, savedChatMessage);
+            redisTemplate.convertAndSend(CHAT_ROOM_CHANNEL_NAME, savedChatMessage);
         }
 
     private void recoverChatRoomStateIfDeleted(ChatRoom chatRoom, Member oppositeMember) {

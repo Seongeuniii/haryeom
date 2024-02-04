@@ -1,5 +1,7 @@
 package com.ioi.haryeom.matching.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.common.dto.SubjectResponse;
@@ -9,7 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 public class RespondToMatchingResponse {
 
@@ -21,6 +22,7 @@ public class RespondToMatchingResponse {
     private Integer hourlyRate;
 
 
+
     private RespondToMatchingResponse(Long recipientMemberId, String teacherName, String studentName, Boolean isAccepted, Subject subject,
         Integer hourlyRate) {
         this.recipientMemberId = recipientMemberId;
@@ -28,6 +30,15 @@ public class RespondToMatchingResponse {
         this.studentName = studentName;
         this.isAccepted = isAccepted;
         this.subject = new SubjectResponse(subject);
+        this.hourlyRate = hourlyRate;
+    }
+
+    public RespondToMatchingResponse(Long recipientMemberId, Boolean isAccepted, String teacherName, String studentName, SubjectResponse subject, Integer hourlyRate) {
+        this.recipientMemberId = recipientMemberId;
+        this.isAccepted = isAccepted;
+        this.teacherName = teacherName;
+        this.studentName = studentName;
+        this.subject = subject;
         this.hourlyRate = hourlyRate;
     }
 

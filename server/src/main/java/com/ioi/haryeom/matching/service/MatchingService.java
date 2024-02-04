@@ -3,7 +3,6 @@ package com.ioi.haryeom.matching.service;
 import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.chat.document.ChatMessage;
 import com.ioi.haryeom.chat.domain.ChatRoom;
-import com.ioi.haryeom.chat.dto.ChatMessageResponse;
 import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
 import com.ioi.haryeom.chat.repository.ChatMessageRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomRepository;
@@ -12,6 +11,8 @@ import com.ioi.haryeom.common.repository.SubjectRepository;
 import com.ioi.haryeom.common.util.IdGenerator;
 import com.ioi.haryeom.matching.dto.CreateMatchingRequest;
 import com.ioi.haryeom.matching.dto.CreateMatchingResponse;
+import com.ioi.haryeom.matching.dto.MatchingResponse;
+import com.ioi.haryeom.matching.dto.MatchingStatus;
 import com.ioi.haryeom.matching.dto.RespondToMatchingRequest;
 import com.ioi.haryeom.matching.dto.RespondToMatchingResponse;
 import com.ioi.haryeom.matching.exception.ChatRoomMatchingNotFoundException;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,8 +45,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MatchingService {
 
-
-    private final SimpMessagingTemplate messagingTemplate;
+    private static final String CHAT_ROOM_CHANNEL_NAME = "chatroom";
+    private static final String MATCHING_CHANNEL_NAME = "matching";
+    private final RedisTemplate<String, Object> redisTemplate;
     private final MatchingManager matchingManager;
     private final MemberRepository memberRepository;
     private final ChatRoomRepository chatRoomRepository;
@@ -65,10 +68,10 @@ public class MatchingService {
         Subject subject = findSubjectById(request.getSubjectId());
 
         // 신청한 과목이 선생님이 가르치는 과목인지 확인
-        validateSubjectForTeacher(chatRoom, subject);
+//        validateSubjectForTeacher(chatRoom, subject);
 
         // 해당하는 선생님과 학생, 과목에 대한 과외가 존재하는지 확인
-        validateDuplicateTutoring(chatRoom, studentMember, subject);
+//        validateDuplicateTutoring(chatRoom, studentMember, subject);
 
         String matchingId = IdGenerator.createMatchingId();
         log.info("[MATCHING REQUEST] chat RoomId : {}, matchingId : {}", chatRoom.getId(), matchingId);
@@ -83,14 +86,14 @@ public class MatchingService {
         boolean isLastResponseRejected = processMatchingResponses(chatRoom.getId());
 
         // [매칭 요청 정보] 전송
-        messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId() + "/request", response);
+        redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME, new MatchingResponse<>(chatRoom.getId(), MatchingStatus.REQUEST, response));
         log.info("[MATCHING REQUEST INFO] SEND");
 
         // [매칭 응답 정보] 변경이 있는 경우 전송 (마지막 응답이 거절인 경우)
         if (isLastResponseRejected) {
             List<RespondToMatchingResponse> updatedRespondList = matchingManager.getMatchingResponseByChatRoomId(chatRoom.getId());
             // [매칭 응답 정보]가 없는 경우 빈 배열 전송
-            messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId() + "/response", updatedRespondList);
+            redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME, new MatchingResponse<>(chatRoom.getId(), MatchingStatus.RESPONSE, updatedRespondList));
         }
 
         return matchingId;
@@ -148,8 +151,7 @@ public class MatchingService {
 
         ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
 
-        ChatMessageResponse response = ChatMessageResponse.from(savedChatMessage);
-        messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId(), response);
+        redisTemplate.convertAndSend(CHAT_ROOM_CHANNEL_NAME, savedChatMessage);
         //TODO: 지금까지 과외한 거 정산해줘야함
     }
 
@@ -196,7 +198,8 @@ public class MatchingService {
         // [매칭 응답 정보 목록] 가져오기
         log.info("[MATCHING RESPONSE INFO LIST] RETRIEVE");
         List<RespondToMatchingResponse> response = matchingManager.getMatchingResponseByChatRoomId(chatRoom.getId());
-        messagingTemplate.convertAndSend("/topic/chatroom/" + chatRoom.getId() + "/response", response);
+        log.info("response >>>>>>>>> {}", response);
+        redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME, new MatchingResponse<>(chatRoom.getId(), MatchingStatus.RESPONSE, response));
     }
 
     private ChatMessage createEndTutoringMessage(Tutoring tutoring, Member member) {

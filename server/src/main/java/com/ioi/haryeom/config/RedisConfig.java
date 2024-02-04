@@ -1,6 +1,7 @@
 package com.ioi.haryeom.config;
 
 import com.ioi.haryeom.chat.listener.ChatMessageSubscriber;
+import com.ioi.haryeom.matching.listener.MatchingSubscriber;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -62,10 +63,13 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory, ChatMessageSubscriber chatMessageSubscriber) {
+    public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory, ChatMessageSubscriber chatMessageSubscriber,
+        MatchingSubscriber matchingSubscriber) {
+
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         container.addMessageListener(chatMessageSubscriber, chatMessageSubscriber.getChannelTopic());
+        container.addMessageListener(matchingSubscriber, matchingSubscriber.getChannelTopic());
         return container;
     }
 }
