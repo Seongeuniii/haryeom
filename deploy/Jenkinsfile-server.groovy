@@ -73,13 +73,13 @@ pipeline {
         }
         stage('Docker Image Build & DockerHub Push') {
             steps {
-                dir('server') {
+                dir('deploy') {
                     script {
                         docker.withRegistry('', dockerCredential) {
                             // Use the credentials for Docker Hub login
                             // Build and push Docker image using docker-compose
-                            sh "docker-compose build"
-                            sh "docker-compose push"
+                            sh "docker-compose -f docker-compose-server.yml build"
+                            sh "docker-compose -f docker-compose-server.yml push"
                         }
                     }
                 }
@@ -87,7 +87,7 @@ pipeline {
         }
         stage('Service Stop & Service Remove') {
             steps {
-                dir('server') {
+                dir('deploy') {
                     sh 'docker stop haryeom-be'
                     sh 'docker rm haryeom-be'
                     sh "docker rmi $latestImage"
@@ -96,8 +96,8 @@ pipeline {
         }
         stage('DockerHub Pull & Service Start') {
             steps {
-                dir('server') {
-                    sh 'docker-compose up -d'
+                dir('deploy') {
+                    sh 'docker-compose -f docker-compose-server.yml up -d'
                 }
             }
         }
