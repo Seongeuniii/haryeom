@@ -16,6 +16,7 @@ import com.ioi.haryeom.matching.dto.RespondToMatchingRequest;
 import com.ioi.haryeom.matching.dto.RespondToMatchingResponse;
 import com.ioi.haryeom.matching.exception.ChatRoomMatchingNotFoundException;
 import com.ioi.haryeom.matching.exception.DuplicateMatchingException;
+import com.ioi.haryeom.matching.exception.DuplicateTutoringException;
 import com.ioi.haryeom.matching.exception.MatchingNotFoundException;
 import com.ioi.haryeom.matching.manager.MatchingManager;
 import com.ioi.haryeom.member.domain.Member;
@@ -52,17 +53,20 @@ public class MatchingService {
     public String createMatchingRequest(CreateMatchingRequest request, Long memberId) {
 
         ChatRoom chatRoom = findChatRoomById(request.getChatRoomId());
-        Member member = findMemberById(memberId);
-        validateMemberInChatRoom(chatRoom, member);
+        Member studentMember = findMemberById(memberId);
+        validateMemberInChatRoom(chatRoom, studentMember);
 
         validateNoExistingMatching(chatRoom);
 
         Subject subject = findSubjectById(request.getSubjectId());
 
+        // 해당하는 선생님과 학생, 과목에 대한 과외가 존재하는지 확인
+        validateDuplicateTutoring(chatRoom, studentMember, subject);
+
         String matchingId = IdGenerator.createMatchingId();
         log.info("[MATCHING REQUEST] chat RoomId : {}, matchingId : {}", chatRoom.getId(), matchingId);
 
-        CreateMatchingResponse response = CreateMatchingResponse.of(matchingId, chatRoom, member, subject, request.getHourlyRate());
+        CreateMatchingResponse response = CreateMatchingResponse.of(matchingId, chatRoom, studentMember, subject, request.getHourlyRate());
 
         // [매칭 요청 정보] 저장
         matchingManager.addMatchingRequest(matchingId, chatRoom.getId(), response);
@@ -205,7 +209,11 @@ public class MatchingService {
             throw new DuplicateMatchingException(chatRoom.getId());
         }
     }
-
+    private void validateDuplicateTutoring(ChatRoom chatRoom, Member studentMember, Subject subject) {
+        if(tutoringRepository.existsBySubjectAndStudentAndTeacherAndStatus(subject, studentMember, chatRoom.getTeacherMember(), TutoringStatus.IN_PROGRESS)) {
+            throw new DuplicateTutoringException(subject.getId());
+        }
+    }
     private void validateMemberInTutoring(Tutoring tutoring, Member member) {
         if (!tutoring.isMemberPartOfTutoring(member)) {
             throw new AuthorizationException(member.getId());
