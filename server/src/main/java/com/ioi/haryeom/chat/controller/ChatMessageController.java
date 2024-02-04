@@ -23,14 +23,14 @@ public class ChatMessageController {
     // 프론트에서 채팅방에 연결되었음을 받음
     @MessageMapping("/chatroom/{chatRoomId}/connect")
     public void connectChatRoom(@DestinationVariable Long chatRoomId, SimpMessageHeaderAccessor headerAccessor, @AuthMemberId Long memberId) {
-        log.info("[CONNECT] CHAT ROOM ID {}", chatRoomId);
         String sessionId = headerAccessor.getSessionId();
+        log.info("[CONNECT] CHAT ROOM ID : {}, session ID : {}", chatRoomId, sessionId);
         chatMessageService.connectChatRoom(chatRoomId, sessionId, memberId);
     }
 
     @EventListener
     public void disconnectChatRoom(SessionDisconnectEvent event) {
-        log.info("[DISCONNECT] CHAT ROOM");
+        log.info("[DISCONNECT] CHAT ROOM session ID : {}", event.getSessionId());
         chatMessageService.disconnectChatRoom(event.getSessionId());
     }
 
@@ -38,7 +38,7 @@ public class ChatMessageController {
     @MessageMapping("/chatroom/{chatRoomId}/message")
     public void sendChatMessage(@DestinationVariable Long chatRoomId, @Payload ChatMessageRequest request,
         SimpMessageHeaderAccessor headerAccessor, @AuthMemberId Long memberId) {
-        log.info("[SEND CHAT MESSAGE] CHAT ROOM ID : {} CONTENT : {}", chatRoomId, request.getContent());
+        log.info("[SEND CHAT MESSAGE] CHAT ROOM ID : {} SESSION ID : {} CONTENT : {}", chatRoomId, headerAccessor.getSessionId(),   request.getContent());
         chatMessageService.sendChatMessage(chatRoomId, request.getContent(), headerAccessor.getSessionId(), memberId);
     }
 }
