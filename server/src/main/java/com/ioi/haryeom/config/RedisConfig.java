@@ -35,20 +35,16 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<Long, Object> longKeyRedisTemplate() {
-        RedisTemplate<Long, Object> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(redisConnectionFactory());
-
-        return redisTemplate;
-    }
-
-    @Bean
     public RedisTemplate<String, Object> stringKeyRedisTemplate() {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
 
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+
+        // Hash Key, Value String 타입 직렬화
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
 
         return redisTemplate;
     }

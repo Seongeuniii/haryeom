@@ -27,7 +27,9 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final KakaoService kakaoService;
     private final TokenService tokenService;
-    private final RedisTemplate<Long, Object> longKeyRedisTemplate;
+
+    private final RedisTemplate<String, Object> stringKeyRedisTemplate;
+    private static final String AUTH_TOKEN = "auth:token:";
 
     public UserInfoResponse getUser(Member member) {
         return UserInfoResponse.builder()
@@ -53,8 +55,7 @@ public class AuthService {
         }
 
         // redis oauthAccessToken 저장
-        HashOperations<Long, Object, Object> hashOperations = longKeyRedisTemplate.opsForHash();
-        hashOperations.put(member.getId(), "oauthAccessToken", oauthAccessToken);
+        stringKeyRedisTemplate.opsForHash().put(AUTH_TOKEN + member.getId(), "oauthAccessToken", oauthAccessToken);
 
         return LoginResponse.builder()
             .accessToken(tokenService.createToken(member))
@@ -63,7 +64,7 @@ public class AuthService {
     }
 
     public void oauthLogout(Long memberId, String provider) throws IOException {
-        Object oauthAccessToken = longKeyRedisTemplate.opsForHash().get(memberId, "oauthAccessToken");
+        Object oauthAccessToken = stringKeyRedisTemplate.opsForHash().get(AUTH_TOKEN + memberId, "oauthAccessToken");
 
         if (oauthAccessToken == null) {
             return;
@@ -71,7 +72,7 @@ public class AuthService {
 
         if (KAKAO.getProvider().equals(provider)) {
             kakaoService.logout(oauthAccessToken);
-            longKeyRedisTemplate.delete(memberId);
+            stringKeyRedisTemplate.delete(AUTH_TOKEN + memberId);
             return;
         }
 
