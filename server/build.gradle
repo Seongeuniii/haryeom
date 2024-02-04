@@ -80,11 +80,14 @@ dependencies {
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'io.projectreactor:reactor-test'
     // mockito
     testImplementation 'org.mockito:mockito-core:4.8.0'
     //querydsl 추가
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}" // querydsl 라이브러리
     annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}" //  Querydsl 관련 코드 생성 기능 제공
+    // WebFlux
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     implementation 'org.apache.commons:commons-lang3:3.12.0'
 
