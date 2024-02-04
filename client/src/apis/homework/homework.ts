@@ -17,7 +17,7 @@ export interface ITextbook {
 
 export interface Drawing {
     page: number;
-    homeworkDrawingUrl: string | StaticImageData;
+    homeworkDrawingUrl: string;
     drawingId: number;
 }
 

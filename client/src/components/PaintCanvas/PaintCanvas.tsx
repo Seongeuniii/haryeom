@@ -4,7 +4,7 @@ import { StaticImageData } from 'next/image';
 import { IPdfSize } from '@/hooks/usePdf';
 
 interface PaintCanvasProps {
-    imageSource: StaticImageData | string | undefined;
+    imageSource: Blob | string;
     saveCanvasDrawing: (canvasRef: RefObject<HTMLCanvasElement>, pageNum: number) => void;
     pdfPageCurrentSize: IPdfSize;
     pageNum: number;
@@ -62,7 +62,7 @@ const PaintCanvas = ({
         if (typeof imageSource === 'string') {
             backgroundImage.src = imageSource;
         } else {
-            backgroundImage.src = imageSource.src;
+            backgroundImage.src = URL.createObjectURL(imageSource);
         }
 
         backgroundImage.onload = () => {

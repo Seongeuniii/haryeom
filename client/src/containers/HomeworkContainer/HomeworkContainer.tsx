@@ -9,13 +9,14 @@ import { getHomework } from '@/apis/homework/get-homework';
 import { IHomework } from '@/apis/homework/homework';
 import usePdf, { IPdfSize } from '@/hooks/usePdf';
 import useMyPaint from '@/components/PaintCanvas/Hook/useMyPaint';
+import { saveHomework } from '@/apis/homework/save-homework';
 
 interface HomeworkContainerProps {
     homeworkData: IHomework;
 }
 
 export interface IMyHomeworkDrawings {
-    [pageNum: number]: string | StaticImageData | undefined; // undefined: 안그려짐
+    [pageNum: number]: Blob | string;
 }
 
 const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
@@ -54,6 +55,9 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
 
     return (
         <HomeworkLayout>
+            <button onClick={() => saveHomework(homeworkData.homeworkId, myHomeworkDrawings)}>
+                제출하기
+            </button>
             <StyledHomeworkContainer>
                 <Board>
                     <PdfViewer
