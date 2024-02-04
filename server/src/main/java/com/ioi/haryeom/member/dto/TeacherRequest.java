@@ -11,7 +11,7 @@ import org.hibernate.validator.constraints.Length;
 
 @Builder
 @Getter
-public class TeacherCreateRequest {
+public class TeacherRequest {
 
     @NotNull(message = "이름은 필수 항목입니다.")
     private String name;
@@ -36,8 +36,20 @@ public class TeacherCreateRequest {
     @PositiveOrZero(message = "과외 경력은 0년 이상이여야 합니다.")
     private Integer career;
 
-    private List<SubjectResponse> subjects;
+    private List<SubjectInfo> subjects;
 
     @Length(max = 1000, message = "선생님 자기 소개는 1000자 이하여야합니다.")
     private String introduce;
+
+    public void validateFieldFromProfileStatus() {
+        if (!this.profileStatus) {
+            this.college = null;
+            this.collegeEmail = null;
+            this.gender = Gender.NONE;
+            this.salary = null;
+            this.career = null;
+            this.subjects = null;
+            this.introduce = null;
+        }
+    }
 }

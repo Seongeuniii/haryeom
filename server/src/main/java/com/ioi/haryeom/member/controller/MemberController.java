@@ -6,12 +6,10 @@ import static org.springframework.http.HttpStatus.CREATED;
 import com.ioi.haryeom.common.util.AuthMemberId;
 import com.ioi.haryeom.member.dto.CodeCertifyRequest;
 import com.ioi.haryeom.member.dto.EmailCertifyRequest;
-import com.ioi.haryeom.member.dto.StudentCreateRequest;
 import com.ioi.haryeom.member.dto.StudentInfoResponse;
-import com.ioi.haryeom.member.dto.StudentUpdateRequest;
-import com.ioi.haryeom.member.dto.TeacherCreateRequest;
+import com.ioi.haryeom.member.dto.StudentRequest;
 import com.ioi.haryeom.member.dto.TeacherInfoResponse;
-import com.ioi.haryeom.member.dto.TeacherUpdateRequest;
+import com.ioi.haryeom.member.dto.TeacherRequest;
 import com.ioi.haryeom.member.service.MemberService;
 import java.io.IOException;
 import java.net.URI;
@@ -64,10 +62,10 @@ public class MemberController {
         MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> createStudent(@AuthMemberId Long userId,
         @RequestPart(value = "profileImg", required = false) MultipartFile profileImg,
-        @RequestPart("request") @Validated StudentCreateRequest createRequest) {
+        @RequestPart("request") @Validated StudentRequest studentRequest) {
 
         return ResponseEntity.created(URI.create(
-                "/members/students/" + memberService.createStudent(userId, profileImg, createRequest)))
+                "/members/students/" + memberService.createStudent(userId, profileImg, studentRequest)))
             .build();
     }
 
@@ -82,7 +80,7 @@ public class MemberController {
         MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> updateStudent(@AuthMemberId Long userId,
         @RequestPart(value = "profileImg", required = false) MultipartFile profileImg,
-        @RequestPart("request") @Validated StudentUpdateRequest studentRequest) {
+        @RequestPart("request") @Validated StudentRequest studentRequest) {
         memberService.updateStudent(userId, profileImg, studentRequest);
         return ResponseEntity.noContent().build();
     }
@@ -91,7 +89,7 @@ public class MemberController {
         MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> createTeacher(@AuthMemberId Long userId,
         @RequestPart(value = "profileImg", required = false) MultipartFile profileImg,
-        @RequestPart("request") @Validated TeacherCreateRequest teacherRequest) {
+        @RequestPart("request") @Validated TeacherRequest teacherRequest) {
 
         return ResponseEntity.created(URI.create(
                 "/members/teachers/" + memberService.createTeacher(userId, profileImg, teacherRequest)))
@@ -108,7 +106,7 @@ public class MemberController {
     public ResponseEntity<Void> updateTeacher(@AuthMemberId Long userId,
         @RequestPart(value = "profileImg", required = false) MultipartFile profileImg,
         @RequestPart("request") @Validated
-        TeacherUpdateRequest teacherRequest) {
+        TeacherRequest teacherRequest) {
         memberService.updateTeacher(userId, profileImg, teacherRequest);
         return ResponseEntity.noContent().build();
     }

@@ -12,13 +12,11 @@ import com.ioi.haryeom.member.domain.TeacherSubject;
 import com.ioi.haryeom.member.domain.type.Role;
 import com.ioi.haryeom.member.dto.CodeCertifyRequest;
 import com.ioi.haryeom.member.dto.EmailCertifyRequest;
-import com.ioi.haryeom.member.dto.StudentCreateRequest;
 import com.ioi.haryeom.member.dto.StudentInfoResponse;
-import com.ioi.haryeom.member.dto.StudentUpdateRequest;
-import com.ioi.haryeom.member.dto.SubjectResponse;
-import com.ioi.haryeom.member.dto.TeacherCreateRequest;
+import com.ioi.haryeom.member.dto.StudentRequest;
+import com.ioi.haryeom.member.dto.SubjectInfo;
 import com.ioi.haryeom.member.dto.TeacherInfoResponse;
-import com.ioi.haryeom.member.dto.TeacherUpdateRequest;
+import com.ioi.haryeom.member.dto.TeacherRequest;
 import com.ioi.haryeom.member.exception.EmailCertifyException;
 import com.ioi.haryeom.member.exception.StudentNotFoundException;
 import com.ioi.haryeom.member.exception.SubjectNotFoundException;
@@ -102,7 +100,7 @@ public class MemberService {
 
     @Transactional
     public Long createStudent(Long userId, MultipartFile profileImg,
-        StudentCreateRequest createRequest) {
+        StudentRequest studentRequest) {
         try {
             Member member = findMemberById(userId);
 
@@ -115,12 +113,12 @@ public class MemberService {
 
             Student student = Student.builder()
                 .member(member)
-                .grade(createRequest.getGrade())
-                .school(createRequest.getSchool())
+                .grade(studentRequest.getGrade())
+                .school(studentRequest.getSchool())
                 .build();
 
             member.createStudent(student, Role.STUDENT, profileUrl,
-                createRequest.getName(), createRequest.getPhone());
+                studentRequest.getName(), studentRequest.getPhone());
 
             studentRepository.save(student);
 
@@ -143,7 +141,7 @@ public class MemberService {
 
     @Transactional
     public void updateStudent(Long userId, MultipartFile profileImg,
-        StudentUpdateRequest updateRequest) {
+        StudentRequest studentRequest) {
         try {
             Member member = findMemberById(userId);
 
@@ -155,10 +153,10 @@ public class MemberService {
 
             Student student = member.getStudent();
 
-            student.updateStudent(updateRequest.getGrade(), updateRequest.getSchool());
+            student.updateStudent(studentRequest.getGrade(), studentRequest.getSchool());
 
             member.updateStudent(profileUrl,
-                updateRequest.getName(), updateRequest.getPhone());
+                studentRequest.getName(), studentRequest.getPhone());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -166,8 +164,10 @@ public class MemberService {
 
     @Transactional
     public Long createTeacher(Long userId, MultipartFile profileImg,
-        TeacherCreateRequest createRequest) {
+        TeacherRequest teacherRequest) {
         try {
+            teacherRequest.validateFieldFromProfileStatus();
+
             Member member = findMemberById(userId);
 
             String profileUrl = member.getProfileUrl();
@@ -178,27 +178,27 @@ public class MemberService {
 
             Teacher teacher = Teacher.builder()
                 .member(member)
-                .profileStatus(createRequest.getProfileStatus())
-                .college(createRequest.getCollege())
-                .collegeEmail(createRequest.getCollegeEmail())
-                .gender(createRequest.getGender())
-                .salary(createRequest.getSalary())
-                .career(createRequest.getCareer())
-                .introduce(createRequest.getIntroduce())
+                .profileStatus(teacherRequest.getProfileStatus())
+                .college(teacherRequest.getCollege())
+                .collegeEmail(teacherRequest.getCollegeEmail())
+                .gender(teacherRequest.getGender())
+                .salary(teacherRequest.getSalary())
+                .career(teacherRequest.getCareer())
+                .introduce(teacherRequest.getIntroduce())
                 .build();
 
             member.createTeacher(teacher, Role.TEACHER, profileUrl,
-                createRequest.getName(), createRequest.getPhone());
+                teacherRequest.getName(), teacherRequest.getPhone());
             teacherRepository.save(teacher);
 
-            List<SubjectResponse> subjects = createRequest.getSubjects();
+            List<SubjectInfo> subjects = teacherRequest.getSubjects();
 
-            subjects.forEach(subjectResponse -> {
+            subjects.forEach(subjectInfo -> {
                 TeacherSubject teacherSubject = TeacherSubject.builder()
                     .teacher(teacher)
-                    .subject(subjectRepository.findById(subjectResponse.getSubjectId())
+                    .subject(subjectRepository.findById(subjectInfo.getSubjectId())
                         .orElseThrow(
-                            () -> new SubjectNotFoundException(subjectResponse.getSubjectId())))
+                            () -> new SubjectNotFoundException(subjectInfo.getSubjectId())))
                     .build();
 
                 teacherSubjectRepository.save(teacherSubject);
@@ -230,8 +230,10 @@ public class MemberService {
 
     @Transactional
     public void updateTeacher(Long userId, MultipartFile profileImg,
-        TeacherUpdateRequest updateRequest) {
+        TeacherRequest teacherRequest) {
         try {
+            teacherRequest.validateFieldFromProfileStatus();
+
             Member member = findMemberById(userId);
 
             String profileUrl = member.getProfileUrl();
@@ -240,8 +242,8 @@ public class MemberService {
                     profileImg.getInputStream(), profileImg.getSize(), profileImg.getContentType());
             }
 
-            member.updateTeacher(profileUrl, updateRequest.getName(),
-                updateRequest.getPhone());
+            member.updateTeacher(profileUrl, teacherRequest.getName(),
+                teacherRequest.getPhone());
 
             Teacher teacher = member.getTeacher();
 
@@ -249,13 +251,13 @@ public class MemberService {
 
             teacherSubjectRepository.deleteAll(teacherSubjects);
 
-            List<SubjectResponse> subjects = updateRequest.getSubjects();
-            for (SubjectResponse subjectResponse : subjects) {
+            List<SubjectInfo> subjects = teacherRequest.getSubjects();
+            for (SubjectInfo subjectInfo : subjects) {
                 TeacherSubject teacherSubject = TeacherSubject.builder()
                     .teacher(teacher)
                     .subject(
-                        subjectRepository.findById(subjectResponse.getSubjectId()).orElseThrow(
-                            () -> new SubjectNotFoundException(subjectResponse.getSubjectId())
+                        subjectRepository.findById(subjectInfo.getSubjectId()).orElseThrow(
+                            () -> new SubjectNotFoundException(subjectInfo.getSubjectId())
                         )
                     )
                     .build();
@@ -263,13 +265,13 @@ public class MemberService {
                 teacherSubjectRepository.save(teacherSubject);
             }
 
-            teacher.updateTeacher(updateRequest.getProfileStatus(),
-                updateRequest.getCollege(),
-                updateRequest.getCollegeEmail(),
-                updateRequest.getGender(),
-                updateRequest.getSalary(),
-                updateRequest.getCareer(),
-                updateRequest.getIntroduce());
+            teacher.updateTeacher(teacherRequest.getProfileStatus(),
+                teacherRequest.getCollege(),
+                teacherRequest.getCollegeEmail(),
+                teacherRequest.getGender(),
+                teacherRequest.getSalary(),
+                teacherRequest.getCareer(),
+                teacherRequest.getIntroduce());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -288,12 +290,12 @@ public class MemberService {
             .orElseThrow(() -> new StudentNotFoundException(memberId));
     }
 
-    private List<SubjectResponse> findSubjectsById(Long teacherId) {
+    private List<SubjectInfo> findSubjectsById(Long teacherId) {
         return teacherSubjectRepository
             .findByTeacherId(teacherId)
             .stream()
             .map(TeacherSubject::getSubject)
-            .map(SubjectResponse::from)
+            .map(SubjectInfo::from)
             .collect(Collectors.toList());
     }
 }
