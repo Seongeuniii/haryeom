@@ -17,12 +17,15 @@ import com.ioi.haryeom.matching.dto.RespondToMatchingResponse;
 import com.ioi.haryeom.matching.exception.ChatRoomMatchingNotFoundException;
 import com.ioi.haryeom.matching.exception.DuplicateMatchingException;
 import com.ioi.haryeom.matching.exception.DuplicateTutoringException;
+import com.ioi.haryeom.matching.exception.InvalidSubjectForTeacherException;
 import com.ioi.haryeom.matching.exception.MatchingNotFoundException;
 import com.ioi.haryeom.matching.manager.MatchingManager;
 import com.ioi.haryeom.member.domain.Member;
+import com.ioi.haryeom.member.domain.Teacher;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.exception.SubjectNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
+import com.ioi.haryeom.member.repository.TeacherSubjectRepository;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
 import com.ioi.haryeom.tutoring.domain.TutoringStatus;
 import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
@@ -48,6 +51,7 @@ public class MatchingService {
     private final SubjectRepository subjectRepository;
     private final TutoringRepository tutoringRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final TeacherSubjectRepository teacherSubjectRepository;
 
     @Transactional
     public String createMatchingRequest(CreateMatchingRequest request, Long memberId) {
@@ -59,6 +63,9 @@ public class MatchingService {
         validateNoExistingMatching(chatRoom);
 
         Subject subject = findSubjectById(request.getSubjectId());
+
+        // 신청한 과목이 선생님이 가르치는 과목인지 확인
+        validateSubjectForTeacher(chatRoom, subject);
 
         // 해당하는 선생님과 학생, 과목에 대한 과외가 존재하는지 확인
         validateDuplicateTutoring(chatRoom, studentMember, subject);
@@ -207,6 +214,12 @@ public class MatchingService {
     private void validateNoExistingMatching(ChatRoom chatRoom) {
         if (matchingManager.existsMatchingRequestByChatRoomId(chatRoom.getId())) {
             throw new DuplicateMatchingException(chatRoom.getId());
+        }
+    }
+    private void validateSubjectForTeacher(ChatRoom chatRoom, Subject subject) {
+        Teacher teacher = chatRoom.getTeacherMember().getTeacher();
+        if(!teacherSubjectRepository.existsByTeacherAndSubject(teacher, subject)) {
+            throw new InvalidSubjectForTeacherException(subject.getId());
         }
     }
     private void validateDuplicateTutoring(ChatRoom chatRoom, Member studentMember, Subject subject) {
