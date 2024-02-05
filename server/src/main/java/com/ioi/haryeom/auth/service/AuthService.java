@@ -87,6 +87,11 @@ public class AuthService {
 
         Optional<Member> optionalMember = memberRepository.findByOauthId(oauthId);
 
+        // 탈퇴된 멤버의 경우 로직
+//        Member member = memberRepository.findByOauthId(oauthId).orElseThrow(
+//            () -> new ForbiddenException("탈퇴한 회원입니다.")
+//        );
+
         Member member;
         member = optionalMember.orElseGet(() -> memberRepository.save(Member.builder()
             .oauthId(oauthId)
