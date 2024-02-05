@@ -10,6 +10,7 @@ import { IHomework } from '@/apis/homework/homework';
 import usePdf, { IPdfSize } from '@/hooks/usePdf';
 import useMyPaint from '@/components/PaintCanvas/Hook/useMyPaint';
 import { saveHomework } from '@/apis/homework/save-homework';
+import HomeworkStatus from '@/components/HomeworkStatus';
 
 interface HomeworkContainerProps {
     homeworkData: IHomework;
@@ -20,7 +21,12 @@ export interface IMyHomeworkDrawings {
 }
 
 const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
-    const [myHomeworkDrawings, setMyHomeworkDrawings] = useState<IMyHomeworkDrawings>({});
+    const [myHomeworkDrawings, setMyHomeworkDrawings] = useState<IMyHomeworkDrawings>(
+        homeworkData.drawings.reduce((acc, { page, homeworkDrawingUrl }) => {
+            acc[page] = homeworkDrawingUrl;
+            return acc;
+        }, {} as IMyHomeworkDrawings)
+    );
     const {
         totalPagesOfPdfFile,
         selectedPageNumber,
@@ -41,24 +47,15 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
     });
 
     useEffect(() => {
-        console.log(homeworkData);
         const { drawings } = homeworkData;
-        const initialMyHomeworkDrawings: IMyHomeworkDrawings = drawings.reduce(
-            (acc, { page, homeworkDrawingUrl }) => {
-                acc[page] = homeworkDrawingUrl;
-                return acc;
-            },
-            {} as IMyHomeworkDrawings
-        );
-        setMyHomeworkDrawings(initialMyHomeworkDrawings);
     }, []);
 
     return (
         <HomeworkLayout>
-            <button onClick={() => saveHomework(homeworkData.homeworkId, myHomeworkDrawings)}>
-                제출하기
-            </button>
             <StyledHomeworkContainer>
+                {/* <button onClick={() => saveHomework(homeworkData.homeworkId, myHomeworkDrawings)}>
+                    제출하기
+                </button> */}
                 <Board>
                     <PdfViewer
                         pdfFile={homeworkData.textbook.textbookUrl}
@@ -83,6 +80,7 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
                         </DrawingLayer>
                     </PdfViewer>
                 </Board>
+                <HomeworkStatus />
             </StyledHomeworkContainer>
         </HomeworkLayout>
     );
