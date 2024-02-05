@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -47,7 +46,7 @@ public class TokenService {
 
     private final MemberRepository memberRepository;
 
-    private final RedisTemplate<Long, Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final long TOKEN_PERIOD = 30 * 60 * 1000L;
     private final long REFRESH_PERIOD = 14 * 24 * 60 * 60 * 1000L;
     private static final String AUTH_TOKEN = "auth:token:";
@@ -78,9 +77,8 @@ public class TokenService {
             .signWith(SignatureAlgorithm.HS256, refreshSecretKey).compact();
 
         // redis refreshToken 저장
-        HashOperations<Long, Object, Object> hashOperations = redisTemplate.opsForHash();
-        hashOperations.put(memberId, REDIS_REFRESH_TOKEN_KEY, refreshToken);
-        redisTemplate.expire(memberId, REFRESH_PERIOD, MILLISECONDS);
+        redisTemplate.opsForHash().put(AUTH_TOKEN + memberId, REDIS_REFRESH_TOKEN_KEY, refreshToken);
+        redisTemplate.expire(AUTH_TOKEN + memberId, REFRESH_PERIOD, MILLISECONDS);
 
         return refreshToken;
     }
@@ -136,8 +134,7 @@ public class TokenService {
             String refreshToken = getRefreshToken(request);
             Long memberId = getMemberIdFromRefreshToken(refreshToken);
             String redisRefreshToken = Objects.requireNonNull(
-                redisTemplate.opsForHash().get(memberId, REDIS_REFRESH_TOKEN_KEY)).toString();
-
+                redisTemplate.opsForHash().get(AUTH_TOKEN + memberId, REDIS_REFRESH_TOKEN_KEY)).toString();
             Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
 

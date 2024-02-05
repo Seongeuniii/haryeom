@@ -16,7 +16,6 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.parser.ParseException;
-import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +27,8 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final KakaoService kakaoService;
     private final TokenService tokenService;
-    private final RedisTemplate<Long, Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private static final String AUTH_TOKEN = "auth:token:";
 
     public UserInfoResponse getUser(Member member) {
         return UserInfoResponse.builder()
@@ -54,8 +54,7 @@ public class AuthService {
         }
 
         // redis oauthAccessToken 저장
-        HashOperations<Long, Object, Object> hashOperations = redisTemplate.opsForHash();
-        hashOperations.put(member.getId(), "oauthAccessToken", oauthAccessToken);
+        redisTemplate.opsForHash().put(AUTH_TOKEN + member.getId(), "oauthAccessToken", oauthAccessToken);
 
         return LoginResponse.builder()
             .accessToken(tokenService.createToken(member))
@@ -64,7 +63,7 @@ public class AuthService {
     }
 
     public void oauthLogout(Long memberId, String provider) throws IOException {
-        Object oauthAccessToken = redisTemplate.opsForHash().get(memberId, "oauthAccessToken");
+        Object oauthAccessToken = redisTemplate.opsForHash().get(AUTH_TOKEN + memberId, "oauthAccessToken");
 
         if (oauthAccessToken == null) {
             return;
@@ -72,7 +71,7 @@ public class AuthService {
 
         if (KAKAO.getProvider().equals(provider)) {
             kakaoService.logout(oauthAccessToken);
-            redisTemplate.delete(memberId);
+            redisTemplate.delete(AUTH_TOKEN + memberId);
             return;
         }
 
