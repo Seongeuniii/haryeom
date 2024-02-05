@@ -141,7 +141,9 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
     useEffect(() => {
         if (!myStream) return;
         const socket = new SockJS(`${process.env.NEXT_PUBLIC_SIGNALING_SERVER}`); // roomCode
+        console.log('after socket : ' + socket);
         const stomp = Stomp.over(socket);
+        console.log('after stomp over : ' + stomp);
         stomp.debug = () => {};
         stomp.connect({}, () => {
             setStompClient(stomp);
@@ -156,6 +158,7 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
 
     const subscribe = () => {
         if (!stompClient) return;
+        console.log('subscribe');
         const subscriptions: ISubscription[] = [
             {
                 destination: `/topic/welcome/room/${roomCode}/${memberId}`,
@@ -179,13 +182,15 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
                 callback: handleIce,
             },
         ];
-        subscriptions.map((subscription) => {
+        subscriptions.map((subscription, i) => {
+            console.log('subscribe ' + i + ':' + subscription);
             return stompClient.subscribe(subscription.destination, subscription.callback);
         });
     };
 
     // subscribe
     useEffect(() => {
+        console.log('stompClient : ' + stompClient);
         if (!stompClient) return;
         subscribe();
         console.log('send join');
