@@ -145,14 +145,20 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
         const stomp = Stomp.over(socket);
         console.log('after stomp over : ' + stomp);
         stomp.debug = () => {};
-        stomp.connect({}, () => {
-            console.log('stomp connection');
-            setStompClient(stomp);
-            console.log('setStompClient : ' + stompClient);
-            // return () => {
-            //     stompSubscriptions.forEach((stompSubscription) => stompSubscription.unsubscribe());
-            // };
-        });
+        stomp.connect(
+            {},
+            () => {
+                console.log('stomp connection');
+                setStompClient(stomp);
+                console.log('setStompClient : ' + stompClient);
+                // return () => {
+                //     stompSubscriptions.forEach((stompSubscription) => stompSubscription.unsubscribe());
+                // };
+            },
+            (error: any) => {
+                console.error('Stomp connection error : ', error);
+            }
+        );
         return () => {
             stompClient?.disconnect();
         };
