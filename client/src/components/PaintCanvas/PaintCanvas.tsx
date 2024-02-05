@@ -49,6 +49,7 @@ const PaintCanvas = ({
         if (!canvasRef.current) return;
         const { clientWidth, clientHeight } = canvasRef.current;
         canvasSizeSetting(clientWidth, clientHeight);
+
         const context = canvasRef.current.getContext('2d');
         if (!context) return;
         canvasContextSetting(context);
@@ -67,14 +68,27 @@ const PaintCanvas = ({
 
         backgroundImage.onload = () => {
             if (!canvasRef.current) return;
-            canvasRef.current.width = backgroundImage.width;
-            canvasRef.current.height = backgroundImage.height;
+            const { clientWidth, clientHeight } = canvasRef.current;
+            const imageAspectRatio = backgroundImage.width / backgroundImage.height;
+
+            let newWidth, newHeight;
+            if (clientWidth / clientHeight > imageAspectRatio) {
+                newWidth = clientHeight * imageAspectRatio;
+                newHeight = clientHeight;
+            } else {
+                newWidth = clientWidth;
+                newHeight = clientWidth / imageAspectRatio;
+            }
             ctx?.drawImage(
                 backgroundImage,
                 0,
                 0,
-                canvasRef.current.width,
-                canvasRef.current.height
+                backgroundImage.width,
+                backgroundImage.height,
+                0,
+                0,
+                newWidth,
+                newHeight
             );
         };
     };
@@ -83,8 +97,10 @@ const PaintCanvas = ({
         if (!canvasRef.current) return;
         const resultWidth = width * canvasInformRef.current.pixelRatio;
         const resultHeight = height * canvasInformRef.current.pixelRatio;
+
         canvasRef.current.width = resultWidth;
         canvasRef.current.height = resultHeight;
+
         canvasInformRef.current.width = resultWidth;
         canvasInformRef.current.height = resultHeight;
     };
