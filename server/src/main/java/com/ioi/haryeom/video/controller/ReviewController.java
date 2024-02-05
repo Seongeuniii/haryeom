@@ -4,11 +4,10 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import com.ioi.haryeom.common.dto.SubjectResponse;
 import com.ioi.haryeom.common.util.AuthMemberId;
-import com.ioi.haryeom.homework.dto.HomeworkResponse;
 import com.ioi.haryeom.textbook.dto.TextbookResponse;
-import com.ioi.haryeom.video.dto.VideoDetailInterface;
+import com.ioi.haryeom.video.dto.HomeworkReviewListResponse;
 import com.ioi.haryeom.video.dto.VideoDetailResponse;
-import com.ioi.haryeom.video.dto.VideoResponse;
+import com.ioi.haryeom.video.dto.VideoReviewListResponse;
 import com.ioi.haryeom.video.service.ReviewService;
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class ReviewController {
 
     //학습자료별 숙제 리스트 찾기, 페이징 필요
     @GetMapping("/homework/{textbookId}")
-    public ResponseEntity<List<HomeworkResponse>> getHomeworkByTextbookId(@AuthMemberId Long memberId, @PathVariable Long textbookId, @PageableDefault(size = 10, sort = "deadline", direction = DESC) Pageable pageable){
+    public ResponseEntity<HomeworkReviewListResponse> getHomeworkByTextbookId(@AuthMemberId Long memberId, @PathVariable Long textbookId, @PageableDefault(size = 10, sort = "deadline", direction = DESC) Pageable pageable){
         return ResponseEntity.ok(reviewService.getHomeworkByTextbookByTutoringByMember(textbookId, memberId, pageable));
     }
 
@@ -47,7 +46,7 @@ public class ReviewController {
 
     // 과목별 비디오 리스트 찾기 -- 일단 성?공
     @GetMapping("/video/{subjectId}")
-    public ResponseEntity<List<VideoResponse>> getVideoListBySubject(@AuthMemberId Long memberId, @PathVariable Long subjectId, @PageableDefault(size = 10, sort = "createdAt", direction = DESC) Pageable pageable){
+    public ResponseEntity<VideoReviewListResponse> getVideoListBySubject(@AuthMemberId Long memberId, @PathVariable Long subjectId, @PageableDefault(size = 10, sort = "createdAt", direction = DESC) Pageable pageable){
         return ResponseEntity.ok(reviewService.getVideoBySubjectByTutoringByMember(subjectId, memberId, pageable));
     }
 
