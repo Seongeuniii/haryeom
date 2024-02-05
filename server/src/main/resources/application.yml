@@ -20,6 +20,7 @@ spring:
     redis:
       host: i10a807.p.ssafy.io
       port: 6379
+      password: HB79jFWOhv9bBYrY6
     mongodb:
       uri: mongodb://i10a807.p.ssafy.io:27017/haryeom
   servlet:
@@ -33,6 +34,9 @@ spring:
         QTEwN2phbnNvcnJ5dGVhbWZsdm1mcHRubHhoem1zZHBlb2drZ2tzcmtxdGRsc2xSa3Jqc2VtZndsYWsK
   univcert:
     api-key: 959145b3-a495-451e-bef0-1dbd11a96616
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false  # ISO-8601 형식 직렬화 설정
 cloud:
   aws:
     s3:
