@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoAuditing
 @EnableMongoRepositories(basePackages = {
     "com.ioi.haryeom.chat.repository",
+    "com.ioi.haryeom.matching.repository",
 })
 public class MongoConfig {
 
