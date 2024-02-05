@@ -54,18 +54,19 @@ public class Teacher extends BaseTimeEntity {
     private String introduce;
 
     @Builder
-    public Teacher(Long id, Member member, Boolean profileStatus, String college, String major,
+    public Teacher(Member member, Boolean profileStatus, String college, String major,
         String collegeEmail, Gender gender, Integer salary, Integer career, String introduce) {
-        this.id = id;
         this.member = member;
         this.profileStatus = profileStatus;
-        this.college = college;
-        this.major = major;
-        this.collegeEmail = collegeEmail;
-        this.gender = gender;
-        this.salary = salary;
-        this.career = career;
-        this.introduce = introduce;
+        if (this.profileStatus) {
+            this.college = college;
+            this.major = major;
+            this.collegeEmail = collegeEmail;
+            this.gender = gender;
+            this.salary = salary;
+            this.career = career;
+            this.introduce = introduce;
+        }
     }
 
     public void updateTeacher(Boolean profileStatus, String college, String collegeEmail,
