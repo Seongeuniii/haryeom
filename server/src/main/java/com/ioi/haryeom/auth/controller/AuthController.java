@@ -62,4 +62,10 @@ public class AuthController {
         return ResponseEntity.ok()
             .body(new AccessTokenResponse(accessToken));
     }
+
+    @GetMapping("/test/login/{role}")
+    public ResponseEntity<LoginResponse> testLogin(@PathVariable("role") String role) {
+
+        return ResponseEntity.ok().body(authService.testLogin(role));
+    }
 }
