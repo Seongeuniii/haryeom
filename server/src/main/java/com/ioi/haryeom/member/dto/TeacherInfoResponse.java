@@ -19,6 +19,6 @@ public class TeacherInfoResponse {
     private Integer salary;
     private Integer career;
 
-    private List<SubjectResponse> subjects;
+    private List<SubjectInfo> subjects;
     private String introduce;
 }

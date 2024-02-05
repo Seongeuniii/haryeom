@@ -47,9 +47,11 @@ public class TokenService {
 
     private final MemberRepository memberRepository;
 
-    private final RedisTemplate<Long, Object> longKeyRedisTemplate;
+    private final RedisTemplate<String, Object> stringKeyRedisTemplate;
+
     private final long TOKEN_PERIOD = 30 * 60 * 1000L;
     private final long REFRESH_PERIOD = 14 * 24 * 60 * 60 * 1000L;
+    private static final String AUTH_TOKEN = "auth:token:";
     private final String REDIS_REFRESH_TOKEN_KEY = "refreshToken";
 
     @PostConstruct
@@ -77,9 +79,8 @@ public class TokenService {
             .signWith(SignatureAlgorithm.HS256, refreshSecretKey).compact();
 
         // redis refreshToken 저장
-        HashOperations<Long, Object, Object> hashOperations = longKeyRedisTemplate.opsForHash();
-        hashOperations.put(memberId, REDIS_REFRESH_TOKEN_KEY, refreshToken);
-        longKeyRedisTemplate.expire(memberId, REFRESH_PERIOD, MILLISECONDS);
+        stringKeyRedisTemplate.opsForHash().put(AUTH_TOKEN + memberId, REDIS_REFRESH_TOKEN_KEY, refreshToken);
+        stringKeyRedisTemplate.expire(AUTH_TOKEN + memberId, REFRESH_PERIOD, MILLISECONDS);
 
         return refreshToken;
     }
@@ -135,7 +136,7 @@ public class TokenService {
             String refreshToken = getRefreshToken(request);
             Long memberId = getMemberIdFromRefreshToken(refreshToken);
             String redisRefreshToken = Objects.requireNonNull(
-                longKeyRedisTemplate.opsForHash().get(memberId, REDIS_REFRESH_TOKEN_KEY)).toString();
+                stringKeyRedisTemplate.opsForHash().get(AUTH_TOKEN + memberId, REDIS_REFRESH_TOKEN_KEY)).toString();
 
             Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
@@ -180,9 +181,6 @@ public class TokenService {
 
     // 만료된 access, refresh token 정보 삭제
     public void resetHeader(HttpServletResponse response) {
-
-//        헤더 초기화
-//        response.setHeader("Authorization", null);
 
         Cookie accessCookie = new Cookie("accessToken", null);
         accessCookie.setHttpOnly(true);
