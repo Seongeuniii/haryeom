@@ -8,15 +8,20 @@ import com.ioi.haryeom.chat.manager.WebSocketSessionManager;
 import com.ioi.haryeom.chat.repository.ChatMessageRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomStateRepository;
+import com.ioi.haryeom.matching.document.Matching;
 import com.ioi.haryeom.matching.document.MatchingResult;
+import com.ioi.haryeom.matching.dto.CreateMatchingResponse;
 import com.ioi.haryeom.matching.dto.MatchingResponse;
 import com.ioi.haryeom.matching.dto.MatchingStatus;
+import com.ioi.haryeom.matching.dto.RespondToMatchingResponse;
 import com.ioi.haryeom.matching.repository.MatchingRepository;
 import com.ioi.haryeom.matching.repository.MatchingResultRepository;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -47,12 +52,15 @@ public class ChatMessageService {
 
         // 채팅방의 매칭 요청 여부 확인 및 클라이언트에 전송
         matchingRepository.findByChatRoomId(chatRoomId).ifPresent(matching ->
-            redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME, new MatchingResponse<>(chatRoomId, MatchingStatus.REQUEST, matching)));
+            redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME, new MatchingResponse<>(chatRoomId, MatchingStatus.REQUEST, CreateMatchingResponse.from(matching))));
 
         // 채팅방의 매칭 응답 여부 확인 및 클라이언트에 전송
         List<MatchingResult> matchingResults = matchingResultRepository.findAllByChatRoomIdOrderByIdDesc(chatRoomId);
         if (!matchingResults.isEmpty()) {
-            redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME, new MatchingResponse<>(chatRoomId, MatchingStatus.RESPONSE, matchingResults));
+            List<RespondToMatchingResponse> responses = matchingResults.stream()
+                .map(RespondToMatchingResponse::from)
+                .collect(Collectors.toList());
+            redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME, new MatchingResponse<>(chatRoomId, MatchingStatus.RESPONSE, responses));
         }
     }
 

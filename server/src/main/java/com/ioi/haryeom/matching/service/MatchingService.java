@@ -11,9 +11,11 @@ import com.ioi.haryeom.common.repository.SubjectRepository;
 import com.ioi.haryeom.matching.document.Matching;
 import com.ioi.haryeom.matching.document.MatchingResult;
 import com.ioi.haryeom.matching.dto.CreateMatchingRequest;
+import com.ioi.haryeom.matching.dto.CreateMatchingResponse;
 import com.ioi.haryeom.matching.dto.MatchingResponse;
 import com.ioi.haryeom.matching.dto.MatchingStatus;
 import com.ioi.haryeom.matching.dto.RespondToMatchingRequest;
+import com.ioi.haryeom.matching.dto.RespondToMatchingResponse;
 import com.ioi.haryeom.matching.exception.DuplicateMatchingException;
 import com.ioi.haryeom.matching.exception.DuplicateTutoringException;
 import com.ioi.haryeom.matching.exception.InvalidSubjectForTeacherException;
@@ -31,6 +33,7 @@ import com.ioi.haryeom.tutoring.domain.TutoringStatus;
 import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -79,15 +82,18 @@ public class MatchingService {
         boolean isLastResponseRejected = processMatchingResponses(chatRoom.getId());
 
         // [매칭 요청 정보] 전송
-        redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME, new MatchingResponse<>(chatRoom.getId(), MatchingStatus.REQUEST, savedMatching));
+        redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME, new MatchingResponse<>(chatRoom.getId(), MatchingStatus.REQUEST, CreateMatchingResponse.from(matching)));
         log.info("[MATCHING REQUEST INFO] SEND");
 
         // [매칭 응답 정보] 변경이 있는 경우 전송 (마지막 응답이 거절인 경우)
         if (isLastResponseRejected) {
             List<MatchingResult> matchingResults = matchingResultRepository.findAllByChatRoomIdOrderByIdDesc(chatRoom.getId());
+            List<RespondToMatchingResponse> responses = matchingResults.stream()
+                .map(RespondToMatchingResponse::from)
+                .collect(Collectors.toList());
             // [매칭 응답 정보]가 없는 경우 빈 배열 전송
             redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME,
-                new MatchingResponse<>(chatRoom.getId(), MatchingStatus.RESPONSE, matchingResults));
+                new MatchingResponse<>(chatRoom.getId(), MatchingStatus.RESPONSE, responses));
         }
 
         return savedMatching.getId().toHexString();
@@ -195,7 +201,10 @@ public class MatchingService {
         // [매칭 응답 정보 목록] 전송
         log.info("[MATCHING RESPONSE INFO LIST] SEND");
         List<MatchingResult> matchingResults = matchingResultRepository.findAllByChatRoomIdOrderByIdDesc(chatRoom.getId());
-        redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME, new MatchingResponse<>(chatRoom.getId(), MatchingStatus.RESPONSE, matchingResults));
+        List<RespondToMatchingResponse> responses = matchingResults.stream()
+            .map(RespondToMatchingResponse::from)
+            .collect(Collectors.toList());
+        redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME, new MatchingResponse<>(chatRoom.getId(), MatchingStatus.RESPONSE, responses));
     }
 
     private ChatMessage createEndTutoringMessage(Tutoring tutoring, Member member) {
