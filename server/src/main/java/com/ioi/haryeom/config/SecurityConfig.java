@@ -37,6 +37,7 @@ public class SecurityConfig {
             // 이태호
             .antMatchers("/api/auth").authenticated()
             .antMatchers("/api/auth/kakao/login").permitAll()
+            .antMatchers("/api/auth/test/login/{role}").permitAll()
             .antMatchers(POST, "/api/auth/refresh").permitAll()
             .antMatchers(POST, "/api/auth/kakao/logout").authenticated()
             .antMatchers("/api/members/emails/**").hasRole("GUEST")

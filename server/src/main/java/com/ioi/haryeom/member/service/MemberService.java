@@ -18,7 +18,7 @@ import com.ioi.haryeom.member.dto.SubjectInfo;
 import com.ioi.haryeom.member.dto.TeacherInfoResponse;
 import com.ioi.haryeom.member.dto.TeacherRequest;
 import com.ioi.haryeom.member.exception.EmailCertifyException;
-import com.ioi.haryeom.member.exception.StudentNotFoundException;
+import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.exception.SubjectNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.member.repository.StudentRepository;
@@ -287,7 +287,7 @@ public class MemberService {
 
     private Member findMemberById(Long memberId) {
         return memberRepository.findById(memberId)
-            .orElseThrow(() -> new StudentNotFoundException(memberId));
+            .orElseThrow(() -> new MemberNotFoundException(memberId));
     }
 
     private List<SubjectInfo> findSubjectsById(Long teacherId) {
