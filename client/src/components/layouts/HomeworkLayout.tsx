@@ -1,16 +1,23 @@
 import { ReactNode } from 'react';
 import styled from 'styled-components';
 import ChatContainer from '@/containers/ChatContainer';
+import { IHomework } from '@/apis/homework/homework';
 
 interface HomeworkLayoutProps {
+    homeworkData: IHomework;
     children: ReactNode;
 }
 
-const HomeworkLayout = ({ children }: HomeworkLayoutProps) => {
+const HomeworkLayout = ({ homeworkData, children }: HomeworkLayoutProps) => {
     return (
         <StyledHomeworkLayout>
             <HeaderWrapper>
-                <Header>호랑이 문제집 P.12 ~ P.13</Header>
+                <Header>
+                    <TextbookName>{homeworkData.textbook.textbookName}</TextbookName>
+                    <Range>
+                        p.{homeworkData.startPage} ~ p.{homeworkData.endPage}
+                    </Range>
+                </Header>
             </HeaderWrapper>
             <ContainerWrapper>{children}</ContainerWrapper>
             <ChatContainer />
@@ -36,6 +43,16 @@ const Header = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+`;
+
+const TextbookName = styled.span`
+    margin-right: 0.7em;
+    font-size: 18px;
+    font-weight: 700;
+`;
+
+const Range = styled.div`
+    color: ${({ theme }) => theme.LIGHT_BLACK};
 `;
 
 const StyledHomeworkLayout = styled.div`
