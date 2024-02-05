@@ -140,7 +140,7 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
 
     useEffect(() => {
         if (!myStream) return;
-        const socket = new SockJS(`${process.env.NEXT_PUBLIC_SIGNALING_SERVER}`); // roomCode
+        const socket = new SockJS(`${process.env.NEXT_PUBLIC_CHAT_SERVER}`); // roomCode
         console.log('after socket : ' + socket);
         const stomp = Stomp.over(socket);
         console.log('after stomp over : ' + stomp);
