@@ -20,9 +20,10 @@ public class StompLoggingInterceptor implements ChannelInterceptor {
         }
         switch (accessor.getCommand()) {
             case CONNECT:
-                log.info("STOMP WebSocket connection established. Session ID: {}", accessor.getSessionId());
-                log.info("CONNECT message : {}", accessor.getMessage());
-                log.info("CONNECT heartbeat : {}", accessor.getHeartbeat());
+                log.info("[CONNECT] STOMP WebSocket connection established. Session ID: {}", accessor.getSessionId());
+                log.info("[CONNECT] Connection-Header : {}", accessor.getHeader("Connection"));
+                log.info("[CONNECT] Origin-Header : {}", accessor.getHeader("Origin"));
+                log.info("[CONNECT] Upgrade-Header : {}", accessor.getHeader("Upgrade"));
                 break;
             case DISCONNECT:
                 log.info("STOMP WebSocket connection closed. Session ID: {}", accessor.getSessionId());
