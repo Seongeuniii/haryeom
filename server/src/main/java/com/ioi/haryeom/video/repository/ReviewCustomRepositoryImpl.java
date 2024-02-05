@@ -50,14 +50,14 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository{
             ).from(textbook)
             .where(textbook.id.in(
                 JPAExpressions
-                    .select(assignment.textbook.id)
-                    .from(assignment)
-                    .where(assignment.tutoring.id.in(
+                    .select(homework.textbook.id)
+                    .from(homework)
+                    .where(homework.tutoring.id.in(
                         JPAExpressions
                             .select(tutoring.id)
                             .from(tutoring)
                             .where(tutoring.student.id.eq(memberId))
-                    ))
+                    ), homework.status.eq(HomeworkStatus.COMPLETED))
             ))
             .fetch();
     }

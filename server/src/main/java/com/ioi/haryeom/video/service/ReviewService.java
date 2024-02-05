@@ -2,29 +2,20 @@ package com.ioi.haryeom.video.service;
 
 import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.common.dto.SubjectResponse;
-import com.ioi.haryeom.homework.domain.Homework;
-import com.ioi.haryeom.homework.domain.HomeworkStatus;
 import com.ioi.haryeom.homework.dto.HomeworkResponse;
 import com.ioi.haryeom.homework.repository.HomeworkRepository;
-import com.ioi.haryeom.member.domain.Member;
-import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.textbook.dto.TextbookResponse;
-import com.ioi.haryeom.tutoring.domain.Tutoring;
-import com.ioi.haryeom.tutoring.domain.TutoringSchedule;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import com.ioi.haryeom.video.domain.Video;
-import com.ioi.haryeom.video.dto.VideoDetailInterface;
-import com.ioi.haryeom.video.dto.VideoDetailResponse;
-import com.ioi.haryeom.video.dto.VideoInterface;
-import com.ioi.haryeom.video.dto.VideoResponse;
+import com.ioi.haryeom.video.dto.*;
 import com.ioi.haryeom.video.exception.VideoNotFoundException;
 import com.ioi.haryeom.video.repository.ReviewCustomRepositoryImpl;
 import com.ioi.haryeom.video.repository.VideoRepository;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -43,9 +34,11 @@ public class ReviewService {
     }
 
     // 학생별 학습자료별 완료 숙제 리스트 조회
-    public List<HomeworkResponse> getHomeworkByTextbookByTutoringByMember(Long textbookId, Long memberId, Pageable pageable){
+    public HomeworkReviewListResponse getHomeworkByTextbookByTutoringByMember(Long textbookId, Long memberId, Pageable pageable){
         //Todo: 목록이 0개일때?
-        return reviewCustomRepository.findAllByTextbookByTutoringByMember(textbookId, memberId, pageable).getContent();
+        Page<HomeworkResponse> response = reviewCustomRepository.findAllByTextbookByTutoringByMember(textbookId, memberId, pageable);
+        HomeworkReviewListResponse homeworkReviewListResponse = new HomeworkReviewListResponse(response.getContent(), response.getTotalPages());
+        return homeworkReviewListResponse;
     }
 
 
@@ -56,9 +49,11 @@ public class ReviewService {
     }
 
     //학생별 과목별 영상 리스트 조회 - queryDsl 활용
-    public List<VideoResponse> getVideoBySubjectByTutoringByMember(Long subjectId, Long memberId, Pageable pageable){
+    public VideoReviewListResponse getVideoBySubjectByTutoringByMember(Long subjectId, Long memberId, Pageable pageable){
         //Todo: 목록이 0개일때?
-        return reviewCustomRepository.findAllBySubjectAndTutoringServiceByTutoringByMember(subjectId, memberId, pageable).getContent();
+        Page<VideoResponse> response = reviewCustomRepository.findAllBySubjectAndTutoringServiceByTutoringByMember(subjectId, memberId, pageable);
+        VideoReviewListResponse videoReviewListResponse = new VideoReviewListResponse(response.getContent(), response.getTotalPages());
+        return videoReviewListResponse;
     }
 
     // 비디오 상세조회
