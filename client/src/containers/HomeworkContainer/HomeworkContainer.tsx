@@ -1,5 +1,5 @@
 import { GetServerSideProps } from 'next';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import PdfViewer from '@/components/PdfViewer';
 import PaintCanvas from '@/components/PaintCanvas';
@@ -63,13 +63,16 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
         backgroundImage: myHomeworkDrawings[selectedPageNumber],
     });
 
+    useEffect(() => {
+        saveHomeworkDrawing();
+    }, [selectedPageNumber]);
+
     return (
         <HomeworkLayout homeworkData={homeworkData}>
             <StyledHomeworkContainer>
                 <button onClick={() => saveHomework(homeworkData.homeworkId, myHomeworkDrawings)}>
                     제출하기
                 </button>
-                <button onClick={saveHomeworkDrawing}>임시저장</button>
                 <Board>
                     <PdfViewer
                         pdfFile={homeworkData.textbook.textbookUrl}
@@ -94,7 +97,10 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
                         </DrawingLayer>
                     </PdfViewer>
                 </Board>
-                <HomeworkStatus />
+                <HomeworkStatus
+                    homeworkData={homeworkData}
+                    myHomeworkDrawings={myHomeworkDrawings}
+                />
             </StyledHomeworkContainer>
         </HomeworkLayout>
     );

@@ -1,18 +1,47 @@
 import styled from 'styled-components';
+import { IHomework } from '@/apis/homework/homework';
+import { IMyHomeworkDrawings } from '@/containers/HomeworkContainer/HomeworkContainer';
 
-const HomeworkStatus = () => {
+interface HomeworkStatusProps {
+    homeworkData: IHomework;
+    myHomeworkDrawings: IMyHomeworkDrawings;
+}
+
+const HomeworkStatus = ({ homeworkData, myHomeworkDrawings }: HomeworkStatusProps) => {
+    const { startPage, endPage, drawings } = homeworkData;
+
+    const renderPageButtons = () => {
+        const pageRange = Array.from(
+            { length: endPage - startPage + 1 },
+            (_, index) => startPage + index
+        );
+
+        const getStatus = (page: number) => {
+            if (drawings.some((drawing) => drawing.page === page)) return 'done';
+            if (myHomeworkDrawings[page]) return 'progress';
+        };
+
+        return pageRange.map((page) => (
+            <PageButton key={page} className={getStatus(page)}>
+                {page}
+            </PageButton>
+        ));
+    };
+
+    const calculateDoneCount = () => {
+        return drawings.length;
+    };
+
+    const calculatePageLength = () => {
+        return endPage - startPage + 1;
+    };
+
     return (
         <StyledHomeworkStatus>
-            <Title>숙제 현황 (3/19)</Title>
-            <PageButttons>
-                <PageButton className="done">1</PageButton>
-                <PageButton>3</PageButton>
-                <PageButton>5</PageButton>
-                <PageButton className="progress">10</PageButton>
-                <PageButton>11</PageButton>
-                <PageButton>12</PageButton>
-                <PageButton>101</PageButton>
-            </PageButttons>
+            <Title>
+                숙제 현황 ({calculateDoneCount()}/{calculatePageLength()})
+            </Title>
+            <PageButttons>{renderPageButtons()}</PageButttons>
         </StyledHomeworkStatus>
     );
 };
