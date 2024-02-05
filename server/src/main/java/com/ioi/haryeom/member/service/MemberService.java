@@ -171,7 +171,6 @@ public class MemberService {
     public Long createTeacher(Long userId, MultipartFile profileImg,
         TeacherRequest teacherRequest) {
         try {
-            teacherRequest.validateFieldFromProfileStatus();
             Member member = findMemberById(userId);
 
             if (member.getRole() != Role.GUEST) {
@@ -240,8 +239,6 @@ public class MemberService {
     public void updateTeacher(Long userId, MultipartFile profileImg,
         TeacherRequest teacherRequest) {
         try {
-            teacherRequest.validateFieldFromProfileStatus();
-
             Member member = findMemberById(userId);
 
             String profileUrl = member.getProfileUrl();
