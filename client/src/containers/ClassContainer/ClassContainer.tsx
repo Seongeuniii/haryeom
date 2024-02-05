@@ -1,11 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
-
 import MediaStream from './MediaStream';
 import useStream from '@/hooks/useStream';
 import useWebRTCStomp from '@/hooks/useWebRTC';
-import HomeworkLayout from '@/components/layouts/HomeworkLayout';
+import ClassLayout from '@/components/layouts/ClassLayout';
 
 const ClassContainer = () => {
     const [myStream] = useStream();
@@ -17,13 +16,13 @@ const ClassContainer = () => {
     });
 
     return (
-        <HomeworkLayout>
+        <ClassLayout>
             <StyledClassContainer>
                 <LeftSection>
                     <MediaStream myStream={myStream} peerStream={peerStream} />
                 </LeftSection>
             </StyledClassContainer>
-        </HomeworkLayout>
+        </ClassLayout>
     );
 };
 
