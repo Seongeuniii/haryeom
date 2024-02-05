@@ -116,7 +116,13 @@ public class AuthService {
                 .refreshToken(tokenService.createRefreshToken(testStudent))
                 .build();
         } else {
-            throw new BadRequestException("테스트 로그인 API 경로를 다시 확인해주세요.");
+            Member testMember = memberRepository.findById(Long.parseLong(role)).orElseThrow(
+                () -> new MemberNotFoundException(Long.parseLong(role))
+            );
+            return LoginResponse.builder()
+                .accessToken(tokenService.createToken(testMember))
+                .refreshToken(tokenService.createRefreshToken(testMember))
+                .build();
         }
     }
 }
