@@ -146,7 +146,9 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
         console.log('after stomp over : ' + stomp);
         stomp.debug = () => {};
         stomp.connect({}, () => {
+            console.log('stomp connection');
             setStompClient(stomp);
+            console.log('setStompClient : ' + stompClient);
             // return () => {
             //     stompSubscriptions.forEach((stompSubscription) => stompSubscription.unsubscribe());
             // };
