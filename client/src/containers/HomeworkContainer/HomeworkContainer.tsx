@@ -1,6 +1,5 @@
 import { GetServerSideProps } from 'next';
-import { useEffect, useState } from 'react';
-import { StaticImageData } from 'next/image';
+import { useState } from 'react';
 import styled from 'styled-components';
 import PdfViewer from '@/components/PdfViewer';
 import PaintCanvas from '@/components/PaintCanvas';
@@ -27,6 +26,19 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
             return acc;
         }, {} as IMyHomeworkDrawings)
     );
+
+    const saveHomeworkDrawing = () => {
+        const imageSize = {
+            width: pdfPageOriginalSize?.width as number,
+            height: pdfPageOriginalSize?.height as number,
+        };
+        setMyHomeworkDrawings((prev) => {
+            const newbackgroundImage = { ...prev };
+            newbackgroundImage[selectedPageNumber] = getCanvasDrawingImage(imageSize) as Blob;
+            return newbackgroundImage;
+        });
+    };
+
     const {
         totalPagesOfPdfFile,
         selectedPageNumber,
@@ -41,21 +53,23 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
     } = usePdf({
         initialSelectedPageNumer: homeworkData.startPage,
     });
-    const { saveCanvasDrawing } = useMyPaint({
-        updateImageSource: setMyHomeworkDrawings,
-        saveCanvasSize: pdfPageOriginalSize as IPdfSize,
+    const {
+        canvasRef,
+        handlePointerDown,
+        handlePointerMove,
+        handlePointerUp,
+        getCanvasDrawingImage,
+    } = useMyPaint({
+        backgroundImage: myHomeworkDrawings[selectedPageNumber],
     });
 
-    useEffect(() => {
-        const { drawings } = homeworkData;
-    }, []);
-
     return (
-        <HomeworkLayout>
+        <HomeworkLayout homeworkData={homeworkData}>
             <StyledHomeworkContainer>
-                {/* <button onClick={() => saveHomework(homeworkData.homeworkId, myHomeworkDrawings)}>
+                <button onClick={() => saveHomework(homeworkData.homeworkId, myHomeworkDrawings)}>
                     제출하기
-                </button> */}
+                </button>
+                <button onClick={saveHomeworkDrawing}>임시저장</button>
                 <Board>
                     <PdfViewer
                         pdfFile={homeworkData.textbook.textbookUrl}
@@ -72,10 +86,10 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
                     >
                         <DrawingLayer>
                             <PaintCanvas
-                                imageSource={myHomeworkDrawings[selectedPageNumber]}
-                                saveCanvasDrawing={saveCanvasDrawing}
-                                pdfPageCurrentSize={pdfPageCurrentSize}
-                                pageNum={selectedPageNumber}
+                                canvasRef={canvasRef}
+                                handlePointerDown={handlePointerDown}
+                                handlePointerMove={handlePointerMove}
+                                handlePointerUp={handlePointerUp}
                             />
                         </DrawingLayer>
                     </PdfViewer>
