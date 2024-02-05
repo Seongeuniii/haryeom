@@ -1,6 +1,7 @@
 package com.ioi.haryeom.member.service;
 
 
+import com.ioi.haryeom.advice.exception.ConflictException;
 import com.ioi.haryeom.auth.service.AuthService;
 import com.ioi.haryeom.auth.service.TokenService;
 import com.ioi.haryeom.aws.S3Upload;
@@ -104,6 +105,10 @@ public class MemberService {
         try {
             Member member = findMemberById(userId);
 
+            if (member.getRole() != Role.GUEST) {
+                throw new ConflictException("학생 등록을 중복으로 할 수 없습니다.");
+            }
+
             String profileUrl = member.getProfileUrl();
 
             if (profileImg != null && profileImg.getSize() != 0) {
@@ -167,8 +172,11 @@ public class MemberService {
         TeacherRequest teacherRequest) {
         try {
             teacherRequest.validateFieldFromProfileStatus();
-
             Member member = findMemberById(userId);
+
+            if (member.getRole() != Role.GUEST) {
+                throw new ConflictException("선생님 등록을 중복으로 할 수 없습니다.");
+            }
 
             String profileUrl = member.getProfileUrl();
             if (profileImg != null && profileImg.getSize() != 0) {
@@ -223,7 +231,7 @@ public class MemberService {
             .gender(member.getTeacher().getGender())
             .salary(member.getTeacher().getSalary())
             .career(member.getTeacher().getCareer())
-            .subjects(findSubjectsById(memberId))
+            .subjects(findSubjectsById(member.getTeacher().getId()))
             .introduce(member.getTeacher().getIntroduce())
             .build();
     }
