@@ -1,15 +1,11 @@
 package com.ioi.haryeom.matching.dto;
 
-import com.ioi.haryeom.chat.domain.ChatRoom;
-import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.common.dto.SubjectResponse;
-import com.ioi.haryeom.member.domain.Member;
-import lombok.AllArgsConstructor;
+import com.ioi.haryeom.matching.document.Matching;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 public class CreateMatchingResponse {
 
@@ -19,23 +15,22 @@ public class CreateMatchingResponse {
     private SubjectResponse subject;
     private Integer hourlyRate;
 
-    private CreateMatchingResponse(String matchingId, Long recipientMemberId, String senderName,
-        Subject subject, Integer hourlyRate) {
+    public CreateMatchingResponse(String matchingId, Long recipientMemberId, String senderName,
+        SubjectResponse subjectResponse, Integer hourlyRate) {
         this.matchingId = matchingId;
         this.recipientMemberId = recipientMemberId;
         this.senderName = senderName;
-        this.subject = new SubjectResponse(subject);
+        this.subject = subjectResponse;
         this.hourlyRate = hourlyRate;
     }
 
-    public static CreateMatchingResponse of(String matchingId, ChatRoom chatRoom, Member member, Subject subject, Integer hourlyRate) {
+    public static CreateMatchingResponse from(Matching matching) {
         return new CreateMatchingResponse(
-            matchingId,
-            chatRoom.getOppositeMember(member).getId(),
-            member.getName(),
-            subject,
-            hourlyRate
+            matching.getId().toHexString(),
+            matching.getRecipientMemberId(),
+            matching.getSenderName(),
+            matching.getSubject(),
+            matching.getHourlyRate()
         );
     }
-
 }

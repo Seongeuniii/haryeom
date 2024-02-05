@@ -1,15 +1,11 @@
 package com.ioi.haryeom.matching.dto;
 
-import com.ioi.haryeom.chat.domain.ChatRoom;
-import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.common.dto.SubjectResponse;
-import com.ioi.haryeom.member.domain.Member;
-import lombok.AllArgsConstructor;
+import com.ioi.haryeom.matching.document.MatchingResult;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 public class RespondToMatchingResponse {
 
@@ -21,24 +17,25 @@ public class RespondToMatchingResponse {
     private Integer hourlyRate;
 
 
-    private RespondToMatchingResponse(Long recipientMemberId, String teacherName, String studentName, Boolean isAccepted, Subject subject,
+    private RespondToMatchingResponse(Long recipientMemberId, String teacherName, String studentName, Boolean isAccepted,
+        SubjectResponse subjectResponse,
         Integer hourlyRate) {
         this.recipientMemberId = recipientMemberId;
         this.teacherName = teacherName;
         this.studentName = studentName;
         this.isAccepted = isAccepted;
-        this.subject = new SubjectResponse(subject);
+        this.subject = subjectResponse;
         this.hourlyRate = hourlyRate;
     }
 
-    public static RespondToMatchingResponse of(ChatRoom chatRoom, Member member, Subject subject, Boolean isAccepted, Integer hourlyRate) {
+    public static RespondToMatchingResponse from(MatchingResult matchingResult) {
         return new RespondToMatchingResponse(
-            chatRoom.getOppositeMember(member).getId(),
-            chatRoom.getTeacherMember().getName(),
-            chatRoom.getStudentMember().getName(),
-            isAccepted,
-            subject,
-            hourlyRate
+            matchingResult.getRecipientMemberId(),
+            matchingResult.getTeacherName(),
+            matchingResult.getStudentName(),
+            matchingResult.getIsAccepted(),
+            matchingResult.getSubject(),
+            matchingResult.getHourlyRate()
         );
     }
 

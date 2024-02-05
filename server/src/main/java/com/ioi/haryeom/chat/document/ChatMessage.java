@@ -1,5 +1,9 @@
 package com.ioi.haryeom.chat.document;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import java.time.LocalDateTime;
 import javax.persistence.Id;
 import lombok.AccessLevel;
@@ -16,14 +20,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class ChatMessage {
 
     // 스프링 데이터 몽고DB가 도메인 객체를 몽고 DB 도큐먼트로 변화하거나 반대로 변환하는 과정을 알아서 처리한다.
-
-    @Id     //_id
+    @Id //_id
     private ObjectId id;    // ObjectId는 도큐먼트를 위해 전역 고유 식별자를 제공
 
     private Long chatRoomId;
     private Long memberId;
     private String content;
 
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @CreatedDate
     private LocalDateTime createdAt;
 

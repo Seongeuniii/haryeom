@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MatchingManager {
 
-    private final RedisTemplate<String, Object> stringKeyRedisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     // 매칭 요청
     private static final String MATCHING_REQUEST_NAME = "matching:request:";
@@ -29,9 +29,9 @@ public class MatchingManager {
     // 매칭 요청 추가
     public void addMatchingRequest(String matchingId, Long chatRoomId, CreateMatchingResponse matchingResponse) {
         try {
-            stringKeyRedisTemplate.opsForValue().set(MATCHING_REQUEST_NAME + matchingId, matchingResponse);
-            stringKeyRedisTemplate.opsForValue().set(MATCHING_REQUEST_CHAT_ROOM_NAME + chatRoomId, matchingId);
-            stringKeyRedisTemplate.opsForValue().set(CHAT_ROOM_MATCHING_REQUEST_NAME + matchingId, chatRoomId);
+            redisTemplate.opsForValue().set(MATCHING_REQUEST_NAME + matchingId, matchingResponse);
+            redisTemplate.opsForValue().set(MATCHING_REQUEST_CHAT_ROOM_NAME + chatRoomId, matchingId);
+            redisTemplate.opsForValue().set(CHAT_ROOM_MATCHING_REQUEST_NAME + matchingId, chatRoomId);
         } catch (Exception e) {
             throw new MatchingOperationException("매칭 요청 정보를 추가하는데 실패했습니다.", e);
         }
@@ -39,22 +39,22 @@ public class MatchingManager {
 
     // 매칭 요청 조회
     public CreateMatchingResponse getMatchingRequestByMatchingId(String matchingId) {
-        return (CreateMatchingResponse) stringKeyRedisTemplate.opsForValue().get(MATCHING_REQUEST_NAME + matchingId);
+        return (CreateMatchingResponse) redisTemplate.opsForValue().get(MATCHING_REQUEST_NAME + matchingId);
     }
 
     public CreateMatchingResponse getMatchingRequestByChatRoomId(Long chatRoomId) {
-        String matchingId = (String) stringKeyRedisTemplate.opsForValue().get(MATCHING_REQUEST_CHAT_ROOM_NAME + chatRoomId);
-        return (CreateMatchingResponse) stringKeyRedisTemplate.opsForValue().get(MATCHING_REQUEST_NAME + matchingId);
+        String matchingId = (String) redisTemplate.opsForValue().get(MATCHING_REQUEST_CHAT_ROOM_NAME + chatRoomId);
+        return (CreateMatchingResponse) redisTemplate.opsForValue().get(MATCHING_REQUEST_NAME + matchingId);
     }
 
     // 매칭 요청 삭제
     public void removeMatchingRequestByMatchingId(String matchingId) {
         try {
-            Integer chatRoomId = (Integer) stringKeyRedisTemplate.opsForValue().get(CHAT_ROOM_MATCHING_REQUEST_NAME + matchingId);
+            Integer chatRoomId = (Integer) redisTemplate.opsForValue().get(CHAT_ROOM_MATCHING_REQUEST_NAME + matchingId);
             if (chatRoomId != null) {
-                stringKeyRedisTemplate.delete(MATCHING_REQUEST_CHAT_ROOM_NAME + chatRoomId);
-                stringKeyRedisTemplate.delete(MATCHING_REQUEST_NAME + matchingId);
-                stringKeyRedisTemplate.delete(CHAT_ROOM_MATCHING_REQUEST_NAME + matchingId);
+                redisTemplate.delete(MATCHING_REQUEST_CHAT_ROOM_NAME + chatRoomId);
+                redisTemplate.delete(MATCHING_REQUEST_NAME + matchingId);
+                redisTemplate.delete(CHAT_ROOM_MATCHING_REQUEST_NAME + matchingId);
             }
         } catch (Exception e) {
             throw new MatchingOperationException("매칭 요청 정보를 제거하는데 실패했습니다.", e);
@@ -62,14 +62,14 @@ public class MatchingManager {
     }
 
     public Long getChatRoomId(String matchingId) {
-        Integer chatRoomId = (Integer) stringKeyRedisTemplate.opsForValue().get(CHAT_ROOM_MATCHING_REQUEST_NAME + matchingId);
+        Integer chatRoomId = (Integer) redisTemplate.opsForValue().get(CHAT_ROOM_MATCHING_REQUEST_NAME + matchingId);
         return Objects.requireNonNull(chatRoomId).longValue();
     }
 
     // 매칭 존재 여부 확인
     public boolean existsMatchingRequestByChatRoomId(Long chatRoomId) {
-        String matchingId = (String) stringKeyRedisTemplate.opsForValue().get(MATCHING_REQUEST_CHAT_ROOM_NAME + chatRoomId);
-        return matchingId != null && Boolean.TRUE.equals(stringKeyRedisTemplate.hasKey(MATCHING_REQUEST_NAME + matchingId));
+        String matchingId = (String) redisTemplate.opsForValue().get(MATCHING_REQUEST_CHAT_ROOM_NAME + chatRoomId);
+        return matchingId != null && Boolean.TRUE.equals(redisTemplate.hasKey(MATCHING_REQUEST_NAME + matchingId));
     }
 
 
@@ -78,13 +78,13 @@ public class MatchingManager {
      */
     // 매칭 응답 추가
     public void addMatchingResponse(Long chatRoomId, RespondToMatchingResponse matchingResponse) {
-        stringKeyRedisTemplate.opsForList().rightPush(MATCHING_RESPONSE_CHAT_ROOM_NAME + chatRoomId, matchingResponse);
+        redisTemplate.opsForList().rightPush(MATCHING_RESPONSE_CHAT_ROOM_NAME + chatRoomId, matchingResponse);
     }
 
     // 매칭 응답 조회
     @SuppressWarnings("unchecked")
     public List<RespondToMatchingResponse> getMatchingResponseByChatRoomId(Long chatRoomId) {
-        List<Object> rawData = stringKeyRedisTemplate.opsForList().range(MATCHING_RESPONSE_CHAT_ROOM_NAME + chatRoomId, 0, -1);
+        List<Object> rawData = redisTemplate.opsForList().range(MATCHING_RESPONSE_CHAT_ROOM_NAME + chatRoomId, 0, -1);
         return Objects.requireNonNull(rawData).stream()
             .map(data -> (RespondToMatchingResponse) data)
             .collect(Collectors.toList());
@@ -93,11 +93,11 @@ public class MatchingManager {
 
     // 매칭 마지막 응답 조회
     public RespondToMatchingResponse getLastMatchingResponse(Long chatRoomId) {
-        return (RespondToMatchingResponse) stringKeyRedisTemplate.opsForList().index(MATCHING_RESPONSE_CHAT_ROOM_NAME + chatRoomId, -1);
+        return (RespondToMatchingResponse) redisTemplate.opsForList().index(MATCHING_RESPONSE_CHAT_ROOM_NAME + chatRoomId, -1);
     }
 
     // 매칭 마지막 삭제
     public void removeLastMatchingResponse(Long chatRoomId) {
-        stringKeyRedisTemplate.opsForList().rightPop(MATCHING_RESPONSE_CHAT_ROOM_NAME + chatRoomId);
+        redisTemplate.opsForList().rightPop(MATCHING_RESPONSE_CHAT_ROOM_NAME + chatRoomId);
     }
 }

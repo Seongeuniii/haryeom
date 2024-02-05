@@ -1,6 +1,7 @@
 package com.ioi.haryeom.tutoring.repository;
 
 
+import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.tutoring.domain.Tutoring;
@@ -27,4 +28,5 @@ public interface TutoringRepository extends JpaRepository<Tutoring, Long> {
     Tutoring findAllByTeacherIdAndStudentId(Long teacherMemberId, Long studentMemberId);
 
 
+    boolean existsBySubjectAndStudentAndTeacherAndStatus(Subject subject, Member studentMember, Member teacherMember, TutoringStatus status);
 }

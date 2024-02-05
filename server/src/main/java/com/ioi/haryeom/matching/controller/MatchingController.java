@@ -29,12 +29,14 @@ public class MatchingController {
     @PostMapping("/request")
     public ResponseEntity<Void> createMatchingRequest(@RequestBody @Validated CreateMatchingRequest request, @AuthMemberId Long memberId) {
         String matchingId = matchingService.createMatchingRequest(request, memberId);
+        log.info("CONTROLLER REQUEST mathincId {}", matchingId);
         return ResponseEntity.created(URI.create(String.format("/matching/%s", matchingId))).build();
     }
 
     // 과외 매칭 응답
     @PostMapping("/response")
     public ResponseEntity<?> respondToMatchingRequest(@RequestBody @Validated RespondToMatchingRequest request, @AuthMemberId Long memberId) {
+        log.info("mathincgID : {}", request.getMatchingId());
         Long savedTutoringId = matchingService.respondToMatchingRequest(request, memberId);
         return (savedTutoringId != null) ?
             ResponseEntity.created(URI.create(String.format("/tutoring/%s", savedTutoringId))).build()

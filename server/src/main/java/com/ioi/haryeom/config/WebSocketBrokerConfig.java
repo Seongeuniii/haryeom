@@ -14,7 +14,7 @@ public class WebSocketBrokerConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
 
         registry.addEndpoint("/signal") //최초 소켓 연결
-            .setAllowedOriginPatterns("*")
+            .setAllowedOriginPatterns("https://i10a807.p.ssafy.io", "http://localhost:3000")
             .withSockJS();
 
         registry.addEndpoint("/chatroom") //최초 소켓 연결
