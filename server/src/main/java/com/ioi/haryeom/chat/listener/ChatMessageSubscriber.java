@@ -1,8 +1,7 @@
 package com.ioi.haryeom.chat.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ioi.haryeom.chat.document.ChatMessage;
-import com.ioi.haryeom.chat.dto.ChatMessageResponse;
+import com.ioi.haryeom.chat.dto.ChatMessageEvent;
 import com.ioi.haryeom.chat.exception.ChatMessageBadRequestException;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +26,8 @@ public class ChatMessageSubscriber implements MessageListener {
     @Override
     public void onMessage(Message message, byte[] pattern) {
         try {
-            ChatMessage chatMessage = objectMapper.readValue(message.getBody(), ChatMessage.class);
-            ChatMessageResponse response = ChatMessageResponse.from(chatMessage);
-            messagingTemplate.convertAndSend("/topic/chatroom/" + chatMessage.getChatRoomId(), response);
+            ChatMessageEvent event = objectMapper.readValue(message.getBody(), ChatMessageEvent.class);
+            messagingTemplate.convertAndSend("/topic/chatroom/" + event.getChatRoomId(), event.getChatMessageResponse());
         } catch (IOException e) {
             throw new ChatMessageBadRequestException();
         }

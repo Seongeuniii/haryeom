@@ -3,6 +3,8 @@ package com.ioi.haryeom.matching.service;
 import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.chat.document.ChatMessage;
 import com.ioi.haryeom.chat.domain.ChatRoom;
+import com.ioi.haryeom.chat.dto.ChatMessageEvent;
+import com.ioi.haryeom.chat.dto.ChatMessageResponse;
 import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
 import com.ioi.haryeom.chat.repository.ChatMessageRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomRepository;
@@ -156,7 +158,7 @@ public class MatchingService {
 
         ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
 
-        redisTemplate.convertAndSend(CHAT_ROOM_CHANNEL_NAME, savedChatMessage);
+        redisTemplate.convertAndSend(CHAT_ROOM_CHANNEL_NAME, new ChatMessageEvent(savedChatMessage.getChatRoomId(), ChatMessageResponse.from(savedChatMessage)));
         //TODO: 지금까지 과외한 거 정산해줘야함
     }
 

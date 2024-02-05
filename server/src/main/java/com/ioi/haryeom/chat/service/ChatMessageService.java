@@ -3,6 +3,8 @@ package com.ioi.haryeom.chat.service;
 import com.ioi.haryeom.chat.document.ChatMessage;
 import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.chat.domain.ChatRoomState;
+import com.ioi.haryeom.chat.dto.ChatMessageEvent;
+import com.ioi.haryeom.chat.dto.ChatMessageResponse;
 import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
 import com.ioi.haryeom.chat.manager.WebSocketSessionManager;
 import com.ioi.haryeom.chat.repository.ChatMessageRepository;
@@ -85,7 +87,7 @@ public class ChatMessageService {
             .build();
 
         ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
-        redisTemplate.convertAndSend(CHAT_ROOM_CHANNEL_NAME, savedChatMessage);
+        redisTemplate.convertAndSend(CHAT_ROOM_CHANNEL_NAME, new ChatMessageEvent(savedChatMessage.getChatRoomId(), ChatMessageResponse.from(savedChatMessage)));
     }
 
     private void recoverChatRoomStateIfDeleted(ChatRoom chatRoom, Member oppositeMember) {
