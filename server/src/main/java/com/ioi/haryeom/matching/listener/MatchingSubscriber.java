@@ -52,17 +52,14 @@ public class MatchingSubscriber implements MessageListener {
     }
 
     private void handleRequest(JsonNode rootNode, Long chatRoomId) throws Exception {
-        Matching matching = objectMapper.readValue(rootNode.get("response").toString(), Matching.class);
-        CreateMatchingResponse response = CreateMatchingResponse.from(matching);
+        CreateMatchingResponse response = objectMapper.readValue(rootNode.get("response").toString(), CreateMatchingResponse.class);
+        log.info("[HANDLE REQUEST] matchingId : {}", response.getMatchingId());
         messagingTemplate.convertAndSend(String.format("/topic/chatroom/%d%s", chatRoomId, "/request"), response);
     }
 
     private void handleResponse(JsonNode rootNode, Long chatRoomId) throws Exception {
-        List<MatchingResult> matchingResults = objectMapper.readValue(rootNode.get("response").toString(), new TypeReference<>() {
+        List<RespondToMatchingResponse> responses = objectMapper.readValue(rootNode.get("response").toString(), new TypeReference<>() {
         });
-        List<RespondToMatchingResponse> responses = matchingResults.stream()
-            .map(RespondToMatchingResponse::from)
-            .collect(Collectors.toList());
         messagingTemplate.convertAndSend(String.format("/topic/chatroom/%d%s", chatRoomId, "/response"), responses);
     }
 
