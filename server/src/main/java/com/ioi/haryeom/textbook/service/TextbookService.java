@@ -142,15 +142,17 @@ public class TextbookService {
     }
 
     // 학습자료 삭제
-    public void deleteTextbook(Long textbookId, Long teacherMemberId) {
-        Textbook textbook = findTextbookById(textbookId);
-        Member teacherMember = memberRepository.findById(teacherMemberId)
-                .orElseThrow(() -> new MemberNotFoundException(teacherMemberId));
-        if(textbook.getTeacherMember() != teacherMember) {
-            throw new RuntimeException("해당 학습자료를 등록한 선생님이 아닙니다.");
-        }
+    public void deleteTextbook(List<Long> textbookIds, Long teacherMemberId) {
+        for(Long textbookId : textbookIds){
+            Textbook textbook = findTextbookById(textbookId);
+            Member teacherMember = memberRepository.findById(teacherMemberId)
+                    .orElseThrow(() -> new MemberNotFoundException(teacherMemberId));
+            if(textbook.getTeacherMember() != teacherMember) {
+                throw new RuntimeException("해당 학습자료를 등록한 선생님이 아닙니다.");
+            }
 
-        textbook.delete();
+            textbook.delete();
+        }
     }
 
     // 선생님 학습자료 리스트 조회

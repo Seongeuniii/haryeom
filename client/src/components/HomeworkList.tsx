@@ -5,6 +5,7 @@ import CreateNewHomework from './CreateNewHomework/CreateNewHomework';
 
 interface HomeworkListProps {
     homeworkList: IHomeworkList | undefined;
+    CreateNewHomework?: () => JSX.Element;
 }
 
 const getStatusText = (status: IHomeworkStatus) => {
@@ -18,12 +19,12 @@ const getStatusText = (status: IHomeworkStatus) => {
     }
 };
 
-const HomeworkList = ({ homeworkList }: HomeworkListProps) => {
+const HomeworkList = ({ homeworkList, CreateNewHomework }: HomeworkListProps) => {
     return (
         <StyledHomeworkList>
             <HomeworkListHeader>
-                <span>숙제 목록</span>
-                <CreateNewHomework />
+                <Title>숙제 목록</Title>
+                {CreateNewHomework && <CreateNewHomework />}
             </HomeworkListHeader>
             <HomeworkTableTitle>
                 <State className="homework-list__header">구분</State>
@@ -73,11 +74,14 @@ const StyledHomeworkList = styled.div`
 const HomeworkListHeader = styled.div`
     width: 100%;
     padding: 0.3em 0.6em 1.2em 0.5em;
-    font-weight: 600;
     font-size: 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+`;
+
+const Title = styled.span`
+    font-weight: 600;
 `;
 
 const HomeworkTableTitle = styled.header`

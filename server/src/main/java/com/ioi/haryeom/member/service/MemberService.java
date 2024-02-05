@@ -1,6 +1,7 @@
 package com.ioi.haryeom.member.service;
 
 
+import com.ioi.haryeom.advice.exception.ConflictException;
 import com.ioi.haryeom.auth.service.AuthService;
 import com.ioi.haryeom.auth.service.TokenService;
 import com.ioi.haryeom.aws.S3Upload;
@@ -12,15 +13,13 @@ import com.ioi.haryeom.member.domain.TeacherSubject;
 import com.ioi.haryeom.member.domain.type.Role;
 import com.ioi.haryeom.member.dto.CodeCertifyRequest;
 import com.ioi.haryeom.member.dto.EmailCertifyRequest;
-import com.ioi.haryeom.member.dto.StudentCreateRequest;
 import com.ioi.haryeom.member.dto.StudentInfoResponse;
-import com.ioi.haryeom.member.dto.StudentUpdateRequest;
-import com.ioi.haryeom.member.dto.SubjectResponse;
-import com.ioi.haryeom.member.dto.TeacherCreateRequest;
+import com.ioi.haryeom.member.dto.StudentRequest;
+import com.ioi.haryeom.member.dto.SubjectInfo;
 import com.ioi.haryeom.member.dto.TeacherInfoResponse;
-import com.ioi.haryeom.member.dto.TeacherUpdateRequest;
+import com.ioi.haryeom.member.dto.TeacherRequest;
 import com.ioi.haryeom.member.exception.EmailCertifyException;
-import com.ioi.haryeom.member.exception.StudentNotFoundException;
+import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.exception.SubjectNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.member.repository.StudentRepository;
@@ -102,11 +101,15 @@ public class MemberService {
 
     @Transactional
     public Long createStudent(Long userId, MultipartFile profileImg,
-        StudentCreateRequest createRequest) {
+        StudentRequest studentRequest) {
         try {
             Member member = findMemberById(userId);
 
-            String profileUrl = createRequest.getProfileUrl();
+            if (member.getRole() != Role.GUEST) {
+                throw new ConflictException("학생 등록을 중복으로 할 수 없습니다.");
+            }
+
+            String profileUrl = member.getProfileUrl();
 
             if (profileImg != null && profileImg.getSize() != 0) {
                 profileUrl = s3Upload.uploadFile(String.valueOf(userId),
@@ -115,12 +118,12 @@ public class MemberService {
 
             Student student = Student.builder()
                 .member(member)
-                .grade(createRequest.getGrade())
-                .school(createRequest.getSchool())
+                .grade(studentRequest.getGrade())
+                .school(studentRequest.getSchool())
                 .build();
 
             member.createStudent(student, Role.STUDENT, profileUrl,
-                createRequest.getName(), createRequest.getPhone());
+                studentRequest.getName(), studentRequest.getPhone());
 
             studentRepository.save(student);
 
@@ -143,11 +146,11 @@ public class MemberService {
 
     @Transactional
     public void updateStudent(Long userId, MultipartFile profileImg,
-        StudentUpdateRequest studentRequest) {
+        StudentRequest studentRequest) {
         try {
             Member member = findMemberById(userId);
 
-            String profileUrl = studentRequest.getProfileUrl();
+            String profileUrl = member.getProfileUrl();
             if (profileImg != null && profileImg.getSize() != 0) {
                 profileUrl = s3Upload.uploadFile(String.valueOf(userId),
                     profileImg.getInputStream(), profileImg.getSize(), profileImg.getContentType());
@@ -166,11 +169,16 @@ public class MemberService {
 
     @Transactional
     public Long createTeacher(Long userId, MultipartFile profileImg,
-        TeacherCreateRequest teacherRequest) {
+        TeacherRequest teacherRequest) {
         try {
+            teacherRequest.validateFieldFromProfileStatus();
             Member member = findMemberById(userId);
 
-            String profileUrl = teacherRequest.getProfileUrl();
+            if (member.getRole() != Role.GUEST) {
+                throw new ConflictException("선생님 등록을 중복으로 할 수 없습니다.");
+            }
+
+            String profileUrl = member.getProfileUrl();
             if (profileImg != null && profileImg.getSize() != 0) {
                 profileUrl = s3Upload.uploadFile(String.valueOf(userId),
                     profileImg.getInputStream(), profileImg.getSize(), profileImg.getContentType());
@@ -191,14 +199,14 @@ public class MemberService {
                 teacherRequest.getName(), teacherRequest.getPhone());
             teacherRepository.save(teacher);
 
-            List<SubjectResponse> subjects = teacherRequest.getSubjects();
+            List<SubjectInfo> subjects = teacherRequest.getSubjects();
 
-            subjects.forEach(subjectResponse -> {
+            subjects.forEach(subjectInfo -> {
                 TeacherSubject teacherSubject = TeacherSubject.builder()
                     .teacher(teacher)
-                    .subject(subjectRepository.findById(subjectResponse.getSubjectId())
+                    .subject(subjectRepository.findById(subjectInfo.getSubjectId())
                         .orElseThrow(
-                            () -> new SubjectNotFoundException(subjectResponse.getSubjectId())))
+                            () -> new SubjectNotFoundException(subjectInfo.getSubjectId())))
                     .build();
 
                 teacherSubjectRepository.save(teacherSubject);
@@ -223,18 +231,20 @@ public class MemberService {
             .gender(member.getTeacher().getGender())
             .salary(member.getTeacher().getSalary())
             .career(member.getTeacher().getCareer())
-            .subjects(findSubjectsById(memberId))
+            .subjects(findSubjectsById(member.getTeacher().getId()))
             .introduce(member.getTeacher().getIntroduce())
             .build();
     }
 
     @Transactional
     public void updateTeacher(Long userId, MultipartFile profileImg,
-        TeacherUpdateRequest teacherRequest) {
+        TeacherRequest teacherRequest) {
         try {
+            teacherRequest.validateFieldFromProfileStatus();
+
             Member member = findMemberById(userId);
 
-            String profileUrl = teacherRequest.getProfileUrl();
+            String profileUrl = member.getProfileUrl();
             if (profileImg != null && profileImg.getSize() != 0) {
                 profileUrl = s3Upload.uploadFile(String.valueOf(userId),
                     profileImg.getInputStream(), profileImg.getSize(), profileImg.getContentType());
@@ -249,14 +259,13 @@ public class MemberService {
 
             teacherSubjectRepository.deleteAll(teacherSubjects);
 
-            List<SubjectResponse> subjects = teacherRequest.getSubjects();
-            for (SubjectResponse subjectResponse : subjects) {
-
+            List<SubjectInfo> subjects = teacherRequest.getSubjects();
+            for (SubjectInfo subjectInfo : subjects) {
                 TeacherSubject teacherSubject = TeacherSubject.builder()
                     .teacher(teacher)
                     .subject(
-                        subjectRepository.findById(subjectResponse.getSubjectId()).orElseThrow(
-                            () -> new SubjectNotFoundException(subjectResponse.getSubjectId())
+                        subjectRepository.findById(subjectInfo.getSubjectId()).orElseThrow(
+                            () -> new SubjectNotFoundException(subjectInfo.getSubjectId())
                         )
                     )
                     .build();
@@ -286,15 +295,15 @@ public class MemberService {
 
     private Member findMemberById(Long memberId) {
         return memberRepository.findById(memberId)
-            .orElseThrow(() -> new StudentNotFoundException(memberId));
+            .orElseThrow(() -> new MemberNotFoundException(memberId));
     }
 
-    private List<SubjectResponse> findSubjectsById(Long teacherId) {
+    private List<SubjectInfo> findSubjectsById(Long teacherId) {
         return teacherSubjectRepository
             .findByTeacherId(teacherId)
             .stream()
             .map(TeacherSubject::getSubject)
-            .map(SubjectResponse::from)
+            .map(SubjectInfo::from)
             .collect(Collectors.toList());
     }
 }

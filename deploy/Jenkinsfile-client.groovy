@@ -66,12 +66,12 @@ pipeline {
         }
         stage('Docker Image Build & DockerHub Push') {
             steps {
-                dir('client') {
+                dir('deploy') {
                     script {
                         docker.withRegistry('', dockerCredential) {
                             // Build and push Docker image using docker-compose
-                            sh "docker-compose build"
-                            sh "docker-compose push"
+                            sh "docker-compose -f docker-compose-client.yml build"
+                            sh "docker-compose -f docker-compose-client.yml push"
                         }
                     }
                 }
@@ -79,7 +79,7 @@ pipeline {
         }
         stage('Service Stop & Service Remove') {
             steps {
-                dir('client') {
+                dir('deploy') {
                     sh 'docker stop haryeom-fe'
                     sh 'docker rm haryeom-fe'
                     sh "docker rmi $latestImage"
@@ -88,8 +88,8 @@ pipeline {
         }
         stage('DockerHub Pull & Service Start') {
             steps {
-                dir('client') {
-                    sh 'docker-compose up -d'
+                dir('deploy') {
+                    sh 'docker-compose -f docker-compose-client.yml up -d'
                 }
             }
         }

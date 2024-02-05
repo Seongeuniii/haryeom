@@ -50,6 +50,7 @@ public class TokenService {
     private final RedisTemplate<Long, Object> redisTemplate;
     private final long TOKEN_PERIOD = 30 * 60 * 1000L;
     private final long REFRESH_PERIOD = 14 * 24 * 60 * 60 * 1000L;
+    private static final String AUTH_TOKEN = "auth:token:";
     private final String REDIS_REFRESH_TOKEN_KEY = "refreshToken";
 
     @PostConstruct
@@ -180,9 +181,6 @@ public class TokenService {
 
     // 만료된 access, refresh token 정보 삭제
     public void resetHeader(HttpServletResponse response) {
-
-//        헤더 초기화
-//        response.setHeader("Authorization", null);
 
         Cookie accessCookie = new Cookie("accessToken", null);
         accessCookie.setHttpOnly(true);

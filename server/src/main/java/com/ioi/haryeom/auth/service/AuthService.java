@@ -9,13 +9,13 @@ import com.ioi.haryeom.auth.dto.OauthAttribute;
 import com.ioi.haryeom.auth.dto.UserInfoResponse;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.domain.type.MemberStatus;
+import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.parser.ParseException;
-import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -84,6 +84,11 @@ public class AuthService {
 
         Optional<Member> optionalMember = memberRepository.findByOauthId(oauthId);
 
+        // 탈퇴된 멤버의 경우 로직
+//        Member member = memberRepository.findByOauthId(oauthId).orElseThrow(
+//            () -> new ForbiddenException("탈퇴한 회원입니다.")
+//        );
+
         Member member;
         member = optionalMember.orElseGet(() -> memberRepository.save(Member.builder()
             .oauthId(oauthId)
@@ -93,5 +98,33 @@ public class AuthService {
             .build()));
 
         return member;
+    }
+
+    public LoginResponse testLogin(String role) {
+        if (role.equals("teacher")) {
+            Member testTeacher = memberRepository.findById(46L).orElseThrow(
+                () -> new MemberNotFoundException(46L)
+            );
+            return LoginResponse.builder()
+                .accessToken(tokenService.createToken(testTeacher))
+                .refreshToken(tokenService.createRefreshToken(testTeacher))
+                .build();
+        } else if (role.equals("student")) {
+            Member testStudent = memberRepository.findById(47L).orElseThrow(
+                () -> new MemberNotFoundException(47L)
+            );
+            return LoginResponse.builder()
+                .accessToken(tokenService.createToken(testStudent))
+                .refreshToken(tokenService.createRefreshToken(testStudent))
+                .build();
+        } else {
+            Member testMember = memberRepository.findById(Long.parseLong(role)).orElseThrow(
+                () -> new MemberNotFoundException(Long.parseLong(role))
+            );
+            return LoginResponse.builder()
+                .accessToken(tokenService.createToken(testMember))
+                .refreshToken(tokenService.createRefreshToken(testMember))
+                .build();
+        }
     }
 }

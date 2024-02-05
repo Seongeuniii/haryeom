@@ -8,15 +8,10 @@ import javax.validation.constraints.PositiveOrZero;
 import lombok.Builder;
 import lombok.Getter;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.URL;
 
 @Builder
 @Getter
-public class TeacherCreateRequest {
-
-    @URL(message = "프로필 사진의 형식이 URL이 아닙니다.")
-    @NotNull(message = "프로필 사진은 필수 항목입니다.")
-    private String profileUrl;
+public class TeacherRequest {
 
     @NotNull(message = "이름은 필수 항목입니다.")
     private String name;
@@ -41,8 +36,20 @@ public class TeacherCreateRequest {
     @PositiveOrZero(message = "과외 경력은 0년 이상이여야 합니다.")
     private Integer career;
 
-    private List<SubjectResponse> subjects;
+    private List<SubjectInfo> subjects;
 
     @Length(max = 1000, message = "선생님 자기 소개는 1000자 이하여야합니다.")
     private String introduce;
+
+    public void validateFieldFromProfileStatus() {
+        if (!this.profileStatus) {
+            this.college = null;
+            this.collegeEmail = null;
+            this.gender = Gender.NONE;
+            this.salary = null;
+            this.career = null;
+            this.subjects = null;
+            this.introduce = null;
+        }
+    }
 }

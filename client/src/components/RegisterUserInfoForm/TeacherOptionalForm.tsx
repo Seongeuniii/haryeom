@@ -3,17 +3,15 @@ import styled from 'styled-components';
 
 import InputForm from '@/components/commons/InputForm';
 import SelectForm from '@/components/commons/SelectForm';
-import { IUserRole } from '@/apis/user/user';
 import ToggleButton from '@/components/commons/ToggleButton';
 import { subjectDefaultOptions } from '@/components/FilterOpenTeacherList/filterDefaultOptions';
 
-interface OptionalInfoFormProps {
-    userRole: IUserRole;
+interface TeacherOptionalInfoFormProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     updateUserInfo: (name: string, value: any) => void;
 }
 
-const OptionalInfoForm = ({ userRole, updateUserInfo }: OptionalInfoFormProps) => {
+const TeacherOptionalInfoForm = ({ updateUserInfo }: TeacherOptionalInfoFormProps) => {
     const [isProfilePublic, setProfilePublic] = useState(false);
 
     const handleToggleChange = (checked: boolean) => {
@@ -22,7 +20,7 @@ const OptionalInfoForm = ({ userRole, updateUserInfo }: OptionalInfoFormProps) =
     };
 
     return (
-        <StyledOptionalInfoForm>
+        <StyledTeacherOptionalInfoForm>
             <ProfilePrivacy>
                 <span>{isProfilePublic ? '프로필 공개' : '프로필 비공개'}</span>
                 <ToggleButton isChecked={isProfilePublic} onChange={handleToggleChange} />
@@ -60,11 +58,11 @@ const OptionalInfoForm = ({ userRole, updateUserInfo }: OptionalInfoFormProps) =
                     updateUserInfo('introduce', e.target.value)
                 }
             />
-        </StyledOptionalInfoForm>
+        </StyledTeacherOptionalInfoForm>
     );
 };
 
-const StyledOptionalInfoForm = styled.div`
+const StyledTeacherOptionalInfoForm = styled.div`
     width: 100%;
     padding: 1.5em 2.7em;
     display: flex;
@@ -81,4 +79,4 @@ const ProfilePrivacy = styled.div`
     color: ${({ theme }) => theme.PRIMARY};
 `;
 
-export default OptionalInfoForm;
+export default TeacherOptionalInfoForm;

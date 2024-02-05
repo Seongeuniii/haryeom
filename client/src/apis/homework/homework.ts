@@ -2,13 +2,13 @@ import { StaticImageData } from 'next/image';
 
 export interface IHomework {
     homeworkId: number;
-    textbook: Textbook;
+    textbook: ITextbook;
     startPage: number;
     endPage: number;
     drawings: Drawing[];
 }
 
-export interface Textbook {
+export interface ITextbook {
     textbookId: number;
     textbookName: string;
     textbookUrl: string;
@@ -17,7 +17,7 @@ export interface Textbook {
 
 export interface Drawing {
     page: number;
-    homeworkDrawingUrl: string | StaticImageData;
+    homeworkDrawingUrl: string;
     drawingId: number;
 }
 

@@ -7,9 +7,7 @@ import org.hibernate.validator.constraints.Length;
 
 @Builder
 @Getter
-public class StudentCreateRequest {
-
-    private String profileUrl;
+public class StudentRequest {
 
     @NotNull(message = "이름은 필수 항목입니다.")
     private String name;

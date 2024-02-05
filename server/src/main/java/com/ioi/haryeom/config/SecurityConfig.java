@@ -37,13 +37,14 @@ public class SecurityConfig {
             // 이태호
             .antMatchers("/api/auth").authenticated()
             .antMatchers("/api/auth/kakao/login").permitAll()
+            .antMatchers("/api/auth/test/login/{role}").permitAll()
             .antMatchers(POST, "/api/auth/refresh").permitAll()
             .antMatchers(POST, "/api/auth/kakao/logout").authenticated()
             .antMatchers("/api/members/emails/**").hasRole("GUEST")
             .antMatchers(POST, "/api/members/students").hasRole("GUEST")
             .antMatchers(GET, "/api/members/students/{memberId}").hasRole("STUDENT")
             .antMatchers(PUT, "/api/members/students").hasRole("STUDENT")
-            .antMatchers(POST, "/api/members/teacher").hasRole("GUEST")
+            .antMatchers(POST, "/api/members/teachers").hasRole("GUEST")
             .antMatchers(GET, "/api/members/teachers/{memberId}").hasRole("TEACHER")
             .antMatchers(PUT, "/api/members/teachers").hasRole("TEACHER")
             .antMatchers(DELETE, "/api/members").authenticated()
@@ -72,7 +73,8 @@ public class SecurityConfig {
             .antMatchers(GET, "/api/chatrooms/{chatRoomId}/subjects").hasRole("STUDENT")
             .antMatchers(GET, "/api/chatrooms/{chatRoomId}/tutoring").hasRole("TEACHER")
             .antMatchers(GET, "/api/chatrooms").hasAnyRole("STUDENT", "TEACHER")
-            .antMatchers(GET, "/api/chatrooms/{chatRoomId}/messages").hasAnyRole("STUDENT", "TEACHER")
+            .antMatchers(GET, "/api/chatrooms/{chatRoomId}/messages")
+            .hasAnyRole("STUDENT", "TEACHER")
 
             // 김태윤
             // 화상 과외방 접근
@@ -89,7 +91,8 @@ public class SecurityConfig {
 
             // 하재률
             // 학습자료
-            .antMatchers(GET, "/api/textbook/tutoring/{tutoringId}").hasAnyRole("STUDENT", "TEACHER")
+            .antMatchers(GET, "/api/textbook/tutoring/{tutoringId}")
+            .hasAnyRole("STUDENT", "TEACHER")
             .antMatchers(GET, "/api/textbook/teachers/{memberId}").hasRole("TEACHER")
             .antMatchers(POST, "/api/textbook").hasRole("TEACHER")
             .antMatchers(DELETE, "/api/textbook/{textbookId}").hasRole("TEACHER")
@@ -111,11 +114,14 @@ public class SecurityConfig {
             .antMatchers(POST, "/api/homework/{homeworkId}/review").hasRole("STUDENT")
 
             // 이상영
-            .antMatchers(GET, "/api/tutoring/{tutoringId}/homework").hasAnyRole("STUDENT", "TEACHER")
+            .antMatchers(GET, "/api/tutoring/{tutoringId}/homework")
+            .hasAnyRole("STUDENT", "TEACHER")
             .antMatchers(POST, "/api/tutoring/{tutoringId}/homework").hasRole("TEACHER")
-            .antMatchers(GET, "/api/tutoring/{tutoringId}/homework/{homeworkId}").hasAnyRole("STUDENT", "TEACHER")
+            .antMatchers(GET, "/api/tutoring/{tutoringId}/homework/{homeworkId}")
+            .hasAnyRole("STUDENT", "TEACHER")
             .antMatchers(PUT, "/api/tutoring/{tutoringId}/homework/{homeworkId}").hasRole("TEACHER")
-            .antMatchers(DELETE, "/api/tutoring/{tutoringId}/homework/{homeworkId}").hasRole("TEACHER")
+            .antMatchers(DELETE, "/api/tutoring/{tutoringId}/homework/{homeworkId}")
+            .hasRole("TEACHER")
 
             // 이외의 모든 API 접근을 모두 허용
             .anyRequest()

@@ -5,7 +5,7 @@ import { IPdfSize } from '@/hooks/usePdf';
 interface IUseMyPaint {
     updateImageSource?: Dispatch<
         SetStateAction<{
-            [key: number]: string | StaticImageData | undefined;
+            [key: number]: Blob | string;
         }>
     >;
     saveCanvasSize: IPdfSize;
@@ -41,7 +41,7 @@ const useMyPaint = ({ updateImageSource, saveCanvasSize }: IUseMyPaint) => {
 
         updateImageSource((prev) => {
             const newImageSource = { ...prev };
-            newImageSource[pageNum] = staticImageData;
+            newImageSource[pageNum] = blob;
             return newImageSource;
         });
     };

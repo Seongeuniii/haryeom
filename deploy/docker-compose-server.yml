@@ -3,7 +3,7 @@ version: '3.8'
 services:
   server:
     build:
-      context: .
+      context: ../server
       dockerfile: Dockerfile
     image: demise1426/haryeom-be
     ports:

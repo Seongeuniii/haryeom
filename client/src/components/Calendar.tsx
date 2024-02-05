@@ -3,7 +3,7 @@ import 'react-calendar/dist/Calendar.css';
 import styled from 'styled-components';
 
 interface MyCalendarProps {
-    selectedDate: Date;
+    selectedDate: Date | undefined;
     handleClickDay: (date: Date) => void;
     handleYearMonthChange: (onArgs: OnArgs) => void;
 }

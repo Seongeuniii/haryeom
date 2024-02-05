@@ -3,11 +3,10 @@ import axios from 'axios';
 
 const path = '/tutoring';
 
-export const registHomework = async (newHomework: INewHomework) => {
-    console.log(newHomework);
+export const registHomework = async (tutoringId: number, newHomework: INewHomework) => {
     try {
         const res = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${1}/homework`,
+            `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${tutoringId}/homework`,
             newHomework
         );
         return res.headers.location; // homework/1

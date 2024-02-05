@@ -27,6 +27,8 @@ const ContainerWrapper = styled.main`
     width: 100%;
     height: calc(100% - 4em);
     display: flex;
+    overflow: scroll;
+    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
 `;
 
 export default RegisterLayout;

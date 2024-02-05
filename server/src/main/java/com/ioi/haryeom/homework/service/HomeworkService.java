@@ -300,7 +300,7 @@ public class HomeworkService {
 
             MultipartFile f = file.get(i);
             Integer p = pages.get(i);
-            String fileName = f.getOriginalFilename();
+            String fileName = homeworkId + "_" + f.getOriginalFilename() + "_" + p;
             String fileUrl = "";
 
             try {
@@ -311,8 +311,6 @@ public class HomeworkService {
             }
 
             Drawing homeworkDrawing = drawingRepository.findByHomeworkIdAndPage(homeworkId, p);
-
-            System.out.println(homeworkDrawing.getId());
 
             if(homeworkDrawing != null) {
                 homeworkDrawing.ongoingUpdate(fileUrl);
@@ -345,7 +343,7 @@ public class HomeworkService {
 
             MultipartFile f = file.get(i);
             Integer p = pages.get(i);
-            String fileName = f.getOriginalFilename();
+            String fileName = homeworkId + "_" + f.getOriginalFilename() + "_" + p;
             String fileUrl = "";
 
             try {
@@ -356,8 +354,6 @@ public class HomeworkService {
             }
 
             Drawing homeworkDrawing = drawingRepository.findByHomeworkIdAndPage(homeworkId, p);
-
-            System.out.println(homeworkDrawing.getId());
 
             if(homeworkDrawing != null) {
                 homeworkDrawing.reviewUpdate(fileUrl);

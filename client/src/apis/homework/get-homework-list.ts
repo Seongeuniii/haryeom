@@ -1,10 +1,10 @@
 import axios from 'axios';
-import { IHomework, IProgressPercentage } from './homework';
+import { IHomeworkList, IProgressPercentage } from './homework';
 
 const path = '/tutoring';
 
 interface ReturnType {
-    homeworkList: IHomework[];
+    homeworkList: IHomeworkList;
     progressPercentage: IProgressPercentage;
 }
 

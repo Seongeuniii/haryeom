@@ -13,9 +13,13 @@ import { useGetTutoringSchedules } from '@/queries/useGetTutoringSchedules';
 
 interface ClassScheduleProps {
     tutoringSchedules: ITutoringSchedules | undefined;
+    CreateNewSchedule?: () => JSX.Element;
 }
 
-const ClassSchedule = ({ tutoringSchedules: initialData }: ClassScheduleProps) => {
+const ClassSchedule = ({
+    tutoringSchedules: initialData,
+    CreateNewSchedule,
+}: ClassScheduleProps) => {
     const userSession = useRecoilValue(userSessionAtom);
     if (!userSession) return null;
 
@@ -59,7 +63,7 @@ const ClassSchedule = ({ tutoringSchedules: initialData }: ClassScheduleProps) =
                 handleYearMonthChange={handleYearMonthChange}
             ></MyCalendar>
             <ScheduleList>
-                {renderedTutoringSchedules ? (
+                {renderedTutoringSchedules.length > 0 ? (
                     renderedTutoringSchedules.map((daySchedule, index) => (
                         <SchedulesOfADay key={index}>
                             <ScheduleDate>{daySchedule.scheduleDate}</ScheduleDate>
@@ -81,10 +85,12 @@ const ClassSchedule = ({ tutoringSchedules: initialData }: ClassScheduleProps) =
                         </SchedulesOfADay>
                     ))
                 ) : (
-                    <>과외 일정이 없어요:)</>
+                    <NoSchedule>
+                        <span>과외 일정 없음</span>
+                    </NoSchedule>
                 )}
             </ScheduleList>
-            <CreateNewClass />
+            {CreateNewSchedule && <CreateNewSchedule />}
         </StyledClassSchedule>
     );
 };
@@ -121,6 +127,8 @@ const TodayScheduleButton = styled.span`
 `;
 
 const ScheduleList = styled.div`
+    width: 100%;
+    height: 100%;
     overflow: scroll;
     margin-top: 1em;
     padding-bottom: 3em;
@@ -138,5 +146,15 @@ const ScheduleDate = styled.div`
 `;
 
 const ScheduleCards = styled.div``;
+
+const NoSchedule = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
+`;
 
 export default ClassSchedule;
