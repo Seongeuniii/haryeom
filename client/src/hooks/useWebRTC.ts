@@ -145,6 +145,7 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
         const stomp = Stomp.over(socket);
         console.log('after stomp over : ' + stomp);
         stomp.debug = () => {};
+        console.log('after debug, start connect');
         stomp.connect(
             {},
             () => {
