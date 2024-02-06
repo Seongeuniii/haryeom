@@ -10,18 +10,23 @@ import usePdf from '@/hooks/usePdf';
 import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
 import PaintCanvas from '@/components/PaintCanvas';
 import Button from '@/components/commons/Button';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { StaticImageData } from 'next/image';
 import PeerPaintCanvas from '@/components/PaintCanvas/PeerPaintCanvas';
 import usePeerPaint from '@/components/PaintCanvas/hooks/usePeerPaint';
+import userSessionAtom from '@/recoil/atoms/userSession';
 
 type toolType = '빈페이지' | '학습자료';
 
 const ClassContainer = () => {
-    const router = useRouter(); // test용
+    const userSession = useRecoilValue(userSessionAtom);
+    if (!userSession) return;
+    const router = useRouter();
+
     const [myStream] = useStream();
     const { peerStream, peerConnections, dataChannels } = useWebRTCStomp({
-        memberId: parseInt(router.query.id as string),
+        memberId: userSession.memberId,
+        roomCode: parseInt(router.query.id as string),
         myStream,
     });
 

@@ -8,18 +8,17 @@ export interface ISubscription {
     callback: messageCallbackType;
 }
 
-interface IUseWebRTCStompProps {
-    memberId: number;
-    myStream: MediaStream | null;
-}
-
 interface PeerInfo {
     memberId: number;
 }
 
-const roomCode = 34;
+interface IUseWebRTCStompProps {
+    memberId: number;
+    roomCode: number;
+    myStream: MediaStream | null;
+}
 
-const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
+const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) => {
     const [stompClient, setStompClient] = useState<CompatClient>();
     const peerConnections = useRef<{ [socketId: string]: RTCPeerConnection }>({});
     const [peerStream, setPeerStream] = useState<any[]>([]);
@@ -161,7 +160,8 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
 
     useEffect(() => {
         if (!myStream) return;
-        const socket = new SockJS(`${process.env.NEXT_PUBLIC_CHAT_SERVER}`); // 변경
+        // const socket = new SockJS(`${process.env.NEXT_PUBLIC_CHAT_SERVER}`); // 변경
+        const socket = new SockJS(`http://70.12.247.222:8080/chatroom`);
         const stomp = Stomp.over(socket);
         stomp.debug = () => {};
         stomp.connect({}, () => {
