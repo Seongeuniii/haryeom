@@ -2,17 +2,18 @@ import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import { responseMatching } from '@/apis/chat/get-matching-status';
+import { IRequestMatchingStatus } from '@/apis/chat/chat';
 
 interface WaitResponseProps {
-    matchingId: string;
+    requestStatus: IRequestMatchingStatus;
 }
 
-const WaitResponse = ({ matchingId }: WaitResponseProps) => {
+const WaitResponse: React.FC<WaitResponseProps> = ({ requestStatus }) => {
     const userSession = useRecoilValue(userSessionAtom);
 
     const response = async (acceptStatus: boolean) => {
         const data = await responseMatching({
-            matchingId,
+            matchingId: requestStatus.matchingId,
             isAccepted: acceptStatus,
         });
         if (data) {
@@ -26,12 +27,13 @@ const WaitResponse = ({ matchingId }: WaitResponseProps) => {
         <>
             <StyledWaitResponse>
                 <RequestMessageHeader>
-                    김성은 {userSession?.role === 'TEACHER' ? '학생' : '선생님'}이 과외를
-                    신청했어요.
+                    {requestStatus?.senderName} 학생이 과외를 신청했어요.
+                    {/* 김성은 {userSession?.role === 'TEACHER' ? '학생' : '선생님'}이 과외를 */}
+                    {/* 신청했어요. */}
                 </RequestMessageHeader>
                 <RequestMessage>
-                    <TutoringSubject>과목: 수학</TutoringSubject>
-                    <TutoringFee>수강료: 30000원</TutoringFee>
+                    <TutoringSubject>과목: {requestStatus?.subject.name}</TutoringSubject>
+                    <TutoringFee>수강료: {requestStatus?.hourlyRate}원</TutoringFee>
                 </RequestMessage>
             </StyledWaitResponse>
             {userSession?.role === 'TEACHER' && (
