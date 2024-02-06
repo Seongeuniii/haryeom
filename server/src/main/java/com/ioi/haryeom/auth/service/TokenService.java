@@ -8,6 +8,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import com.ioi.haryeom.advice.exception.NotFoundException;
 import com.ioi.haryeom.advice.exception.UnauthorizedException;
 import com.ioi.haryeom.auth.exception.FilterException;
+import com.ioi.haryeom.auth.exception.RefreshTokenNotFoundException;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import io.jsonwebtoken.Claims;
@@ -77,7 +78,8 @@ public class TokenService {
             .signWith(SignatureAlgorithm.HS256, refreshSecretKey).compact();
 
         // redis refreshToken 저장
-        redisTemplate.opsForHash().put(AUTH_TOKEN + memberId, REDIS_REFRESH_TOKEN_KEY, refreshToken);
+        redisTemplate.opsForHash()
+            .put(AUTH_TOKEN + memberId, REDIS_REFRESH_TOKEN_KEY, refreshToken);
         redisTemplate.expire(AUTH_TOKEN + memberId, REFRESH_PERIOD, MILLISECONDS);
 
         return refreshToken;
@@ -111,7 +113,7 @@ public class TokenService {
             }
         }
 
-        if (accessToken == null) {
+        if (accessToken != null && accessToken.isBlank()) {
             throw new FilterException(EMPTY_TOKEN, UNAUTHORIZED);
         }
 
@@ -134,7 +136,8 @@ public class TokenService {
             String refreshToken = getRefreshToken(request);
             Long memberId = getMemberIdFromRefreshToken(refreshToken);
             String redisRefreshToken = Objects.requireNonNull(
-                redisTemplate.opsForHash().get(AUTH_TOKEN + memberId, REDIS_REFRESH_TOKEN_KEY)).toString();
+                    redisTemplate.opsForHash().get(AUTH_TOKEN + memberId, REDIS_REFRESH_TOKEN_KEY))
+                .toString();
             Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
 
@@ -152,28 +155,37 @@ public class TokenService {
     }
 
     public Long getMemberId(String token) {
-        String memberId = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody()
-            .getSubject();
+        String memberId = Jwts.parserBuilder().setSigningKey(secretKey).build()
+            .parseClaimsJws(token).getBody().getSubject();
         return Long.valueOf(memberId);
     }
 
     public Long getMemberIdFromRefreshToken(String refreshToken) {
-        String memberId = Jwts.parser().setSigningKey(refreshSecretKey).parseClaimsJws(refreshToken)
-            .getBody().getSubject();
+        String memberId = Jwts.parserBuilder().setSigningKey(refreshSecretKey).build()
+            .parseClaimsJws(refreshToken).getBody().getSubject();
         return Long.valueOf(memberId);
     }
 
     private String getRefreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
 
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("refreshToken")) {
-                    return cookie.getValue();
-                }
+        if (cookies == null) {
+            throw new RefreshTokenNotFoundException();
+        }
+
+        String refreshToken = null;
+
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("refreshToken")) {
+                refreshToken = cookie.getValue();
             }
         }
-        return null;
+
+        if (refreshToken != null && refreshToken.isBlank()) {
+            throw new RefreshTokenNotFoundException();
+        }
+
+        return refreshToken;
     }
 
     // 만료된 access, refresh token 정보 삭제

@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsUtils;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -125,6 +126,8 @@ public class SecurityConfig {
 
             // 이외의 모든 API 접근을 모두 허용
             .anyRequest()
+            .permitAll()
+            .requestMatchers(CorsUtils::isPreFlightRequest)
             .permitAll()
             .and()
             .addFilterBefore(new JwtAuthenticationFilter(tokenService),
