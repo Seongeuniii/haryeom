@@ -5,8 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Ice {
+public class IceRequest {
 
     private Object iceCandidate;
-    private int peerId;
+    private Long memberId;
 }
