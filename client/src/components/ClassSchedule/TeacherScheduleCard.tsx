@@ -13,7 +13,8 @@ const TeacherScheduleCard = ({ schedule }: TeacherScheduleCardProps) => {
 
     const joinClass = async () => {
         const data = await getClassRoomCode(schedule.tutoringScheduleId);
-        router.push(`/class/${data?.roomCode}`, {
+        router.push({
+            pathname: `/class/${data?.roomCode}`,
             query: {
                 title: schedule.title,
                 subject: schedule.subject.name,
