@@ -159,7 +159,7 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
     };
 
     useEffect(() => {
-        if (!myStream) return;
+        if (!myStream || !memberId) return;
         const socket = new SockJS(`${process.env.NEXT_PUBLIC_CHAT_SERVER}`); // 변경
         // const socket = new SockJS(`http://70.12.247.222:8080/chatroom`);
         const stomp = Stomp.over(socket);
@@ -173,7 +173,7 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
         return () => {
             stompClient?.disconnect();
         };
-    }, [myStream]);
+    }, [myStream, memberId]);
 
     const subscribe = () => {
         if (!stompClient) return;
@@ -206,7 +206,7 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
     };
 
     useEffect(() => {
-        if (!stompClient || !memberId) return;
+        if (!stompClient) return;
 
         // subscribe
         subscribe();
@@ -218,7 +218,7 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
             {},
             JSON.stringify({ memberId, memberName: `이름_${memberId}` })
         );
-    }, [stompClient, memberId]);
+    }, [stompClient]);
 
     return { peerStream, peerConnections, dataChannels };
 };
