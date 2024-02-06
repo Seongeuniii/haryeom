@@ -1,18 +1,18 @@
 import styled from 'styled-components';
 import { GetServerSideProps } from 'next';
-import { getCookie } from 'cookies-next';
 import HomeLayout from '@/components/layouts/HomeLayout';
 import FilterOpenTeacherList from '@/components/FilterOpenTeacherList/FilterOpenTeacherList';
 import OpenTeacherList from '@/components/OpenTeacherList';
 import { getOpenTeacherList } from '@/apis/matching/get-open-teacher-list';
 import { IOpenTeacher } from '@/apis/matching/matching';
-import { SetStateAction, useEffect, useState } from 'react';
+import { useGetOpenTeacherList } from '@/queries/useGetOpenTeacherList';
+import { useState } from 'react';
 
 interface FindTeacherContainerProps {
     openTeacherList: IOpenTeacher[];
 }
 
-const FindTeacherContainer = ({ openTeacherList }: FindTeacherContainerProps) => {
+const FindTeacherContainer = ({ openTeacherList: initialData }: FindTeacherContainerProps) => {
     const [filterers, setFilterers] = useState<{ [key: string]: string[] | number }>({
         subjectIds: [],
         colleges: [],
@@ -20,6 +20,11 @@ const FindTeacherContainer = ({ openTeacherList }: FindTeacherContainerProps) =>
         gender: [],
         maxSalary: 0,
     });
+
+    const { data: openTeacherList, isLoading } = useGetOpenTeacherList(filterers, initialData);
+    const [renderedTutoringSchedules, setRenderedTutoringSchedules] = useState<
+        IOpenTeacher[] | undefined
+    >(openTeacherList);
 
     return (
         <HomeLayout>
@@ -29,7 +34,7 @@ const FindTeacherContainer = ({ openTeacherList }: FindTeacherContainerProps) =>
                     <SubTitle>원하는 선생님을 찾아 과외를 신청해보세요.</SubTitle>
                 </FindTeacherContainerHeader>
                 <FilterOpenTeacherList filterers={filterers} setFilterers={setFilterers} />
-                <OpenTeacherList openTeacherList={openTeacherList} />
+                {openTeacherList && <OpenTeacherList openTeacherList={openTeacherList} />}
             </StyledFindTeacherContainer>
         </HomeLayout>
     );

@@ -24,7 +24,6 @@ interface FilterOpenTeacherListProps {
 const FilterOpenTeacherList = ({ filterers, setFilterers }: FilterOpenTeacherListProps) => {
     const handleSelectOption = (name: string, value: string) => {
         const currentValues = [...(filterers[name] as string[])];
-        console.log(currentValues);
         const isValueExists = currentValues.includes(value);
         const updatedValues = isValueExists
             ? currentValues.filter((item) => item !== value)
@@ -40,8 +39,6 @@ const FilterOpenTeacherList = ({ filterers, setFilterers }: FilterOpenTeacherLis
     const isSelected = (name: string, value: string) => {
         return (filterers[name] as string[]).find((elem) => elem === value) ? true : false;
     };
-
-    useEffect(() => {}, [filterers]);
 
     return (
         <>
