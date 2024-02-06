@@ -10,16 +10,12 @@ const MediaStreamDisplay = ({ stream, nickname }: VideoProps) => {
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
-        console.log(stream);
         if (!videoRef.current || !stream) return;
-        console.log('???');
         videoRef.current.srcObject = stream;
-        // videoRef.current.ontimeupdate = () => {
-        //     if (videoRef.current == null) return;
+        // videoRef.current.ontimeupdate = (e) => {};
+        // videoRef.current.onloadedmetadata = () => {
+        //     console.log('Video metadata loaded:');
         // };
-        videoRef.current.onloadedmetadata = () => {
-            console.log('Video metadata loaded:');
-        };
     }, [stream]);
 
     return (

@@ -2,7 +2,8 @@ package com.ioi.haryeom.video.controller;
 
 import com.ioi.haryeom.video.domain.ClassRoom;
 import com.ioi.haryeom.video.dto.Answer;
-import com.ioi.haryeom.video.dto.Ice;
+import com.ioi.haryeom.video.dto.IceRequest;
+import com.ioi.haryeom.video.dto.IceResponse;
 import com.ioi.haryeom.video.dto.Offer;
 import com.ioi.haryeom.video.dto.MemberSignalingInfo;
 import java.util.List;
@@ -95,12 +96,14 @@ public class SignalingController {
     }
 
     // ICE candidate 교환
-    @MessageMapping("/ice/room/{roomCode}/{memberId}")
-    public void peerICE(@Payload Ice ice, @DestinationVariable (value="roomCode") String roomCode, @DestinationVariable (value = "memberId") String memberId){
-        log.info("ice");
-        String destination = "/topic/ice/room/"+roomCode+"/"+memberId;
-        log.info("destination : {}", destination);
-        simpMessagingTemplate.convertAndSend(destination, ice);
+    @MessageMapping("/ice/room/{roomCode}/{peerId}")
+    public void peerICE(@Payload IceRequest ice, @DestinationVariable (value="roomCode") String roomCode, @DestinationVariable (value = "peerId") Long peerId){
+        log.info("ice : subscriberId: {}, senderId: {}", peerId, ice.getMemberId());
+        IceResponse iceResponse = new IceResponse(ice.getIceCandidate(), ice.getMemberId());
+        log.info("iceResponse : subscriberId: {}, senderId: {}", peerId, iceResponse.getPeerId());
+        String destination = "/topic/ice/room/"+roomCode+"/"+peerId;
+        log.info("destination : {}, sender: {}", destination, ice.getMemberId());
+        simpMessagingTemplate.convertAndSend(destination, iceResponse);
         return;
     }
 

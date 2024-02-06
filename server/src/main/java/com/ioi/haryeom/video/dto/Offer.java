@@ -8,6 +8,6 @@ import lombok.Setter;
 public class Offer {
 
     private Object offer;
-    private int callerId;
-    private int calleeId;
+    private Long callerId;
+    private Long calleeId;
 }

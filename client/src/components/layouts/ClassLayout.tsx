@@ -1,27 +1,20 @@
 import { ReactNode } from 'react';
 import styled from 'styled-components';
 import ChatContainer from '@/containers/ChatContainer';
-import { IHomework } from '@/apis/homework/homework';
 
-interface HomeworkLayoutProps {
-    homeworkData: IHomework;
+interface ClassLayoutProps {
     children: ReactNode;
 }
 
-const HomeworkLayout = ({ homeworkData, children }: HomeworkLayoutProps) => {
+const ClassLayout = ({ children }: ClassLayoutProps) => {
     return (
-        <StyledHomeworkLayout>
+        <StyledClassLayout>
             <HeaderWrapper>
-                <Header>
-                    <TextbookName>{homeworkData.textbook.textbookName}</TextbookName>
-                    <Range>
-                        p.{homeworkData.startPage} ~ p.{homeworkData.endPage}
-                    </Range>
-                </Header>
+                <Header>수업</Header>
             </HeaderWrapper>
             <ContainerWrapper>{children}</ContainerWrapper>
             <ChatContainer />
-        </StyledHomeworkLayout>
+        </StyledClassLayout>
     );
 };
 
@@ -45,17 +38,7 @@ const Header = styled.div`
     justify-content: center;
 `;
 
-const TextbookName = styled.span`
-    margin-right: 0.7em;
-    font-size: 18px;
-    font-weight: 700;
-`;
-
-const Range = styled.div`
-    color: ${({ theme }) => theme.LIGHT_BLACK};
-`;
-
-const StyledHomeworkLayout = styled.div`
+const StyledClassLayout = styled.div`
     width: 100vw;
     height: 100vh;
     display: flex;
@@ -75,4 +58,4 @@ const ContainerWrapper = styled.main`
     }
 `;
 
-export default HomeworkLayout;
+export default ClassLayout;

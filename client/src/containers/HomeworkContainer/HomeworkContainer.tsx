@@ -1,6 +1,5 @@
 import { GetServerSideProps } from 'next';
 import { useEffect, useState } from 'react';
-import { StaticImageData } from 'next/image';
 import styled from 'styled-components';
 import PdfViewer from '@/components/PdfViewer';
 import PaintCanvas from '@/components/PaintCanvas';
@@ -8,8 +7,9 @@ import HomeworkLayout from '@/components/layouts/HomeworkLayout';
 import { getHomework } from '@/apis/homework/get-homework';
 import { IHomework } from '@/apis/homework/homework';
 import usePdf, { IPdfSize } from '@/hooks/usePdf';
-import useMyPaint from '@/components/PaintCanvas/Hook/useMyPaint';
+import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
 import { saveHomework } from '@/apis/homework/save-homework';
+import HomeworkStatus from '@/components/HomeworkStatus';
 
 interface HomeworkContainerProps {
     homeworkData: IHomework;
@@ -20,7 +20,25 @@ export interface IMyHomeworkDrawings {
 }
 
 const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
-    const [myHomeworkDrawings, setMyHomeworkDrawings] = useState<IMyHomeworkDrawings>({});
+    const [myHomeworkDrawings, setMyHomeworkDrawings] = useState<IMyHomeworkDrawings>(
+        homeworkData.drawings.reduce((acc, { page, homeworkDrawingUrl }) => {
+            acc[page] = homeworkDrawingUrl;
+            return acc;
+        }, {} as IMyHomeworkDrawings)
+    );
+
+    const saveHomeworkDrawing = () => {
+        const imageSize = {
+            width: pdfPageOriginalSize?.width as number,
+            height: pdfPageOriginalSize?.height as number,
+        };
+        setMyHomeworkDrawings((prev) => {
+            const newbackgroundImage = { ...prev };
+            newbackgroundImage[selectedPageNumber] = getCanvasDrawingImage(imageSize) as Blob;
+            return newbackgroundImage;
+        });
+    };
+
     const {
         totalPagesOfPdfFile,
         selectedPageNumber,
@@ -35,30 +53,26 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
     } = usePdf({
         initialSelectedPageNumer: homeworkData.startPage,
     });
-    const { saveCanvasDrawing } = useMyPaint({
-        updateImageSource: setMyHomeworkDrawings,
-        saveCanvasSize: pdfPageOriginalSize as IPdfSize,
+    const {
+        canvasRef,
+        handlePointerDown,
+        handlePointerMove,
+        handlePointerUp,
+        getCanvasDrawingImage,
+    } = useMyPaint({
+        backgroundImage: myHomeworkDrawings[selectedPageNumber],
     });
 
     useEffect(() => {
-        console.log(homeworkData);
-        const { drawings } = homeworkData;
-        const initialMyHomeworkDrawings: IMyHomeworkDrawings = drawings.reduce(
-            (acc, { page, homeworkDrawingUrl }) => {
-                acc[page] = homeworkDrawingUrl;
-                return acc;
-            },
-            {} as IMyHomeworkDrawings
-        );
-        setMyHomeworkDrawings(initialMyHomeworkDrawings);
-    }, []);
+        saveHomeworkDrawing();
+    }, [selectedPageNumber]);
 
     return (
-        <HomeworkLayout>
-            <button onClick={() => saveHomework(homeworkData.homeworkId, myHomeworkDrawings)}>
-                제출하기
-            </button>
+        <HomeworkLayout homeworkData={homeworkData}>
             <StyledHomeworkContainer>
+                <button onClick={() => saveHomework(homeworkData.homeworkId, myHomeworkDrawings)}>
+                    제출하기
+                </button>
                 <Board>
                     <PdfViewer
                         pdfFile={homeworkData.textbook.textbookUrl}
@@ -75,14 +89,18 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
                     >
                         <DrawingLayer>
                             <PaintCanvas
-                                imageSource={myHomeworkDrawings[selectedPageNumber]}
-                                saveCanvasDrawing={saveCanvasDrawing}
-                                pdfPageCurrentSize={pdfPageCurrentSize}
-                                pageNum={selectedPageNumber}
+                                canvasRef={canvasRef}
+                                handlePointerDown={handlePointerDown}
+                                handlePointerMove={handlePointerMove}
+                                handlePointerUp={handlePointerUp}
                             />
                         </DrawingLayer>
                     </PdfViewer>
                 </Board>
+                <HomeworkStatus
+                    homeworkData={homeworkData}
+                    myHomeworkDrawings={myHomeworkDrawings}
+                />
             </StyledHomeworkContainer>
         </HomeworkLayout>
     );

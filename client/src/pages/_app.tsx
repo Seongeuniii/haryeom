@@ -58,6 +58,10 @@ MyApp.getInitialProps = async (appContext: AppContext) => {
         setCookie('userRole', user.role, ctx);
     }
 
+    if (!user) {
+        user = { memberId: 1, role: 'TEACHER', name: '김선생', profileUrl: '' };
+    }
+
     const appProps = App.getInitialProps(appContext);
     return {
         ...appProps,
