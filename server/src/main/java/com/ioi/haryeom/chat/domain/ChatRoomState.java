@@ -42,9 +42,16 @@ public class ChatRoomState {
         this.member = member;
     }
 
+    public void updateLastReadMessageId(String messageId) {
+        if (this.lastReadMessageId.compareTo(messageId) < 0) {
+            this.lastReadMessageId = messageId;
+        }
+    }
+
     public void delete() {
         isDeleted = true;
     }
+
     public void recover() {
         isDeleted = false;
     }

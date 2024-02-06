@@ -24,13 +24,13 @@ public class ChatMessageController {
     @MessageMapping("/chatroom/{chatRoomId}/connect")
     public void connectChatRoom(@DestinationVariable Long chatRoomId, SimpMessageHeaderAccessor headerAccessor, @AuthMemberId Long memberId) {
         String sessionId = headerAccessor.getSessionId();
-        log.info("[CONNECT] CHAT ROOM ID : {}, session ID : {}", chatRoomId, sessionId);
+        log.info("[CONNECT CHAT ROOM] CHAT ROOM ID : {}, session ID : {}", chatRoomId, sessionId);
         chatMessageService.connectChatRoom(chatRoomId, sessionId, memberId);
     }
 
     @EventListener
     public void disconnectChatRoom(SessionDisconnectEvent event) {
-        log.info("[DISCONNECT] CHAT ROOM session ID : {}", event.getSessionId());
+        log.info("[DISCONNECT CHAT ROOM] CHAT ROOM session ID : {}", event.getSessionId());
         chatMessageService.disconnectChatRoom(event.getSessionId());
     }
 
@@ -38,7 +38,8 @@ public class ChatMessageController {
     @MessageMapping("/chatroom/{chatRoomId}/message")
     public void sendChatMessage(@DestinationVariable Long chatRoomId, @Payload ChatMessageRequest request,
         SimpMessageHeaderAccessor headerAccessor, @AuthMemberId Long memberId) {
-        log.info("[SEND CHAT MESSAGE] CHAT ROOM ID : {} SESSION ID : {} CONTENT : {}", chatRoomId, headerAccessor.getSessionId(),   request.getContent());
+        log.info("[SEND CHAT MESSAGE] CHAT ROOM ID : {} SESSION ID : {} CONTENT : {}", chatRoomId, headerAccessor.getSessionId(),
+            request.getContent());
         chatMessageService.sendChatMessage(chatRoomId, request.getContent(), headerAccessor.getSessionId(), memberId);
     }
 }
