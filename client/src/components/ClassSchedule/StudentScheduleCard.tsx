@@ -1,14 +1,23 @@
 import styled from 'styled-components';
 import { IStudentSchedule } from '@/apis/tutoring/tutoring';
 import { addMinutesToTime, getHourMin } from '@/utils/time';
+import { useRouter } from 'next/router';
+import { getClassRoomCode } from '@/apis/tutoring/get-class-room-code';
 
 interface StudentScheduleCardProps {
     schedule: IStudentSchedule;
 }
 
 const StudentScheduleCard = ({ schedule }: StudentScheduleCardProps) => {
+    const router = useRouter();
+
+    const joinClass = async () => {
+        const data = await getClassRoomCode(schedule.tutoringScheduleId);
+        router.push(`/class/${data?.roomCode}`);
+    };
+
     return (
-        <StyledStudentScheduleCard>
+        <StyledStudentScheduleCard onClick={joinClass}>
             <div>
                 <ScheduledTime>
                     <StartTime>{getHourMin(schedule.startTime)}</StartTime>
