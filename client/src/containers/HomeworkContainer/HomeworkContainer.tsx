@@ -7,7 +7,7 @@ import HomeworkLayout from '@/components/layouts/HomeworkLayout';
 import { getHomework } from '@/apis/homework/get-homework';
 import { IHomework } from '@/apis/homework/homework';
 import usePdf, { IPdfSize } from '@/hooks/usePdf';
-import useMyPaint from '@/components/PaintCanvas/Hook/useMyPaint';
+import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
 import { saveHomework } from '@/apis/homework/save-homework';
 import HomeworkStatus from '@/components/HomeworkStatus';
 
