@@ -6,11 +6,10 @@ import com.ioi.haryeom.chat.domain.ChatRoomState;
 import com.ioi.haryeom.chat.dto.ChatMessageEvent;
 import com.ioi.haryeom.chat.dto.ChatMessageResponse;
 import com.ioi.haryeom.chat.exception.ChatRoomNotFoundException;
-import com.ioi.haryeom.chat.manager.WebSocketSessionManager;
+import com.ioi.haryeom.chat.exception.ChatRoomStateNotFoundException;
 import com.ioi.haryeom.chat.repository.ChatMessageRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomRepository;
 import com.ioi.haryeom.chat.repository.ChatRoomStateRepository;
-import com.ioi.haryeom.matching.document.Matching;
 import com.ioi.haryeom.matching.document.MatchingResult;
 import com.ioi.haryeom.matching.dto.CreateMatchingResponse;
 import com.ioi.haryeom.matching.dto.MatchingResponse;
@@ -22,7 +21,8 @@ import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,12 +36,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatMessageService {
 
 
+    private static final String SESSION_MEMBER_NAME = "websocket:session:member:";
+    private static final String SESSION_CHAT_ROOM_NAME = "websocket:session:chatRoom:";
+    private static final String CHAT_ROOM_MEMBER_NAME = "websocket:chatRoom:member:";
+
     private static final String MATCHING_CHANNEL_NAME = "matching";
     private static final String CHAT_ROOM_CHANNEL_NAME = "chatroom";
     private final MatchingRepository matchingRepository;
     private final RedisTemplate<String, Object> redisTemplate;
     private final MatchingResultRepository matchingResultRepository;
-    private final WebSocketSessionManager sessionManager;
     private final ChatMessageRepository chatMessageRepository;
     private final MemberRepository memberRepository;
     private final ChatRoomRepository chatRoomRepository;
@@ -50,11 +53,15 @@ public class ChatMessageService {
     @Transactional
     public void connectChatRoom(Long chatRoomId, String sessionId, Long memberId) {
 
-        sessionManager.addSession(chatRoomId, sessionId, memberId);
+        redisTemplate.opsForValue().set(SESSION_MEMBER_NAME + sessionId, memberId);
+        redisTemplate.opsForValue().set(SESSION_CHAT_ROOM_NAME + sessionId, chatRoomId);
+        redisTemplate.opsForSet().add(CHAT_ROOM_MEMBER_NAME + chatRoomId, memberId);
 
+        log.info("[CONNECT CHAT ROOM] MEMBER SIZE : {}", redisTemplate.opsForSet().size(CHAT_ROOM_MEMBER_NAME + chatRoomId));
         // 채팅방의 매칭 요청 여부 확인 및 클라이언트에 전송
         matchingRepository.findByChatRoomId(chatRoomId).ifPresent(matching ->
-            redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME, new MatchingResponse<>(chatRoomId, MatchingStatus.REQUEST, CreateMatchingResponse.from(matching))));
+            redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME,
+                new MatchingResponse<>(chatRoomId, MatchingStatus.REQUEST, CreateMatchingResponse.from(matching))));
 
         // 채팅방의 매칭 응답 여부 확인 및 클라이언트에 전송
         List<MatchingResult> matchingResults = matchingResultRepository.findAllByChatRoomIdOrderByIdDesc(chatRoomId);
@@ -68,7 +75,11 @@ public class ChatMessageService {
 
     @Transactional
     public void disconnectChatRoom(String sessionId) {
-        sessionManager.removeSession(sessionId);
+        Long memberId = Long.valueOf(Objects.requireNonNull(redisTemplate.opsForValue().get(SESSION_MEMBER_NAME + sessionId)).toString());
+        Long chatRoomId = Long.valueOf(Objects.requireNonNull(redisTemplate.opsForValue().get(SESSION_CHAT_ROOM_NAME + sessionId)).toString());
+        redisTemplate.delete(SESSION_MEMBER_NAME + sessionId);
+        redisTemplate.delete(SESSION_CHAT_ROOM_NAME + sessionId);
+        redisTemplate.opsForSet().remove((CHAT_ROOM_MEMBER_NAME + chatRoomId), memberId);
     }
 
     @Transactional
@@ -87,7 +98,22 @@ public class ChatMessageService {
             .build();
 
         ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
-        redisTemplate.convertAndSend(CHAT_ROOM_CHANNEL_NAME, new ChatMessageEvent(savedChatMessage.getChatRoomId(), ChatMessageResponse.from(savedChatMessage)));
+
+        // 현재 연결되어 있는 회원 lastReadMessageId 업데이트
+        Set<Object> connectedMemberIds = redisTemplate.opsForSet().members(CHAT_ROOM_MEMBER_NAME + chatRoomId);
+        if (connectedMemberIds != null) {
+            connectedMemberIds.forEach(connectedMemberIdObject -> {
+                Long connectedMemberId = Long.valueOf(connectedMemberIdObject.toString());
+                if (member.getId().equals(connectedMemberId) || oppositeMember.getId().equals(connectedMemberId)) {
+                    ChatRoomState chatRoomState = chatRoomStateRepository.findByChatRoomAndMemberAndIsDeletedIsFalse(chatRoom,
+                            member.getId().equals(connectedMemberId) ? member : oppositeMember)
+                        .orElseThrow(ChatRoomStateNotFoundException::new);
+                    chatRoomState.updateLastReadMessageId(savedChatMessage.getId().toHexString());
+                }
+            });
+        }
+        redisTemplate.convertAndSend(CHAT_ROOM_CHANNEL_NAME,
+            new ChatMessageEvent(savedChatMessage.getChatRoomId(), ChatMessageResponse.from(savedChatMessage)));
     }
 
     private void recoverChatRoomStateIfDeleted(ChatRoom chatRoom, Member oppositeMember) {
