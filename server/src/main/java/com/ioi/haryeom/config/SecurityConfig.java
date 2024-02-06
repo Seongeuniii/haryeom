@@ -125,9 +125,9 @@ public class SecurityConfig {
             .hasRole("TEACHER")
 
             // 이외의 모든 API 접근을 모두 허용
-            .anyRequest()
-            .permitAll()
             .requestMatchers(CorsUtils::isPreFlightRequest)
+            .permitAll()
+            .anyRequest()
             .permitAll()
             .and()
             .addFilterBefore(new JwtAuthenticationFilter(tokenService),
