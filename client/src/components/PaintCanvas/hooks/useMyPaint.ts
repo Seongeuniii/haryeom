@@ -2,9 +2,10 @@ import { PointerEvent, useEffect, useRef, useState } from 'react';
 
 interface IUseMyPaint {
     backgroundImage?: Blob | string;
+    dataChannels?: RTCDataChannel[];
 }
 
-const useMyPaint = ({ backgroundImage }: IUseMyPaint) => {
+const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const contextRef = useRef<CanvasRenderingContext2D | null>(null);
     const canvasInformRef = useRef({
@@ -105,6 +106,20 @@ const useMyPaint = ({ backgroundImage }: IUseMyPaint) => {
         const { offsetX, offsetY } = nativeEvent;
         contextRef.current.beginPath();
         contextRef.current.moveTo(offsetX, offsetY);
+
+        dataChannels?.map((channel: RTCDataChannel) => {
+            try {
+                channel.send(
+                    JSON.stringify({
+                        type: 'pdf',
+                        action: 'down',
+                        offset: { x: offsetX, y: offsetY },
+                    })
+                );
+            } catch (e) {
+                console.log('전송 실패');
+            }
+        });
     };
 
     const handlePointerMove = ({ nativeEvent }: PointerEvent) => {
@@ -112,12 +127,40 @@ const useMyPaint = ({ backgroundImage }: IUseMyPaint) => {
         const { offsetX, offsetY } = nativeEvent;
         contextRef.current.lineTo(offsetX, offsetY);
         contextRef.current.stroke();
+
+        dataChannels?.map((channel: RTCDataChannel) => {
+            try {
+                channel.send(
+                    JSON.stringify({
+                        type: 'pdf',
+                        action: 'move',
+                        offset: { x: offsetX, y: offsetY },
+                    })
+                );
+                console.log('send move');
+            } catch (e) {
+                console.log('전송 실패');
+            }
+        });
     };
 
     const handlePointerUp = () => {
         setIsDown(false);
         if (!contextRef.current) return;
         contextRef.current.closePath();
+
+        dataChannels?.map((channel: RTCDataChannel) => {
+            try {
+                channel.send(
+                    JSON.stringify({
+                        type: 'pdf',
+                        action: 'up',
+                    })
+                );
+            } catch (e) {
+                console.log('전송 실패');
+            }
+        });
     };
 
     const getCanvasDrawingImage = (size: { width: number; height: number }) => {

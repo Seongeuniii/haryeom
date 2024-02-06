@@ -13,7 +13,7 @@ const MediaStreamContainer = ({ myStream, peerStream }: MediaStreamContainerProp
     return (
         <StyledMediaStreamContainer>
             <MediaStreamDisplay stream={myStream} nickname={'김성은'} />
-            {peerStream ? (
+            {peerStream?.length ? (
                 peerStream?.map((data, idx) => (
                     <MediaStreamDisplay stream={data.stream} key={idx} nickname={data.socketId} />
                 ))
