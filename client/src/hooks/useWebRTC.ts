@@ -161,7 +161,7 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
     useEffect(() => {
         if (!myStream) return;
         console.log('connectSocket: ', memberId);
-        const socket = new SockJS(`${process.env.NEXT_PUBLIC_CHAT_SERVER}`); // 변경
+        const socket = new SockJS(`${process.env.NEXT_PUBLIC_SIGNALING_SERVER}`); // 변경
         // const socket = new SockJS(`http://70.12.247.222:8080/chatroom`);
         const stomp = Stomp.over(socket);
         stomp.debug = () => {};
