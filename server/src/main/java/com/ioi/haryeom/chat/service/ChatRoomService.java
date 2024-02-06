@@ -27,7 +27,6 @@ import com.ioi.haryeom.tutoring.dto.TutoringResponse;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +63,8 @@ public class ChatRoomService {
         Member studentMember = findMemberById(memberId);
         validateSelfChatRoom(teacherMember, studentMember);
 
-        log.info("[CREAT OR GET CHATROOM] teacherId : {}, teacherMemberId : {}, studentMemberId : {}", teacher.getId(), teacherMember.getId(), studentMember.getId());
+        log.info("[CREAT OR GET CHATROOM] teacherId : {}, teacherMemberId : {}, studentMemberId : {}", teacher.getId(), teacherMember.getId(),
+            studentMember.getId());
 
         // 채팅방 생성될 수 있는 CASE
         // 1. 학생과 선생님
@@ -97,7 +97,8 @@ public class ChatRoomService {
             ChatRoomState.builder().chatRoom(chatRoom).member(studentMember).build(),
             ChatRoomState.builder().chatRoom(chatRoom).member(teacherMember).build()));
 
-        log.info("[CREAT CHATROOM] chatRoomId : {}, teacherMemberId : {}, studentMemberId : {}", savedChatRoom.getId(), teacherMember.getId(), studentMember.getId());
+        log.info("[CREAT CHATROOM] chatRoomId : {}, teacherMemberId : {}, studentMemberId : {}", savedChatRoom.getId(), teacherMember.getId(),
+            studentMember.getId());
         return savedChatRoom.getId();
     }
 
@@ -136,8 +137,14 @@ public class ChatRoomService {
         validateMemberInChatRoom(chatRoom, member);
 
         Pageable pageable = createPageable(size);
+        Page<ChatMessage> chatMessagePage = (lastMessageId == null) ?
+            chatMessageRepository.findByChatRoomId(chatRoomId, pageable) :
+            chatMessageRepository.findByChatRoomIdAndIdLessThan(chatRoomId, new ObjectId(lastMessageId), pageable);
 
-        Page<ChatMessage> chatMessagePage = getChatMessages(lastMessageId, chatRoomId, pageable);
+        // 첫 메시지 조회인 경우 lastReadMessageId 업데이트
+        if (lastMessageId == null && !chatMessagePage.isEmpty()) {
+            updateLastReadMessageId(chatRoom, member, chatMessagePage);
+        }
 
         return chatMessagePage.getContent()
             .stream()
@@ -201,24 +208,21 @@ public class ChatRoomService {
         return ChatRoomResponse.of(chatRoomId, lastChatMessage, oppositeMember, unreadMessageCount);
     }
 
-    private void validateSelfChatRoom(Member teacherMember, Member studentMember) {
-        if (teacherMember.equals(studentMember)) {
-            throw new SelfChatroomException();
-        }
+    private void updateLastReadMessageId(ChatRoom chatRoom, Member member, Page<ChatMessage> chatMessagePage) {
+        String lastReadMessageId = chatMessagePage.getContent().get(0).getId().toHexString();
+        ChatRoomState chatRoomState = chatRoomStateRepository.findByChatRoomAndMemberAndIsDeletedIsFalse(chatRoom, member)
+            .orElseThrow(ChatRoomStateNotFoundException::new);
+        chatRoomState.updateLastReadMessageId(lastReadMessageId);
     }
 
     private Pageable createPageable(Integer size) {
         return PageRequest.of(0, size, Sort.by("id").descending());
     }
 
-    private Page<ChatMessage> getChatMessages(String lastMessageId, Long chatRoomId, Pageable pageable) {
-        Page<ChatMessage> chatMessagePage;
-        if (lastMessageId == null) {
-            chatMessagePage = chatMessageRepository.findByChatRoomId(chatRoomId, pageable);
-        } else {
-            chatMessagePage = chatMessageRepository.findByChatRoomIdAndIdLessThan(chatRoomId, new ObjectId(lastMessageId), pageable);
+    private void validateSelfChatRoom(Member teacherMember, Member studentMember) {
+        if (teacherMember.equals(studentMember)) {
+            throw new SelfChatroomException();
         }
-        return chatMessagePage;
     }
 
     private Member findMemberById(Long memberId) {
