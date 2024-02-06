@@ -161,7 +161,7 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
 
     useEffect(() => {
         if (!myStream) return;
-        const socket = new SockJS(`${process.env.NEXT_PUBLIC_SIGNALING_SERVER}`);
+        const socket = new SockJS(`${process.env.NEXT_PUBLIC_CHAT_SERVER}`); // 변경
         const stomp = Stomp.over(socket);
         stomp.debug = () => {};
         stomp.connect({}, () => {
