@@ -4,16 +4,24 @@ import ChatContainer from '@/containers/ChatContainer';
 
 interface ClassLayoutProps {
     children: ReactNode;
+    subject: string;
+    title: string;
+    time: string;
 }
 
-const ClassLayout = ({ children }: ClassLayoutProps) => {
+const ClassLayout = ({ children, subject, title, time }: ClassLayoutProps) => {
     return (
         <StyledClassLayout>
             <HeaderWrapper>
-                <Header>수업</Header>
+                <Header>
+                    <Title>
+                        {subject} | {title}
+                    </Title>
+                    <Time>{time}</Time>
+                </Header>
             </HeaderWrapper>
             <ContainerWrapper>{children}</ContainerWrapper>
-            <ChatContainer />
+            {/* <ChatContainer /> */}
         </StyledClassLayout>
     );
 };
@@ -32,10 +40,22 @@ const HeaderWrapper = styled.header`
 const Header = styled.div`
     width: 80%;
     height: 100%;
+    padding-left: 10%;
     max-width: 1200px;
     display: flex;
     align-items: center;
     justify-content: center;
+`;
+
+const Title = styled.span`
+    font-size: 18px;
+    font-weight: 700;
+`;
+
+const Time = styled.span`
+    margin-left: 1em;
+    font-size: 14px;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
 `;
 
 const StyledClassLayout = styled.div`

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import MediaStream from './MediaStream';
@@ -69,7 +69,11 @@ const ClassContainer = () => {
     };
 
     return (
-        <ClassLayout>
+        <ClassLayout
+            subject={router.query.subject as string}
+            title={router.query.title as string}
+            time={router.query.time as string}
+        >
             <StyledClassContainer>
                 <LeftSection>
                     <MediaStream myStream={myStream} peerStream={peerStream} />
