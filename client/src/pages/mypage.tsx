@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState, useLayoutEffect } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import HomeLayout from '@/components/layouts/HomeLayout';
 import { IUserInfo, IUserRole } from '@/apis/user/user';
@@ -8,37 +8,40 @@ import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import router from 'next/router';
 
-const 변수 = 1; // 컴포넌트 밖에 변수 선언해도 됨.
 const path = '/members';
 const Mypage = () => {
     const userSession = useRecoilValue(userSessionAtom);
 
     const [name, setName] = useState<number>(1);
     const [profile, setProfile] = useState<any>({
-        name: '김태윤',
-        school: '싸피중학교',
-        grade: '중학교 2학년',
-        phone: '01012345678',
-        profileUrl: '/images/student-boy.png',
-        college: '싸피대학교', // 여기부터 선생님의 정보
-        collegeEmail: 'taeyun@ssafy.ac.kr',
+        name: '',
+        school: '',
+        grade: '',
+        phone: '',
+        profileUrl: '',
+        college: '', // 여기부터 선생님의 정보
+        collegeEmail: '',
         profileStatus: false,
-        gender: 'MALE',
-        salary: 10,
-        career: 3,
-        subjects: [
-            { id: 1, name: '수학' },
-            { id: 2, name: '과학' },
-        ],
-        introduce:
-            'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry',
+        gender: '',
+        salary: 0,
+        career: 0,
+        subjects: [],
+        introduce: '',
     }); // role에 따라서 student 담거나, teacher 담거나
 
     const [role, setRole] = useState<IUserRole>(); // STUDENT or TEACHER
     useEffect(() => {
-        setRole('TEACHER');
-        // const result = axios.get<IUserInfo>(`${process.env.NEXT_PUBLIC_API_SERVER}${path}/${userSession?.role.toLocaleLowerCase()}s/${userSession?.memberId}`)
-        // setProfile(result);
+        setRole(userSession?.role);
+        axios
+            .get<IUserInfo>(
+                `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${userSession?.role.toLocaleLowerCase()}s/${userSession?.memberId}`,
+                {
+                    withCredentials: true,
+                }
+            )
+            .then((res) => {
+                setProfile(res.data);
+            });
     }, []); // 최초 렌더링 직후에만 실행
 
     const subject = () => {
@@ -118,7 +121,7 @@ const Mypage = () => {
                                 </TeacherInfo>
                                 <TeacherInfo>
                                     <div className="infoName">예상 과외비</div>
-                                    <div>{profile.salary}만원</div>
+                                    <div>{profile.salary}원</div>
                                     <div className="infoName">경력</div>
                                     <div>{profile.career}년</div>
                                 </TeacherInfo>
