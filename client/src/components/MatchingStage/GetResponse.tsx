@@ -15,7 +15,7 @@ const GetResponse = ({ lastResponseStatus }: GetResponseProps) => {
             <StyledWaitResponse>
                 <ResponseMessageHeader>
                     {lastResponseStatus?.teacherName}과 {lastResponseStatus?.studentName}의 시급{' '}
-                    {lastResponseStatus?.hourlyRate}원 {lastResponseStatus.subject.name} 과외가
+                    {lastResponseStatus?.hourlyRate}원 {lastResponseStatus?.subject?.name} 과외가
                     {lastResponseStatus?.isAccepted == true ? ' 진행중입니다.' : ' 거절되었습니다.'}
                     {/* {userSession?.role === 'TEACHER'
                         ? '매칭된 학생입니다.'
