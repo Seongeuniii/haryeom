@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import MediaStream from './MediaStream';
@@ -14,6 +14,7 @@ import { useRecoilValue } from 'recoil';
 import PeerPaintCanvas from '@/components/PaintCanvas/PeerPaintCanvas';
 import usePeerPaint from '@/components/PaintCanvas/hooks/usePeerPaint';
 import userSessionAtom from '@/recoil/atoms/userSession';
+import useMediaRecord from '@/hooks/useMediaRecord';
 
 type toolType = '빈페이지' | '학습자료';
 
@@ -47,7 +48,6 @@ const ClassContainer = () => {
     const [seletedTool, setSelectedTool] = useState<toolType>('빈페이지');
     const [myWhiteboardBackgroundImage, setMyWhiteBoardBackgroundImage] = useState<Blob | string>();
     const [peerWhiteBoardBackgroundImage, setPeerWhiteBoard] = useState<Blob | string>();
-
     const {
         canvasRef,
         handlePointerDown,
@@ -58,15 +58,13 @@ const ClassContainer = () => {
         backgroundImage: myWhiteboardBackgroundImage,
         dataChannels: dataChannels,
     });
-
     const { canvasRef: peerCavasRef } = usePeerPaint({
         backgroundImage: peerWhiteBoardBackgroundImage,
         dataChannels: dataChannels,
     });
+    const { startRecording, stopRecording, downloadRecording } = useMediaRecord();
 
-    const changeToolType = (type: toolType) => {
-        setSelectedTool(type);
-    };
+    const changeToolType = (type: toolType) => setSelectedTool(type);
 
     return (
         <ClassLayout
@@ -75,6 +73,9 @@ const ClassContainer = () => {
             time={router.query.time as string}
         >
             <StyledClassContainer>
+                <button onClick={startRecording}>Start Recording</button>
+                <button onClick={stopRecording}>Stop Recording</button>
+                <button onClick={downloadRecording}>Download Recording</button>
                 <LeftSection>
                     <MediaStream myStream={myStream} peerStream={peerStream} />
                 </LeftSection>
