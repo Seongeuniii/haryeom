@@ -36,7 +36,9 @@ const NotRequest = () => {
     return (
         <StyledNotRequest>
             <Modal open={open} closeModal={closeModal}>
-                <TutoringApplicationForm  request={(data) => request(data.subjectId, data.hourlyRate)} />
+                <TutoringApplicationForm
+                    request={(data) => request(data.subjectId, data.hourlyRate)}
+                />
             </Modal>
             <ApplyTutoringButton onClick={openModal}>과외 신청하기</ApplyTutoringButton>
         </StyledNotRequest>

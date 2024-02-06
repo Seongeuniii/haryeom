@@ -8,7 +8,7 @@ interface WaitResponseProps {
     requestStatus: IRequestMatchingStatus;
 }
 
-const WaitResponse: React.FC<WaitResponseProps> = ({ requestStatus }) => {
+const WaitResponse = ({ requestStatus }: WaitResponseProps) => {
     const userSession = useRecoilValue(userSessionAtom);
 
     const response = async (acceptStatus: boolean) => {
