@@ -159,7 +159,8 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
     };
 
     useEffect(() => {
-        if (!myStream || !memberId) return;
+        if (!myStream) return;
+        console.log('connectSocket: ', memberId);
         const socket = new SockJS(`${process.env.NEXT_PUBLIC_CHAT_SERVER}`); // 변경
         // const socket = new SockJS(`http://70.12.247.222:8080/chatroom`);
         const stomp = Stomp.over(socket);
@@ -173,7 +174,7 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
         return () => {
             stompClient?.disconnect();
         };
-    }, [myStream, memberId]);
+    }, [myStream]);
 
     const subscribe = () => {
         if (!stompClient) return;
@@ -211,6 +212,8 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
         // subscribe
         subscribe();
 
+        console.log('sendJoin: ', memberId);
+
         // send join
         const destination = `/app/join/room/${roomCode}`;
         stompClient.send(
@@ -219,6 +222,10 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
             JSON.stringify({ memberId, memberName: `이름_${memberId}` })
         );
     }, [stompClient]);
+
+    useEffect(() => {
+        console.log('render: ', memberId);
+    }, []);
 
     return { peerStream, peerConnections, dataChannels };
 };
