@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import styled from 'styled-components';
 import { GetServerSideProps } from 'next';
 import HomeLayout from '@/components/layouts/HomeLayout';
@@ -5,15 +6,14 @@ import FilterOpenTeacherList from '@/components/FilterOpenTeacherList/FilterOpen
 import OpenTeacherList from '@/components/OpenTeacherList';
 import { getOpenTeacherList } from '@/apis/matching/get-open-teacher-list';
 import { IOpenTeacher } from '@/apis/matching/matching';
-import { useGetOpenTeacherList } from '@/queries/useGetOpenTeacherList';
-import { useState } from 'react';
+import { IFilterers, useGetOpenTeacherList } from '@/queries/useGetOpenTeacherList';
 
 interface FindTeacherContainerProps {
     openTeacherList: IOpenTeacher[];
 }
 
 const FindTeacherContainer = ({ openTeacherList: initialData }: FindTeacherContainerProps) => {
-    const [filterers, setFilterers] = useState<{ [key: string]: string[] | number }>({
+    const [filterers, setFilterers] = useState<IFilterers>({
         subjectIds: [],
         colleges: [],
         minCareer: 0,
@@ -22,9 +22,6 @@ const FindTeacherContainer = ({ openTeacherList: initialData }: FindTeacherConta
     });
 
     const { data: openTeacherList, isLoading } = useGetOpenTeacherList(filterers, initialData);
-    const [renderedTutoringSchedules, setRenderedTutoringSchedules] = useState<
-        IOpenTeacher[] | undefined
-    >(openTeacherList);
 
     return (
         <HomeLayout>
