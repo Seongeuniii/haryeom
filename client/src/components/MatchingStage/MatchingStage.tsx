@@ -6,7 +6,7 @@ import { IRequestMatchingStatus, IResponseMatchingStatus } from '@/apis/chat/cha
 
 interface MatchingStage {
     requestStatus: IRequestMatchingStatus | undefined;
-    responseStatus: IResponseMatchingStatus | undefined;
+    responseStatus: IResponseMatchingStatus[] | undefined;
 }
 
 const MatchingStage = ({ requestStatus, responseStatus }: MatchingStage) => {
@@ -22,7 +22,7 @@ const MatchingStage = ({ requestStatus, responseStatus }: MatchingStage) => {
     if (requestStatus && !responseStatus) {
         return (
             <StyledMatchingRequest>
-                <WaitResponse matchingId={requestStatus.matchingId} />
+                <WaitResponse requestStatus={requestStatus} />
             </StyledMatchingRequest>
         );
     }
@@ -31,11 +31,13 @@ const MatchingStage = ({ requestStatus, responseStatus }: MatchingStage) => {
      * response 여러개
      * 일단 시간 순으로 전체 띄우기
      * 차후에 변경
+     * 
+     * >> 배열의 마지막 데이터만 거절일 수 있다.
      */
     if (!requestStatus && responseStatus) {
         return (
             <StyledMatchingRequest>
-                <GetResponse />
+                <GetResponse lastResponseStatus={responseStatus[responseStatus.length - 1]}/>
             </StyledMatchingRequest>
         );
     }
