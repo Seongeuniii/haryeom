@@ -12,11 +12,11 @@ const NotRequest = () => {
     const chatSession = useRecoilValue(chatSessionAtom);
     const { open, openModal, closeModal } = useModal();
 
-    const request = async () => {
+    const request = async (subjectId: number, hourlyRate: number) => {
         const data = await requestMatching({
             chatRoomId: chatSession.chatRoomId as number,
-            subjectId: 1,
-            hourlyRate: 30000,
+            subjectId: subjectId,
+            hourlyRate: hourlyRate,
         });
         if (data) {
             alert('과외 신청을 성공적으로 완료했어요:)');
@@ -36,7 +36,9 @@ const NotRequest = () => {
     return (
         <StyledNotRequest>
             <Modal open={open} closeModal={closeModal}>
-                <TutoringApplicationForm request={request} />
+                <TutoringApplicationForm
+                    request={(data) => request(data.subjectId, data.hourlyRate)}
+                />
             </Modal>
             <ApplyTutoringButton onClick={openModal}>과외 신청하기</ApplyTutoringButton>
         </StyledNotRequest>

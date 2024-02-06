@@ -1,13 +1,30 @@
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import SelectForm from '@/components/commons/SelectForm';
 import InputForm from '@/components/commons/InputForm';
 import { subjectDefaultOptions } from './FilterOpenTeacherList/filterDefaultOptions';
 
 interface TutoringApplicationFormProps {
-    request: () => void;
+    // request: () => void;
+    request: (data: { subjectId: number; hourlyRate: number }) => void;
 }
 
 const TutoringApplicationForm = ({ request }: TutoringApplicationFormProps) => {
+    const [formData, setFormData] = useState({ subjectId: '', hourlyRate: '' });
+
+    const handleInputChange = (name: string, value: string | number) => {
+        setFormData({ ...formData, [name]: value });
+    };
+
+    const handleSubmit = () => {
+        const { subjectId, hourlyRate } = formData;
+        if (subjectId && hourlyRate) {
+            request({ subjectId: Number(subjectId), hourlyRate: Number(hourlyRate) });
+        } else {
+            alert('과목과 시간당 금액을 입력하세요.');
+        }
+    };
+
     return (
         <ApplyTutoringForm>
             <ApplyTutoringFormHeader>과외 신청서</ApplyTutoringFormHeader>
@@ -15,18 +32,34 @@ const TutoringApplicationForm = ({ request }: TutoringApplicationFormProps) => {
             <SelectSubject>
                 <SelectForm
                     label={'선택'}
-                    name={''}
+                    name={'subjectId'}
                     optionList={subjectDefaultOptions}
-                    handleSelect={() => {}}
+                    handleSelect={(name, clickedOption) => {
+                        if (typeof clickedOption === 'string') {
+                            const optionIndex = subjectDefaultOptions.findIndex(
+                                (option) => option.trim() === clickedOption.trim()
+                            );
+                            if (optionIndex !== -1) {
+                                // 옵션의 인덱스를 찾았다면, 이를 사용합니다.
+                                handleInputChange(name, optionIndex + 1);
+                            }
+                        }
+                    }}
                     height="40px"
                 />
             </SelectSubject>
             <InputTutoringFeeHeader>수업료</InputTutoringFeeHeader>
             <InputTutoringFee>
-                <InputForm label={''} name={''} handleChange={() => {}} />
-                <span>만원</span>
+                <InputForm
+                    label={''}
+                    name={'hourlyRate'}
+                    handleChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleInputChange('hourlyRate', e.target.value)
+                    }
+                />
+                <span>원</span>
             </InputTutoringFee>
-            <SubmitButton onClick={request}>신청하기</SubmitButton>
+            <SubmitButton onClick={handleSubmit}>신청하기</SubmitButton>
         </ApplyTutoringForm>
     );
 };
