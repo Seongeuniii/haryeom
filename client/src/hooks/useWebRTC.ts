@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from 'react';
-import { CompatClient, IMessage, Stomp, StompConfig, messageCallbackType } from '@stomp/stompjs';
+import { CompatClient, IMessage, Stomp, messageCallbackType } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 export interface ISubscription {
@@ -20,7 +20,6 @@ interface PeerInfo {
 const roomCode = 34;
 
 const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
-    console.log(myStream);
     const [stompClient, setStompClient] = useState<CompatClient>();
     const peerConnections = useRef<{ [socketId: string]: RTCPeerConnection }>({});
     const [peerStream, setPeerStream] = useState<any[]>([]);
@@ -28,14 +27,22 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
 
     const sendIceCandidate = (e: RTCPeerConnectionIceEvent, peerId: number) => {
         if (!stompClient) return;
-        console.log('send ice');
-        const data = { iceCandidate: e.candidate, peerId };
+        const data = { iceCandidate: e.candidate, memberId };
         stompClient.send(`/app/ice/room/${roomCode}/${peerId}`, {}, JSON.stringify(data));
     };
 
     const handleRemoteStream = (e: RTCTrackEvent, peerId: number) => {
-        setPeerStream((curr) => [...curr, { stream: e.streams[0], socketId: peerId }]);
-        // setUsers((prev) => [...prev, { stream: data.stream, socketID, nickname }]);
+        setPeerStream((curr) => {
+            const existingPeerIndex = curr.findIndex((item) => item.socketId === peerId);
+            if (existingPeerIndex !== -1) {
+                return [
+                    ...curr.slice(0, existingPeerIndex),
+                    { stream: e.streams[0], socketId: peerId },
+                    ...curr.slice(existingPeerIndex + 1),
+                ];
+            }
+            return [...curr, { stream: e.streams[0], socketId: peerId }];
+        });
     };
 
     const createPeerConnection = (
@@ -60,15 +67,36 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
             myStream?.getTracks().forEach((track) => pc.addTrack(track, myStream));
 
             pc.addEventListener('icecandidate', (e: RTCPeerConnectionIceEvent) => {
-                console.log('ice!!!!');
                 sendIceCandidate(e, peerInfo.memberId);
             });
 
-            // // TODO: 일단 비디오만
+            // // TODO: 오디오
             pc.addEventListener('track', (e: RTCTrackEvent) => {
-                console.log('track!!!!');
                 if (e.track.kind === 'video') handleRemoteStream(e, peerInfo.memberId);
             });
+
+            /**
+             * ===============  DataChannel  ===============
+             */
+            if (isOfferer) {
+                const channel: RTCDataChannel = pc.createDataChannel('chat');
+                channel.onopen = () => console.log('Hi: Data channel open');
+                channel.onclose = () => console.log('Data channel close');
+                channel.onmessage = (e: MessageEvent<any>) => {
+                    // console.log(e.data);
+                };
+                setDataChannels((prev: RTCDataChannel[]) => [...prev, channel]);
+            } else {
+                pc.ondatachannel = (e: RTCDataChannelEvent) => {
+                    const channel: RTCDataChannel = e.channel;
+                    channel.onopen = () => console.log('Hi Back: Data channel open');
+                    channel.onclose = () => console.log('Data channel close');
+                    channel.onmessage = (e: MessageEvent<any>) => {
+                        // console.log(e.data);
+                    };
+                    setDataChannels((prev: RTCDataChannel[]) => [...prev, channel]);
+                };
+            }
             return pc;
         } catch (e) {
             console.error(e);
@@ -78,13 +106,11 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
 
     const handleWelcome = (message: IMessage) => {
         if (!stompClient) return;
-        console.log('welcome');
         const peer = JSON.parse(message.body); // 참여자 정보
     };
 
     const handleJoinRoom = async (message: IMessage) => {
         if (!stompClient) return;
-        console.log('joinRoom');
         const peer: PeerInfo = JSON.parse(message.body);
 
         const pc = createPeerConnection(peer, true);
@@ -94,14 +120,12 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
         peerConnections.current[peer.memberId] = pc;
 
         // send offer
-        console.log('send offer');
         const data = { offer, callerId: memberId, calleeId: peer.memberId };
         stompClient.send(`/app/offer/room/${roomCode}/${peer.memberId}`, {}, JSON.stringify(data));
     };
 
     const handleOffer = async (message: IMessage) => {
         if (!stompClient) return;
-        console.log('receive offer');
 
         const { offer, callerId, calleeId } = JSON.parse(message.body);
         const peer: PeerInfo = { memberId: callerId };
@@ -114,7 +138,6 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
         peerConnections.current[peer.memberId] = pc;
 
         // send answer
-        console.log('send answer');
         const data = {
             answer,
             callerId,
@@ -125,7 +148,6 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
 
     const handleAnswer = async (message: IMessage) => {
         if (!stompClient) return;
-        console.log('receive answer');
         const { answer, callerId, calleeId } = JSON.parse(message.body);
         const peer: PeerInfo = { memberId: calleeId };
         peerConnections.current[peer.memberId].setRemoteDescription(answer);
@@ -133,32 +155,21 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
 
     const handleIce = (message: IMessage) => {
         if (!stompClient) return;
-        console.log('receive ice');
         const { iceCandidate, peerId } = JSON.parse(message.body);
         peerConnections.current[peerId]?.addIceCandidate(iceCandidate);
     };
 
     useEffect(() => {
         if (!myStream) return;
-        const socket = new SockJS(`${process.env.NEXT_PUBLIC_CHAT_SERVER}`); // roomCode
-        console.log('after socket : ' + socket);
+        const socket = new SockJS(`${process.env.NEXT_PUBLIC_SIGNALING_SERVER}`);
         const stomp = Stomp.over(socket);
-        console.log('after stomp over : ' + stomp);
-        console.log('after debug, start connect');
-        stomp.connect(
-            {},
-            () => {
-                console.log('stomp connection');
-                setStompClient(stomp);
-                console.log('setStompClient : ' + stompClient);
-                // return () => {
-                //     stompSubscriptions.forEach((stompSubscription) => stompSubscription.unsubscribe());
-                // };
-            },
-            (error: any) => {
-                console.error('Stomp connection error : ', error);
-            }
-        );
+        stomp.debug = () => {};
+        stomp.connect({}, () => {
+            setStompClient(stomp);
+            // return () => {
+            //     stompSubscriptions.forEach((stompSubscription) => stompSubscription.unsubscribe());
+            // };
+        });
         return () => {
             stompClient?.disconnect();
         };
@@ -166,7 +177,6 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
 
     const subscribe = () => {
         if (!stompClient) return;
-        console.log('subscribe');
         const subscriptions: ISubscription[] = [
             {
                 destination: `/topic/welcome/room/${roomCode}/${memberId}`,
@@ -190,18 +200,18 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
                 callback: handleIce,
             },
         ];
-        subscriptions.map((subscription, i) => {
-            console.log('subscribe ' + i + ':' + subscription);
+        subscriptions.map((subscription) => {
             return stompClient.subscribe(subscription.destination, subscription.callback);
         });
     };
 
-    // subscribe
     useEffect(() => {
-        console.log('stompClient : ' + stompClient);
         if (!stompClient) return;
+
+        // subscribe
         subscribe();
-        console.log('send join');
+
+        // send join
         const destination = `/app/join/room/${roomCode}`;
         stompClient.send(
             destination,
@@ -209,10 +219,6 @@ const useWebRTCStomp = ({ memberId, myStream }: IUseWebRTCStompProps) => {
             JSON.stringify({ memberId, memberName: `이름_${memberId}` })
         );
     }, [stompClient]);
-
-    useEffect(() => {
-        console.log(peerConnections);
-    }, [peerConnections]);
 
     return { peerStream, peerConnections, dataChannels };
 };
