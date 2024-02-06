@@ -8,7 +8,6 @@ interface GetResponseProps {
 }
 
 const GetResponse = ({ lastResponseStatus }: GetResponseProps) => {
-
     const userSession = useRecoilValue(userSessionAtom);
 
     return (
