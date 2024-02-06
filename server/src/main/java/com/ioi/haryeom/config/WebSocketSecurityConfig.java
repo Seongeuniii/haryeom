@@ -10,7 +10,7 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
     @Override
     protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
         messages
-            .simpDestMatchers("/app/**").authenticated() // "/app/**" 경로로 들어오는 메시지는 인증이 필요함
+            .simpDestMatchers("/app/chatroom/**").authenticated() // "/app/**" 경로로 들어오는 메시지는 인증이 필요함
             .anyMessage().authenticated(); // 모든 메시지에 대해 인증 요구
     }
 
