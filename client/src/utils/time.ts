@@ -26,7 +26,7 @@ export const addMinutesToTime = (timeString: string, minutesToAdd: number): stri
 
 // 00:00:00 -> 00:00
 export const getHourMin = (timeString: string): string => {
-    const [hours, minutes] = timeString.split(':').slice(1); // "18:00"에서 "18"과 "00"을 추출
+    const [hours, minutes] = timeString.split(':'); // "18:00"에서 "18"과 "00"을 추출
     return `${hours}:${minutes}`;
 };
 
