@@ -14,7 +14,7 @@ interface PeerInfo {
 
 interface IUseWebRTCStompProps {
     memberId: number;
-    roomCode: number;
+    roomCode: string;
     myStream: MediaStream | null;
 }
 

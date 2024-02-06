@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import MediaStream from './MediaStream';
@@ -10,8 +10,7 @@ import usePdf from '@/hooks/usePdf';
 import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
 import PaintCanvas from '@/components/PaintCanvas';
 import Button from '@/components/commons/Button';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { StaticImageData } from 'next/image';
+import { useRecoilValue } from 'recoil';
 import PeerPaintCanvas from '@/components/PaintCanvas/PeerPaintCanvas';
 import usePeerPaint from '@/components/PaintCanvas/hooks/usePeerPaint';
 import userSessionAtom from '@/recoil/atoms/userSession';
@@ -26,7 +25,7 @@ const ClassContainer = () => {
     const [myStream] = useStream();
     const { peerStream, peerConnections, dataChannels } = useWebRTCStomp({
         memberId: userSession.memberId,
-        roomCode: parseInt(router.query.id as string),
+        roomCode: router.query.id as string,
         myStream,
     });
 
