@@ -27,7 +27,7 @@ public class VideoTimestampService {
     private final VideoRepository videoRepository;
 
     public List<VideoTimestampResponse> getTimestampList(Long tutoringScheduleId, Long memberId) {
-        Video video = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId);
+        Video video = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId).get();
         if(video.getTutoringSchedule().getTutoring().getStudent().getId() !=memberId){
             throw new AuthorizationException(memberId);
         }
@@ -41,7 +41,7 @@ public class VideoTimestampService {
 
     @Transactional
     public Long createVideoTimestamp(Long tutoringScheduleId, VideoTimestampRequest timestampRequest, Long memberId) {
-        Video video = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId);
+        Video video = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId).get();
         if(video.getTutoringSchedule().getTutoring().getStudent().getId() !=memberId){
             throw new AuthorizationException(memberId);
         }
