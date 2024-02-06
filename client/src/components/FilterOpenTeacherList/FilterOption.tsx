@@ -2,26 +2,26 @@ import { ReactNode } from 'react';
 import styled from 'styled-components';
 import useDropdown from '@/hooks/useDropdown';
 import Dropdown from '@/components/commons/Dropdown';
-import { IFilterOption } from './FilterOpenTeacherList';
 
 interface FilterOptionProps {
-    filterOption: IFilterOption;
+    label: string;
+    Icon: () => JSX.Element;
     InputBox?: (children: ReactNode) => JSX.Element;
 }
 
-const FilterOption = ({ filterOption, InputBox }: FilterOptionProps) => {
+const FilterOption = ({ label, Icon, InputBox }: FilterOptionProps) => {
     const { open, openDropdown, closeDropdown } = useDropdown();
 
     return (
         <StyledFilterOption onClick={!open ? openDropdown : undefined}>
-            <IconWrapper>{filterOption.icon()}</IconWrapper>
-            <FilterOptionLabel>{filterOption.title}</FilterOptionLabel>
+            <IconWrapper>{Icon()}</IconWrapper>
+            <FilterOptionLabel>{label}</FilterOptionLabel>
             {InputBox && (
                 <Dropdown open={open} closeDropdown={closeDropdown} top="0em" left="1em">
                     {InputBox(
                         <InputBoxHeader>
-                            <IconWrapper>{filterOption.icon()}</IconWrapper>
-                            <FilterOptionLabel>{filterOption.title}</FilterOptionLabel>
+                            <IconWrapper>{Icon()}</IconWrapper>
+                            <FilterOptionLabel>{label}</FilterOptionLabel>
                         </InputBoxHeader>
                     )}
                 </Dropdown>
@@ -65,6 +65,7 @@ const InputBoxHeader = styled.div`
     font-size: 1.1em;
     font-weight: bold;
     border-bottom: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    background-color: white;
 `;
 
 export default FilterOption;

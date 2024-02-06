@@ -6,12 +6,21 @@ import FilterOpenTeacherList from '@/components/FilterOpenTeacherList/FilterOpen
 import OpenTeacherList from '@/components/OpenTeacherList';
 import { getOpenTeacherList } from '@/apis/matching/get-open-teacher-list';
 import { IOpenTeacher } from '@/apis/matching/matching';
+import { SetStateAction, useEffect, useState } from 'react';
 
 interface FindTeacherContainerProps {
     openTeacherList: IOpenTeacher[];
 }
 
 const FindTeacherContainer = ({ openTeacherList }: FindTeacherContainerProps) => {
+    const [filterers, setFilterers] = useState<{ [key: string]: string[] | number }>({
+        subjectIds: [],
+        colleges: [],
+        minCareer: 0,
+        gender: [],
+        maxSalary: 0,
+    });
+
     return (
         <HomeLayout>
             <StyledFindTeacherContainer>
@@ -19,7 +28,7 @@ const FindTeacherContainer = ({ openTeacherList }: FindTeacherContainerProps) =>
                     <Title>선생님 찾기</Title>
                     <SubTitle>원하는 선생님을 찾아 과외를 신청해보세요.</SubTitle>
                 </FindTeacherContainerHeader>
-                <FilterOpenTeacherList />
+                <FilterOpenTeacherList filterers={filterers} setFilterers={setFilterers} />
                 <OpenTeacherList openTeacherList={openTeacherList} />
             </StyledFindTeacherContainer>
         </HomeLayout>

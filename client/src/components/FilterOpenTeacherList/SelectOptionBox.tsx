@@ -1,45 +1,58 @@
 import { ReactNode } from 'react';
 import styled from 'styled-components';
-import { IOptionValue } from './useFilter';
 
 interface SelectOptionBoxProps {
     children: ReactNode;
-    optionValues: IOptionValue[];
-    handleSelectOption: (optionValue: IOptionValue, index: number) => void;
+    name: string;
+    optionValues: string[];
+    handleSelectOption: (name: string, value: string) => void;
+    isSelected: (name: string, value: string) => boolean;
 }
 
-const SelectOptionBox = ({ children, optionValues, handleSelectOption }: SelectOptionBoxProps) => {
+const SelectOptionBox = ({
+    children,
+    name,
+    optionValues,
+    handleSelectOption,
+    isSelected,
+}: SelectOptionBoxProps) => {
     return (
         <StyledSelectOptionValuBox>
             {children}
-            {optionValues.map((optionValue: IOptionValue, index: number) => {
-                return (
-                    <Option
-                        key={`filterOptions_${index}`}
-                        onClick={() => handleSelectOption(optionValue, index)}
-                        selected={optionValue.selected}
-                    >
-                        {optionValue.label}
-                    </Option>
-                );
-            })}
+            <Options>
+                {optionValues.map((optionValue: string, index: number) => {
+                    return (
+                        <Option
+                            key={`filterOptions_${index}`}
+                            onClick={() => handleSelectOption(name, optionValue)}
+                            selected={isSelected(name, optionValue)}
+                        >
+                            {optionValue}
+                        </Option>
+                    );
+                })}
+            </Options>
         </StyledSelectOptionValuBox>
     );
 };
 
 const StyledSelectOptionValuBox = styled.div`
     min-width: 100px;
-    max-height: 30em;
-    height: 100%;
     padding: 1em;
     background-color: white;
     border-radius: 0.6em;
+
+    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    box-shadow: 0px 0px 20px rgba(105, 105, 105, 0.25);
+`;
+
+const Options = styled.div`
+    max-height: 30em;
+    height: 100%;
     white-space: nowrap;
     display: flex;
     flex-direction: column;
     overflow: scroll;
-    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
-    box-shadow: 0px 0px 20px rgba(105, 105, 105, 0.25);
 `;
 
 const Option = styled.button<{ selected: boolean }>`
