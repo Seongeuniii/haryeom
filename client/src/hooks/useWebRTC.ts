@@ -206,7 +206,7 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
     };
 
     useEffect(() => {
-        if (!stompClient) return;
+        if (!stompClient || !memberId) return;
 
         // subscribe
         subscribe();
@@ -218,7 +218,7 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
             {},
             JSON.stringify({ memberId, memberName: `이름_${memberId}` })
         );
-    }, [stompClient]);
+    }, [stompClient, memberId]);
 
     return { peerStream, peerConnections, dataChannels };
 };
