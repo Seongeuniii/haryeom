@@ -22,7 +22,8 @@ const Chatting = () => {
     const [chatMessages, setChatMessages] = useState<IReceiveChat[]>([]);
     const [message, setMessage] = useState('');
     const [requestMatchingStatus, setRequestMatchingStatus] = useState<IRequestMatchingStatus>();
-    const [responseMatchingStatus, setResponseMatchingStatus] = useState<IResponseMatchingStatus>();
+    const [responseMatchingStatus, setResponseMatchingStatus] =
+        useState<IResponseMatchingStatus[]>();
     const lastChatRef = useRef<HTMLDivElement | null>(null);
 
     // TODO: subscriptions 리렌더
