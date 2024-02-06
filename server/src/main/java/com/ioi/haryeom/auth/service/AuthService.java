@@ -32,7 +32,7 @@ public class AuthService {
 
     public UserInfoResponse getUser(Member member) {
         return UserInfoResponse.builder()
-            .id(member.getId())
+            .memberId(member.getId())
             .name(member.getName())
             .role(member.getRole())
             .profileUrl(member.getProfileUrl())
@@ -54,7 +54,8 @@ public class AuthService {
         }
 
         // redis oauthAccessToken 저장
-        redisTemplate.opsForHash().put(AUTH_TOKEN + member.getId(), "oauthAccessToken", oauthAccessToken);
+        redisTemplate.opsForHash()
+            .put(AUTH_TOKEN + member.getId(), "oauthAccessToken", oauthAccessToken);
 
         return LoginResponse.builder()
             .accessToken(tokenService.createToken(member))
@@ -63,7 +64,8 @@ public class AuthService {
     }
 
     public void oauthLogout(Long memberId, String provider) throws IOException {
-        Object oauthAccessToken = redisTemplate.opsForHash().get(AUTH_TOKEN + memberId, "oauthAccessToken");
+        Object oauthAccessToken = redisTemplate.opsForHash()
+            .get(AUTH_TOKEN + memberId, "oauthAccessToken");
 
         if (oauthAccessToken == null) {
             return;
