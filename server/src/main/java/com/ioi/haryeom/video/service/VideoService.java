@@ -7,10 +7,6 @@ import com.ioi.haryeom.tutoring.domain.TutoringSchedule;
 import com.ioi.haryeom.tutoring.exception.TutoringScheduleNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringScheduleRepository;
 import com.ioi.haryeom.video.domain.Video;
-import com.ioi.haryeom.video.dto.LessonEnd;
-import com.ioi.haryeom.video.dto.LessonStart;
-import com.ioi.haryeom.video.dto.VideoDetailInterface;
-import com.ioi.haryeom.video.dto.VideoDetailResponse;
 import com.ioi.haryeom.video.exception.VideoNotFoundException;
 import com.ioi.haryeom.video.repository.VideoRepository;
 import java.io.IOException;
@@ -18,6 +14,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VideoService {
 
     private final VideoRepository videoRepository;
@@ -39,40 +37,39 @@ public class VideoService {
     private String bucket;
 
     @Transactional
-    public Long createVideo(LessonStart lessonStart, Long memberId) {
-        LocalTime startTime = parseLocalTime(lessonStart.getStartTime());
-        Optional<TutoringSchedule> optionalTutoringSchedule = tutoringScheduleRepository.findById(lessonStart.getTutoringScheduleId());
+    public Long createVideo(Long tutoringScheduleId, Long memberId) {
+        LocalTime startTime = LocalTime.now();
+        Optional<TutoringSchedule> optionalTutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId);
         if(!optionalTutoringSchedule.isPresent()){
-            throw new TutoringScheduleNotFoundException(lessonStart.getTutoringScheduleId());
+            throw new TutoringScheduleNotFoundException(tutoringScheduleId);
         }
         TutoringSchedule tutoringSchedule = optionalTutoringSchedule.get();
         if(tutoringSchedule.getTutoring().getTeacher().getId()!=memberId){
             throw new AuthorizationException(memberId);
         }
+        log.info("Before create video - tutoringScheduleId : {}, startTime: {}", tutoringScheduleId, startTime);
         Video video = Video.builder()
             .tutoringSchedule(tutoringSchedule)
             .startTime(startTime)
             .build();
         Video savedVideo = videoRepository.save(video);
+        log.info("Video saved - videoId : {}", savedVideo.getId());
         return savedVideo.getId();
     }
 
     @Transactional
-    public void updateVideoEndTime(Long videoId, LessonEnd lessonEnd, Long memberId) {
-        Optional<Video> video = videoRepository.findById(videoId);
-        if(!video.isPresent()){
-            throw new VideoNotFoundException(videoId);
-        }
-        Optional<TutoringSchedule> optionalTutoringSchedule = tutoringScheduleRepository.findById(lessonEnd.getTutoringScheduleId());
+    public void updateVideoEndTime(Long tutoringScheduleId, Long memberId) {
+        Optional<TutoringSchedule> optionalTutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId);
         if(!optionalTutoringSchedule.isPresent()){
-            throw new TutoringScheduleNotFoundException(lessonEnd.getTutoringScheduleId());
+            throw new TutoringScheduleNotFoundException(tutoringScheduleId);
         }
         TutoringSchedule tutoringSchedule = optionalTutoringSchedule.get();
         if(tutoringSchedule.getTutoring().getTeacher().getId()!=memberId){
             throw new AuthorizationException(memberId);
         }
+        Optional<Video> video = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId);
         Video updateVideo = video.get();
-        LocalTime endTime = parseLocalTime(lessonEnd.getEndTime());
+        LocalTime endTime = LocalTime.now();
         updateVideo.updateVideoEndTime(endTime);
     }
     public String uploadVideo(MultipartFile file) throws IOException {
@@ -85,9 +82,9 @@ public class VideoService {
         return videoUrl;
     }
     @Transactional
-    public void updateVideoUrl(Long videoId, String videoUrl) {
-        Optional<Video> videoOptional = videoRepository.findById(videoId);
-        Video video = videoOptional.get();
+    public void updateVideoUrl(Long tutoringScheduleId, String videoUrl) {
+        Optional<Video> videoOptional = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId);
+        Video video = videoOptional.get(); //Todo: optional check
         video.updateVideoUrl(videoUrl);
     }
 
@@ -97,15 +94,16 @@ public class VideoService {
         videoRepository.deleteById(videoId);
     }
 
-    public void videoUploadExceptionTest(Long videoId, Long memberId){
-        Optional<Video> videoOptional = videoRepository.findById(videoId);
+    public Long videoUploadExceptionTest(Long tutoringScheduleId, Long memberId){
+        Optional<Video> videoOptional = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId);
         if(!videoOptional.isPresent()){
-            throw new VideoNotFoundException(videoId);
+            throw new VideoNotFoundException(tutoringScheduleId); //Todo: VideoNotFoundException 수정
         }
         Video video = videoOptional.get();
         if(video.getTutoringSchedule().getTutoring().getTeacher().getId()!=memberId){
             throw new AuthorizationException(memberId);
         }
+        return video.getId();
     }
 
     private LocalTime parseLocalTime(String stringDateTime) {
