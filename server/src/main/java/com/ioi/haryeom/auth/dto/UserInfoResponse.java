@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 public class UserInfoResponse {
 
-    private Long id;
+    private Long memberId;
 
     private String profileUrl;
 
