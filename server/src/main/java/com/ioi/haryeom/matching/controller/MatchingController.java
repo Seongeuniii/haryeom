@@ -37,9 +37,9 @@ public class MatchingController {
     @PostMapping("/response")
     public ResponseEntity<?> respondToMatchingRequest(@RequestBody @Validated RespondToMatchingRequest request, @AuthMemberId Long memberId) {
         log.info("mathincgID : {}", request.getMatchingId());
-        Long savedTutoringId = matchingService.respondToMatchingRequest(request, memberId);
-        return (savedTutoringId != null) ?
-            ResponseEntity.created(URI.create(String.format("/tutoring/%s", savedTutoringId))).build()
+        Long tutoringId = matchingService.respondToMatchingRequest(request, memberId);
+        return (tutoringId != null) ?
+            ResponseEntity.created(URI.create(String.format("/tutoring/%s", tutoringId))).build()
             : ResponseEntity.ok().body("매칭 요청에 대한 거절이 성공적으로 완료되었습니다.");
     }
 
