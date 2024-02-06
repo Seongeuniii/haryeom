@@ -1,10 +1,10 @@
-import {useState} from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
-import {useRouter} from 'next/router';
-import {useRecoilValue} from 'recoil';
+import { useRouter } from 'next/router';
+import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
-import {IUserRole} from '@/apis/user/user';
-import {registUser} from '@/apis/user/regist-user';
+import { IUserRole } from '@/apis/user/user';
+import { registUser } from '@/apis/user/regist-user';
 import RegisterLayout from '@/components/layouts/RegisterLayout';
 import {
     SelectUserTypeForm,
@@ -81,13 +81,13 @@ const RegisterUserInfoContainer = () => {
     // 학생 필드 validation
     const validateStudentFields = (): boolean => {
         if (!/^[가-힣]+$/.test(userInputValue.name)) {
-            alert("이름은 한글이여야합니다.");
+            alert('이름은 한글이여야합니다.');
             return false;
         } else if (!/^[가-힣]+$/.test(userInputValue.school)) {
-            alert("학교명은 한글이여야합니다.")
+            alert('학교명은 한글이여야합니다.');
             return false;
         } else if (!/^[0-9]+$/.test(userInputValue.phone)) {
-            alert("전화번호는 숫자여야합니다.");
+            alert('전화번호는 숫자여야합니다.');
             return false;
         }
         return true;
@@ -96,16 +96,18 @@ const RegisterUserInfoContainer = () => {
     // 선생님 필수 입력 항목 validation
     const validateTeacherFields = (): boolean => {
         if (!/^[가-힣]+$/.test(userInputValue.name)) {
-            alert("이름은 한글이여야합니다.");
+            alert('이름은 한글이여야합니다.');
             return false;
         } else if (!/^[0-9]+$/.test(userInputValue.phone)) {
-            alert("전화번호는 숫자여야합니다.");
+            alert('전화번호는 숫자여야합니다.');
             return false;
-        } else if (!/^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(userInputValue.collegeEmail)) {
-            alert("이메일 형식이 아닙니다.")
+        } else if (
+            !/^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(userInputValue.collegeEmail)
+        ) {
+            alert('이메일 형식이 아닙니다.');
             return false;
         } else if (!/^[가-힝]+$/.test(userInputValue.college)) {
-            alert("대학명은 한글이여야합니다.");
+            alert('대학명은 한글이여야합니다.');
             return false;
         }
         return true;
@@ -117,16 +119,16 @@ const RegisterUserInfoContainer = () => {
             if (!isAllFieldsFilled(checkKeys)) {
                 return false;
             } else if (!/^[0-9]+$/.test(userInputValue.salary)) {
-                alert("예상 과외비는 숫자여야합니다.");
+                alert('예상 과외비는 숫자여야합니다.');
                 return false;
             } else if (userInputValue.subjects == null || userInputValue.subjects == '') {
-                alert("과목을 선택해주세요.");
+                alert('과목을 선택해주세요.');
                 return false;
             } else if (!/^[0-9]+$/.test(userInputValue.career)) {
-                alert("경력은 숫자여야합니다.");
+                alert('경력은 숫자여야합니다.');
                 return false;
             } else if (userInputValue.introduce.length > 1000) {
-                alert("선생님 소개는 1000자 이하여야합니다.");
+                alert('선생님 소개는 1000자 이하여야합니다.');
                 return false;
             }
         }
@@ -195,15 +197,15 @@ const RegisterUserInfoContainer = () => {
                         )}
                         {step === 2 &&
                             (selectedUserRole === 'TEACHER' ? (
-                                <TeacherRequiredForm updateUserInfo={updateUserInfo}/>
+                                <TeacherRequiredForm updateUserInfo={updateUserInfo} />
                             ) : (
-                                <StudentRequiredForm updateUserInfo={updateUserInfo}/>
+                                <StudentRequiredForm updateUserInfo={updateUserInfo} />
                             ))}
                         {step === 3 &&
                             (selectedUserRole === 'TEACHER' ? (
-                                <TeacherOptionalForm updateUserInfo={updateUserInfo}/>
+                                <TeacherOptionalForm updateUserInfo={updateUserInfo} />
                             ) : (
-                                <StudentOptionalForm/>
+                                <StudentOptionalForm />
                             ))}
                     </RegisterForm>
                     {step === 1 ? (
@@ -225,7 +227,7 @@ const RegisterUserInfoContainer = () => {
 };
 
 export const getServerSideProps = () => {
-    return {props: {}};
+    return { props: {} };
 };
 
 const StyledRegisterUserInfoContainer = styled.div`
@@ -269,14 +271,14 @@ const RegisterForm = styled.div`
 const FormButton = styled.button`
     width: 100%;
     padding: 0.5em;
-    background-color: ${({theme}) => theme.PRIMARY_LIGHT};
-    color: ${({theme}) => theme.WHITE};
+    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+    color: ${({ theme }) => theme.WHITE};
     font-size: 16px;
     font-weight: bold;
     border-radius: 0.4em;
 
     &:hover {
-        background-color: ${({theme}) => theme.PRIMARY};
+        background-color: ${({ theme }) => theme.PRIMARY};
     }
 `;
 
