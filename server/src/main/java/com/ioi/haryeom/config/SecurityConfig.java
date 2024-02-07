@@ -7,6 +7,7 @@ import static org.springframework.http.HttpMethod.PATCH;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 
+import com.ioi.haryeom.auth.filter.JwtAuthenticationFilter;
 import com.ioi.haryeom.auth.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

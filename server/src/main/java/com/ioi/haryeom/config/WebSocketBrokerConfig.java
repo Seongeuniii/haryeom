@@ -1,7 +1,6 @@
 package com.ioi.haryeom.config;
 
-import com.ioi.haryeom.video.controller.StompLoggingInterceptor;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.ioi.haryeom.common.interceptor.StompLoggingInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -12,10 +11,11 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketBrokerConfig implements WebSocketMessageBrokerConfigurer {
+
     private final StompLoggingInterceptor stompLoggingInterceptor;
 
-    public WebSocketBrokerConfig(StompLoggingInterceptor stompLoggingInterceptor){
-        this.stompLoggingInterceptor=stompLoggingInterceptor;
+    public WebSocketBrokerConfig(StompLoggingInterceptor stompLoggingInterceptor) {
+        this.stompLoggingInterceptor = stompLoggingInterceptor;
     }
 
     @Override
