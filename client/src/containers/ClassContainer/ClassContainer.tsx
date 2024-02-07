@@ -55,6 +55,8 @@ const ClassContainer = () => {
         handlePointerMove,
         handlePointerUp,
         getCanvasDrawingImage,
+        penStyle,
+        changePen,
     } = useMyPaint({
         backgroundImage: myWhiteboardBackgroundImage,
         dataChannels: dataChannels,
@@ -111,7 +113,7 @@ const ClassContainer = () => {
                             $backgroundColor={seletedTool === '학습자료' ? '#606060' : ''}
                             color={seletedTool === '학습자료' ? 'white' : ''}
                         ></Button>
-                        <DrawingTools />
+                        <DrawingTools penStyle={penStyle} changePen={changePen} />
                     </HelperBar>
                     <Board>
                         {seletedTool === '빈페이지' ? (
