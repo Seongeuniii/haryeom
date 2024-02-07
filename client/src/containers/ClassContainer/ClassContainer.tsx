@@ -15,6 +15,7 @@ import PeerPaintCanvas from '@/components/PaintCanvas/PeerPaintCanvas';
 import usePeerPaint from '@/components/PaintCanvas/hooks/usePeerPaint';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import useMediaRecord from '@/hooks/useMediaRecord';
+import DrawingTools from '@/components/DrawingTools';
 
 type toolType = '빈페이지' | '학습자료';
 
@@ -82,8 +83,9 @@ const ClassContainer = () => {
             <StyledClassContainer>
                 <LeftSection>
                     <ClassInfo>
+                        <Logo>하렴</Logo>
                         <Subject>{router.query.subject}</Subject>
-                        <Title>Ch. {router.query.title}</Title>
+                        <Title>| {router.query.title}</Title>
                     </ClassInfo>
                     <MediaStream myStream={myStream} peerStream={peerStream} />
                 </LeftSection>
@@ -109,6 +111,7 @@ const ClassContainer = () => {
                             $backgroundColor={seletedTool === '학습자료' ? '#606060' : ''}
                             color={seletedTool === '학습자료' ? 'white' : ''}
                         ></Button>
+                        <DrawingTools />
                     </HelperBar>
                     <Board>
                         {seletedTool === '빈페이지' ? (
@@ -185,10 +188,16 @@ const ClassInfo = styled.div`
     display: flex;
     flex-direction: column;
     gap: 10px;
-    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    border: 2px solid ${({ theme }) => theme.PRIMARY};
     border-radius: 0.6em;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+`;
+
+const Logo = styled.span`
+    margin-bottom: 6px;
+    font-weight: 700;
+    font-size: 22px;
+    color: ${({ theme }) => theme.PRIMARY};
 `;
 
 const Subject = styled.span`
@@ -196,7 +205,9 @@ const Subject = styled.span`
     font-size: 18px;
 `;
 
-const Title = styled.span``;
+const Title = styled.span`
+    color: ${({ theme }) => theme.LIGHT_BLACK};
+`;
 
 const TeacherName = styled.span``;
 
@@ -219,15 +230,9 @@ const TeachingTools = styled.div`
     justify-content: center;
 `;
 
-const TimeStamp = styled.div`
-    width: 100%;
-    height: 150px;
-    background-color: yellow;
-`;
-
 const HelperBar = styled.div`
     width: 93%;
-    min-height: 50px;
+    height: 40px;
     display: flex;
     align-items: center;
     margin-bottom: 10px;
