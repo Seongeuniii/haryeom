@@ -30,11 +30,12 @@ const MediaStreamDisplay = ({ stream, nickname }: VideoProps) => {
 
 const StyledMediaStreamDisplay = styled.div`
     position: relative;
-    width: 270px;
-    height: 270px;
+    width: 220px;
+    height: 220px;
     margin-bottom: 15px;
     border-radius: 0.7em;
-    box-shadow: 1px 1px 14px 2px #cfcfcf;
+    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 `;
 
 const Video = styled.video`
