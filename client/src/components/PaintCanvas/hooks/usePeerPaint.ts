@@ -13,6 +13,15 @@ const usePeerPaint = ({ backgroundImage, dataChannels }: IUsePeerPaint) => {
         height: 0,
         pixelRatio: 1,
     });
+    const [penStyle, setPenStyle] = useState<{
+        isPen: boolean;
+        strokeStyle: string;
+        lineWidth: number;
+    }>({
+        isPen: true,
+        strokeStyle: 'black',
+        lineWidth: 3,
+    });
 
     useEffect(() => {
         const isBrowser = typeof window !== 'undefined';
@@ -28,6 +37,12 @@ const usePeerPaint = ({ backgroundImage, dataChannels }: IUsePeerPaint) => {
     useEffect(() => {
         init();
     }, [canvasRef.current, backgroundImage]);
+
+    useEffect(() => {
+        if (!contextRef.current) return;
+        contextRef.current.strokeStyle = penStyle.strokeStyle;
+        contextRef.current.lineWidth = penStyle.lineWidth;
+    }, [penStyle]);
 
     const init = () => {
         if (!canvasRef.current) return;
@@ -124,10 +139,12 @@ const usePeerPaint = ({ backgroundImage, dataChannels }: IUsePeerPaint) => {
         dataChannels.map((channel: RTCDataChannel) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             channel.onmessage = (e: MessageEvent<any>) => {
-                const { type, action, offset } = JSON.parse(e.data);
+                const { type, action, offset, penStyle } = JSON.parse(e.data);
                 if (action === 'down') handlePointerDown(offset);
                 else if (action === 'move') requestAnimationFrame(() => handlePointerMove(offset));
                 else handlePointerUp();
+
+                setPenStyle(penStyle);
             };
         });
     }, [dataChannels]);
