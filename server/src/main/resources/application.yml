@@ -25,8 +25,8 @@ spring:
       uri: mongodb://ssafyharyeom:hzVrpCPnlNArYML@i10a807.p.ssafy.io:8027/haryeom
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: 100MB
+      max-request-size: 100MB
   jwt:
     token:
       secret-key: QTEwN2phbnNvcnJ5dGVhbWRuZmxya2RsZW1kZ2tmcmpkaWFrZmZsd2xha2RrcnBUc2kK
