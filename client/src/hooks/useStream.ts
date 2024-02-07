@@ -11,11 +11,18 @@ const useStream = () => {
         setMyStream(() => myStream);
     }, []);
 
+    const stopStream = useCallback(async () => {
+        if (myStream) {
+            myStream.getTracks().forEach((track) => track.stop());
+            setMyStream(null);
+        }
+    }, [myStream]);
+
     useEffect(() => {
         getMyStream();
     }, []);
 
-    return [myStream];
+    return { myStream, stopStream };
 };
 
 export default useStream;

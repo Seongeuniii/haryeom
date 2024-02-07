@@ -6,7 +6,7 @@ import { IRequestMatchingStatus, IResponseMatchingStatus } from '@/apis/chat/cha
 
 interface MatchingStage {
     requestStatus: IRequestMatchingStatus | undefined;
-    responseStatus: IResponseMatchingStatus | undefined;
+    responseStatus: IResponseMatchingStatus[] | undefined;
 }
 
 const MatchingStage = ({ requestStatus, responseStatus }: MatchingStage) => {
@@ -37,7 +37,7 @@ const MatchingStage = ({ requestStatus, responseStatus }: MatchingStage) => {
     if (!requestStatus && responseStatus) {
         return (
             <StyledMatchingRequest>
-                <GetResponse lastResponseStatus={responseStatus} />
+                <GetResponse lastResponseStatus={responseStatus[responseStatus.length - 1]} />
             </StyledMatchingRequest>
         );
     }

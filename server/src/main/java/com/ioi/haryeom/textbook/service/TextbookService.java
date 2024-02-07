@@ -5,9 +5,15 @@ import com.ioi.haryeom.aws.exception.S3UploadException;
 import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.common.repository.SubjectRepository;
 import com.ioi.haryeom.member.domain.Member;
+import com.ioi.haryeom.member.domain.Teacher;
+import com.ioi.haryeom.member.domain.TeacherSubject;
+import com.ioi.haryeom.member.dto.SubjectInfo;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.exception.NoTeacherException;
+import com.ioi.haryeom.member.exception.SubjectNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
+import com.ioi.haryeom.member.repository.TeacherRepository;
+import com.ioi.haryeom.member.repository.TeacherSubjectRepository;
 import com.ioi.haryeom.textbook.domain.Assignment;
 import com.ioi.haryeom.textbook.domain.Textbook;
 import com.ioi.haryeom.textbook.dto.*;
@@ -47,6 +53,8 @@ public class TextbookService {
 
     private final AssignmentRespository assignmentRespository;
     private final SubjectRepository subjectRepository;
+    private final TeacherSubjectRepository teacherSubjectRepository;
+    private final TeacherRepository teacherRepository;
 
     private final TutoringRepository tutoringRepository;
 
@@ -94,13 +102,15 @@ public class TextbookService {
 
                 coverImg = s3Upload.uploadFile(coverImageFileName, is, buffer.length, "image/png");
 
+                os.close();
                 is.close();
                 document.close();
 
             }
             Member teacherMember = findMemberById(teacherMemberId);
+            if(teacherMember == null) throw new RuntimeException("선생님이없어요");
             Subject subject = subjectRepository.findById(request.getSubjectId())
-                    .orElseThrow();
+                    .orElseThrow(() -> new SubjectNotFoundException(request.getSubjectId()));
 
             Textbook textbook = Textbook.builder()
                     .teacherMember(teacherMember)
@@ -187,7 +197,7 @@ public class TextbookService {
 
         List<TextbookWithStudentsResponse.StudentInfo> assignableStudents = tutorings.stream()
                 .map(Tutoring::getStudent)
-                .filter(student -> !assignedStudentIds.contains(student.getStudent()))
+                .filter(student -> !assignedStudentIds.contains(student.getId()))
                 .distinct()
                 .map(TextbookWithStudentsResponse.StudentInfo::new)
                 .collect(Collectors.toList());
@@ -210,6 +220,35 @@ public class TextbookService {
                     .build();
 
             assignmentRespository.save(assignment);
+        }
+    }
+
+    // 선생님 과목 불러오기
+    public List<SubjectInfo> getTeacherSubjects(Long teacherMemberId) {
+
+        Member teacherMember = memberRepository.findById(teacherMemberId)
+                .orElseThrow(() -> new MemberNotFoundException(teacherMemberId));
+        Teacher teacher = teacherRepository.findByMember(teacherMember)
+                .orElseThrow(() -> new NoTeacherException());
+
+        return teacherSubjectRepository
+                .findByTeacherId(teacher.getId())
+                .stream()
+                .map(TeacherSubject::getSubject)
+                .map(SubjectInfo::from)
+                .collect(Collectors.toList());
+    }
+
+    // 학습자료 학생 지정 해제
+    public void deleteAssignment(Long textbookId, List<Long> studentMemberIds, Long teacherMemberId) {
+
+        for(Long studentMemberId : studentMemberIds){
+            Tutoring tutoring = tutoringRepository.findAllByTeacherIdAndStudentId(teacherMemberId, studentMemberId);
+            if(tutoring == null) throw new TutoringNotFoundException(tutoring.getId());
+            Assignment assignment = assignmentRespository.findByTextbookIdAndTutoringId(textbookId, tutoring.getId());
+            if(assignment == null) throw new AssignmentNotFoundException();
+
+            assignmentRespository.deleteById(assignment.getId());
         }
     }
 

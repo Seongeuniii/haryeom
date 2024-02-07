@@ -42,8 +42,8 @@ public class ChatMessageService {
 
     private static final String MATCHING_CHANNEL_NAME = "matching";
     private static final String CHAT_ROOM_CHANNEL_NAME = "chatroom";
-    private final MatchingRepository matchingRepository;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final MatchingRepository matchingRepository;
     private final MatchingResultRepository matchingResultRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final MemberRepository memberRepository;

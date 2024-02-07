@@ -3,15 +3,15 @@ import styled from 'styled-components';
 
 import MediaStreamDisplay from '@/components/MediaStreamDisplay';
 
-interface MediaStreamContainerProps {
+interface MediaStreamProps {
     myStream: MediaStream | null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     peerStream: any[] | undefined;
 }
 
-const MediaStreamContainer = ({ myStream, peerStream }: MediaStreamContainerProps) => {
+const MediaStream = ({ myStream, peerStream }: MediaStreamProps) => {
     return (
-        <StyledMediaStreamContainer>
+        <StyledMediaStream>
             <MediaStreamDisplay stream={myStream} nickname={'김성은'} />
             {peerStream?.length ? (
                 peerStream?.map((data, idx) => (
@@ -20,14 +20,14 @@ const MediaStreamContainer = ({ myStream, peerStream }: MediaStreamContainerProp
             ) : (
                 <MediaStreamDisplay stream={null} nickname="선생님 대기중" />
             )}
-        </StyledMediaStreamContainer>
+        </StyledMediaStream>
     );
 };
 
-const StyledMediaStreamContainer = styled.div`
+const StyledMediaStream = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-around;
 `;
 
-export default MediaStreamContainer;
+export default MediaStream;
