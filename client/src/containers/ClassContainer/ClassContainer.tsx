@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import MediaStream from './MediaStream';
@@ -23,8 +23,8 @@ const ClassContainer = () => {
     if (!userSession) return;
     const router = useRouter();
 
-    const [myStream] = useStream();
-    const { peerStream, peerConnections, dataChannels } = useWebRTCStomp({
+    const { myStream, stopStream } = useStream();
+    const { stompClient, peerStream, peerConnections, dataChannels } = useWebRTCStomp({
         memberId: userSession.memberId,
         roomCode: router.query.id as string,
         myStream,
@@ -66,6 +66,17 @@ const ClassContainer = () => {
 
     const changeToolType = (type: toolType) => setSelectedTool(type);
 
+    useEffect(() => {
+        const handleRouteChange = () => {
+            stopStream();
+        };
+        router.events.on('routeChangeComplete', handleRouteChange);
+        return () => {
+            router.events.off('routeChangeComplete', handleRouteChange);
+            stompClient?.disconnect();
+        };
+    }, [router, stopStream, stompClient]);
+
     return (
         <ClassLayout
             subject={router.query.subject as string}
@@ -73,9 +84,6 @@ const ClassContainer = () => {
             time={router.query.time as string}
         >
             <StyledClassContainer>
-                <button onClick={startRecording}>Start Recording</button>
-                <button onClick={stopRecording}>Stop Recording</button>
-                <button onClick={downloadRecording}>Download Recording</button>
                 <LeftSection>
                     <MediaStream myStream={myStream} peerStream={peerStream} />
                 </LeftSection>

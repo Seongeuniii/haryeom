@@ -162,7 +162,6 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
         if (!myStream) return;
         console.log('connectSocket: ', memberId);
         const socket = new SockJS(`${process.env.NEXT_PUBLIC_SIGNALING_SERVER}`); // 변경
-        // const socket = new SockJS(`http://70.12.247.222:8080/chatroom`);
         const stomp = Stomp.over(socket);
         stomp.debug = () => {};
         stomp.connect({}, () => {
@@ -171,9 +170,6 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
             //     stompSubscriptions.forEach((stompSubscription) => stompSubscription.unsubscribe());
             // };
         });
-        return () => {
-            stompClient?.disconnect();
-        };
     }, [myStream]);
 
     const subscribe = () => {
@@ -224,10 +220,13 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
     }, [stompClient]);
 
     useEffect(() => {
-        console.log('render: ', memberId);
+        return () => {
+            console.log(stompClient);
+            stompClient?.disconnect();
+        };
     }, []);
 
-    return { peerStream, peerConnections, dataChannels };
+    return { stompClient, peerStream, peerConnections, dataChannels };
 };
 
 export default useWebRTCStomp;
