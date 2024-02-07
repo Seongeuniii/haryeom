@@ -16,6 +16,7 @@ import usePeerPaint from '@/components/PaintCanvas/hooks/usePeerPaint';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import useMediaRecord from '@/hooks/useMediaRecord';
 import DrawingTools from '@/components/DrawingTools';
+import ClassTimer from '@/components/ClassTimer';
 
 type toolType = '빈페이지' | '학습자료';
 
@@ -86,8 +87,11 @@ const ClassContainer = () => {
                 <LeftSection>
                     <ClassInfo>
                         <Logo>하렴</Logo>
-                        <Subject>{router.query.subject}</Subject>
-                        <Title>| {router.query.title}</Title>
+                        <div>
+                            <Subject>{router.query.subject}</Subject>
+                            <Title>| {router.query.title}</Title>
+                        </div>
+                        <ClassTimer />
                     </ClassInfo>
                     <MediaStream myStream={myStream} peerStream={peerStream} />
                 </LeftSection>
@@ -189,29 +193,27 @@ const ClassInfo = styled.div`
     margin-bottom: 2em;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 16px;
     border: 2px solid ${({ theme }) => theme.PRIMARY};
     border-radius: 0.6em;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 `;
 
 const Logo = styled.span`
-    margin-bottom: 6px;
     font-weight: 700;
     font-size: 22px;
     color: ${({ theme }) => theme.PRIMARY};
 `;
 
-const Subject = styled.span`
+const Subject = styled.div`
     font-weight: 700;
     font-size: 18px;
+    margin-bottom: 8px;
 `;
 
-const Title = styled.span`
+const Title = styled.div`
     color: ${({ theme }) => theme.LIGHT_BLACK};
 `;
-
-const TeacherName = styled.span``;
 
 const Board = styled.div`
     position: relative;
