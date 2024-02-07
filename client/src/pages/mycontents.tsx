@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import HomeLayout from '@/components/layouts/HomeLayout';
@@ -16,10 +15,11 @@ interface Textbook {
     textbookId: number;
     textbookName: string;
     firstPageCover: boolean;
-    members: Member[];
+    students: Member[];
 }
+
 interface Member {
-    studentMemberId: number;
+    memberId: number;
     profileUrl: string;
     name: string;
 }
@@ -34,6 +34,8 @@ const textbooks: Textbook[] = [];
 
 const MyContents = () => {
     const userSession = useRecoilValue(userSessionAtom);
+    if (!userSession) return;
+
     const [textbooks, setTextbooks] = useState<Textbook[]>([]);
     const [selectedTextbookIds, setSelectedTextbookIds] = useState<number[]>([]);
     const [currentTextbookId, setCurrentTextbookId] = useState<number | null>(null);
@@ -44,7 +46,7 @@ const MyContents = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const memberId: any = userSession?.memberId;
+            const memberId: number = userSession.memberId;
             const textbookData = await fetchTextbook(memberId);
             setTextbooks(textbookData);
         };
@@ -156,7 +158,7 @@ const MyContents = () => {
                     )}
                 </Modal>
                 <MyContentList>
-                    {textbooks.map((textbook: any) => (
+                    {textbooks.map((textbook: Textbook) => (
                         <div className="textbookList" key={textbook.textbookId}>
                             <input
                                 type="checkbox"
@@ -176,7 +178,7 @@ const MyContents = () => {
                             </div>
                             <div className="textbookmemberListContainer">
                                 {textbook.students &&
-                                    textbook.students.map((student: any) => (
+                                    textbook.students.map((student: Member) => (
                                         <div className="memberContainer" key={student.memberId}>
                                             <div>
                                                 <img
@@ -302,7 +304,7 @@ const OpenTextbookLoad = () => {
                 <option value="0" disabled>
                     과목 선택
                 </option>
-                {subjects.map((subject: any) => (
+                {subjects.map((subject: ISubject) => (
                     <option value={subject.subjectId} key={subject.subjectId}>
                         {subject.name}
                     </option>
@@ -421,7 +423,7 @@ const OpenAssignStudent = ({
     };
 
     // 등록된 학생 선택하면 지정 해제, 지정 가능 학생 선택하면 지정
-    const AssignStudentAndTextbook = async (textbookId: any) => {
+    const AssignStudentAndTextbook = async (textbookId: number) => {
         const requests = [];
 
         if (selectedStudentIds.length > 0) {
@@ -475,7 +477,7 @@ const OpenAssignStudent = ({
                 <AlreadyAssignStudentHeader>등록된 학생</AlreadyAssignStudentHeader>
                 <div className="memberListContainer">
                     {assignedStudents &&
-                        assignedStudents.map((student: any) => (
+                        assignedStudents.map((student: Member) => (
                             <div
                                 className="memberContainer"
                                 key={student.memberId}
@@ -493,7 +495,7 @@ const OpenAssignStudent = ({
                                 <div className="memberListName">{student.name}</div>
                                 <input
                                     type="checkbox"
-                                    checked={deselectedStudentIds.includes(student.studentMemberId)}
+                                    checked={deselectedStudentIds.includes(student.memberId)}
                                     onChange={() => {}}
                                     style={{ visibility: 'hidden', position: 'absolute' }}
                                 />
@@ -505,7 +507,7 @@ const OpenAssignStudent = ({
                 <AssignableStudentHeader>학생 추가하기</AssignableStudentHeader>
                 <div className="memberListContainer">
                     {assignableStudent &&
-                        assignableStudent.map((student: any) => (
+                        assignableStudent.map((student: Member) => (
                             <div
                                 className="memberContainer"
                                 key={student.memberId}
@@ -523,7 +525,7 @@ const OpenAssignStudent = ({
                                 <div className="memberListName">{student.name}</div>
                                 <input
                                     type="checkbox"
-                                    checked={selectedStudentIds.includes(student.studentMemberId)}
+                                    checked={selectedStudentIds.includes(student.memberId)}
                                     onChange={() => {}}
                                     style={{ visibility: 'hidden', position: 'absolute' }}
                                 />
