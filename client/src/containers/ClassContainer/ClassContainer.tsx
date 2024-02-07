@@ -17,6 +17,7 @@ import userSessionAtom from '@/recoil/atoms/userSession';
 import useMediaRecord from '@/hooks/useMediaRecord';
 import DrawingTools from '@/components/DrawingTools';
 import ClassTimer from '@/components/ClassTimer';
+import { endTutoring, startTutoring } from '@/apis/tutoring/progress-tutoring';
 
 type toolType = '빈페이지' | '학습자료';
 
@@ -81,6 +82,19 @@ const ClassContainer = () => {
         };
     }, [router, stopStream, stompClient]);
 
+    const startClass = async () => {
+        alert('[필수] 녹화에 필요한 화면을 선택해주세요.');
+        await startRecording();
+        await startTutoring(parseInt(router.query.tutoringScheduleId as string));
+        alert('[필수] 녹화가 시작되었어요.');
+    };
+
+    const endClass = async () => {
+        stopRecording();
+        await endTutoring(parseInt(router.query.tutoringScheduleId as string));
+        alert('녹화가 종료되었어요. (녹화 전송 완료)');
+    };
+
     return (
         <ClassLayout>
             <StyledClassContainer>
@@ -91,7 +105,9 @@ const ClassContainer = () => {
                             <Subject>{router.query.subject}</Subject>
                             <Title>| {router.query.title}</Title>
                         </div>
-                        <ClassTimer />
+                        {userSession.role === 'TEACHER' && (
+                            <ClassTimer startClass={startClass} endClass={endClass} />
+                        )}
                     </ClassInfo>
                     <MediaStream myStream={myStream} peerStream={peerStream} />
                 </LeftSection>

@@ -4,15 +4,21 @@ import { useClassTimer, getHour, getMinute, getSecond } from '../hooks/useClassT
 
 type ClassState = '수업시작전' | '수업중' | '수업종료';
 
-const ClassTimer = () => {
+interface ClassTimerProps {
+    startClass: () => void;
+    endClass: () => void;
+}
+
+const ClassTimer = ({ startClass, endClass }: ClassTimerProps) => {
     const [classState, setClassState] = useState<ClassState>('수업시작전');
     const { startTimer, stopTimer, progressTime } = useClassTimer();
     const [staticShow, setStaticShow] = useState<string>('수업 시작');
     const [hoverShow, setHoverShow] = useState<string>('수업 시작');
     const [isHover, setIsHover] = useState<boolean>(false);
 
-    const changeClassState = () => {
+    const changeClassState = async () => {
         if (classState === '수업시작전') {
+            await startClass();
             startTimer();
             setStaticShow('progressTime');
             setHoverShow('progressTime');
@@ -21,6 +27,7 @@ const ClassTimer = () => {
             }, 2000);
             setClassState('수업중');
         } else if (classState === '수업중') {
+            await endClass();
             stopTimer();
             setStaticShow('수업종료');
             setTimeout(() => {
