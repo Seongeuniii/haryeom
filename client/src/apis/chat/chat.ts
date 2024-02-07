@@ -15,6 +15,13 @@ export interface IChatOppositeMember {
     name: string;
 }
 
+export interface IChatMessage {
+    messageId: string;
+    senderMemberId: number;
+    content: string;
+    createdAt: string;
+}
+
 export interface IRequestMatching {
     chatRoomId: number;
     subjectId: number;

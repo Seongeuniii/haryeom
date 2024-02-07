@@ -1,4 +1,4 @@
-package com.ioi.haryeom.config;
+package com.ioi.haryeom.auth.filter;
 
 
 import static com.ioi.haryeom.auth.type.ErrorCode.EMPTY_TOKEN;
