@@ -71,6 +71,12 @@ const Chatting = () => {
         });
     }, [chatMessages.length]);
 
+    useEffect(() => {
+        return () => {
+            stompClient?.disconnect();
+        };
+    }, [stompClient]);
+
     return (
         <StyledChatting>
             <MatchingStage
