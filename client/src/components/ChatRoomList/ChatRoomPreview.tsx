@@ -19,7 +19,11 @@ const ChatRoomPreview = ({ chatRoom, joinChat }: ChatRoomPreviewProps) => {
                 <LastMessageCreatedAt>
                     {getFormattedYearMonthDay(new Date(chatRoom.lastMessageCreatedAt))}
                 </LastMessageCreatedAt>
-                <UnreadMessageCount>{chatRoom.unreadMessageCount}</UnreadMessageCount>
+                {chatRoom.unreadMessageCount == 0 ? (
+                    <UnreadMessageCountBlank></UnreadMessageCountBlank>
+                ) : (
+                    <UnreadMessageCount>{chatRoom.unreadMessageCount}</UnreadMessageCount>
+                )}
             </EndBlockWrapper>
         </StyledChatRoomPreview>
     );
@@ -77,6 +81,14 @@ const UnreadMessageCount = styled.div`
     border-radius: 100%;
     background-color: ${({ theme }) => theme.PRIMARY};
     color: white;
+`;
+const UnreadMessageCountBlank = styled.div`
+    width: 17px;
+    height: 17px;
+    padding-top: 3px;
+    margin-top: 3px;
+    text-align: center;
+    border-radius: 100%;
 `;
 
 export default ChatRoomPreview;
