@@ -78,13 +78,13 @@ const ClassContainer = () => {
     }, [router, stopStream, stompClient]);
 
     return (
-        <ClassLayout
-            subject={router.query.subject as string}
-            title={router.query.title as string}
-            time={router.query.time as string}
-        >
+        <ClassLayout>
             <StyledClassContainer>
                 <LeftSection>
+                    <ClassInfo>
+                        <Subject>{router.query.subject}</Subject>
+                        <Title>Ch. {router.query.title}</Title>
+                    </ClassInfo>
                     <MediaStream myStream={myStream} peerStream={peerStream} />
                 </LeftSection>
                 <TeachingTools>
@@ -166,11 +166,9 @@ const StyledClassContainer = styled.main`
 `;
 
 const LeftSection = styled.div`
-    min-width: 300px;
-    height: 93%;
+    height: 92%;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     align-items: center;
 
     @media screen and (max-width: 1100px) {
@@ -179,6 +177,28 @@ const LeftSection = styled.div`
         }
     }
 `;
+
+const ClassInfo = styled.div`
+    width: 100%;
+    padding: 1em;
+    margin-bottom: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    border-radius: 0.6em;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+`;
+
+const Subject = styled.span`
+    font-weight: 700;
+    font-size: 18px;
+`;
+
+const Title = styled.span``;
+
+const TeacherName = styled.span``;
 
 const Board = styled.div`
     position: relative;
