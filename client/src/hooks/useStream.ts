@@ -18,6 +18,10 @@ const useStream = () => {
         }
     }, [myStream]);
 
+    useEffect(() => {
+        getMyStream();
+    }, []);
+
     return { myStream, stopStream };
 };
 
