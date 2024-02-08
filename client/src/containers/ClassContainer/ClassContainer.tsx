@@ -68,6 +68,7 @@ const ClassContainer = () => {
         dataChannels: dataChannels,
     });
     const { startRecording, stopRecording, downloadRecording } = useMediaRecord();
+    const [peerWatchingSameScreen, setPeerWatchingSameScreen] = useState<boolean>(true);
 
     const changeToolType = (type: toolType) => setSelectedTool(type);
 
@@ -136,6 +137,11 @@ const ClassContainer = () => {
                         <DrawingTools penStyle={penStyle} changePen={changePen} />
                     </HelperBar>
                     <Board>
+                        {peerWatchingSameScreen && (
+                            <PeerWatchingStatus>
+                                선생님이 현재 화면을 보고있어요.
+                            </PeerWatchingStatus>
+                        )}
                         {seletedTool === '빈페이지' ? (
                             <WhiteBoard>
                                 <DrawingLayer>
@@ -237,6 +243,19 @@ const Board = styled.div`
     flex: 0.93;
     overflow: auto;
     display: flex;
+`;
+
+const PeerWatchingStatus = styled.div`
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    padding: 0.8em 1.2em;
+    transform: translate(-50%, -50%);
+    border-radius: 2em;
+    background-color: ${({ theme }) => theme.PRIMARY};
+    color: white;
+    font-size: 10px;
+    z-index: 100;
 `;
 
 const TeachingTools = styled.div`
