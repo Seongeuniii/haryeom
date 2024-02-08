@@ -15,6 +15,7 @@ import { useGetTextbook } from '@/queries/useGetTextbook';
 
 export interface INewHomework {
     [key: string]: string | number;
+
     textbookId: number;
     deadline: string;
     startPage: number;
@@ -58,7 +59,7 @@ const CreateNewHomework = ({ tutoringId, tutoringTextbooks }: CreateNewHomeworkP
                     <CreateNewHomeworkFormHeader>숙제 등록</CreateNewHomeworkFormHeader>
                     {!tutoringTextbooks ? (
                         <NoContents>
-                            <span>학습자료가 없어요.</span>
+                            <span>지정된 학습자료가 없어요.</span>
                             <Link href="/mycontents">학습자료 등록하러 가기</Link>
                         </NoContents>
                     ) : (
