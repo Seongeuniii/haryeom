@@ -12,11 +12,25 @@ import { subjectDefaultOptions } from '@/components/FilterOpenTeacherList/filter
 import UploadProfileImage from '@/components/UploadProfileImage';
 
 const path = '/members';
-const Mypage = () => {
+const updatePage = () => {
     const userSession = useRecoilValue(userSessionAtom);
     const { open, openModal, closeModal } = useModal();
     const [file, setFile] = useState<File>();
-    const [profile, setProfile] = useState<any>({}); // role에 따라서 student 담거나, teacher 담거나
+    const [profile, setProfile] = useState<any>({
+        name: '',
+        school: '',
+        grade: '',
+        phone: '',
+        profileUrl: '',
+        college: '', // 여기부터 선생님의 정보
+        collegeEmail: '',
+        profileStatus: false,
+        gender: '',
+        salary: 0,
+        career: 0,
+        subjects: [],
+        introduce: '',
+    }); // role에 따라서 student 담거나, teacher 담거나
     const profileName: any = {
         name: '이름',
         school: '학교',
@@ -225,12 +239,21 @@ const Mypage = () => {
                                 </InfoName>
                                 <InfoContent>
                                     <div>
-                                        <input type="text" name="name" value={profile.name} />
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            value={profile.name}
+                                            onChange={changeProfile}
+                                        />
                                     </div>
                                     {isStudent() && (
                                         <div>
-                                            <input type="text" name="grade" value={profile.grade} />{' '}
-                                            select
+                                            <input
+                                                type="text"
+                                                name="grade"
+                                                value={profile.grade}
+                                                onChange={changeProfile}
+                                            />
                                         </div>
                                     )}
                                     {isStudent() && (
@@ -239,12 +262,18 @@ const Mypage = () => {
                                                 type="text"
                                                 name="school"
                                                 value={profile.school}
+                                                onChange={changeProfile}
                                             />
                                         </div>
                                     )}
                                     {isTeacher() && <div>{profile.college}</div>}
                                     <div>
-                                        <input type="text" name="phone" value={profile.phone} />
+                                        <input
+                                            type="text"
+                                            name="phone"
+                                            value={profile.phone}
+                                            onChange={changeProfile}
+                                        />
                                     </div>
                                 </InfoContent>
                             </ProfileInfo>
@@ -259,8 +288,18 @@ const Mypage = () => {
                                 <TeacherInfo>
                                     <div className="infoName">프로필 공개 여부</div>
                                     <div>
-                                        <span>공개</span>
-                                        <span>비공개</span>
+                                        <span
+                                            onClick={() => changeProfileStatus(true)}
+                                            className={isSelected(true)}
+                                        >
+                                            공개
+                                        </span>
+                                        <span
+                                            onClick={() => changeProfileStatus(false)}
+                                            className={isSelected(false)}
+                                        >
+                                            비공개
+                                        </span>
                                     </div>
                                     <div className="infoName">성별</div>
                                     <div>{gender()}</div>
@@ -271,16 +310,20 @@ const Mypage = () => {
                                         <input
                                             className="salaryInput"
                                             type="number"
+                                            name="salary"
                                             value={profile.salary}
+                                            onChange={changeProfile}
                                         />
-                                        만원
+                                        원
                                     </div>
                                     <div className="infoName">경력</div>
                                     <div>
                                         <input
                                             className="careerInput"
                                             type="number"
+                                            name="career"
                                             value={profile.career}
+                                            onChange={changeProfile}
                                         />
                                         년
                                     </div>
@@ -288,15 +331,30 @@ const Mypage = () => {
                                 <InfoContent>
                                     <div className="infoName">
                                         가르칠 과목
-                                        <button>+</button>
-                                        <button>-</button>
+                                        <StyledModal open={open}>
+                                            <ModalBackground open={open} onClick={closeModal} />
+                                            <ModalWrapper>
+                                                <SubjectList>{subjectList()}</SubjectList>
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <ModalCloseButton onClick={closeModal}>
+                                                    변경 완료
+                                                </ModalCloseButton>
+                                            </ModalWrapper>
+                                        </StyledModal>
+                                        <button onClick={() => openModal()}>변경하기</button>
                                     </div>
                                     <div>{subject()}</div>
                                     <div className="infoName">선생님 소개</div>
                                 </InfoContent>
                                 <br />
                                 <TeacherIntroduce>
-                                    <textarea value={profile.introduce} />
+                                    <textarea
+                                        name="introduce"
+                                        value={profile.introduce}
+                                        onChange={changeProfile}
+                                    />
                                 </TeacherIntroduce>
                             </OptionalInfo>
                         </InfoBody>
@@ -332,6 +390,9 @@ const StyledMypage = styled.div`
         background: rgba(0, 0, 0, 0.001);
         outline: none;
         box-shadow: 0 2px 0 ${({ theme }) => theme.PRIMARY};
+    }
+    input[type='file'] {
+        display: none;
     }
 `;
 const InfoBox = styled.div`
@@ -406,6 +467,13 @@ const InfoName = styled.div`
     font-weight: 500;
 `;
 const InfoContent = styled.div`
+    .isSelected {
+        background-color: ${({ theme }) => theme.PRIMARY};
+        color: ${({ theme }) => theme.WHITE};
+        &:hover {
+            background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+        }
+    }
     div {
         padding: 0.5em 1em;
     }
@@ -423,13 +491,12 @@ const InfoContent = styled.div`
         border-radius: 0.4em;
     }
     button {
-        margin: 0 0.2em;
-        width: 18px;
-        height: 18px;
+        margin: 0 2em;
+        padding: 0.2em 0.5em;
         background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
         color: ${({ theme }) => theme.WHITE};
         font-weight: bold;
-        border-radius: 70%;
+        border-radius: 0.4em;
         &:hover {
             background-color: ${({ theme }) => theme.PRIMARY};
         }
@@ -461,6 +528,9 @@ const TeacherInfo = styled.div`
         flex-basis: 25%;
         padding: 0 0.5em;
     }
+    .selected {
+        background-color: ${({ theme }) => theme.PRIMARY};
+    }
     span {
         padding: 0 0.3em;
         background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
@@ -474,7 +544,7 @@ const TeacherInfo = styled.div`
         max-width: 1.5em;
     }
     input {
-        max-width: 2.5em;
+        max-width: 4em;
         text-align: center;
     }
     /* Chrome, Safari, Edge, Opera */
@@ -527,4 +597,69 @@ const Button = styled.div`
     justify-content: space-around;
     width: 30%;
 `;
-export default Mypage;
+
+const StyledModal = styled.div<{ open: boolean }>`
+    ${({ open }) => !open && `display:none;`}
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 100;
+`;
+
+const ModalWrapper = styled.div`
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+`;
+
+const ModalBackground = styled.div<{ open: boolean }>`
+    ${({ open }) => !open && `display:none;`}
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    height: 70%;
+    background-color: #e3e3e3;
+    border-radius: 2em;
+`;
+
+const ModalCloseButton = styled.button`
+    width: 20%;
+    min-width: 8em;
+    min-height: 2.5em;
+    padding: 3em;
+    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+    color: ${({ theme }) => theme.WHITE};
+    font-weight: bold;
+    border-radius: 0.4em;
+    &:hover {
+        background-color: ${({ theme }) => theme.PRIMARY};
+    }
+    text-align: center;
+`;
+
+const SubjectList = styled.div`
+    .selected {
+        background-color: ${({ theme }) => theme.PRIMARY};
+        color: ${({ theme }) => theme.WHITE};
+    }
+    span {
+        margin: 0.5em;
+        background-color: ${({ theme }) => theme.WHITE};
+        color: ${({ theme }) => theme.DARK_BLACK};
+        &:hover {
+            background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+            color: ${({ theme }) => theme.WHITE};
+        }
+        text-align: center;
+    }
+    text-align: center;
+`;
+export default updatePage;
