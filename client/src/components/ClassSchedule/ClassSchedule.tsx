@@ -23,7 +23,7 @@ const ClassSchedule = ({
     const userSession = useRecoilValue(userSessionAtom);
     if (!userSession) return null;
 
-    const { date, yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
+    const { date, setDate, yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
     const { data: tutoringSchedules, isLoading } = useGetTutoringSchedules(
         userSession.role,
         yearMonth,
@@ -43,9 +43,8 @@ const ClassSchedule = ({
     }, [date]);
 
     useEffect(() => {
-        if (!tutoringSchedules) return;
-        setRenderedTutoringSchedules(tutoringSchedules);
-    }, [tutoringSchedules]);
+        setDate(new Date());
+    }, []);
 
     useEffect(() => {
         console.log(renderedTutoringSchedules);
