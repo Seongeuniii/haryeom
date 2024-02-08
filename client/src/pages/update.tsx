@@ -7,31 +7,30 @@ import axios from 'axios';
 import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import router from 'next/router';
+import { useModal } from '@/hooks/useModal';
+import { subjectDefaultOptions } from '@/components/FilterOpenTeacherList/filterDefaultOptions';
+import UploadProfileImage from '@/components/UploadProfileImage';
 
 const path = '/members';
 const Mypage = () => {
     const userSession = useRecoilValue(userSessionAtom);
-
-    const [name, setName] = useState<number>(1);
-    const [profile, setProfile] = useState<any>({
-        name: '김태윤',
-        school: '싸피중학교',
-        grade: '중학교 2학년',
-        phone: '01012345678',
-        profileUrl: '/images/student-boy.png',
-        college: '싸피대학교', // 여기부터 선생님의 정보
-        collegeEmail: 'taeyun@ssafy.ac.kr',
-        profileStatus: false,
-        gender: 'MALE',
-        salary: 999,
-        career: 99,
-        subjects: [
-            { id: 1, name: '수학' },
-            { id: 2, name: '과학' },
-        ],
-        introduce:
-            'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry',
-    }); // role에 따라서 student 담거나, teacher 담거나
+    const { open, openModal, closeModal } = useModal();
+    const [file, setFile] = useState<File>();
+    const [profile, setProfile] = useState<any>({}); // role에 따라서 student 담거나, teacher 담거나
+    const profileName: any = {
+        name: '이름',
+        school: '학교',
+        grade: '학년',
+        phone: '전화번호',
+        college: '대학교', // 여기부터 선생님의 정보
+        collegeEmail: '이메일',
+        profileStatus: '프로필 공개 여부',
+        gender: '성별',
+        salary: '예상 과외비',
+        career: '경력',
+        subjects: '과외 과목',
+        introduce: '선생님 소개',
+    };
 
     const [role, setRole] = useState<IUserRole>(); // STUDENT or TEACHER
     useEffect(() => {
@@ -70,9 +69,135 @@ const Mypage = () => {
         else return false;
     };
 
-    const submit = () => {};
+    const changeProfile = (e: { target: { name: any; value: any } }) => {
+        setProfile((prev: any) => {
+            return {
+                ...prev,
+                [e.target.name]: e.target.value,
+            };
+        });
+    };
 
-    return (
+    const changeProfileStatus = function (profileStatus: boolean) {
+        setProfile((prev: any) => {
+            return {
+                ...prev,
+                profileStatus: profileStatus,
+            };
+        });
+    };
+
+    const isSelected = function (isSelected: boolean) {
+        if (profile.profileStatus != isSelected) return '';
+        else return 'selected';
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updateProfileImg = (value: any) => {
+        setFile(value);
+    };
+
+    const changeSubject = function (subjectInfo: { subjectId: number; name: string }) {
+        //예상 결과: subjectId 아닌거
+        const updatedSubjects = profile.subjects.filter(
+            (subject: any) => subject.subjectId !== subjectInfo.subjectId
+        );
+        //겹치는게 없는 경우 추가
+        if (updatedSubjects.length === profile.subjects.length) {
+            if (updatedSubjects.length === 3) {
+                alert('가르칠 과목은 최대 3개까지 지정할 수 있습니다.');
+            } else updatedSubjects.push(subjectInfo);
+        }
+        setProfile((prev: any) => ({
+            ...prev,
+            subjects: updatedSubjects,
+        }));
+    };
+
+    const submit = () => {
+        if (
+            userSession?.role == 'STUDENT' ||
+            (userSession?.role == 'TEACHER' && profile.profileStatus)
+        ) {
+            // eslint-disable-next-line prefer-const
+            for (let key in profile) {
+                console.log(key, ':', profile[key]);
+                if (
+                    profile[key] === '' ||
+                    profile[key] === 0 ||
+                    (Array.isArray(profile[key]) && profile[key].length == 0)
+                ) {
+                    alert(`${profileName[key]} 정보를 입력해주세요`);
+                    return;
+                }
+            }
+        } else {
+            if (profile.name === '') {
+                alert('이름 정보를 입력해주세요');
+                return;
+            }
+            if (profile.phone === '') {
+                alert('전화번호를 입력해주세요');
+                return;
+            }
+        }
+        const formData = new FormData();
+        if (file) {
+            formData.append('profileImg', file);
+        }
+        const { profileUrl, ...profileWithoutUrl } = profile;
+        const blob = new Blob([JSON.stringify(profileWithoutUrl)], { type: 'application/json' });
+        formData.append('request', blob);
+        if (userSession?.role == 'STUDENT') {
+            axios
+                .put(`${process.env.NEXT_PUBLIC_API_SERVER}/members/students`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    withCredentials: true,
+                })
+                .then(() => {
+                    alert('프로필이 수정되었습니다.');
+                    router.push('/mypage');
+                })
+                .catch((e) => console.log(e));
+        } else {
+            axios
+                .put(`${process.env.NEXT_PUBLIC_API_SERVER}/members/teachers`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    withCredentials: true,
+                })
+                .then(() => {
+                    alert('프로필이 수정되었습니다.');
+                    router.push('/mypage');
+                })
+                .catch((e) => console.log(e));
+        }
+    };
+
+    const subjectList = () => {
+        const result: JSX.Element[] = [];
+        subjectDefaultOptions.map((subject: string, i: number) => {
+            result.push(
+                <span
+                    key={i}
+                    onClick={() => changeSubject({ subjectId: i + 1, name: subject })}
+                    className={
+                        profile.subjects.some((sub: any) => sub.subjectId === i + 1)
+                            ? 'isSelected'
+                            : ''
+                    }
+                >
+                    {i + 1}. {subject}
+                </span>
+            );
+        });
+        return result;
+    };
+
+    return profile.profileUrl != '' ? (
         <HomeLayout>
             <StyledMypage>
                 <InfoBox>
@@ -85,7 +210,10 @@ const Mypage = () => {
                         </SubInfoHeader>
                         <RequiredInfo>
                             <ProfileImg>
-                                <img src={profile.profileUrl} />
+                                <UploadProfileImage
+                                    defaultImage={profile.profileUrl}
+                                    handleImageChange={(file) => updateProfileImg(file)}
+                                />
                             </ProfileImg>
                             <ProfileInfo>
                                 <InfoName>
@@ -180,7 +308,7 @@ const Mypage = () => {
                 </InfoBox>
             </StyledMypage>
         </HomeLayout>
-    );
+    ) : null;
 };
 const StyledMypage = styled.div`
     margin: auto;
