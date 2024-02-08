@@ -4,6 +4,7 @@ import styled from 'styled-components';
 interface StyleProps {
     width?: string;
     height?: string;
+    padding?: string;
     color?: string;
     $backgroundColor?: string;
     $borderColor?: string;
@@ -30,10 +31,14 @@ const StyledButton = styled.button<StyleProps>`
     border: none;
     width: ${({ width }) => (width ? width : '10px')};
     height: ${({ height }) => (height ? height : '10px')};
+    padding: ${({ padding }) => (padding ? padding : '0')};
     ${({ $backgroundColor }) => $backgroundColor && `background-color: ${$backgroundColor}`};
     ${({ color }) => color && `color: ${color}`};
     ${({ $borderColor }) => $borderColor && `border: 1px solid ${$borderColor}`};
     ${({ $borderRadius }) => $borderRadius && `border-radius: ${$borderRadius}`};
+    display: flex;
+    align-items: center;
+    justify-content: center;
 `;
 
 export default Button;

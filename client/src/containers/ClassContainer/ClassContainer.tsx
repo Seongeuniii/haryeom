@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import MediaStream from './MediaStream';
@@ -15,6 +15,9 @@ import PeerPaintCanvas from '@/components/PaintCanvas/PeerPaintCanvas';
 import usePeerPaint from '@/components/PaintCanvas/hooks/usePeerPaint';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import useMediaRecord from '@/hooks/useMediaRecord';
+import DrawingTools from '@/components/DrawingTools';
+import ClassTimer from '@/components/ClassTimer';
+import { endTutoring, startTutoring } from '@/apis/tutoring/progress-tutoring';
 
 type toolType = '빈페이지' | '학습자료';
 
@@ -23,8 +26,8 @@ const ClassContainer = () => {
     if (!userSession) return;
     const router = useRouter();
 
-    const [myStream] = useStream();
-    const { peerStream, peerConnections, dataChannels } = useWebRTCStomp({
+    const { myStream, stopStream } = useStream();
+    const { stompClient, peerStream, peerConnections, dataChannels } = useWebRTCStomp({
         memberId: userSession.memberId,
         roomCode: router.query.id as string,
         myStream,
@@ -54,6 +57,8 @@ const ClassContainer = () => {
         handlePointerMove,
         handlePointerUp,
         getCanvasDrawingImage,
+        penStyle,
+        changePen,
     } = useMyPaint({
         backgroundImage: myWhiteboardBackgroundImage,
         dataChannels: dataChannels,
@@ -66,17 +71,44 @@ const ClassContainer = () => {
 
     const changeToolType = (type: toolType) => setSelectedTool(type);
 
+    useEffect(() => {
+        const handleRouteChange = () => {
+            stopStream();
+        };
+        router.events.on('routeChangeComplete', handleRouteChange);
+        return () => {
+            router.events.off('routeChangeComplete', handleRouteChange);
+            stompClient?.disconnect();
+        };
+    }, [router, stopStream, stompClient]);
+
+    const startClass = async () => {
+        alert('[필수] 녹화에 필요한 화면을 선택해주세요.');
+        await startRecording();
+        await startTutoring(parseInt(router.query.tutoringScheduleId as string));
+        alert('[필수] 녹화가 시작되었어요.');
+    };
+
+    const endClass = async () => {
+        stopRecording();
+        await endTutoring(parseInt(router.query.tutoringScheduleId as string));
+        alert('녹화가 종료되었어요. (녹화 전송 완료)');
+    };
+
     return (
-        <ClassLayout
-            subject={router.query.subject as string}
-            title={router.query.title as string}
-            time={router.query.time as string}
-        >
+        <ClassLayout>
             <StyledClassContainer>
-                <button onClick={startRecording}>Start Recording</button>
-                <button onClick={stopRecording}>Stop Recording</button>
-                <button onClick={downloadRecording}>Download Recording</button>
                 <LeftSection>
+                    <ClassInfo>
+                        <Logo>하렴</Logo>
+                        <div>
+                            <Subject>{router.query.subject}</Subject>
+                            <Title>| {router.query.title}</Title>
+                        </div>
+                        {userSession.role === 'TEACHER' && (
+                            <ClassTimer startClass={startClass} endClass={endClass} />
+                        )}
+                    </ClassInfo>
                     <MediaStream myStream={myStream} peerStream={peerStream} />
                 </LeftSection>
                 <TeachingTools>
@@ -101,6 +133,7 @@ const ClassContainer = () => {
                             $backgroundColor={seletedTool === '학습자료' ? '#606060' : ''}
                             color={seletedTool === '학습자료' ? 'white' : ''}
                         ></Button>
+                        <DrawingTools penStyle={penStyle} changePen={changePen} />
                     </HelperBar>
                     <Board>
                         {seletedTool === '빈페이지' ? (
@@ -158,11 +191,9 @@ const StyledClassContainer = styled.main`
 `;
 
 const LeftSection = styled.div`
-    min-width: 300px;
-    height: 93%;
+    height: 92%;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     align-items: center;
 
     @media screen and (max-width: 1100px) {
@@ -170,6 +201,34 @@ const LeftSection = styled.div`
             display: none;
         }
     }
+`;
+
+const ClassInfo = styled.div`
+    width: 100%;
+    padding: 1em;
+    margin-bottom: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border: 2px solid ${({ theme }) => theme.PRIMARY};
+    border-radius: 0.6em;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+`;
+
+const Logo = styled.span`
+    font-weight: 700;
+    font-size: 22px;
+    color: ${({ theme }) => theme.PRIMARY};
+`;
+
+const Subject = styled.div`
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 8px;
+`;
+
+const Title = styled.div`
+    color: ${({ theme }) => theme.LIGHT_BLACK};
 `;
 
 const Board = styled.div`
@@ -191,15 +250,9 @@ const TeachingTools = styled.div`
     justify-content: center;
 `;
 
-const TimeStamp = styled.div`
-    width: 100%;
-    height: 150px;
-    background-color: yellow;
-`;
-
 const HelperBar = styled.div`
     width: 93%;
-    min-height: 50px;
+    height: 40px;
     display: flex;
     align-items: center;
     margin-bottom: 10px;

@@ -1,4 +1,4 @@
-package com.ioi.haryeom.video.controller;
+package com.ioi.haryeom.common.interceptor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -20,13 +20,13 @@ public class StompLoggingInterceptor implements ChannelInterceptor {
         }
         switch (accessor.getCommand()) {
             case CONNECT:
-                log.info("[CONNECT] STOMP WebSocket connection established. Session ID: {}", accessor.getSessionId());
-                log.info("[CONNECT] Connection-Header : {}", accessor.getHeader("Connection"));
-                log.info("[CONNECT] Origin-Header : {}", accessor.getHeader("Origin"));
-                log.info("[CONNECT] Upgrade-Header : {}", accessor.getHeader("Upgrade"));
+                log.info("[CONNECT] STOMP WebSocket connection established. Session ID: {} "
+                        + " Connection-Header : {} Origin-Header : {} Upgrade-Header : {}",
+                    accessor.getSessionId(), accessor.getHeader("Connection"),
+                    accessor.getHeader("Origin"), accessor.getHeader("Upgrade"));
                 break;
             case DISCONNECT:
-                log.info("STOMP WebSocket connection closed. Session ID: {}", accessor.getSessionId());
+                log.info("[DISCONNECT] STOMP WebSocket connection closed. Session ID: {}", accessor.getSessionId());
                 break;
             default:
                 // 다른 STOMP 명령에 대한 처리

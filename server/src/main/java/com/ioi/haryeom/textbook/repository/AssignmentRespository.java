@@ -15,4 +15,6 @@ public interface AssignmentRespository extends JpaRepository<Assignment, Long> {
 
     List<Assignment> findByTextbook(Textbook textbook);
 
+    Assignment findByTextbookIdAndTutoringId(Long textbookId, Long tutoringId);
+
 }

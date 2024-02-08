@@ -14,6 +14,15 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
         pixelRatio: 1,
     });
     const [isDown, setIsDown] = useState<boolean>(false);
+    const [penStyle, setPenStyle] = useState<{
+        isPen: boolean;
+        strokeStyle: string;
+        lineWidth: number;
+    }>({
+        isPen: true,
+        strokeStyle: 'black',
+        lineWidth: 3,
+    });
 
     useEffect(() => {
         const isBrowser = typeof window !== 'undefined';
@@ -30,9 +39,14 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
         init();
     }, [canvasRef.current, backgroundImage]);
 
+    useEffect(() => {
+        if (!contextRef.current) return;
+        contextRef.current.strokeStyle = penStyle.strokeStyle;
+        contextRef.current.lineWidth = penStyle.lineWidth;
+    }, [penStyle]);
+
     const init = () => {
         if (!canvasRef.current) return;
-        console.log('init');
         const { clientWidth, clientHeight } = canvasRef.current;
         canvasSizeSetting(clientWidth, clientHeight);
 
@@ -58,8 +72,8 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
         if (!ctx) return;
         ctx.scale(canvasInformRef.current.pixelRatio, canvasInformRef.current.pixelRatio);
         ctx.lineCap = 'round';
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = penStyle.strokeStyle;
+        ctx.lineWidth = penStyle.lineWidth;
         contextRef.current = ctx;
     };
 
@@ -100,6 +114,22 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
         };
     };
 
+    const changePen = (name: string, value: string | number | boolean) => {
+        setPenStyle((prev) => ({ ...prev, [name]: value }));
+
+        dataChannels?.map((channel: RTCDataChannel) => {
+            try {
+                channel.send(
+                    JSON.stringify({
+                        penStyle,
+                    })
+                );
+            } catch (e) {
+                console.log('전송 실패');
+            }
+        });
+    };
+
     const handlePointerDown = ({ nativeEvent }: PointerEvent) => {
         setIsDown(true);
         if (!contextRef.current) return;
@@ -125,8 +155,17 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
     const handlePointerMove = ({ nativeEvent }: PointerEvent) => {
         if (!isDown || !contextRef.current) return;
         const { offsetX, offsetY } = nativeEvent;
-        contextRef.current.lineTo(offsetX, offsetY);
-        contextRef.current.stroke();
+
+        if (penStyle.isPen) {
+            contextRef.current.lineTo(offsetX, offsetY);
+            contextRef.current.stroke();
+        } else {
+            contextRef.current.beginPath();
+            contextRef.current.arc(offsetX, offsetY, 15, 0, Math.PI * 2);
+            contextRef.current.fillStyle = 'white';
+            contextRef.current.fill();
+            contextRef.current.closePath();
+        }
 
         dataChannels?.map((channel: RTCDataChannel) => {
             try {
@@ -196,6 +235,8 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
         handlePointerMove,
         handlePointerUp,
         getCanvasDrawingImage,
+        penStyle,
+        changePen,
     };
 };
 

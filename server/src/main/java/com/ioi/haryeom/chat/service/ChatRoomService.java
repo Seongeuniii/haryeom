@@ -129,6 +129,7 @@ public class ChatRoomService {
     }
 
     // 채팅방 메시지 목록 조회
+    @Transactional
     public List<ChatMessageResponse> getChatMessageList(Long chatRoomId, String lastMessageId, Integer size, Long memberId) {
 
         ChatRoom chatRoom = findChatRoomById(chatRoomId);
@@ -141,8 +142,10 @@ public class ChatRoomService {
             chatMessageRepository.findByChatRoomId(chatRoomId, pageable) :
             chatMessageRepository.findByChatRoomIdAndIdLessThan(chatRoomId, new ObjectId(lastMessageId), pageable);
 
+        log.info("lastMessageID>>>");
         // 첫 메시지 조회인 경우 lastReadMessageId 업데이트
         if (lastMessageId == null && !chatMessagePage.isEmpty()) {
+            log.info("lastMessageID UPDATE!!!!!!!");
             updateLastReadMessageId(chatRoom, member, chatMessagePage);
         }
 

@@ -1,12 +1,14 @@
 import { useState } from 'react';
 
 const useMediaRecord = () => {
+    const [displayStream, setDisplayStream] = useState<MediaStream>();
     const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder>();
     const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
 
     const startRecording = async () => {
         try {
             const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            setDisplayStream(stream);
             const recorder = new MediaRecorder(stream);
             setMediaRecorder(recorder);
             recorder.ondataavailable = handleDataAvailable;
@@ -23,8 +25,11 @@ const useMediaRecord = () => {
     };
 
     const stopRecording = () => {
-        if (mediaRecorder) {
+        if (mediaRecorder && displayStream) {
             mediaRecorder.stop();
+            displayStream.getTracks().forEach((track) => {
+                track.stop();
+            });
         }
     };
 

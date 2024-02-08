@@ -73,6 +73,7 @@ const ClassSchedule = ({
                                         <TeacherScheduleCard
                                             key={schedule.tutoringId}
                                             schedule={schedule as ITeacherSchedule}
+                                            scheduleDate={daySchedule.scheduleDate}
                                         />
                                     ) : (
                                         <StudentScheduleCard
