@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import Link from 'next/link';
 import { IHomeworkList, IHomeworkStatus } from '@/apis/homework/homework';
 import CreateNewHomework from './CreateNewHomework/CreateNewHomework';
+import { useRecoilValue } from 'recoil';
+import userSessionAtom from '@/recoil/atoms/userSession';
 
 interface HomeworkListProps {
     homeworkList: IHomeworkList | undefined;
@@ -20,6 +22,8 @@ const getStatusText = (status: IHomeworkStatus) => {
 };
 
 const HomeworkList = ({ homeworkList, CreateNewHomework }: HomeworkListProps) => {
+    const userSession = useRecoilValue(userSessionAtom);
+
     return (
         <StyledHomeworkList>
             <HomeworkListHeader>
@@ -34,9 +38,26 @@ const HomeworkList = ({ homeworkList, CreateNewHomework }: HomeworkListProps) =>
             </HomeworkTableTitle>
             <HomeworkCards>
                 {homeworkList && homeworkList.length > 0 ? (
-                    homeworkList.map((homework, index) => (
-                        <Link href={`homework/${homework.homeworkId}`} key={`homework_${index}`}>
-                            <HomeworkCard>
+                    homeworkList.map((homework, index) => {
+                        if (userSession?.role === 'STUDENT') {
+                            return (
+                                <Link
+                                    href={`homework/${homework.homeworkId}`}
+                                    key={`homework_${index}`}
+                                >
+                                    <HomeworkCard>
+                                        <State status={homework.status}>
+                                            {getStatusText(homework.status)}
+                                        </State>
+                                        <Deadline>{homework.deadline}</Deadline>
+                                        <Resource>{homework.textbookName}</Resource>
+                                        <Scope>{`p. ${homework.startPage} ~ ${homework.endPage}`}</Scope>
+                                    </HomeworkCard>
+                                </Link>
+                            );
+                        }
+                        return (
+                            <HomeworkCard key={`homework_${index}`}>
                                 <State status={homework.status}>
                                     {getStatusText(homework.status)}
                                 </State>
@@ -44,8 +65,8 @@ const HomeworkList = ({ homeworkList, CreateNewHomework }: HomeworkListProps) =>
                                 <Resource>{homework.textbookName}</Resource>
                                 <Scope>{`p. ${homework.startPage} ~ ${homework.endPage}`}</Scope>
                             </HomeworkCard>
-                        </Link>
-                    ))
+                        );
+                    })
                 ) : (
                     <>숙제가 없어요.</>
                 )}
