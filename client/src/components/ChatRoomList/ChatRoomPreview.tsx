@@ -13,7 +13,12 @@ const ChatRoomPreview = ({ chatRoom, joinChat }: ChatRoomPreviewProps) => {
             <ProfileImg src={chatRoom.oppositeMember.profileUrl} alt="프로필 사진" />
             <MiddleBlockWrapper>
                 <Name>{chatRoom.oppositeMember.name}</Name>
-                <LastMessage>{chatRoom.lastMessage}</LastMessage>
+
+                <LastMessage>
+                    {chatRoom.lastMessage !== null
+                        ? chatRoom.lastMessage
+                        : '채팅 메시지를 보내보세요.'}
+                </LastMessage>
             </MiddleBlockWrapper>
             <EndBlockWrapper>
                 <LastMessageCreatedAt>
