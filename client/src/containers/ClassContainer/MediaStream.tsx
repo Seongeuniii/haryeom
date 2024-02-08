@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import MediaStreamDisplay from '@/components/MediaStreamDisplay';
+import { useRecoilValue } from 'recoil';
+import userSessionAtom from '@/recoil/atoms/userSession';
 
 interface MediaStreamProps {
     myStream: MediaStream | null;
@@ -10,15 +12,17 @@ interface MediaStreamProps {
 }
 
 const MediaStream = ({ myStream, peerStream }: MediaStreamProps) => {
+    const userSession = useRecoilValue(userSessionAtom);
+
     return (
         <StyledMediaStream>
-            <MediaStreamDisplay stream={myStream} nickname={'김성은'} />
+            <MediaStreamDisplay stream={myStream} nickname={userSession?.name as string} />
             {peerStream?.length ? (
                 peerStream?.map((data, idx) => (
                     <MediaStreamDisplay stream={data.stream} key={idx} nickname={data.socketId} />
                 ))
             ) : (
-                <MediaStreamDisplay stream={null} nickname="선생님 대기중" />
+                <MediaStreamDisplay stream={null} nickname="대기중" />
             )}
         </StyledMediaStream>
     );
