@@ -43,6 +43,18 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
         if (!contextRef.current) return;
         contextRef.current.strokeStyle = penStyle.strokeStyle;
         contextRef.current.lineWidth = penStyle.lineWidth;
+
+        dataChannels?.map((channel: RTCDataChannel) => {
+            try {
+                channel.send(
+                    JSON.stringify({
+                        updatedPenStyle: penStyle,
+                    })
+                );
+            } catch (e) {
+                console.log('전송 실패');
+            }
+        });
     }, [penStyle]);
 
     const init = () => {
@@ -116,18 +128,6 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
 
     const changePen = (name: string, value: string | number | boolean) => {
         setPenStyle((prev) => ({ ...prev, [name]: value }));
-
-        dataChannels?.map((channel: RTCDataChannel) => {
-            try {
-                channel.send(
-                    JSON.stringify({
-                        penStyle,
-                    })
-                );
-            } catch (e) {
-                console.log('전송 실패');
-            }
-        });
     };
 
     const handlePointerDown = ({ nativeEvent }: PointerEvent) => {

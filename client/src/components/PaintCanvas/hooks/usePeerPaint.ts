@@ -39,6 +39,7 @@ const usePeerPaint = ({ backgroundImage, dataChannels }: IUsePeerPaint) => {
     }, [canvasRef.current, backgroundImage]);
 
     useEffect(() => {
+        console.log(penStyle);
         if (!contextRef.current) return;
         contextRef.current.strokeStyle = penStyle.strokeStyle;
         contextRef.current.lineWidth = penStyle.lineWidth;
@@ -46,7 +47,6 @@ const usePeerPaint = ({ backgroundImage, dataChannels }: IUsePeerPaint) => {
 
     const init = () => {
         if (!canvasRef.current) return;
-        console.log('init');
         const { clientWidth, clientHeight } = canvasRef.current;
         canvasSizeSetting(clientWidth, clientHeight);
 
@@ -126,8 +126,17 @@ const usePeerPaint = ({ backgroundImage, dataChannels }: IUsePeerPaint) => {
     const handlePointerMove = (offset: any) => {
         if (!contextRef.current) return;
         const { x, y } = offset;
-        contextRef.current.lineTo(x, y);
-        contextRef.current.stroke();
+
+        if (penStyle.isPen) {
+            contextRef.current.lineTo(x, y);
+            contextRef.current.stroke();
+        } else {
+            contextRef.current.beginPath();
+            contextRef.current.arc(x, y, 15, 0, Math.PI * 2);
+            contextRef.current.fillStyle = 'white';
+            contextRef.current.fill();
+            contextRef.current.closePath();
+        }
     };
 
     const handlePointerUp = () => {
@@ -139,15 +148,17 @@ const usePeerPaint = ({ backgroundImage, dataChannels }: IUsePeerPaint) => {
         dataChannels.map((channel: RTCDataChannel) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             channel.onmessage = (e: MessageEvent<any>) => {
-                const { type, action, offset, penStyle } = JSON.parse(e.data);
+                const { type, action, offset, updatedPenStyle } = JSON.parse(e.data);
                 if (action === 'down') handlePointerDown(offset);
                 else if (action === 'move') requestAnimationFrame(() => handlePointerMove(offset));
                 else handlePointerUp();
 
-                setPenStyle(penStyle);
+                if (updatedPenStyle) {
+                    setPenStyle(updatedPenStyle);
+                }
             };
         });
-    }, [dataChannels]);
+    }, [dataChannels, penStyle]);
 
     return { canvasRef };
 };
