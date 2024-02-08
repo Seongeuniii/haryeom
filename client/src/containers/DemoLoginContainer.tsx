@@ -25,11 +25,13 @@ const DemoLoginContainer = () => {
     const [selectedTeam, setSelectedTeam] = useState<number>(0);
     const getToken = async (reqMemberId: number) => {
         try {
-            const res = await axios.get(`http://localhost:8080/api/auth/test/login/${reqMemberId}`);
+            const res = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_SERVER}/auth/test/login/${reqMemberId}`
+            );
             const { accessToken, refreshToken } = res.data;
             setCookie('accessToken', accessToken);
             setCookie('refreshToken', refreshToken);
-            router.push('/');
+            window.location.href = '/';
             console.log('success login');
             return true;
         } catch {
