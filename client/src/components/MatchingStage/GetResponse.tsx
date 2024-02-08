@@ -31,12 +31,12 @@ const StyledWaitResponse = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+    height: 52px;
     background-color: ${({ theme }) => theme.PRIMARY};
 `;
 
 const ResponseMessageHeader = styled.span`
     color: white;
-    padding: 0.5em 0.5em;
     display: flex;
     flex-direction: column;
     align-items: center;
