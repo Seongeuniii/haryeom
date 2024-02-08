@@ -44,11 +44,11 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     if (!userSession) return;
 
     const {
-        tutorings,
-        tutoringSchedules,
+        tutorings = [],
+        tutoringSchedules = [],
         homeworkList: initHomeworkList,
         progressPercentage: initProgressPercentage,
-        tutoringTextbooks,
+        tutoringTextbooks = [],
     } = pageProps;
 
     console.log(
@@ -137,7 +137,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         homeworkListInfo = await getHomeworkList(tutorings[0].tutoringId);
         tutoringTextbooks = await getTextbooks(tutorings[0].tutoringId);
     }
-
     return {
         props: {
             tutorings: tutorings || null,
