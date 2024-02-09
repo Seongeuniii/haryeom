@@ -160,11 +160,12 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
             contextRef.current.lineTo(offsetX, offsetY);
             contextRef.current.stroke();
         } else {
+            contextRef.current.globalCompositeOperation = 'destination-out';
             contextRef.current.beginPath();
             contextRef.current.arc(offsetX, offsetY, 15, 0, Math.PI * 2);
-            contextRef.current.fillStyle = 'white';
             contextRef.current.fill();
             contextRef.current.closePath();
+            contextRef.current.globalCompositeOperation = 'source-over';
         }
 
         dataChannels?.map((channel: RTCDataChannel) => {
