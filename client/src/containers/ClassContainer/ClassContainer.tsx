@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import MediaStream from './MediaStream';
@@ -51,8 +51,9 @@ const ClassContainer = () => {
     const [seletedTool, setSelectedTool] = useState<toolType>('빈페이지');
     const [myWhiteboardBackgroundImage, setMyWhiteBoardBackgroundImage] = useState<Blob | string>();
     const [peerWhiteBoardBackgroundImage, setPeerWhiteBoard] = useState<Blob | string>();
+
+    const whiteboardCanvasRef = useRef<HTMLCanvasElement>(null);
     const {
-        canvasRef,
         handlePointerDown,
         handlePointerMove,
         handlePointerUp,
@@ -60,13 +61,17 @@ const ClassContainer = () => {
         penStyle,
         changePen,
     } = useMyPaint({
+        canvasRef: whiteboardCanvasRef,
         backgroundImage: myWhiteboardBackgroundImage,
         dataChannels: dataChannels,
     });
-    const { canvasRef: peerCavasRef } = usePeerPaint({
+
+    usePeerPaint({
+        canvasRef: whiteboardCanvasRef,
         backgroundImage: peerWhiteBoardBackgroundImage,
         dataChannels: dataChannels,
     });
+
     const { startRecording, stopRecording, downloadRecording } = useMediaRecord();
     const [peerWatchingSameScreen, setPeerWatchingSameScreen] = useState<boolean>(true);
 
@@ -145,11 +150,8 @@ const ClassContainer = () => {
                         {seletedTool === '빈페이지' ? (
                             <WhiteBoard>
                                 <DrawingLayer>
-                                    <PeerPaintCanvas canvasRef={peerCavasRef} />
-                                </DrawingLayer>
-                                <DrawingLayer>
                                     <PaintCanvas
-                                        canvasRef={canvasRef}
+                                        canvasRef={whiteboardCanvasRef}
                                         handlePointerDown={handlePointerDown}
                                         handlePointerMove={handlePointerMove}
                                         handlePointerUp={handlePointerUp}
@@ -174,7 +176,7 @@ const ClassContainer = () => {
                             >
                                 <DrawingLayer>
                                     <PaintCanvas
-                                        canvasRef={canvasRef}
+                                        canvasRef={whiteboardCanvasRef}
                                         handlePointerDown={handlePointerDown}
                                         handlePointerMove={handlePointerMove}
                                         handlePointerUp={handlePointerUp}

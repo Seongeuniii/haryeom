@@ -1,12 +1,12 @@
-import { PointerEvent, useEffect, useRef, useState } from 'react';
+import { PointerEvent, RefObject, useEffect, useRef, useState } from 'react';
 
 interface IUsePeerPaint {
+    canvasRef: RefObject<HTMLCanvasElement>;
     backgroundImage?: Blob | string;
     dataChannels: RTCDataChannel[];
 }
 
-const usePeerPaint = ({ backgroundImage, dataChannels }: IUsePeerPaint) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+const usePeerPaint = ({ canvasRef, backgroundImage, dataChannels }: IUsePeerPaint) => {
     const contextRef = useRef<CanvasRenderingContext2D | null>(null);
     const canvasInformRef = useRef({
         width: 0,
@@ -160,8 +160,6 @@ const usePeerPaint = ({ backgroundImage, dataChannels }: IUsePeerPaint) => {
             };
         });
     }, [dataChannels, penStyle]);
-
-    return { canvasRef };
 };
 
 export default usePeerPaint;

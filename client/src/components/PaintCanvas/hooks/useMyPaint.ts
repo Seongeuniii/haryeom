@@ -1,12 +1,12 @@
-import { PointerEvent, useEffect, useRef, useState } from 'react';
+import { PointerEvent, RefObject, useEffect, useRef, useState } from 'react';
 
 interface IUseMyPaint {
+    canvasRef: RefObject<HTMLCanvasElement>;
     backgroundImage?: Blob | string;
     dataChannels?: RTCDataChannel[];
 }
 
-const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+const useMyPaint = ({ canvasRef, backgroundImage, dataChannels }: IUseMyPaint) => {
     const contextRef = useRef<CanvasRenderingContext2D | null>(null);
     const canvasInformRef = useRef({
         width: 0,
@@ -231,7 +231,6 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
     };
 
     return {
-        canvasRef,
         handlePointerDown,
         handlePointerMove,
         handlePointerUp,
