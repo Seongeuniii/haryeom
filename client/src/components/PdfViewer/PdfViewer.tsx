@@ -13,7 +13,7 @@ interface Homework {
 }
 
 interface PdfViewerProps extends Homework {
-    pdfFile: string;
+    pdfFile: string | undefined;
     totalPagesOfPdfFile: number;
     pdfPageCurrentSize: IPdfSize;
     children: ReactNode;
@@ -59,6 +59,14 @@ const PdfViewer = ({
         const { clientWidth, clientHeight } = pdfPageWrapperRef.current;
         return { width: clientWidth, height: clientHeight };
     };
+
+    if (!pdfFile) {
+        return (
+            <StyledPdfViewer>
+                <NoPdfFile>파일을 불러오지 못했어요.</NoPdfFile>
+            </StyledPdfViewer>
+        );
+    }
 
     return (
         <StyledPdfViewer>
@@ -118,6 +126,13 @@ const StyledPdfViewer = styled.div`
     flex: 1;
     overflow: auto;
     display: flex;
+    align-items: center;
+    justify-content: center;
+`;
+
+const NoPdfFile = styled.span`
+    font-weight: 700;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
 `;
 
 const PdfThumbnailList = styled.div`
