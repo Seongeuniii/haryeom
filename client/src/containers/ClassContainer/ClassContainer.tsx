@@ -18,8 +18,9 @@ import useMediaRecord from '@/hooks/useMediaRecord';
 import DrawingTools from '@/components/DrawingTools';
 import ClassTimer from '@/components/ClassTimer';
 import { endTutoring, startTutoring } from '@/apis/tutoring/progress-tutoring';
+import ClassContentsType from '@/components/ClassContentsType';
 
-type toolType = '빈페이지' | '학습자료';
+export type ContentsType = '빈페이지' | '학습자료' | '숙제';
 
 const ClassContainer = () => {
     const userSession = useRecoilValue(userSessionAtom);
@@ -48,11 +49,9 @@ const ClassContainer = () => {
         initialSelectedPageNumer: 1,
     });
 
-    const [seletedTool, setSelectedTool] = useState<toolType>('빈페이지');
+    const whiteboardCanvasRef = useRef<HTMLCanvasElement>(null);
     const [myWhiteboardBackgroundImage, setMyWhiteBoardBackgroundImage] = useState<Blob | string>();
     const [peerWhiteBoardBackgroundImage, setPeerWhiteBoard] = useState<Blob | string>();
-
-    const whiteboardCanvasRef = useRef<HTMLCanvasElement>(null);
     const {
         handlePointerDown,
         handlePointerMove,
@@ -75,7 +74,8 @@ const ClassContainer = () => {
     const { startRecording, stopRecording, downloadRecording } = useMediaRecord();
     const [peerWatchingSameScreen, setPeerWatchingSameScreen] = useState<boolean>(true);
 
-    const changeToolType = (type: toolType) => setSelectedTool(type);
+    const [seletedContent, setSelectedContent] = useState<ContentsType>('빈페이지');
+    const changeContents = (type: ContentsType) => setSelectedContent(type);
 
     useEffect(() => {
         const handleRouteChange = () => {
@@ -119,26 +119,10 @@ const ClassContainer = () => {
                 </LeftSection>
                 <TeachingTools>
                     <HelperBar>
-                        <Button
-                            content={'빈 페이지'}
-                            onClick={(e) => changeToolType('빈페이지')}
-                            width="80px"
-                            height="30px"
-                            $borderColor="#b9b9b9"
-                            $borderRadius="0.4em"
-                            $backgroundColor={seletedTool === '빈페이지' ? '#606060' : ''}
-                            color={seletedTool === '빈페이지' ? 'white' : ''}
-                        ></Button>
-                        <Button
-                            content={'학습자료'}
-                            onClick={(e) => changeToolType('학습자료')}
-                            width="100px"
-                            height="30px"
-                            $borderColor="#b9b9b9"
-                            $borderRadius="0.4em"
-                            $backgroundColor={seletedTool === '학습자료' ? '#606060' : ''}
-                            color={seletedTool === '학습자료' ? 'white' : ''}
-                        ></Button>
+                        <ClassContentsType
+                            changeContents={changeContents}
+                            contentType={seletedContent}
+                        />
                         <DrawingTools penStyle={penStyle} changePen={changePen} />
                     </HelperBar>
                     <Board>
@@ -147,7 +131,7 @@ const ClassContainer = () => {
                                 선생님이 현재 화면을 보고있어요.
                             </PeerWatchingStatus>
                         )}
-                        {seletedTool === '빈페이지' ? (
+                        {seletedContent === '빈페이지' ? (
                             <WhiteBoard>
                                 <DrawingLayer>
                                     <PaintCanvas
@@ -276,6 +260,7 @@ const HelperBar = styled.div`
     height: 40px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 10px;
     display: flex;
     gap: 10px;
