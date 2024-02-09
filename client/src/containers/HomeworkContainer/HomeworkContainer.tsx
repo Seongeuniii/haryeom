@@ -1,5 +1,5 @@
 import { GetServerSideProps } from 'next';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import PdfViewer from '@/components/PdfViewer';
 import PaintCanvas from '@/components/PaintCanvas';
@@ -53,15 +53,14 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
     } = usePdf({
         initialSelectedPageNumer: homeworkData.startPage,
     });
-    const {
-        canvasRef,
-        handlePointerDown,
-        handlePointerMove,
-        handlePointerUp,
-        getCanvasDrawingImage,
-    } = useMyPaint({
-        backgroundImage: myHomeworkDrawings[selectedPageNumber],
-    });
+
+    const homeworkCanvasRef = useRef<HTMLCanvasElement>(null);
+
+    const { handlePointerDown, handlePointerMove, handlePointerUp, getCanvasDrawingImage } =
+        useMyPaint({
+            canvasRef: homeworkCanvasRef,
+            backgroundImage: myHomeworkDrawings[selectedPageNumber],
+        });
 
     useEffect(() => {
         saveHomeworkDrawing();
@@ -89,7 +88,7 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
                     >
                         <DrawingLayer>
                             <PaintCanvas
-                                canvasRef={canvasRef}
+                                canvasRef={homeworkCanvasRef}
                                 handlePointerDown={handlePointerDown}
                                 handlePointerMove={handlePointerMove}
                                 handlePointerUp={handlePointerUp}
