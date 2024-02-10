@@ -140,6 +140,7 @@ const PdfThumbnailList = styled.div`
     top: 0;
     left: 0;
     min-width: 125px;
+    height: 100%;
     padding-right: 8px;
     margin: 1em 0 1em 1em;
 
@@ -151,6 +152,7 @@ const PdfThumbnailList = styled.div`
 
 const PdfPageWrapper = styled.div`
     position: relative;
+    height: 100%;
     flex: 1;
     margin: 1em;
     display: flex;
