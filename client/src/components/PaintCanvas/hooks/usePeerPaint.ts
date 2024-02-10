@@ -1,26 +1,18 @@
+import { IPenStyle } from '@/hooks/useClass';
 import { PointerEvent, RefObject, useEffect, useRef, useState } from 'react';
 
 interface IUsePeerPaint {
     canvasRef: RefObject<HTMLCanvasElement>;
     backgroundImage?: Blob | string;
-    dataChannels: RTCDataChannel[];
+    penStyle: IPenStyle;
 }
 
-const usePeerPaint = ({ canvasRef, backgroundImage, dataChannels }: IUsePeerPaint) => {
+const usePeerPaint = ({ canvasRef, backgroundImage, penStyle }: IUsePeerPaint) => {
     const contextRef = useRef<CanvasRenderingContext2D | null>(null);
     const canvasInformRef = useRef({
         width: 0,
         height: 0,
         pixelRatio: 1,
-    });
-    const [penStyle, setPenStyle] = useState<{
-        isPen: boolean;
-        strokeStyle: string;
-        lineWidth: number;
-    }>({
-        isPen: true,
-        strokeStyle: 'black',
-        lineWidth: 3,
     });
 
     useEffect(() => {
@@ -140,21 +132,7 @@ const usePeerPaint = ({ canvasRef, backgroundImage, dataChannels }: IUsePeerPain
         contextRef.current.closePath();
     };
 
-    useEffect(() => {
-        dataChannels.map((channel: RTCDataChannel) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            channel.onmessage = (e: MessageEvent<any>) => {
-                const { type, action, offset, updatedPenStyle } = JSON.parse(e.data);
-                if (action === 'down') handlePointerDown(offset);
-                else if (action === 'move') requestAnimationFrame(() => handlePointerMove(offset));
-                else handlePointerUp();
-
-                if (updatedPenStyle) {
-                    setPenStyle(updatedPenStyle);
-                }
-            };
-        });
-    }, [dataChannels, penStyle]);
+    return { handlePointerDown, handlePointerMove, handlePointerUp };
 };
 
 export default usePeerPaint;

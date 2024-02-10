@@ -1,12 +1,14 @@
 import { PointerEvent, RefObject, useEffect, useRef, useState } from 'react';
+import { IPenStyle } from '@/hooks/useClass';
 
 interface IUseMyPaint {
     canvasRef: RefObject<HTMLCanvasElement>;
     backgroundImage?: Blob | string;
+    penStyle: IPenStyle;
     dataChannels?: RTCDataChannel[];
 }
 
-const useMyPaint = ({ canvasRef, backgroundImage, dataChannels }: IUseMyPaint) => {
+const useMyPaint = ({ canvasRef, backgroundImage, penStyle, dataChannels }: IUseMyPaint) => {
     const contextRef = useRef<CanvasRenderingContext2D | null>(null);
     const canvasInformRef = useRef({
         width: 0,
@@ -14,15 +16,6 @@ const useMyPaint = ({ canvasRef, backgroundImage, dataChannels }: IUseMyPaint) =
         pixelRatio: 1,
     });
     const [isDown, setIsDown] = useState<boolean>(false);
-    const [penStyle, setPenStyle] = useState<{
-        isPen: boolean;
-        strokeStyle: string;
-        lineWidth: number;
-    }>({
-        isPen: true,
-        strokeStyle: 'black',
-        lineWidth: 3,
-    });
 
     useEffect(() => {
         const isBrowser = typeof window !== 'undefined';
@@ -124,10 +117,6 @@ const useMyPaint = ({ canvasRef, backgroundImage, dataChannels }: IUseMyPaint) =
                 newHeight
             );
         };
-    };
-
-    const changePen = (name: string, value: string | number | boolean) => {
-        setPenStyle((prev) => ({ ...prev, [name]: value }));
     };
 
     const handlePointerDown = ({ nativeEvent }: PointerEvent) => {
@@ -238,7 +227,6 @@ const useMyPaint = ({ canvasRef, backgroundImage, dataChannels }: IUseMyPaint) =
         handlePointerUp,
         getCanvasDrawingImage,
         penStyle,
-        changePen,
     };
 };
 

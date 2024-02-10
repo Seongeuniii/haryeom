@@ -17,10 +17,26 @@ import userSessionAtom from '@/recoil/atoms/userSession';
 import useMediaRecord from '@/hooks/useMediaRecord';
 import DrawingTools from '@/components/DrawingTools';
 import ClassTimer from '@/components/ClassTimer';
-import { endTutoring, startTutoring } from '@/apis/tutoring/progress-tutoring';
 import ClassContentsType from '@/components/ClassContentsType';
+import useClass from '@/hooks/useClass';
+import HomeworkList from '@/components/HomeworkList';
+import { useGetHomeworkList } from '@/queries/useGetHomeworkList';
+import { getPageFiles } from 'next/dist/server/get-page-files';
 
-export type ContentsType = '빈페이지' | '학습자료' | '숙제';
+const LoadHomework = (getPdfFile: (homeworkId: number) => Promise<void>) => {
+    const { data } = useGetHomeworkList(19); // TODO: tutoringId
+
+    const handleClickHomeworkCard = async (homeworkId: number) => {
+        await getPdfFile(homeworkId);
+    };
+
+    return (
+        <HomeworkList
+            homeworkList={data?.homeworkList}
+            handleClickHomeworkCard={handleClickHomeworkCard}
+        />
+    );
+};
 
 const ClassContainer = () => {
     const userSession = useRecoilValue(userSessionAtom);
@@ -49,34 +65,32 @@ const ClassContainer = () => {
         initialSelectedPageNumer: 1,
     });
 
-    const whiteboardCanvasRef = useRef<HTMLCanvasElement>(null);
-    const [myWhiteboardBackgroundImage, setMyWhiteBoardBackgroundImage] = useState<Blob | string>();
-    const [peerWhiteBoardBackgroundImage, setPeerWhiteBoard] = useState<Blob | string>();
+    const {
+        myAction,
+        whiteboardCanvasRef,
+        myWhiteboardBackgroundImage,
+        peerWhiteBoardBackgroundImage,
+        peerWatchingSameScreen,
+        changeContents,
+        changePenStyle,
+        startClass,
+        endClass,
+    } = useClass({ dataChannels });
+
     const {
         handlePointerDown,
         handlePointerMove,
         handlePointerUp,
         getCanvasDrawingImage,
         penStyle,
-        changePen,
     } = useMyPaint({
         canvasRef: whiteboardCanvasRef,
         backgroundImage: myWhiteboardBackgroundImage,
-        dataChannels: dataChannels,
+        penStyle: myAction.penStyle,
+        dataChannels,
     });
 
-    usePeerPaint({
-        canvasRef: whiteboardCanvasRef,
-        backgroundImage: peerWhiteBoardBackgroundImage,
-        dataChannels: dataChannels,
-    });
-
-    const { startRecording, stopRecording, downloadRecording } = useMediaRecord();
-    const [peerWatchingSameScreen, setPeerWatchingSameScreen] = useState<boolean>(true);
-
-    const [seletedContent, setSelectedContent] = useState<ContentsType>('빈페이지');
-    const changeContents = (type: ContentsType) => setSelectedContent(type);
-
+    // TOOD: 리팩토링
     useEffect(() => {
         const handleRouteChange = () => {
             stopStream();
@@ -88,17 +102,10 @@ const ClassContainer = () => {
         };
     }, [router, stopStream, stompClient]);
 
-    const startClass = async () => {
-        alert('[필수] 녹화에 필요한 화면을 선택해주세요.');
-        await startRecording();
-        await startTutoring(parseInt(router.query.tutoringScheduleId as string));
-        alert('[필수] 녹화가 시작되었어요.');
-    };
+    const [pdfFile, setPefFile] = useState<string>();
 
-    const endClass = async () => {
-        stopRecording();
-        await endTutoring(parseInt(router.query.tutoringScheduleId as string));
-        alert('녹화가 종료되었어요. (녹화 전송 완료)');
+    const getPdfFile = async (homeworkId: number) => {
+        console.log('pdf: ', homeworkId);
     };
 
     return (
@@ -112,7 +119,14 @@ const ClassContainer = () => {
                             <Title>| {router.query.title}</Title>
                         </div>
                         {userSession.role === 'TEACHER' && (
-                            <ClassTimer startClass={startClass} endClass={endClass} />
+                            <ClassTimer // TODO : 리팩토링
+                                startClass={() => {
+                                    startClass(parseInt(router.query.tutoringScheduleId as string));
+                                }}
+                                endClass={() => {
+                                    endClass(parseInt(router.query.tutoringScheduleId as string));
+                                }}
+                            />
                         )}
                     </ClassInfo>
                     <MediaStream myStream={myStream} peerStream={peerStream} />
@@ -121,9 +135,14 @@ const ClassContainer = () => {
                     <HelperBar>
                         <ClassContentsType
                             changeContents={changeContents}
-                            contentType={seletedContent}
+                            contentType={myAction.content}
+                            LoadHomework={
+                                userSession.role === 'TEACHER'
+                                    ? () => LoadHomework(getPdfFile)
+                                    : undefined
+                            }
                         />
-                        <DrawingTools penStyle={penStyle} changePen={changePen} />
+                        <DrawingTools penStyle={penStyle} changePenStyle={changePenStyle} />
                     </HelperBar>
                     <Board>
                         {peerWatchingSameScreen && (
@@ -131,7 +150,7 @@ const ClassContainer = () => {
                                 선생님이 현재 화면을 보고있어요.
                             </PeerWatchingStatus>
                         )}
-                        {seletedContent === '빈페이지' ? (
+                        {myAction.content === '빈페이지' ? (
                             <WhiteBoard>
                                 <DrawingLayer>
                                     <PaintCanvas
@@ -144,9 +163,7 @@ const ClassContainer = () => {
                             </WhiteBoard>
                         ) : (
                             <PdfViewer
-                                pdfFile={
-                                    'https://d1b632bso7m0wd.cloudfront.net/EBS_2024%ED%95%99%EB%85%84%EB%8F%84_%EC%88%98%EB%8A%A5%ED%8A%B9%EA%B0%95_%EC%88%98%ED%95%99%EC%98%81%EC%97%AD_%EC%88%98%ED%95%99%E2%85%A0.pdf'
-                                }
+                                pdfFile={pdfFile}
                                 selectedPageNumber={selectedPageNumber}
                                 totalPagesOfPdfFile={totalPagesOfPdfFile}
                                 pdfPageCurrentSize={pdfPageCurrentSize}
