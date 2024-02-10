@@ -109,7 +109,8 @@ public class SecurityConfig {
             .antMatchers(GET, "/api/review/video/detail/{videoId}").hasRole("STUDENT")
 
             // 하재률
-            .antMatchers(GET, "/api/homework/{homeworkId}").hasRole("STUDENT")
+            .antMatchers(GET, "/api/homework/{homeworkId}")
+            .hasAnyRole("STUDENT", "TEACHER")
             .antMatchers(GET, "/api/homework/review/{homeworkId}").hasRole("STUDENT")
             .antMatchers(PATCH, "/api/homework/{homeworkId}").hasRole("STUDENT")
             .antMatchers(POST, "/api/homework/{homeworkId}").hasRole("STUDENT")
