@@ -157,6 +157,8 @@ const useMyPaint = ({ canvasRef, backgroundImage, dataChannels }: IUseMyPaint) =
         const { offsetX, offsetY } = nativeEvent;
 
         if (penStyle.isPen) {
+            contextRef.current.strokeStyle = penStyle.strokeStyle;
+            contextRef.current.lineWidth = penStyle.lineWidth;
             contextRef.current.lineTo(offsetX, offsetY);
             contextRef.current.stroke();
         } else {

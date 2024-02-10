@@ -38,13 +38,6 @@ const usePeerPaint = ({ canvasRef, backgroundImage, dataChannels }: IUsePeerPain
         init();
     }, [canvasRef.current, backgroundImage]);
 
-    useEffect(() => {
-        console.log(penStyle);
-        if (!contextRef.current) return;
-        contextRef.current.strokeStyle = penStyle.strokeStyle;
-        contextRef.current.lineWidth = penStyle.lineWidth;
-    }, [penStyle]);
-
     const init = () => {
         if (!canvasRef.current) return;
         const { clientWidth, clientHeight } = canvasRef.current;
@@ -128,6 +121,8 @@ const usePeerPaint = ({ canvasRef, backgroundImage, dataChannels }: IUsePeerPain
         const { x, y } = offset;
 
         if (penStyle.isPen) {
+            contextRef.current.strokeStyle = penStyle.strokeStyle;
+            contextRef.current.lineWidth = penStyle.lineWidth;
             contextRef.current.lineTo(x, y);
             contextRef.current.stroke();
         } else {
