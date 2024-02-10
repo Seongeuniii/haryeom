@@ -116,6 +116,7 @@ const ClassContainer = () => {
 
     const {
         myAction,
+        textbook,
         whiteboardCanvasRef,
         myWhiteboardBackgroundImage,
         peerWhiteBoardBackgroundImage,
@@ -123,6 +124,7 @@ const ClassContainer = () => {
         changeContents,
         changePenStyle,
         loadTextbook,
+        loadHomework,
         startClass,
         endClass,
     } = useClass({ dataChannels });
@@ -151,12 +153,6 @@ const ClassContainer = () => {
             stompClient?.disconnect();
         };
     }, [router, stopStream, stompClient]);
-
-    const [pdfFile, setPdfFile] = useState<string>();
-
-    const getPdfFile = async (homeworkId: number) => {
-        console.log(homeworkId);
-    };
 
     return (
         <ClassLayout>
@@ -198,10 +194,10 @@ const ClassContainer = () => {
                             }
                             LoadHomework={
                                 userSession.role === 'TEACHER'
-                                    ? (closeModal) => LoadHomework(getPdfFile, closeModal)
+                                    ? (closeModal) => LoadHomework(loadHomework, closeModal)
                                     : undefined
                             }
-                            textbookName={myAction.textbook?.textbookName || ''}
+                            textbookName={textbook?.textbookName || ''}
                         />
                         <DrawingTools penStyle={penStyle} changePenStyle={changePenStyle} />
                     </HelperBar>
@@ -224,7 +220,7 @@ const ClassContainer = () => {
                             </WhiteBoard>
                         ) : (
                             <PdfViewer
-                                pdfFile={myAction.textbook?.textbookUrl}
+                                pdfFile={textbook?.textbookUrl}
                                 selectedPageNumber={selectedPageNumber}
                                 totalPagesOfPdfFile={totalPagesOfPdfFile}
                                 pdfPageCurrentSize={pdfPageCurrentSize}

@@ -3,6 +3,7 @@ import useMediaRecord from './useMediaRecord';
 import { endTutoring, startTutoring } from '@/apis/tutoring/progress-tutoring';
 import usePeerPaint from '@/components/PaintCanvas/hooks/usePeerPaint';
 import { getTextbookDetail } from '@/apis/tutoring/get-textbook-detail';
+import { ITextbook } from '@/apis/homework/homework';
 
 export type ContentsType = '빈페이지' | '학습자료' | '숙제';
 export interface IPenStyle {
@@ -18,15 +19,6 @@ interface IUseClass {
 interface IClassAction {
     content: ContentsType;
     penStyle: IPenStyle;
-    homeworkFile: string | undefined;
-    homeworkPage: number | undefined;
-    textbook:
-        | {
-              textbookUrl: string;
-              textbookName: string;
-              drawings: Blob[] | string[];
-          }
-        | undefined;
 }
 
 const useClass = ({ dataChannels }: IUseClass) => {
@@ -37,9 +29,6 @@ const useClass = ({ dataChannels }: IUseClass) => {
             strokeStyle: 'black',
             lineWidth: 3,
         },
-        textbook: undefined,
-        homeworkFile: undefined,
-        homeworkPage: undefined,
     });
 
     const [peerAction, setPeerAction] = useState<IClassAction>({
@@ -49,10 +38,9 @@ const useClass = ({ dataChannels }: IUseClass) => {
             strokeStyle: 'black',
             lineWidth: 3,
         },
-        textbook: undefined,
-        homeworkFile: undefined,
-        homeworkPage: undefined,
     });
+
+    const [textbook, setTextbook] = useState<ITextbook>();
 
     /**
      * 화이트보드
@@ -80,18 +68,11 @@ const useClass = ({ dataChannels }: IUseClass) => {
         setMyAction((prev) => ({ ...prev, penStyle: value }));
     };
     const loadTextbook = async (textbookId: number) => {
-        const data = await getTextbookDetail(textbookId);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const textbook: any = {
-            textbookUrl: data?.textbookUrl,
-            textbookName: data?.textbookName,
-            drawings: [],
-        };
-
-        setMyAction((prev) => ({
-            ...prev,
-            textbook,
-        }));
+        const textbook = await getTextbookDetail(textbookId);
+        setTextbook(textbook);
+    };
+    const loadHomework = async (homeworkId: number) => {
+        console.log(homeworkId);
     };
 
     /**
@@ -124,6 +105,20 @@ const useClass = ({ dataChannels }: IUseClass) => {
         });
     };
 
+    const sendTextbook = () => {
+        dataChannels?.map((channel: RTCDataChannel) => {
+            try {
+                channel.send(
+                    JSON.stringify({
+                        textbook,
+                    })
+                );
+            } catch (e) {
+                console.log('전송 실패');
+            }
+        });
+    };
+
     useEffect(() => {
         sendMyAction('content');
     }, [dataChannels, myAction.content]);
@@ -133,15 +128,21 @@ const useClass = ({ dataChannels }: IUseClass) => {
     }, [dataChannels, myAction.penStyle]);
 
     useEffect(() => {
-        // sendMyAction('penStyle');
-        console.log(myAction.textbook);
-    }, [dataChannels, myAction.textbook]);
+        sendTextbook();
+    }, [dataChannels, textbook]);
 
     useEffect(() => {
         dataChannels.map((channel: RTCDataChannel) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             channel.onmessage = (e: MessageEvent<any>) => {
-                const { type, action, offset, penStyle, content } = JSON.parse(e.data);
+                const {
+                    type,
+                    action,
+                    offset,
+                    penStyle,
+                    content,
+                    textbook: loadTextbook,
+                } = JSON.parse(e.data);
 
                 if (action) {
                     switch (action) {
@@ -163,15 +164,20 @@ const useClass = ({ dataChannels }: IUseClass) => {
 
                 if (content) {
                     console.log('peer가 content를 변경했어요: ', content);
-                    setMyAction((prev) => ({ ...prev, content }));
+                    setPeerAction((prev) => ({ ...prev, content }));
+                }
+
+                if (loadTextbook) {
+                    setTextbook(loadTextbook);
                 }
             };
         });
-    }, [dataChannels, peerAction]);
+    }, [dataChannels, peerAction, textbook]);
 
     return {
         myAction,
         peerAction,
+        textbook,
         whiteboardCanvasRef,
         myWhiteboardBackgroundImage,
         peerWhiteBoardBackgroundImage,
@@ -179,6 +185,7 @@ const useClass = ({ dataChannels }: IUseClass) => {
         changeContents,
         changePenStyle,
         loadTextbook,
+        loadHomework,
         startClass,
         endClass,
     };
