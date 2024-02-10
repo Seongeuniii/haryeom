@@ -22,21 +22,70 @@ import useClass from '@/hooks/useClass';
 import HomeworkList from '@/components/HomeworkList';
 import { useGetHomeworkList } from '@/queries/useGetHomeworkList';
 import { getPageFiles } from 'next/dist/server/get-page-files';
+import { getHomework } from '@/apis/homework/get-homework';
+import { getTextbooks } from '@/apis/tutoring/get-textbooks';
+import { ITutoringTextbook } from '@/apis/tutoring/tutoring';
+import { getTextbookDetail } from '@/apis/tutoring/get-textbook-detail';
+import { text } from 'stream/consumers';
 
-const LoadHomework = (getPdfFile: (homeworkId: number) => Promise<void>) => {
+const LoadHomework = (
+    getPdfFile: (homeworkId: number) => Promise<void>,
+    closeModal: () => void
+) => {
     const { data } = useGetHomeworkList(19); // TODO: tutoringId
 
     const handleClickHomeworkCard = async (homeworkId: number) => {
         await getPdfFile(homeworkId);
+        closeModal();
     };
 
+    // TODO : 리팩토링 - 숙제 목록 커스텀 불가능
     return (
-        <HomeworkList
-            homeworkList={data?.homeworkList}
-            handleClickHomeworkCard={handleClickHomeworkCard}
-        />
+        <StyledLoadHomework>
+            <HomeworkList
+                homeworkList={data?.homeworkList}
+                handleClickHomeworkCard={handleClickHomeworkCard}
+            />
+        </StyledLoadHomework>
     );
 };
+
+const StyledLoadHomework = styled.div``;
+
+const LoadTextbook = (
+    tutoringId: number,
+    loadTextbook: (textbookId: number) => Promise<void>,
+    closeModal: () => void
+) => {
+    const [books, setBooks] = useState<ITutoringTextbook[]>();
+
+    const initData = async () => {
+        const data = await getTextbooks(tutoringId);
+        setBooks(data);
+    };
+
+    useEffect(() => {
+        initData();
+    }, []);
+    return (
+        <StyledLoadTextbook>
+            <div> 학습자료 목록</div>
+            {books?.map((book) => (
+                <div
+                    key={book.textbookId}
+                    onClick={() => {
+                        loadTextbook(book.textbookId);
+                        closeModal();
+                    }}
+                >
+                    {book.textbookName}
+                </div>
+            ))}
+        </StyledLoadTextbook>
+    );
+};
+
+const StyledLoadTextbook = styled.div``;
 
 const ClassContainer = () => {
     const userSession = useRecoilValue(userSessionAtom);
@@ -73,6 +122,7 @@ const ClassContainer = () => {
         peerWatchingSameScreen,
         changeContents,
         changePenStyle,
+        loadTextbook,
         startClass,
         endClass,
     } = useClass({ dataChannels });
@@ -102,10 +152,10 @@ const ClassContainer = () => {
         };
     }, [router, stopStream, stompClient]);
 
-    const [pdfFile, setPefFile] = useState<string>();
+    const [pdfFile, setPdfFile] = useState<string>();
 
     const getPdfFile = async (homeworkId: number) => {
-        console.log('pdf: ', homeworkId);
+        console.log(homeworkId);
     };
 
     return (
@@ -136,11 +186,22 @@ const ClassContainer = () => {
                         <ClassContentsType
                             changeContents={changeContents}
                             contentType={myAction.content}
-                            LoadHomework={
+                            LoadTextbook={
                                 userSession.role === 'TEACHER'
-                                    ? () => LoadHomework(getPdfFile)
+                                    ? (closeModal) =>
+                                          LoadTextbook(
+                                              parseInt(router.query.tutoringId as string),
+                                              loadTextbook,
+                                              closeModal
+                                          )
                                     : undefined
                             }
+                            LoadHomework={
+                                userSession.role === 'TEACHER'
+                                    ? (closeModal) => LoadHomework(getPdfFile, closeModal)
+                                    : undefined
+                            }
+                            textbookName={myAction.textbook?.textbookName || ''}
                         />
                         <DrawingTools penStyle={penStyle} changePenStyle={changePenStyle} />
                     </HelperBar>
@@ -163,7 +224,7 @@ const ClassContainer = () => {
                             </WhiteBoard>
                         ) : (
                             <PdfViewer
-                                pdfFile={pdfFile}
+                                pdfFile={myAction.textbook?.textbookUrl}
                                 selectedPageNumber={selectedPageNumber}
                                 totalPagesOfPdfFile={totalPagesOfPdfFile}
                                 pdfPageCurrentSize={pdfPageCurrentSize}

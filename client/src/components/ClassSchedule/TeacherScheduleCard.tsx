@@ -26,6 +26,7 @@ const TeacherScheduleCard = ({ schedule, scheduleDate }: TeacherScheduleCardProp
                 subject: schedule.subject.name,
                 time: `${getHourMin(schedule.startTime)} ~ ${addMinutesToTime(schedule.startTime, schedule.duration)}`,
                 tutoringScheduleId: schedule.tutoringScheduleId,
+                tutoringId: schedule.tutoringId,
             },
         });
     };

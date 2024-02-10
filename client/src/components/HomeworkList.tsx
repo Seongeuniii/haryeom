@@ -1,13 +1,13 @@
 import styled from 'styled-components';
 import Link from 'next/link';
 import { IHomeworkList, IHomeworkStatus } from '@/apis/homework/homework';
-import CreateNewHomework from './CreateNewHomework/CreateNewHomework';
 import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
 
 interface HomeworkListProps {
     homeworkList: IHomeworkList | undefined;
     CreateNewHomework?: () => JSX.Element;
+    handleClickHomeworkCard?: (homeworkId: number) => void;
 }
 
 const getStatusText = (status: IHomeworkStatus) => {
@@ -21,7 +21,11 @@ const getStatusText = (status: IHomeworkStatus) => {
     }
 };
 
-const HomeworkList = ({ homeworkList, CreateNewHomework }: HomeworkListProps) => {
+const HomeworkList = ({
+    homeworkList,
+    CreateNewHomework,
+    handleClickHomeworkCard,
+}: HomeworkListProps) => {
     const userSession = useRecoilValue(userSessionAtom);
 
     return (
@@ -57,7 +61,14 @@ const HomeworkList = ({ homeworkList, CreateNewHomework }: HomeworkListProps) =>
                             );
                         }
                         return (
-                            <HomeworkCard key={`homework_${index}`}>
+                            <HomeworkCard
+                                key={`homework_${index}`}
+                                onClick={
+                                    handleClickHomeworkCard
+                                        ? () => handleClickHomeworkCard(homework.homeworkId)
+                                        : undefined
+                                }
+                            >
                                 <State status={homework.status}>
                                     {getStatusText(homework.status)}
                                 </State>
@@ -83,6 +94,7 @@ const StyledHomeworkList = styled.div`
     border-radius: 1em;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     padding: 1.8em;
+    background-color: white;
 `;
 
 const HomeworkListHeader = styled.div`
@@ -109,6 +121,7 @@ const HomeworkTableTitle = styled.header`
 
 const HomeworkCards = styled.div`
     width: 100%;
+    min-width: 700px;
     height: 100%;
     overflow: scroll;
 `;

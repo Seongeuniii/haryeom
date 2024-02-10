@@ -64,19 +64,19 @@ const ClassSchedule = ({
             <ScheduleList>
                 {renderedTutoringSchedules.length > 0 ? (
                     renderedTutoringSchedules.map((daySchedule, index) => (
-                        <SchedulesOfADay key={index}>
+                        <SchedulesOfADay key={`daySchedule_${index}`}>
                             <ScheduleDate>{daySchedule.scheduleDate}</ScheduleDate>
                             <ScheduleCards>
                                 {daySchedule.schedules.map((schedule) => {
                                     return userSession?.role === 'TEACHER' ? (
                                         <TeacherScheduleCard
-                                            key={schedule.tutoringId}
+                                            key={`teacher_schedule_${schedule.tutoringScheduleId}`}
                                             schedule={schedule as ITeacherSchedule}
                                             scheduleDate={daySchedule.scheduleDate}
                                         />
                                     ) : (
                                         <StudentScheduleCard
-                                            key={schedule.tutoringId}
+                                            key={`student_schedule_${schedule.tutoringScheduleId}`}
                                             schedule={schedule as IStudentSchedule}
                                         />
                                     );

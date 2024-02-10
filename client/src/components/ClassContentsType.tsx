@@ -3,15 +3,12 @@ import Button from '@/components/commons/Button';
 import Drawing from '@/components/icons/Drawing';
 import ClassContents from '@/components/icons/ClassContents';
 import Homework from '@/components/icons/Homework';
-import { ContentsType } from '@/containers/ClassContainer/ClassContainer';
 import Dropdown from '@/components/commons/Dropdown';
 import useDropdown from '@/hooks/useDropdown';
-import { useEffect } from 'react';
-
-interface ClassContentsType {
-    contentType: ContentsType;
-    changeContents: (type: ContentsType) => void;
-}
+import { ContentsType } from '@/hooks/useClass';
+import HomeworkList from '@/components/HomeworkList';
+import Modal from '@/components/commons/Modal';
+import { useModal } from '@/hooks/useModal';
 
 const contentsIcon = {
     빈페이지: <Drawing />,
@@ -19,11 +16,41 @@ const contentsIcon = {
     숙제: <Homework />,
 };
 
-const ClassContentsType = ({ contentType, changeContents }: ClassContentsType) => {
+interface ClassContentsType {
+    contentType: ContentsType;
+    changeContents: (type: ContentsType) => void;
+    LoadHomework?: (closeModal: () => void) => React.JSX.Element;
+    LoadTextbook?: (closeModal: () => void) => React.JSX.Element;
+    textbookName: string;
+}
+
+const ClassContentsType = ({
+    contentType,
+    changeContents,
+    LoadHomework,
+    LoadTextbook,
+    textbookName,
+}: ClassContentsType) => {
     const { open, openDropdown, closeDropdown } = useDropdown();
+    const {
+        open: isOpenLoadHomework,
+        openModal: openLoadHomework,
+        closeModal: closeLoadHomework,
+    } = useModal();
+    const { open: isOpenTextbook, openModal: openTextbook, closeModal: closeTextbook } = useModal();
 
     return (
         <>
+            {LoadTextbook && (
+                <Modal open={isOpenTextbook} closeModal={closeTextbook}>
+                    {LoadTextbook(closeTextbook)}
+                </Modal>
+            )}
+            {LoadHomework && (
+                <Modal open={isOpenLoadHomework} closeModal={closeLoadHomework}>
+                    {LoadHomework(closeLoadHomework)}
+                </Modal>
+            )}
             <StyledClassContentsType>
                 <ContentButtons>
                     <Button
@@ -73,15 +100,24 @@ const ClassContentsType = ({ contentType, changeContents }: ClassContentsType) =
                     </Dropdown>
                 </ContentButtons>
                 <ContentInfo>
+                    {contentType === '빈페이지' && (
+                        <>
+                            <ContentType>화이트보드</ContentType>
+                        </>
+                    )}
                     {contentType === '학습자료' && (
                         <>
-                            <ContentType>학습자료</ContentType>
-                            <ContentName>수능특강 영어</ContentName>
+                            <ContentType onClick={LoadTextbook ? openTextbook : undefined}>
+                                학습자료
+                            </ContentType>
+                            <ContentName>{textbookName}</ContentName>
                         </>
                     )}
                     {contentType === '숙제' && (
                         <>
-                            <ContentType>숙제</ContentType>
+                            <ContentType onClick={LoadHomework ? openLoadHomework : undefined}>
+                                숙제
+                            </ContentType>
                             {/* <ContentName>24. 01. 24 (금) | 수능특강 영어 (p.21 ~ 23)</ContentName> */}
                             <UploadNewContent>불러오기</UploadNewContent>
                         </>

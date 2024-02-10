@@ -10,6 +10,7 @@ import usePdf, { IPdfSize } from '@/hooks/usePdf';
 import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
 import { saveHomework } from '@/apis/homework/save-homework';
 import HomeworkStatus from '@/components/HomeworkStatus';
+import { IPenStyle } from '@/hooks/useClass';
 
 interface HomeworkContainerProps {
     homeworkData: IHomework;
@@ -56,10 +57,17 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
 
     const homeworkCanvasRef = useRef<HTMLCanvasElement>(null);
 
+    const [penStyle, setPenStyle] = useState<IPenStyle>({
+        isPen: true,
+        strokeStyle: 'black',
+        lineWidth: 3,
+    });
+
     const { handlePointerDown, handlePointerMove, handlePointerUp, getCanvasDrawingImage } =
         useMyPaint({
             canvasRef: homeworkCanvasRef,
             backgroundImage: myHomeworkDrawings[selectedPageNumber],
+            penStyle,
         });
 
     useEffect(() => {

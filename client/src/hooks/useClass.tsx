@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import useMediaRecord from './useMediaRecord';
 import { endTutoring, startTutoring } from '@/apis/tutoring/progress-tutoring';
 import usePeerPaint from '@/components/PaintCanvas/hooks/usePeerPaint';
+import { getTextbookDetail } from '@/apis/tutoring/get-textbook-detail';
 
 export type ContentsType = '빈페이지' | '학습자료' | '숙제';
 export interface IPenStyle {
@@ -17,10 +18,15 @@ interface IUseClass {
 interface IClassAction {
     content: ContentsType;
     penStyle: IPenStyle;
-    textBookFile: string | undefined;
-    textBookPage: number | undefined;
     homeworkFile: string | undefined;
     homeworkPage: number | undefined;
+    textbook:
+        | {
+              textbookUrl: string;
+              textbookName: string;
+              drawings: Blob[] | string[];
+          }
+        | undefined;
 }
 
 const useClass = ({ dataChannels }: IUseClass) => {
@@ -31,8 +37,7 @@ const useClass = ({ dataChannels }: IUseClass) => {
             strokeStyle: 'black',
             lineWidth: 3,
         },
-        textBookFile: undefined,
-        textBookPage: undefined,
+        textbook: undefined,
         homeworkFile: undefined,
         homeworkPage: undefined,
     });
@@ -44,8 +49,7 @@ const useClass = ({ dataChannels }: IUseClass) => {
             strokeStyle: 'black',
             lineWidth: 3,
         },
-        textBookFile: undefined,
-        textBookPage: undefined,
+        textbook: undefined,
         homeworkFile: undefined,
         homeworkPage: undefined,
     });
@@ -74,6 +78,20 @@ const useClass = ({ dataChannels }: IUseClass) => {
     };
     const changePenStyle = (value: IPenStyle) => {
         setMyAction((prev) => ({ ...prev, penStyle: value }));
+    };
+    const loadTextbook = async (textbookId: number) => {
+        const data = await getTextbookDetail(textbookId);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const textbook: any = {
+            textbookUrl: data?.textbookUrl,
+            textbookName: data?.textbookName,
+            drawings: [],
+        };
+
+        setMyAction((prev) => ({
+            ...prev,
+            textbook,
+        }));
     };
 
     /**
@@ -113,6 +131,11 @@ const useClass = ({ dataChannels }: IUseClass) => {
     useEffect(() => {
         sendMyAction('penStyle');
     }, [dataChannels, myAction.penStyle]);
+
+    useEffect(() => {
+        // sendMyAction('penStyle');
+        console.log(myAction.textbook);
+    }, [dataChannels, myAction.textbook]);
 
     useEffect(() => {
         dataChannels.map((channel: RTCDataChannel) => {
@@ -155,6 +178,7 @@ const useClass = ({ dataChannels }: IUseClass) => {
         peerWatchingSameScreen,
         changeContents,
         changePenStyle,
+        loadTextbook,
         startClass,
         endClass,
     };
