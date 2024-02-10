@@ -47,7 +47,7 @@ const ClassTimer = ({ startClass, endClass }: ClassTimerProps) => {
 
     return (
         <StyledClassTimer
-            classState={classState}
+            $classState={classState}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
@@ -88,7 +88,7 @@ const ClassTimer = ({ startClass, endClass }: ClassTimerProps) => {
     );
 };
 
-const StyledClassTimer = styled.div<{ classState: ClassState }>`
+const StyledClassTimer = styled.div<{ $classState: ClassState }>`
     width: 100%;
     height: 35px;
     display: flex;
@@ -96,8 +96,8 @@ const StyledClassTimer = styled.div<{ classState: ClassState }>`
     justify-content: center;
     font-size: 16px;
     border-radius: 0.3em;
-    background-color: ${({ theme, classState }) =>
-        classState === '수업시작전' ? theme.PRIMARY_LIGHT : theme.PRIMARY};
+    background-color: ${({ theme, $classState }) =>
+        $classState === '수업시작전' ? theme.PRIMARY_LIGHT : theme.PRIMARY};
     color: white;
     font-weight: bold;
     cursor: pointer;
