@@ -101,18 +101,26 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                             tutorings={tutorings as IStudentTutorings}
                         />
                     )}
-                    <HomeworkList
-                        homeworkList={homeworkList}
-                        CreateNewHomework={
-                            userSession.role === 'TEACHER' && tutorings
-                                ? () =>
-                                      CreateNewHomework({
-                                          tutoringId: seletedTutoring.tutoringId,
-                                          tutoringTextbooks,
-                                      })
-                                : undefined
-                        }
-                    />
+                    <ListSection>
+                        <HomeworkListHeader>
+                            <Title>숙제 목록</Title>
+                            {userSession.role === 'TEACHER' && tutorings && (
+                                <CreateNewHomework tutoringId={0} tutoringTextbooks={[]} />
+                            )}
+                        </HomeworkListHeader>
+                        <HomeworkList
+                            homeworkList={homeworkList}
+                            CreateNewHomework={
+                                userSession.role === 'TEACHER' && tutorings
+                                    ? () =>
+                                          CreateNewHomework({
+                                              tutoringId: seletedTutoring.tutoringId,
+                                              tutoringTextbooks,
+                                          })
+                                    : undefined
+                            }
+                        />
+                    </ListSection>
                 </SelectedTutoring>
             </StyledScheduleContainer>
         </HomeLayout>
@@ -161,6 +169,30 @@ const SelectedTutoring = styled.main`
     height: 93%;
     display: flex;
     flex-direction: column;
+`;
+
+const HomeworkListHeader = styled.div`
+    width: 100%;
+    padding: 0.3em 0.6em 1.2em 0.5em;
+    font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+const Title = styled.span`
+    font-weight: 600;
+`;
+
+const ListSection = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 1em;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 1.8em;
+    background-color: white;
 `;
 
 export default WithAuth(ScheduleContainer);

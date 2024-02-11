@@ -30,10 +30,6 @@ const HomeworkList = ({
 
     return (
         <StyledHomeworkList>
-            <HomeworkListHeader>
-                <Title>숙제 목록</Title>
-                {CreateNewHomework && <CreateNewHomework />}
-            </HomeworkListHeader>
             <HomeworkTableTitle>
                 <State className="homework-list__header">구분</State>
                 <Deadline className="homework-list__header">마감일</Deadline>
@@ -79,7 +75,7 @@ const HomeworkList = ({
                         );
                     })
                 ) : (
-                    <>숙제가 없어요.</>
+                    <NoHomework>숙제가 없어요.</NoHomework>
                 )}
             </HomeworkCards>
         </StyledHomeworkList>
@@ -88,26 +84,7 @@ const HomeworkList = ({
 
 const StyledHomeworkList = styled.div`
     width: 100%;
-    min-height: 50%;
-    display: flex;
-    flex-direction: column;
-    border-radius: 1em;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    padding: 1.8em;
-    background-color: white;
-`;
-
-const HomeworkListHeader = styled.div`
-    width: 100%;
-    padding: 0.3em 0.6em 1.2em 0.5em;
-    font-size: 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-`;
-
-const Title = styled.span`
-    font-weight: 600;
+    height: 100%;
 `;
 
 const HomeworkTableTitle = styled.header`
@@ -167,6 +144,16 @@ const Scope = styled.span`
     &.homework-list__header {
         color: ${({ theme }) => theme.LIGHT_BLACK};
     }
+`;
+
+const NoHomework = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
 `;
 
 export default HomeworkList;
