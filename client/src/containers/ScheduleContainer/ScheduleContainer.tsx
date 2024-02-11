@@ -121,7 +121,10 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                                 </Tab>
                             </Title>
                             {userSession.role === 'TEACHER' && tutorings && (
-                                <CreateNewHomework tutoringId={0} tutoringTextbooks={[]} />
+                                <CreateNewHomework
+                                    tutoringId={seletedTutoring.tutoringId}
+                                    tutoringTextbooks={tutoringTextbooks}
+                                />
                             )}
                         </ListHeader>
                         {listTab === 'homework' && <HomeworkList homeworkList={homeworkList} />}
