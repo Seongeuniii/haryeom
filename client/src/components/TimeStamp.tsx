@@ -1,11 +1,26 @@
-import { MouseEvent, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import styled from 'styled-components';
 import Pin from '@/components/icons/Pin';
-import Button from './commons/Button';
-import Send from './icons/Send';
+import { useRouter } from 'next/router';
+import { saveTimeStamp } from '@/apis/tutoring/save-timestamp';
 
 const TimeStamp = () => {
+    const router = useRouter();
     const [message, setMessage] = useState<string>('');
+
+    const handleClick = async (e: FormEvent) => {
+        e.preventDefault();
+        const tutoringScheduleId = parseInt(router.query.tutoringScheduleId as string);
+        const stampTime = '00:00:32';
+        const content = '3번 문제풀이';
+
+        const data = await saveTimeStamp({ tutoringScheduleId, stampTime, content });
+        if (data) {
+            alert('등록에 성공');
+        } else {
+            alert('실패');
+        }
+    };
 
     return (
         <StyledTimeStamp>
@@ -22,7 +37,7 @@ const TimeStamp = () => {
                     placeholder="기록을 남겨보세요."
                     onChange={(e) => setMessage(e.target.value)}
                 />
-                <SendButton>저장</SendButton>
+                <SendButton onClick={handleClick}>저장</SendButton>
             </Form>
         </StyledTimeStamp>
     );
