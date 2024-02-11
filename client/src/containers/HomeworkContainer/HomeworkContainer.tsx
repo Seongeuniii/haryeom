@@ -8,9 +8,10 @@ import { getHomework } from '@/apis/homework/get-homework';
 import { IHomework } from '@/apis/homework/homework';
 import usePdf, { IPdfSize } from '@/hooks/usePdf';
 import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
-import { saveHomework } from '@/apis/homework/save-homework';
 import HomeworkStatus from '@/components/HomeworkStatus';
 import { IPenStyle } from '@/hooks/useClass';
+import Button from '@/components/commons/Button';
+import { saveHomework } from '@/apis/homework/save-homework';
 
 interface HomeworkContainerProps {
     homeworkData: IHomework;
@@ -75,11 +76,11 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
     }, [selectedPageNumber]);
 
     return (
-        <HomeworkLayout homeworkData={homeworkData}>
+        <HomeworkLayout
+            homeworkData={homeworkData}
+            handleSubmit={() => saveHomework(homeworkData.homeworkId, myHomeworkDrawings)}
+        >
             <StyledHomeworkContainer>
-                <button onClick={() => saveHomework(homeworkData.homeworkId, myHomeworkDrawings)}>
-                    제출하기
-                </button>
                 <Board>
                     <PdfViewer
                         pdfFile={homeworkData.textbook.textbookUrl}
