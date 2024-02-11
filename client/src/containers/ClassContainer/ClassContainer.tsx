@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import { useRecoilValue } from 'recoil';
 import MediaStream from './MediaStream';
 import userSessionAtom from '@/recoil/atoms/userSession';
-import { useGetHomeworkList } from '@/queries/useGetHomeworkList';
-import { getTextbooks } from '@/apis/tutoring/get-textbooks';
-import { ITutoringTextbook } from '@/apis/tutoring/tutoring';
 import useStream from '@/hooks/useStream';
 import useWebRTCStomp from '@/hooks/useWebRTC';
 import useClass from '@/hooks/useClass';
@@ -18,75 +15,8 @@ import PaintCanvas from '@/components/PaintCanvas';
 import DrawingTools from '@/components/DrawingTools';
 import ClassTimer from '@/components/ClassTimer';
 import ClassContentsType from '@/components/ClassContentsType';
-import HomeworkList from '@/components/HomeworkList';
-
-const LoadHomework = ({
-    tutoringId,
-    loadHomework,
-    closeModal,
-}: {
-    tutoringId: number;
-    loadHomework: (textbookId: number) => Promise<void>;
-    closeModal: () => void;
-}) => {
-    const { data } = useGetHomeworkList(tutoringId); // TODO: tutoringId
-
-    const handleClickHomeworkCard = async (homeworkId: number) => {
-        loadHomework(homeworkId);
-        closeModal();
-    };
-
-    // TODO : 리팩토링 - 숙제 목록 커스텀 불가능
-    return (
-        <StyledLoadHomework>
-            <HomeworkList
-                homeworkList={data?.homeworkList}
-                handleClickHomeworkCard={handleClickHomeworkCard}
-            />
-        </StyledLoadHomework>
-    );
-};
-
-const StyledLoadHomework = styled.div``;
-
-const LoadTextbook = ({
-    tutoringId,
-    loadTextbook,
-    closeModal,
-}: {
-    tutoringId: number;
-    loadTextbook: (textbookId: number) => Promise<void>;
-    closeModal: () => void;
-}) => {
-    const [books, setBooks] = useState<ITutoringTextbook[]>();
-
-    const initData = async () => {
-        const data = await getTextbooks(tutoringId);
-        setBooks(data);
-    };
-
-    useEffect(() => {
-        initData();
-    }, []);
-    return (
-        <StyledLoadTextbook>
-            <div> 학습자료 목록</div>
-            {books?.map((book) => (
-                <div
-                    key={book.textbookId}
-                    onClick={() => {
-                        loadTextbook(book.textbookId);
-                        closeModal();
-                    }}
-                >
-                    {book.textbookName}
-                </div>
-            ))}
-        </StyledLoadTextbook>
-    );
-};
-
-const StyledLoadTextbook = styled.div``;
+import TimeStamp from '@/components/TimeStamp';
+import LoadClassContent from '@/components/LoadClassContent';
 
 const ClassContainer = () => {
     const userSession = useRecoilValue(userSessionAtom);
@@ -184,6 +114,7 @@ const ClassContainer = () => {
                         )}
                     </ClassInfo>
                     <MediaStream myStream={myStream} peerStream={peerStream} />
+                    <TimeStamp />
                 </LeftSection>
                 <TeachingTools>
                     <HelperBar>
@@ -193,11 +124,12 @@ const ClassContainer = () => {
                             LoadTextbook={
                                 userSession.role === 'TEACHER'
                                     ? ({ closeModal }) =>
-                                          LoadTextbook({
+                                          LoadClassContent({
+                                              content: 'textbook',
                                               tutoringId: parseInt(
                                                   router.query.tutoringId as string
                                               ),
-                                              loadTextbook,
+                                              loadClassContent: loadTextbook,
                                               closeModal,
                                           })
                                     : undefined
@@ -205,11 +137,12 @@ const ClassContainer = () => {
                             LoadHomework={
                                 userSession.role === 'TEACHER'
                                     ? ({ closeModal }) =>
-                                          LoadHomework({
+                                          LoadClassContent({
+                                              content: 'homework',
                                               tutoringId: parseInt(
                                                   router.query.tutoringId as string
                                               ),
-                                              loadHomework,
+                                              loadClassContent: loadHomework,
                                               closeModal,
                                           })
                                     : undefined
@@ -294,6 +227,7 @@ const LeftSection = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
 
     @media screen and (max-width: 1100px) {
         & {
@@ -305,7 +239,7 @@ const LeftSection = styled.div`
 const ClassInfo = styled.div`
     width: 100%;
     padding: 1em;
-    margin-bottom: 2em;
+    /* margin-bottom: 2em; */
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -348,7 +282,7 @@ const PeerWatchingStatus = styled.div`
     background-color: ${({ theme }) => theme.PRIMARY};
     color: white;
     font-size: 11px;
-    z-index: 100;
+    z-index: 3;
 `;
 
 const TeachingTools = styled.div`

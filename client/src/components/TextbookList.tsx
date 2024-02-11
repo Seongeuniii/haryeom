@@ -6,10 +6,11 @@ import userSessionAtom from '@/recoil/atoms/userSession';
 import { ITutoringTextbook } from '@/apis/tutoring/tutoring';
 
 interface TextbookListProps {
-    textbookList: ITutoringTextbook[];
+    textbookList: ITutoringTextbook[] | undefined;
+    handleClickTextbookCard?: (textbookId: number) => void;
 }
 
-const TextbookList = ({ textbookList }: TextbookListProps) => {
+const TextbookList = ({ textbookList, handleClickTextbookCard }: TextbookListProps) => {
     const userSession = useRecoilValue(userSessionAtom);
 
     return (
@@ -17,7 +18,18 @@ const TextbookList = ({ textbookList }: TextbookListProps) => {
             <TextbookCards>
                 {textbookList && textbookList.length > 0 ? (
                     textbookList.map((textbook, index) => (
-                        <Link href={`textbook`} key={`textbook${index}`}>
+                        <Link
+                            href={`textbook`}
+                            key={`textbook${index}`}
+                            onClick={
+                                handleClickTextbookCard
+                                    ? (e) => {
+                                          e.preventDefault();
+                                          handleClickTextbookCard(textbook.textbookId);
+                                      }
+                                    : undefined
+                            }
+                        >
                             <TextbookCard>
                                 {textbook.firstPageCover && (
                                     <BookCover>
