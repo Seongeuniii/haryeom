@@ -21,7 +21,7 @@ const navLinks: { [key in IUserRole]: Page[] } = {
         },
         {
             name: '교재관리',
-            link: '/review',
+            link: '/mycontents',
         },
     ],
     STUDENT: [
@@ -89,8 +89,9 @@ const StyledHeader = styled.header`
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
     z-index: 1;
+    background-color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
 `;
 
 const HeaderWrapper = styled.div`
