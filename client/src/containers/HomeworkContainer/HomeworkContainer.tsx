@@ -118,7 +118,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     if (!homeworkId) return { props: {} };
 
-    const homeworkData = await getHomework(homeworkId);
+    const homeworkData = await getHomework(parseInt(homeworkId));
 
     return { props: { homeworkData: homeworkData || null } };
 };
