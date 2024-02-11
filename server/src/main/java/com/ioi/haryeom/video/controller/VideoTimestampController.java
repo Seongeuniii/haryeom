@@ -28,16 +28,16 @@ public class VideoTimestampController {
     private final VideoTimestampService videoTimestampService;
     private final VideoTimestampRepository videoTimestampRepository;
     
-    @GetMapping("/{scheduleId}")
+    @GetMapping("/{tutoringScheduleId}")
     public ResponseEntity<List<VideoTimestampResponse>> getTimestampList(@PathVariable Long tutoringScheduleId, @AuthMemberId Long memberId) {
         List<VideoTimestampResponse> timestampList = videoTimestampService.getTimestampList(tutoringScheduleId, memberId);
         return ResponseEntity.ok(timestampList);
     }
 
-    @PostMapping("/{scheduleId}")
+    @PostMapping("/{tutoringScheduleId}")
     public ResponseEntity<Void> createTimestamp(@Validated @RequestBody VideoTimestampRequest timestampRequest,
-        @PathVariable Long scheduleId, @AuthMemberId Long memberId) {
-        Long timestampId = videoTimestampService.createVideoTimestamp(scheduleId, timestampRequest, memberId);
+        @PathVariable Long tutoringScheduleId, @AuthMemberId Long memberId) {
+        Long timestampId = videoTimestampService.createVideoTimestamp(tutoringScheduleId, timestampRequest, memberId);
         return ResponseEntity.created(URI.create("/timestamp/" + timestampId)).build();
     }
 
