@@ -130,6 +130,22 @@ const useClass = ({ dataChannels }: IUseClass) => {
         });
     };
 
+    const sendHomework = () => {
+        dataChannels?.map((channel: RTCDataChannel) => {
+            try {
+                if (homework) {
+                    channel.send(
+                        JSON.stringify({
+                            homework,
+                        })
+                    );
+                }
+            } catch (e) {
+                console.log('전송 실패');
+            }
+        });
+    };
+
     useEffect(() => {
         sendMyAction('content');
     }, [dataChannels, myAction.content]);
@@ -144,6 +160,11 @@ const useClass = ({ dataChannels }: IUseClass) => {
     }, [dataChannels, textbook]);
 
     useEffect(() => {
+        if (userSession?.role === 'STUDENT') return;
+        sendHomework();
+    }, [dataChannels, homework]);
+
+    useEffect(() => {
         dataChannels.map((channel: RTCDataChannel) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             channel.onmessage = (e: MessageEvent<any>) => {
@@ -154,6 +175,7 @@ const useClass = ({ dataChannels }: IUseClass) => {
                     penStyle,
                     content,
                     textbook: loadTextbook,
+                    homework: loadHomework,
                 } = JSON.parse(e.data);
 
                 if (action) {
@@ -184,9 +206,14 @@ const useClass = ({ dataChannels }: IUseClass) => {
                     console.log('peer가 textbook을 변경했어요: ', loadTextbook);
                     setTextbook(loadTextbook);
                 }
+
+                if (loadHomework) {
+                    console.log('peer가 homework를 변경했어요: ', loadHomework);
+                    setHomework(loadHomework);
+                }
             };
         });
-    }, [dataChannels, peerAction, textbook]);
+    }, [dataChannels, peerAction, textbook, homework]);
 
     return {
         myAction,
