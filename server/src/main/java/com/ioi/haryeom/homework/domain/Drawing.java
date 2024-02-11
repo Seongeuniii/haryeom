@@ -59,4 +59,8 @@ public class Drawing {
     public void ongoingUpdate(String newReviewUrl) {
         this.homeworkDrawingUrl = newReviewUrl;
     }
+
+    public void teacherUpdate(String newUrl) {
+        this.teacherDrawingUrl = newUrl;
+    }
 }

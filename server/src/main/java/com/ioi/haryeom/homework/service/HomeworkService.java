@@ -379,6 +379,50 @@ public class HomeworkService {
         homework.submit();
     }
 
+    @Transactional
+    public void saveTeacherDrawing(Long homeworkId, List<MultipartFile> file, String page, Long MemberId) {
+        Homework homework = findHomeworkById(homeworkId);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Integer> pages = Collections.EMPTY_LIST;
+        try {
+            pages = objectMapper.readValue(page, new TypeReference<List<Integer>>() {});
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("JSON parsing error");
+        }
+
+        for(int i = 0; i < file.size(); i++) {
+
+            MultipartFile f = file.get(i);
+            Integer p = pages.get(i);
+            String fileName = homeworkId + "_" + f.getOriginalFilename() + "_" + p;
+            String fileUrl = "";
+
+            try {
+                fileUrl = s3Upload.uploadFile(fileName, f.getInputStream(), f.getSize(), f.getContentType());
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new S3UploadException();
+            }
+
+            Drawing homeworkDrawing = drawingRepository.findByHomeworkIdAndPage(homeworkId, p);
+
+            if(homeworkDrawing != null) {
+                homeworkDrawing.teacherUpdate(fileUrl);
+                drawingRepository.save(homeworkDrawing);
+            } else {
+                Drawing drawing = Drawing.builder()
+                        .homework(homework)
+                        .page(p)
+                        .reviewDrawingUrl(fileUrl)
+                        .build();
+
+                drawingRepository.save(drawing);
+            }
+        }
+
+    }
+
     private void validateStudentRole(AuthInfo authInfo) {
         if (!Role.STUDENT.name().equals(authInfo.getRole())) {
             throw new NoStudentException();
