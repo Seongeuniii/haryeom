@@ -30,7 +30,7 @@ const useMyPaint = ({ canvasRef, backgroundImage, penStyle, dataChannels }: IUse
 
     useEffect(() => {
         init();
-    }, [canvasRef.current, backgroundImage]);
+    }, [canvasRef.current?.width, canvasRef.current?.height, backgroundImage]);
 
     useEffect(() => {
         if (!contextRef.current) return;
@@ -97,6 +97,8 @@ const useMyPaint = ({ canvasRef, backgroundImage, penStyle, dataChannels }: IUse
             const { clientWidth, clientHeight } = canvasRef.current;
             const imageAspectRatio = imageObj.width / imageObj.height;
 
+            console.log(clientWidth, clientHeight, imageObj.width, imageObj.height);
+
             let newWidth, newHeight;
             if (clientWidth / clientHeight > imageAspectRatio) {
                 newWidth = clientHeight * imageAspectRatio;
@@ -130,7 +132,6 @@ const useMyPaint = ({ canvasRef, backgroundImage, penStyle, dataChannels }: IUse
             try {
                 channel.send(
                     JSON.stringify({
-                        type: 'pdf',
                         action: 'down',
                         offset: { x: offsetX, y: offsetY },
                     })
@@ -161,14 +162,14 @@ const useMyPaint = ({ canvasRef, backgroundImage, penStyle, dataChannels }: IUse
 
         dataChannels?.map((channel: RTCDataChannel) => {
             try {
-                channel.send(
-                    JSON.stringify({
-                        type: 'pdf',
-                        action: 'move',
-                        offset: { x: offsetX, y: offsetY },
-                    })
-                );
-                console.log('send move');
+                if (offsetX && offsetY) {
+                    channel.send(
+                        JSON.stringify({
+                            action: 'move',
+                            offset: { x: offsetX, y: offsetY },
+                        })
+                    );
+                }
             } catch (e) {
                 console.log('전송 실패');
             }
@@ -184,7 +185,6 @@ const useMyPaint = ({ canvasRef, backgroundImage, penStyle, dataChannels }: IUse
             try {
                 channel.send(
                     JSON.stringify({
-                        type: 'pdf',
                         action: 'up',
                     })
                 );

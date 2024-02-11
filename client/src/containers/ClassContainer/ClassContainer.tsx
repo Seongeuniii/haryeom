@@ -120,9 +120,12 @@ const ClassContainer = () => {
         textbook,
         homework,
         whiteboardCanvasRef,
-        myWhiteboardBackgroundImage,
-        peerWhiteBoardBackgroundImage,
+        textbookCanvasRef,
+        whiteboardCanvasBackgroundImage,
+        textbookCanvasBackgroundImage,
+        setTextbookCanvasBackgroundImage,
         peerWatchingSameScreen,
+        cleanUpCanvas,
         changeContents,
         changePenStyle,
         loadTextbook,
@@ -138,8 +141,11 @@ const ClassContainer = () => {
         getCanvasDrawingImage,
         penStyle,
     } = useMyPaint({
-        canvasRef: whiteboardCanvasRef,
-        backgroundImage: myWhiteboardBackgroundImage,
+        canvasRef: myAction.content === '빈페이지' ? whiteboardCanvasRef : textbookCanvasRef,
+        backgroundImage:
+            myAction.content === '빈페이지'
+                ? whiteboardCanvasBackgroundImage
+                : textbookCanvasBackgroundImage,
         penStyle: myAction.penStyle,
         dataChannels,
     });
@@ -234,32 +240,40 @@ const ClassContainer = () => {
                                 </DrawingLayer>
                             </WhiteBoard>
                         ) : (
-                            <PdfViewer
-                                pdfFile={
-                                    myAction.content === '학습자료'
-                                        ? textbook?.textbookUrl
-                                        : homework?.textbook.textbookUrl
-                                }
-                                selectedPageNumber={selectedPageNumber}
-                                totalPagesOfPdfFile={totalPagesOfPdfFile}
-                                pdfPageCurrentSize={pdfPageCurrentSize}
-                                movePage={movePage}
-                                onDocumentLoadSuccess={onDocumentLoadSuccess}
-                                onPageLoadSuccess={onPageLoadSuccess}
-                                updatePdfPageCurrentSize={updatePdfPageCurrentSize}
-                                ZoomInPdfPageCurrentSize={ZoomInPdfPageCurrentSize}
-                                ZoomOutPdfPageCurrentSize={ZoomOutPdfPageCurrentSize}
-                                myHomeworkDrawings={[]}
-                            >
-                                <DrawingLayer>
-                                    <PaintCanvas
-                                        canvasRef={whiteboardCanvasRef}
-                                        handlePointerDown={handlePointerDown}
-                                        handlePointerMove={handlePointerMove}
-                                        handlePointerUp={handlePointerUp}
-                                    />
-                                </DrawingLayer>
-                            </PdfViewer>
+                            <>
+                                <PdfViewer
+                                    pdfFile={
+                                        myAction.content === '학습자료'
+                                            ? textbook?.textbookUrl
+                                            : homework?.textbook.textbookUrl
+                                    }
+                                    selectedPageNumber={selectedPageNumber}
+                                    totalPagesOfPdfFile={totalPagesOfPdfFile}
+                                    pdfPageCurrentSize={pdfPageCurrentSize}
+                                    movePage={(selectedPageNumber) => {
+                                        cleanUpCanvas(
+                                            textbookCanvasRef,
+                                            setTextbookCanvasBackgroundImage
+                                        );
+                                        movePage(selectedPageNumber);
+                                    }}
+                                    onDocumentLoadSuccess={onDocumentLoadSuccess}
+                                    onPageLoadSuccess={onPageLoadSuccess}
+                                    updatePdfPageCurrentSize={updatePdfPageCurrentSize}
+                                    ZoomInPdfPageCurrentSize={ZoomInPdfPageCurrentSize}
+                                    ZoomOutPdfPageCurrentSize={ZoomOutPdfPageCurrentSize}
+                                    myHomeworkDrawings={[]}
+                                >
+                                    <DrawingLayer>
+                                        <PaintCanvas
+                                            canvasRef={textbookCanvasRef}
+                                            handlePointerDown={handlePointerDown}
+                                            handlePointerMove={handlePointerMove}
+                                            handlePointerUp={handlePointerUp}
+                                        />
+                                    </DrawingLayer>
+                                </PdfViewer>
+                            </>
                         )}
                     </Board>
                 </TeachingTools>
@@ -326,14 +340,14 @@ const Board = styled.div`
 
 const PeerWatchingStatus = styled.div`
     position: absolute;
-    bottom: 25px;
+    top: 25px;
     left: 50%;
-    padding: 0.8em 1.2em;
+    padding: 0.7em 1.2em;
     transform: translate(-50%, -50%);
     border-radius: 2em;
     background-color: ${({ theme }) => theme.PRIMARY};
     color: white;
-    font-size: 10px;
+    font-size: 11px;
     z-index: 100;
 `;
 

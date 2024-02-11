@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Dispatch, RefObject, SetStateAction, useEffect, useRef, useState } from 'react';
 import useMediaRecord from './useMediaRecord';
 import { endTutoring, startTutoring } from '@/apis/tutoring/progress-tutoring';
 import usePeerPaint from '@/components/PaintCanvas/hooks/usePeerPaint';
@@ -7,6 +7,7 @@ import { IHomework, ITextbook } from '@/apis/homework/homework';
 import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import { getHomework } from '@/apis/homework/get-homework';
+import { ICanvasSize, saveDrawing } from '@/utils/canvas';
 
 export type ContentsType = '빈페이지' | '학습자료' | '숙제';
 export interface IPenStyle {
@@ -52,12 +53,21 @@ const useClass = ({ dataChannels }: IUseClass) => {
      * 화이트보드
      */
     const whiteboardCanvasRef = useRef<HTMLCanvasElement>(null);
-    const [myWhiteboardBackgroundImage, setMyWhiteBoardBackgroundImage] = useState<Blob | string>();
-    const [peerWhiteBoardBackgroundImage, setPeerWhiteBoard] = useState<Blob | string>();
+    const [whiteboardCanvasBackgroundImage, setWhiteboardCanvasBackgroundImage] = useState<
+        Blob | string
+    >();
+
+    const textbookCanvasRef = useRef<HTMLCanvasElement>(null);
+    const [textbookCanvasBackgroundImage, setTextbookCanvasBackgroundImage] = useState<
+        Blob | string
+    >();
 
     const { handlePointerDown, handlePointerMove, handlePointerUp } = usePeerPaint({
-        canvasRef: whiteboardCanvasRef,
-        backgroundImage: peerWhiteBoardBackgroundImage,
+        canvasRef: peerAction.content === '빈페이지' ? whiteboardCanvasRef : textbookCanvasRef,
+        backgroundImage:
+            peerAction.content === '빈페이지'
+                ? whiteboardCanvasBackgroundImage
+                : textbookCanvasBackgroundImage,
         penStyle: peerAction.penStyle,
     });
 
@@ -67,7 +77,51 @@ const useClass = ({ dataChannels }: IUseClass) => {
      * 수업 컨텐츠
      */
 
+    // 캔버스 저장
+    const cleanUpCanvas = (
+        canvasRef: RefObject<HTMLCanvasElement>,
+        setState: Dispatch<SetStateAction<string | Blob | undefined>>
+    ) => {
+        if (canvasRef.current) {
+            const drawingBlobData = saveDrawing({
+                canvasRef,
+                size: {
+                    width: canvasRef.current.width,
+                    height: canvasRef.current.height,
+                },
+            });
+            setState(drawingBlobData);
+        }
+    };
+
     const changeContents = (value: ContentsType) => {
+        // 1. 드로잉 데이터 저장
+        if (myAction.content === '빈페이지') {
+            if (whiteboardCanvasRef.current) {
+                console.log('whiteboard 드로잉 저장');
+                const drawingBlobData = saveDrawing({
+                    canvasRef: whiteboardCanvasRef,
+                    size: {
+                        width: whiteboardCanvasRef.current.width,
+                        height: whiteboardCanvasRef.current.height,
+                    },
+                });
+                setWhiteboardCanvasBackgroundImage(drawingBlobData);
+            }
+        } else if (myAction.content === '학습자료') {
+            if (textbookCanvasRef.current) {
+                console.log('textbook 드로잉 저장');
+                const drawingBlobData = saveDrawing({
+                    canvasRef: textbookCanvasRef,
+                    size: {
+                        width: textbookCanvasRef.current.width,
+                        height: textbookCanvasRef.current.height,
+                    },
+                });
+                setTextbookCanvasBackgroundImage(drawingBlobData);
+            }
+        }
+        // 2. 컨텐츠 변경
         setMyAction((prev) => ({ ...prev, content: value }));
     };
     const changePenStyle = (value: IPenStyle) => {
@@ -221,9 +275,12 @@ const useClass = ({ dataChannels }: IUseClass) => {
         textbook,
         homework,
         whiteboardCanvasRef,
-        myWhiteboardBackgroundImage,
-        peerWhiteBoardBackgroundImage,
+        whiteboardCanvasBackgroundImage,
+        textbookCanvasRef,
+        setTextbookCanvasBackgroundImage,
+        textbookCanvasBackgroundImage,
         peerWatchingSameScreen,
+        cleanUpCanvas,
         changeContents,
         changePenStyle,
         loadTextbook,
