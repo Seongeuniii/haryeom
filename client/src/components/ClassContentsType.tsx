@@ -9,6 +9,8 @@ import { ContentsType } from '@/hooks/useClass';
 import HomeworkList from '@/components/HomeworkList';
 import Modal from '@/components/commons/Modal';
 import { useModal } from '@/hooks/useModal';
+import { useRecoilValue } from 'recoil';
+import userSessionAtom from '@/recoil/atoms/userSession';
 
 const contentsIcon = {
     빈페이지: <Drawing />,
@@ -19,9 +21,9 @@ const contentsIcon = {
 interface ClassContentsType {
     contentType: ContentsType;
     changeContents: (type: ContentsType) => void;
-    LoadHomework?: (closeModal: () => void) => React.JSX.Element;
-    LoadTextbook?: (closeModal: () => void) => React.JSX.Element;
-    textbookName: string;
+    LoadHomework?: ({ closeModal }: { closeModal: () => void }) => React.JSX.Element;
+    LoadTextbook?: ({ closeModal }: { closeModal: () => void }) => React.JSX.Element;
+    textbookName: string | undefined;
 }
 
 const ClassContentsType = ({
@@ -31,6 +33,9 @@ const ClassContentsType = ({
     LoadTextbook,
     textbookName,
 }: ClassContentsType) => {
+    const userSession = useRecoilValue(userSessionAtom);
+    if (!userSession) return;
+
     const { open, openDropdown, closeDropdown } = useDropdown();
     const {
         open: isOpenLoadHomework,
@@ -43,12 +48,12 @@ const ClassContentsType = ({
         <>
             {LoadTextbook && (
                 <Modal open={isOpenTextbook} closeModal={closeTextbook}>
-                    {LoadTextbook(closeTextbook)}
+                    {LoadTextbook({ closeModal: closeTextbook })}
                 </Modal>
             )}
             {LoadHomework && (
                 <Modal open={isOpenLoadHomework} closeModal={closeLoadHomework}>
-                    {LoadHomework(closeLoadHomework)}
+                    {LoadHomework({ closeModal: closeLoadHomework })}
                 </Modal>
             )}
             <StyledClassContentsType>
@@ -110,7 +115,21 @@ const ClassContentsType = ({
                             <ContentType onClick={LoadTextbook ? openTextbook : undefined}>
                                 학습자료
                             </ContentType>
-                            <ContentName>{textbookName}</ContentName>
+                            <ContentName>
+                                {textbookName ? (
+                                    <span>{textbookName}</span>
+                                ) : userSession.role === 'TEACHER' ? (
+                                    <UploadNewContent
+                                        onClick={LoadTextbook ? openTextbook : undefined}
+                                    >
+                                        학습자료 불러오기
+                                    </UploadNewContent>
+                                ) : (
+                                    <UploadNewContent>
+                                        학습자료는 선생님만 불러올 수 있어요.
+                                    </UploadNewContent>
+                                )}
+                            </ContentName>
                         </>
                     )}
                     {contentType === '숙제' && (
@@ -119,7 +138,19 @@ const ClassContentsType = ({
                                 숙제
                             </ContentType>
                             {/* <ContentName>24. 01. 24 (금) | 수능특강 영어 (p.21 ~ 23)</ContentName> */}
-                            <UploadNewContent>불러오기</UploadNewContent>
+                            {textbookName ? (
+                                <span>{textbookName}</span>
+                            ) : userSession.role === 'TEACHER' ? (
+                                <UploadNewContent
+                                    onClick={LoadHomework ? openLoadHomework : undefined}
+                                >
+                                    숙제 불러오기
+                                </UploadNewContent>
+                            ) : (
+                                <UploadNewContent>
+                                    숙제는 선생님만 불러올 수 있어요.
+                                </UploadNewContent>
+                            )}
                         </>
                     )}
                 </ContentInfo>

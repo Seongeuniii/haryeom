@@ -3,7 +3,10 @@ import useMediaRecord from './useMediaRecord';
 import { endTutoring, startTutoring } from '@/apis/tutoring/progress-tutoring';
 import usePeerPaint from '@/components/PaintCanvas/hooks/usePeerPaint';
 import { getTextbookDetail } from '@/apis/tutoring/get-textbook-detail';
-import { ITextbook } from '@/apis/homework/homework';
+import { IHomework, ITextbook } from '@/apis/homework/homework';
+import { useRecoilValue } from 'recoil';
+import userSessionAtom from '@/recoil/atoms/userSession';
+import { getHomework } from '@/apis/homework/get-homework';
 
 export type ContentsType = '빈페이지' | '학습자료' | '숙제';
 export interface IPenStyle {
@@ -22,6 +25,8 @@ interface IClassAction {
 }
 
 const useClass = ({ dataChannels }: IUseClass) => {
+    const userSession = useRecoilValue(userSessionAtom);
+
     const [myAction, setMyAction] = useState<IClassAction>({
         content: '빈페이지',
         penStyle: {
@@ -41,6 +46,7 @@ const useClass = ({ dataChannels }: IUseClass) => {
     });
 
     const [textbook, setTextbook] = useState<ITextbook>();
+    const [homework, setHomework] = useState<IHomework>();
 
     /**
      * 화이트보드
@@ -72,7 +78,8 @@ const useClass = ({ dataChannels }: IUseClass) => {
         setTextbook(textbook);
     };
     const loadHomework = async (homeworkId: number) => {
-        console.log(homeworkId);
+        const homework = await getHomework(homeworkId);
+        setHomework(homework);
     };
 
     /**
@@ -94,11 +101,13 @@ const useClass = ({ dataChannels }: IUseClass) => {
     const sendMyAction = (name: keyof IClassAction) => {
         dataChannels?.map((channel: RTCDataChannel) => {
             try {
-                channel.send(
-                    JSON.stringify({
-                        [name]: myAction[name],
-                    })
-                );
+                if (myAction[name]) {
+                    channel.send(
+                        JSON.stringify({
+                            [name]: myAction[name],
+                        })
+                    );
+                }
             } catch (e) {
                 console.log('전송 실패');
             }
@@ -108,11 +117,13 @@ const useClass = ({ dataChannels }: IUseClass) => {
     const sendTextbook = () => {
         dataChannels?.map((channel: RTCDataChannel) => {
             try {
-                channel.send(
-                    JSON.stringify({
-                        textbook,
-                    })
-                );
+                if (textbook) {
+                    channel.send(
+                        JSON.stringify({
+                            textbook,
+                        })
+                    );
+                }
             } catch (e) {
                 console.log('전송 실패');
             }
@@ -128,6 +139,7 @@ const useClass = ({ dataChannels }: IUseClass) => {
     }, [dataChannels, myAction.penStyle]);
 
     useEffect(() => {
+        if (userSession?.role === 'STUDENT') return;
         sendTextbook();
     }, [dataChannels, textbook]);
 
@@ -159,6 +171,7 @@ const useClass = ({ dataChannels }: IUseClass) => {
                 }
 
                 if (penStyle) {
+                    console.log('peer가 pen을 변경했어요: ', penStyle);
                     setPeerAction((prev) => ({ ...prev, penStyle }));
                 }
 
@@ -168,6 +181,7 @@ const useClass = ({ dataChannels }: IUseClass) => {
                 }
 
                 if (loadTextbook) {
+                    console.log('peer가 textbook을 변경했어요: ', loadTextbook);
                     setTextbook(loadTextbook);
                 }
             };
@@ -178,6 +192,7 @@ const useClass = ({ dataChannels }: IUseClass) => {
         myAction,
         peerAction,
         textbook,
+        homework,
         whiteboardCanvasRef,
         myWhiteboardBackgroundImage,
         peerWhiteBoardBackgroundImage,

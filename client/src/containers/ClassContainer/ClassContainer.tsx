@@ -1,41 +1,38 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
+import { useRecoilValue } from 'recoil';
 import MediaStream from './MediaStream';
+import userSessionAtom from '@/recoil/atoms/userSession';
+import { useGetHomeworkList } from '@/queries/useGetHomeworkList';
+import { getTextbooks } from '@/apis/tutoring/get-textbooks';
+import { ITutoringTextbook } from '@/apis/tutoring/tutoring';
 import useStream from '@/hooks/useStream';
 import useWebRTCStomp from '@/hooks/useWebRTC';
+import useClass from '@/hooks/useClass';
+import usePdf from '@/hooks/usePdf';
 import ClassLayout from '@/components/layouts/ClassLayout';
 import PdfViewer from '@/components/PdfViewer';
-import usePdf from '@/hooks/usePdf';
 import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
 import PaintCanvas from '@/components/PaintCanvas';
-import Button from '@/components/commons/Button';
-import { useRecoilValue } from 'recoil';
-import PeerPaintCanvas from '@/components/PaintCanvas/PeerPaintCanvas';
-import usePeerPaint from '@/components/PaintCanvas/hooks/usePeerPaint';
-import userSessionAtom from '@/recoil/atoms/userSession';
-import useMediaRecord from '@/hooks/useMediaRecord';
 import DrawingTools from '@/components/DrawingTools';
 import ClassTimer from '@/components/ClassTimer';
 import ClassContentsType from '@/components/ClassContentsType';
-import useClass from '@/hooks/useClass';
 import HomeworkList from '@/components/HomeworkList';
-import { useGetHomeworkList } from '@/queries/useGetHomeworkList';
-import { getPageFiles } from 'next/dist/server/get-page-files';
-import { getHomework } from '@/apis/homework/get-homework';
-import { getTextbooks } from '@/apis/tutoring/get-textbooks';
-import { ITutoringTextbook } from '@/apis/tutoring/tutoring';
-import { getTextbookDetail } from '@/apis/tutoring/get-textbook-detail';
-import { text } from 'stream/consumers';
 
-const LoadHomework = (
-    getPdfFile: (homeworkId: number) => Promise<void>,
-    closeModal: () => void
-) => {
-    const { data } = useGetHomeworkList(19); // TODO: tutoringId
+const LoadHomework = ({
+    tutoringId,
+    loadHomework,
+    closeModal,
+}: {
+    tutoringId: number;
+    loadHomework: (textbookId: number) => Promise<void>;
+    closeModal: () => void;
+}) => {
+    const { data } = useGetHomeworkList(tutoringId); // TODO: tutoringId
 
     const handleClickHomeworkCard = async (homeworkId: number) => {
-        await getPdfFile(homeworkId);
+        loadHomework(homeworkId);
         closeModal();
     };
 
@@ -52,11 +49,15 @@ const LoadHomework = (
 
 const StyledLoadHomework = styled.div``;
 
-const LoadTextbook = (
-    tutoringId: number,
-    loadTextbook: (textbookId: number) => Promise<void>,
-    closeModal: () => void
-) => {
+const LoadTextbook = ({
+    tutoringId,
+    loadTextbook,
+    closeModal,
+}: {
+    tutoringId: number;
+    loadTextbook: (textbookId: number) => Promise<void>;
+    closeModal: () => void;
+}) => {
     const [books, setBooks] = useState<ITutoringTextbook[]>();
 
     const initData = async () => {
@@ -117,6 +118,7 @@ const ClassContainer = () => {
     const {
         myAction,
         textbook,
+        homework,
         whiteboardCanvasRef,
         myWhiteboardBackgroundImage,
         peerWhiteBoardBackgroundImage,
@@ -184,20 +186,33 @@ const ClassContainer = () => {
                             contentType={myAction.content}
                             LoadTextbook={
                                 userSession.role === 'TEACHER'
-                                    ? (closeModal) =>
-                                          LoadTextbook(
-                                              parseInt(router.query.tutoringId as string),
+                                    ? ({ closeModal }) =>
+                                          LoadTextbook({
+                                              tutoringId: parseInt(
+                                                  router.query.tutoringId as string
+                                              ),
                                               loadTextbook,
-                                              closeModal
-                                          )
+                                              closeModal,
+                                          })
                                     : undefined
                             }
                             LoadHomework={
                                 userSession.role === 'TEACHER'
-                                    ? (closeModal) => LoadHomework(loadHomework, closeModal)
+                                    ? ({ closeModal }) =>
+                                          LoadHomework({
+                                              tutoringId: parseInt(
+                                                  router.query.tutoringId as string
+                                              ),
+                                              loadHomework,
+                                              closeModal,
+                                          })
                                     : undefined
                             }
-                            textbookName={textbook?.textbookName || ''}
+                            textbookName={
+                                myAction.content === '학습자료'
+                                    ? textbook?.textbookName
+                                    : homework?.textbook.textbookName
+                            }
                         />
                         <DrawingTools penStyle={penStyle} changePenStyle={changePenStyle} />
                     </HelperBar>
@@ -220,7 +235,11 @@ const ClassContainer = () => {
                             </WhiteBoard>
                         ) : (
                             <PdfViewer
-                                pdfFile={textbook?.textbookUrl}
+                                pdfFile={
+                                    myAction.content === '학습자료'
+                                        ? textbook?.textbookUrl
+                                        : homework?.textbook.textbookUrl
+                                }
                                 selectedPageNumber={selectedPageNumber}
                                 totalPagesOfPdfFile={totalPagesOfPdfFile}
                                 pdfPageCurrentSize={pdfPageCurrentSize}
