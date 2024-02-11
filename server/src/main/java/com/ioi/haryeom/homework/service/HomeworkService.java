@@ -44,6 +44,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -126,35 +127,41 @@ public class HomeworkService {
     // 과외 숙제 수정
     @Transactional
     public void updateHomework(Long tutoringId, Long homeworkId, HomeworkRequest request, Long memberId) {
+        try {
+            validateDeadline(request.getDeadline());
 
-        validateDeadline(request.getDeadline());
+            Homework homework = findHomeworkById(homeworkId);
+            Member member = findMemberById(memberId);
+            validateOwner(member, homework);
+            validateHomeworkUnconfirmed(homework);
 
-        Homework homework = findHomeworkById(homeworkId);
-        Member member = findMemberById(memberId);
-        validateOwner(member, homework);
-        validateHomeworkUnconfirmed(homework);
+            Tutoring tutoring = findTutoringById(tutoringId);
 
-        Tutoring tutoring = findTutoringById(tutoringId);
+            Textbook textbook = findTextbookById(request.getTextbookId());
+            validatePageRange(textbook, request.getStartPage(), request.getEndPage());
 
-        Textbook textbook = findTextbookById(request.getTextbookId());
-        validatePageRange(textbook, request.getStartPage(), request.getEndPage());
-
-        homework.update(textbook, tutoring, request.getDeadline(), request.getStartPage(),
-            request.getEndPage());
+            homework.update(textbook, tutoring, request.getDeadline(), request.getStartPage(),
+                request.getEndPage());
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new HomeworkStatusConcurrencyException();
+        }
     }
 
     // 과외 숙제 삭제
     @Transactional
     public void deleteHomework(Long tutoringId, Long homeworkId, Long memberId) {
+        try {
+            findTutoringById(tutoringId);
 
-        findTutoringById(tutoringId);
+            Homework homework = findHomeworkById(homeworkId);
+            Member member = findMemberById(memberId);
+            validateOwner(member, homework);
+            validateHomeworkUnconfirmed(homework);
 
-        Homework homework = findHomeworkById(homeworkId);
-        Member member = findMemberById(memberId);
-        validateOwner(member, homework);
-        validateHomeworkUnconfirmed(homework);
-
-        homework.delete();
+            homework.delete();
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new HomeworkStatusConcurrencyException();
+        }
     }
 
     private int calculateProgressPercentage(Tutoring tutoring) {
@@ -379,12 +386,6 @@ public class HomeworkService {
         homework.submit();
     }
 
-    private void validateStudentRole(AuthInfo authInfo) {
-        if (!Role.STUDENT.name().equals(authInfo.getRole())) {
-            throw new NoStudentException();
-        }
-    }
-
     private void validateDeadline(LocalDate deadline) {
         LocalDate current = LocalDate.now();
         if (deadline.isBefore(current)) {
@@ -421,9 +422,6 @@ public class HomeworkService {
             throw new AuthorizationException(member.getId());
         }
     }
-
-    // TODO: Assignment 매칭O -> Assignent-Homework 검증
-    // TODO: Assignment 매칭X -> Resource-Tutoring, Homework-Tutoring 검증
 
     private Member findMemberById(Long memberId) {
         return memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
