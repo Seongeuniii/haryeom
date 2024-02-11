@@ -6,7 +6,6 @@ import userSessionAtom from '@/recoil/atoms/userSession';
 
 interface HomeworkListProps {
     homeworkList: IHomeworkList | undefined;
-    CreateNewHomework?: () => JSX.Element;
     handleClickHomeworkCard?: (homeworkId: number) => void;
 }
 
@@ -21,11 +20,7 @@ const getStatusText = (status: IHomeworkStatus) => {
     }
 };
 
-const HomeworkList = ({
-    homeworkList,
-    CreateNewHomework,
-    handleClickHomeworkCard,
-}: HomeworkListProps) => {
+const HomeworkList = ({ homeworkList, handleClickHomeworkCard }: HomeworkListProps) => {
     const userSession = useRecoilValue(userSessionAtom);
 
     return (
@@ -100,7 +95,7 @@ const HomeworkCards = styled.div`
     width: 100%;
     min-width: 700px;
     height: 100%;
-    overflow: scroll;
+    overflow-y: scroll;
 `;
 
 const HomeworkCard = styled.div`
@@ -109,6 +104,13 @@ const HomeworkCard = styled.div`
     justify-content: space-around;
     padding: 0.7em 0;
     text-align: center;
+    border-radius: 0.3em;
+    cursor: pointer;
+
+    &:hover {
+        background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+        transition: all 0.5s;
+    }
 `;
 
 const State = styled.button<{ status?: IHomeworkStatus }>`
