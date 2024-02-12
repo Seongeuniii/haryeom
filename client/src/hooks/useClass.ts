@@ -8,6 +8,7 @@ import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import { getHomework } from '@/apis/homework/get-homework';
 import { ICanvasSize, saveDrawing } from '@/utils/canvas';
+import { saveTutoringvideo } from '@/apis/tutoring/save-tutoring-video';
 
 export type ContentsType = '빈페이지' | '학습자료' | '숙제';
 export interface IPenStyle {
@@ -17,6 +18,7 @@ export interface IPenStyle {
 }
 
 interface IUseClass {
+    tutoringScheduleId: number;
     dataChannels: RTCDataChannel[];
 }
 
@@ -25,7 +27,7 @@ interface IClassAction {
     penStyle: IPenStyle;
 }
 
-const useClass = ({ dataChannels }: IUseClass) => {
+const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
     const userSession = useRecoilValue(userSessionAtom);
 
     const [myAction, setMyAction] = useState<IClassAction>({
@@ -139,18 +141,47 @@ const useClass = ({ dataChannels }: IUseClass) => {
     /**
      * 수업 녹화
      */
-    const { startRecording, stopRecording, downloadRecording } = useMediaRecord();
-    const startClass = async (tutoringScheduleId: number) => {
-        alert('[필수] 녹화에 필요한 화면을 선택해주세요.');
-        await startRecording();
-        await startTutoring(tutoringScheduleId);
+    const {
+        recordedChunks,
+        prepareRecording,
+        startRecording,
+        stopRecording,
+        pauseRecording,
+        resumeRecording,
+    } = useMediaRecord();
+
+    const startClass = async (): Promise<boolean> => {
+        const isUserSelectDisplay = confirm('[필수] 녹화에 필요한 화면을 선택해주세요.');
+
+        if (!isUserSelectDisplay) {
+            alert('녹화 화면 선택 후 수업을 시작할 수 있어요:)');
+            return false;
+        }
+
+        await prepareRecording();
+        startRecording();
+        await startTutoring(tutoringScheduleId); // api
         alert('[필수] 녹화가 시작되었어요.');
+        return true;
     };
-    const endClass = async (tutoringScheduleId: number) => {
+    const endClass = async (): Promise<boolean> => {
+        const isEndingClass = confirm('수업을 종료하시겠습니까?');
+
+        if (!isEndingClass) {
+            return false;
+        }
+
         stopRecording();
-        await endTutoring(tutoringScheduleId);
-        alert('녹화가 종료되었어요. (녹화 전송 완료)');
+        await endTutoring(tutoringScheduleId); // api
+        alert('수업이 종료되었어요.');
+        return true;
     };
+
+    // TODO : 리팩토링 - useMediaRecord 내부로
+    useEffect(() => {
+        if (!recordedChunks) return;
+        saveTutoringvideo(tutoringScheduleId, recordedChunks);
+    }, [recordedChunks]);
 
     const sendMyAction = (name: keyof IClassAction) => {
         dataChannels?.map((channel: RTCDataChannel) => {
