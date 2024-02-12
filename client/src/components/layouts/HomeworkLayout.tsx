@@ -6,10 +6,16 @@ import { IHomework } from '@/apis/homework/homework';
 interface HomeworkLayoutProps {
     homeworkData: IHomework;
     children: ReactNode;
+    handleSave: () => void;
     handleSubmit: () => void;
 }
 
-const HomeworkLayout = ({ homeworkData, children, handleSubmit }: HomeworkLayoutProps) => {
+const HomeworkLayout = ({
+    homeworkData,
+    children,
+    handleSave,
+    handleSubmit,
+}: HomeworkLayoutProps) => {
     return (
         <StyledHomeworkLayout>
             <HeaderWrapper>
@@ -19,7 +25,10 @@ const HomeworkLayout = ({ homeworkData, children, handleSubmit }: HomeworkLayout
                         p.{homeworkData.startPage} ~ p.{homeworkData.endPage}
                     </Range>
                 </Header>
-                <SubmitHomeworkButton onClick={handleSubmit}>제출하기</SubmitHomeworkButton>
+                <SubmitButtons>
+                    <SubmitHomeworkButton onClick={handleSave}>임시저장</SubmitHomeworkButton>
+                    <SubmitHomeworkButton onClick={handleSubmit}>제출</SubmitHomeworkButton>
+                </SubmitButtons>
             </HeaderWrapper>
             <ContainerWrapper>{children}</ContainerWrapper>
             <ChatContainer />
@@ -83,19 +92,24 @@ const ContainerWrapper = styled.main`
     }
 `;
 
-const SubmitHomeworkButton = styled.button`
+const SubmitButtons = styled.div`
     position: absolute;
     right: 16.5%;
-    padding: 7px 12px;
-    border-radius: 5px;
-    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
-    color: white;
+    display: flex;
+    gap: 7px;
 
     @media screen and (max-width: 1200px) {
         & {
             right: 2%;
         }
     }
+`;
+
+const SubmitHomeworkButton = styled.button`
+    padding: 5px 12px;
+    border-radius: 5px;
+    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+    color: white;
 
     &:hover {
         background-color: ${({ theme }) => theme.PRIMARY};
