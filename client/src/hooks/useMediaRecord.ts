@@ -1,52 +1,98 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+enum RECORD_STATE {
+    START = 'start',
+    STOP = 'stop',
+    PAUSE = 'pause',
+    RESUME = 'resume',
+}
 
 const useMediaRecord = () => {
     const [displayStream, setDisplayStream] = useState<MediaStream>();
-    const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder>();
+    const [mediaRecorder, setmediaRecorder] = useState<MediaRecorder | null>(null);
     const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
+    const [recordProgressState, setRecordProgressState] = useState<RECORD_STATE>(RECORD_STATE.STOP);
 
-    const startRecording = async () => {
+    useEffect(() => {
+        if (!mediaRecorder) return;
+        switch (recordProgressState) {
+            case 'start':
+                mediaRecorder.start();
+                break;
+            case 'stop':
+                mediaRecorder.stop();
+                break;
+            case 'pause':
+                mediaRecorder.pause();
+                break;
+            case 'resume':
+                mediaRecorder.resume();
+                break;
+        }
+    }, [mediaRecorder, recordProgressState]);
+
+    const getDisplayStream = async () => {
         try {
             const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
             setDisplayStream(stream);
-            const recorder = new MediaRecorder(stream);
-            setMediaRecorder(recorder);
-            recorder.ondataavailable = handleDataAvailable;
-            recorder.start();
-        } catch (error) {
-            console.error('Error accessing media devices.', error);
+        } catch (e) {
+            console.error('Error accessing media devices.', e);
         }
     };
 
-    const handleDataAvailable = (e: BlobEvent) => {
-        if (e.data.size > 0) {
-            setRecordedChunks((prevChunks) => [...prevChunks, e.data]);
-        }
+    const createmediaRecorder = () => {
+        if (!displayStream) return;
+        const vr = new MediaRecorder(displayStream, {
+            videoBitsPerSecond: 2500000,
+            audioBitsPerSecond: 128000,
+            mimeType: 'video/webm; codecs=vp9',
+        });
+        vr.addEventListener('dataavailable', (e) => handleDataAvailable(e));
+        setmediaRecorder(() => vr);
+    };
+
+    const prepareRecording = async () => {
+        await getDisplayStream();
+        createmediaRecorder();
+    };
+
+    const startRecording = async () => {
+        if (!displayStream) return;
+        if (!mediaRecorder) createmediaRecorder();
+        setRecordProgressState(RECORD_STATE.START);
     };
 
     const stopRecording = () => {
-        if (mediaRecorder && displayStream) {
-            mediaRecorder.stop();
-            displayStream.getTracks().forEach((track) => {
-                track.stop();
-            });
-        }
+        if (!mediaRecorder) return;
+        setRecordProgressState(RECORD_STATE.STOP);
+        displayStream?.getTracks().forEach((track) => {
+            track.stop();
+        });
     };
 
-    const downloadRecording = () => {
-        const blob = new Blob(recordedChunks, { type: 'video/webm' });
-        const url = URL.createObjectURL(blob);
-
-        // const a = document.createElement('a');
-        // a.style.display = 'none';
-        // a.href = url;
-        // a.download = 'screen-recording.webm';
-        // document.body.appendChild(a);
-        // a.click();
-        // window.URL.revokeObjectURL(url);
+    const pauseRecording = () => {
+        if (!mediaRecorder) return;
+        setRecordProgressState(RECORD_STATE.PAUSE);
     };
 
-    return { startRecording, stopRecording, downloadRecording };
+    const resumeRecording = () => {
+        if (!mediaRecorder) return;
+        setRecordProgressState(RECORD_STATE.RESUME);
+    };
+
+    const handleDataAvailable = (e: BlobEvent) => {
+        if (e.data?.size <= 0) return;
+        setRecordedChunks((prev) => [...prev, e.data]);
+    };
+
+    return {
+        recordedChunks,
+        prepareRecording,
+        startRecording,
+        stopRecording,
+        pauseRecording,
+        resumeRecording,
+    };
 };
 
 export default useMediaRecord;
