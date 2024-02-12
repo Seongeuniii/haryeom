@@ -9,6 +9,7 @@ import userSessionAtom from '@/recoil/atoms/userSession';
 import { getHomework } from '@/apis/homework/get-homework';
 import { ICanvasSize, saveDrawing } from '@/utils/canvas';
 import { saveTutoringvideo } from '@/apis/tutoring/save-tutoring-video';
+import useClassTimer from './useClassTimer';
 
 export type ContentsType = '빈페이지' | '학습자료' | '숙제';
 export interface IPenStyle {
@@ -172,10 +173,16 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
         }
 
         stopRecording();
+        startClass;
         await endTutoring(tutoringScheduleId); // api
         alert('수업이 종료되었어요.');
         return true;
     };
+
+    const { startTimer, stopTimer, progressTime, classState, changeClassState } = useClassTimer({
+        startClass,
+        endClass,
+    });
 
     // TODO : 리팩토링 - useMediaRecord 내부로
     useEffect(() => {
@@ -316,8 +323,11 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
         changePenStyle,
         loadTextbook,
         loadHomework,
-        startClass,
-        endClass,
+        startTimer,
+        stopTimer,
+        progressTime,
+        classState,
+        changeClassState,
     };
 };
 
