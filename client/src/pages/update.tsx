@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState, useLayoutEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 import HomeLayout from '@/components/layouts/HomeLayout';
 import { IUserInfo, IUserRole } from '@/apis/user/user';
@@ -15,7 +15,13 @@ const path = '/members';
 const updatePage = () => {
     const userSession = useRecoilValue(userSessionAtom);
     const { open, openModal, closeModal } = useModal();
-    const [file, setFile] = useState<File>();
+    const [file, setFile] = useState<File | string>();
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const handleImageClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
     const [profile, setProfile] = useState<any>({
         name: '',
         school: '',
@@ -48,9 +54,18 @@ const updatePage = () => {
 
     const [role, setRole] = useState<IUserRole>(); // STUDENT or TEACHER
     useEffect(() => {
-        setRole('TEACHER');
-        // const result = axios.get<IUserInfo>(`${process.env.NEXT_PUBLIC_API_SERVER}${path}/${userSession?.role.toLocaleLowerCase()}s/${userSession?.memberId}`)
-        // setProfile(result);
+        setRole(userSession?.role);
+        axios
+            .get(
+                `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${userSession?.role.toLocaleLowerCase()}s/${userSession?.memberId}`
+            )
+            .then((res) => {
+                setProfile(res.data);
+                if (res.data.profileUrl) setFile(res.data.profileUrl);
+            })
+            .catch((e) => {
+                console.log(e);
+            });
     }, []); // 최초 렌더링 직후에만 실행
 
     const subject = () => {
@@ -224,10 +239,44 @@ const updatePage = () => {
                         </SubInfoHeader>
                         <RequiredInfo>
                             <ProfileImg>
-                                <UploadProfileImage
+                                {/* <UploadProfileImage
                                     defaultImage={profile.profileUrl}
                                     handleImageChange={(file) => updateProfileImg(file)}
-                                />
+                                /> */}
+                                <StyledUploadProfileImage onClick={handleImageClick}>
+                                    {file ? (
+                                        <img
+                                            src={
+                                                file instanceof File
+                                                    ? URL.createObjectURL(file)
+                                                    : file
+                                            }
+                                            alt="Selected"
+                                        />
+                                    ) : (
+                                        <p>클릭하여 이미지 업로드</p>
+                                    )}
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        accept=".png, .jpg, .jpeg"
+                                        style={{ display: 'none' }}
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (
+                                                file &&
+                                                (file.type === 'image/png' ||
+                                                    file.type === 'image/jpeg')
+                                            ) {
+                                                setFile(file);
+                                            } else {
+                                                alert(
+                                                    '이미지 파일은 PNG 또는 JPEG 형식이어야 합니다.'
+                                                );
+                                            }
+                                        }}
+                                    ></input>
+                                </StyledUploadProfileImage>
                             </ProfileImg>
                             <ProfileInfo>
                                 <InfoName>
@@ -440,6 +489,9 @@ const RequiredInfo = styled.div`
     align-items: center;
     justify-content: space-around;
     text-align: center;
+    input {
+        max-width: 110px;
+    }
 `;
 
 const ProfileImg = styled.div`
@@ -661,5 +713,20 @@ const SubjectList = styled.div`
         text-align: center;
     }
     text-align: center;
+`;
+
+const StyledUploadProfileImage = styled.div`
+    width: 150px;
+    height: 150px;
+    border-radius: 30%;
+    border: 1px solid #ccc;
+    overflow: hidden;
+    cursor: pointer;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 `;
 export default updatePage;
