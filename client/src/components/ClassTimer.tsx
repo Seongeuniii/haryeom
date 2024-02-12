@@ -1,43 +1,17 @@
-import React, { MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
+import React, { MouseEvent, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useClassTimer, getHour, getMinute, getSecond } from '../hooks/useClassTimer';
-
-type ClassState = '수업시작전' | '수업중' | '수업종료';
+import { getHour, getMinute, getSecond, ClassState } from '@/hooks/useClassTimer';
 
 interface ClassTimerProps {
-    startClass: () => Promise<boolean>;
-    endClass: () => Promise<boolean>;
+    progressTime: number;
+    classState: ClassState;
+    changeClassState: () => Promise<void>;
 }
 
-const ClassTimer = ({ startClass, endClass }: ClassTimerProps) => {
-    const [classState, setClassState] = useState<ClassState>('수업시작전');
-    const { startTimer, stopTimer, progressTime } = useClassTimer();
+const ClassTimer = ({ progressTime, classState, changeClassState }: ClassTimerProps) => {
     const [staticShow, setStaticShow] = useState<string>('수업 시작');
     const [hoverShow, setHoverShow] = useState<string>('수업 시작');
     const [isHover, setIsHover] = useState<boolean>(false);
-
-    const changeClassState = async () => {
-        if (classState === '수업시작전') {
-            const isStart = await startClass();
-            if (!isStart) return;
-            startTimer();
-            setStaticShow('progressTime');
-            setHoverShow('progressTime');
-            setTimeout(() => {
-                setHoverShow('수업 종료하기');
-            }, 2000);
-            setClassState('수업중');
-        } else if (classState === '수업중') {
-            const isEnd = await endClass();
-            if (!isEnd) return;
-            stopTimer();
-            setStaticShow('수업종료');
-            setTimeout(() => {
-                setHoverShow('progressTime');
-            }, 2000);
-            setClassState('수업종료');
-        } else return;
-    };
 
     const handleMouseEnter = (e: MouseEvent) => {
         setIsHover(true);
@@ -46,6 +20,26 @@ const ClassTimer = ({ startClass, endClass }: ClassTimerProps) => {
     const handleMouseLeave = (e: MouseEvent) => {
         setIsHover(false);
     };
+
+    useEffect(() => {
+        switch (classState) {
+            case '수업중':
+                setStaticShow('progressTime');
+                setHoverShow('progressTime');
+                setTimeout(() => {
+                    setHoverShow('수업 종료하기');
+                }, 2000);
+                break;
+            case '수업종료':
+                setStaticShow('수업종료');
+                setTimeout(() => {
+                    setHoverShow('progressTime');
+                }, 2000);
+                break;
+            default:
+                break;
+        }
+    }, [classState]);
 
     return (
         <StyledClassTimer

@@ -15,8 +15,8 @@ import PaintCanvas from '@/components/PaintCanvas';
 import DrawingTools from '@/components/DrawingTools';
 import ClassTimer from '@/components/ClassTimer';
 import ClassContentsType from '@/components/ClassContentsType';
-import TimeStamp from '@/components/TimeStamp';
 import LoadClassContent from '@/components/LoadClassContent';
+import Timestamp from '@/components/Timestamp';
 
 const ClassContainer = () => {
     const userSession = useRecoilValue(userSessionAtom);
@@ -60,9 +60,13 @@ const ClassContainer = () => {
         changePenStyle,
         loadTextbook,
         loadHomework,
-        startClass,
-        endClass,
-    } = useClass({ dataChannels });
+        progressTime,
+        classState,
+        changeClassState,
+    } = useClass({
+        tutoringScheduleId: parseInt(router.query.tutoringScheduleId as string),
+        dataChannels,
+    });
 
     const {
         handlePointerDown,
@@ -103,18 +107,15 @@ const ClassContainer = () => {
                             <Title>| {router.query.title}</Title>
                         </div>
                         {userSession.role === 'TEACHER' && (
-                            <ClassTimer // TODO : 리팩토링
-                                startClass={() => {
-                                    startClass(parseInt(router.query.tutoringScheduleId as string));
-                                }}
-                                endClass={() => {
-                                    endClass(parseInt(router.query.tutoringScheduleId as string));
-                                }}
+                            <ClassTimer
+                                progressTime={progressTime}
+                                classState={classState}
+                                changeClassState={changeClassState}
                             />
                         )}
                     </ClassInfo>
                     <MediaStream myStream={myStream} peerStream={peerStream} />
-                    <TimeStamp />
+                    <Timestamp progressTime={progressTime} />
                 </LeftSection>
                 <TeachingTools>
                     <HelperBar>
