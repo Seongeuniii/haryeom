@@ -111,13 +111,13 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                                     selected={listTab === 'homework'}
                                     onClick={() => setListTab('homework')}
                                 >
-                                    숙제 목록
+                                    숙제
                                 </Tab>
                                 <Tab
                                     selected={listTab === 'textbook'}
                                     onClick={() => setListTab('textbook')}
                                 >
-                                    학습자료 목록
+                                    학습자료
                                 </Tab>
                             </Title>
                             {userSession.role === 'TEACHER' && tutorings && (
@@ -184,7 +184,7 @@ const SelectedTutoring = styled.main`
 
 const ListHeader = styled.div`
     width: 100%;
-    padding: 0.3em 0.6em 1.2em 0.5em;
+    padding: 0.3em 0.6em 1.2em 0em;
     font-size: 18px;
     display: flex;
     justify-content: space-between;
@@ -194,17 +194,24 @@ const ListHeader = styled.div`
 const Title = styled.div`
     display: flex;
     align-items: center;
-    gap: 1em;
+    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    border-radius: 0.5em;
 `;
 
 const Tab = styled.span<{ selected: boolean }>`
-    font-size: 18px;
+    padding: 6px 8px;
+    border-radius: 0.5em;
+    font-size: 16px;
     font-weight: ${({ theme, selected }) => (selected ? 600 : 400)};
-    color: ${({ theme, selected }) => (selected ? 'black' : theme.LIGHT_BLACK)};
+    background-color: ${({ theme, selected }) => (selected ? theme.PRIMARY : 'white')};
+    color: ${({ theme, selected }) => (selected ? 'white' : theme.LIGHT_BLACK)};
     cursor: pointer;
 
     &:hover {
-        text-decoration: underline;
+        background-color: ${({ theme, selected }) =>
+            selected ? theme.PRIMARY : theme.PRIMARY_LIGHT};
+        color: white;
+        transition: all 0.5s;
     }
 `;
 
