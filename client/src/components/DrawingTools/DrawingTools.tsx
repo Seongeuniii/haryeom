@@ -5,6 +5,7 @@ import ThickPen from '@/components/icons/ThickPen';
 import Eraser from '@/components/icons/Eraser';
 import Dropdown from '../commons/Dropdown';
 import useDropdown from '@/hooks/useDropdown';
+import { IPenStyle } from '@/hooks/useClass';
 
 interface DrawingToolsProps {
     penStyle: {
@@ -12,10 +13,10 @@ interface DrawingToolsProps {
         strokeStyle: string;
         lineWidth: number;
     };
-    changePen: (name: string, value: string | number | boolean) => void;
+    changePenStyle: (value: IPenStyle) => void;
 }
 
-const DrawingTools = ({ penStyle, changePen }: DrawingToolsProps) => {
+const DrawingTools = ({ penStyle, changePenStyle }: DrawingToolsProps) => {
     const { open, openDropdown, closeDropdown } = useDropdown();
 
     return (
@@ -24,8 +25,7 @@ const DrawingTools = ({ penStyle, changePen }: DrawingToolsProps) => {
                 <Button
                     content={<Pen />}
                     onClick={(e) => {
-                        changePen('isPen', true);
-                        changePen('lineWidth', 3);
+                        changePenStyle({ ...penStyle, lineWidth: 3 });
                     }}
                     width="30px"
                     height="30px"
@@ -36,8 +36,7 @@ const DrawingTools = ({ penStyle, changePen }: DrawingToolsProps) => {
                 <Button
                     content={<ThickPen />}
                     onClick={(e) => {
-                        changePen('isPen', true);
-                        changePen('lineWidth', 15);
+                        changePenStyle({ ...penStyle, lineWidth: 15 });
                     }}
                     width="30px"
                     height="30px"
@@ -47,7 +46,7 @@ const DrawingTools = ({ penStyle, changePen }: DrawingToolsProps) => {
                 />
                 <Button
                     content={<Eraser />}
-                    onClick={(e) => changePen('isPen', false)}
+                    onClick={(e) => changePenStyle({ ...penStyle, isPen: false })}
                     width="30px"
                     height="30px"
                     padding="6px"
@@ -71,7 +70,7 @@ const DrawingTools = ({ penStyle, changePen }: DrawingToolsProps) => {
                             content={undefined}
                             onClick={(e) => {
                                 closeDropdown();
-                                changePen('strokeStyle', 'black');
+                                changePenStyle({ ...penStyle, strokeStyle: 'black' });
                             }}
                             width="19px"
                             height="19px"
@@ -83,7 +82,7 @@ const DrawingTools = ({ penStyle, changePen }: DrawingToolsProps) => {
                             content={undefined}
                             onClick={(e) => {
                                 closeDropdown();
-                                changePen('strokeStyle', 'red');
+                                changePenStyle({ ...penStyle, strokeStyle: 'red' });
                             }}
                             width="19px"
                             height="19px"
@@ -94,7 +93,7 @@ const DrawingTools = ({ penStyle, changePen }: DrawingToolsProps) => {
                             content={undefined}
                             onClick={(e) => {
                                 closeDropdown();
-                                changePen('strokeStyle', 'green');
+                                changePenStyle({ ...penStyle, strokeStyle: 'green' });
                             }}
                             width="19px"
                             height="19px"
@@ -105,7 +104,7 @@ const DrawingTools = ({ penStyle, changePen }: DrawingToolsProps) => {
                             content={undefined}
                             onClick={(e) => {
                                 closeDropdown();
-                                changePen('strokeStyle', 'blue');
+                                changePenStyle({ ...penStyle, strokeStyle: 'blue' });
                             }}
                             width="19px"
                             height="19px"

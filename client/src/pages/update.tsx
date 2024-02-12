@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState, useLayoutEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 import HomeLayout from '@/components/layouts/HomeLayout';
 import { IUserInfo, IUserRole } from '@/apis/user/user';
@@ -7,37 +7,65 @@ import axios from 'axios';
 import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import router from 'next/router';
+import { useModal } from '@/hooks/useModal';
+import { subjectDefaultOptions } from '@/components/FilterOpenTeacherList/filterDefaultOptions';
+import UploadProfileImage from '@/components/UploadProfileImage';
 
 const path = '/members';
-const Mypage = () => {
+const updatePage = () => {
     const userSession = useRecoilValue(userSessionAtom);
-
-    const [name, setName] = useState<number>(1);
+    const { open, openModal, closeModal } = useModal();
+    const [file, setFile] = useState<File | string>();
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const handleImageClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
     const [profile, setProfile] = useState<any>({
-        name: '김태윤',
-        school: '싸피중학교',
-        grade: '중학교 2학년',
-        phone: '01012345678',
-        profileUrl: '/images/student-boy.png',
-        college: '싸피대학교', // 여기부터 선생님의 정보
-        collegeEmail: 'taeyun@ssafy.ac.kr',
+        name: '',
+        school: '',
+        grade: '',
+        phone: '',
+        profileUrl: '',
+        college: '', // 여기부터 선생님의 정보
+        collegeEmail: '',
         profileStatus: false,
-        gender: 'MALE',
-        salary: 999,
-        career: 99,
-        subjects: [
-            { id: 1, name: '수학' },
-            { id: 2, name: '과학' },
-        ],
-        introduce:
-            'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry',
+        gender: '',
+        salary: 0,
+        career: 0,
+        subjects: [],
+        introduce: '',
     }); // role에 따라서 student 담거나, teacher 담거나
+    const profileName: any = {
+        name: '이름',
+        school: '학교',
+        grade: '학년',
+        phone: '전화번호',
+        college: '대학교', // 여기부터 선생님의 정보
+        collegeEmail: '이메일',
+        profileStatus: '프로필 공개 여부',
+        gender: '성별',
+        salary: '예상 과외비',
+        career: '경력',
+        subjects: '과외 과목',
+        introduce: '선생님 소개',
+    };
 
     const [role, setRole] = useState<IUserRole>(); // STUDENT or TEACHER
     useEffect(() => {
-        setRole('TEACHER');
-        // const result = axios.get<IUserInfo>(`${process.env.NEXT_PUBLIC_API_SERVER}${path}/${userSession?.role.toLocaleLowerCase()}s/${userSession?.memberId}`)
-        // setProfile(result);
+        setRole(userSession?.role);
+        axios
+            .get(
+                `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${userSession?.role.toLocaleLowerCase()}s/${userSession?.memberId}`
+            )
+            .then((res) => {
+                setProfile(res.data);
+                if (res.data.profileUrl) setFile(res.data.profileUrl);
+            })
+            .catch((e) => {
+                console.log(e);
+            });
     }, []); // 최초 렌더링 직후에만 실행
 
     const subject = () => {
@@ -70,9 +98,135 @@ const Mypage = () => {
         else return false;
     };
 
-    const submit = () => {};
+    const changeProfile = (e: { target: { name: any; value: any } }) => {
+        setProfile((prev: any) => {
+            return {
+                ...prev,
+                [e.target.name]: e.target.value,
+            };
+        });
+    };
 
-    return (
+    const changeProfileStatus = function (profileStatus: boolean) {
+        setProfile((prev: any) => {
+            return {
+                ...prev,
+                profileStatus: profileStatus,
+            };
+        });
+    };
+
+    const isSelected = function (isSelected: boolean) {
+        if (profile.profileStatus != isSelected) return '';
+        else return 'selected';
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updateProfileImg = (value: any) => {
+        setFile(value);
+    };
+
+    const changeSubject = function (subjectInfo: { subjectId: number; name: string }) {
+        //예상 결과: subjectId 아닌거
+        const updatedSubjects = profile.subjects.filter(
+            (subject: any) => subject.subjectId !== subjectInfo.subjectId
+        );
+        //겹치는게 없는 경우 추가
+        if (updatedSubjects.length === profile.subjects.length) {
+            if (updatedSubjects.length === 3) {
+                alert('가르칠 과목은 최대 3개까지 지정할 수 있습니다.');
+            } else updatedSubjects.push(subjectInfo);
+        }
+        setProfile((prev: any) => ({
+            ...prev,
+            subjects: updatedSubjects,
+        }));
+    };
+
+    const submit = () => {
+        if (
+            userSession?.role == 'STUDENT' ||
+            (userSession?.role == 'TEACHER' && profile.profileStatus)
+        ) {
+            // eslint-disable-next-line prefer-const
+            for (let key in profile) {
+                console.log(key, ':', profile[key]);
+                if (
+                    profile[key] === '' ||
+                    profile[key] === 0 ||
+                    (Array.isArray(profile[key]) && profile[key].length == 0)
+                ) {
+                    alert(`${profileName[key]} 정보를 입력해주세요`);
+                    return;
+                }
+            }
+        } else {
+            if (profile.name === '') {
+                alert('이름 정보를 입력해주세요');
+                return;
+            }
+            if (profile.phone === '') {
+                alert('전화번호를 입력해주세요');
+                return;
+            }
+        }
+        const formData = new FormData();
+        if (file) {
+            formData.append('profileImg', file);
+        }
+        const { profileUrl, ...profileWithoutUrl } = profile;
+        const blob = new Blob([JSON.stringify(profileWithoutUrl)], { type: 'application/json' });
+        formData.append('request', blob);
+        if (userSession?.role == 'STUDENT') {
+            axios
+                .put(`${process.env.NEXT_PUBLIC_API_SERVER}/members/students`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    withCredentials: true,
+                })
+                .then(() => {
+                    alert('프로필이 수정되었습니다.');
+                    router.push('/mypage');
+                })
+                .catch((e) => console.log(e));
+        } else {
+            axios
+                .put(`${process.env.NEXT_PUBLIC_API_SERVER}/members/teachers`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    withCredentials: true,
+                })
+                .then(() => {
+                    alert('프로필이 수정되었습니다.');
+                    router.push('/mypage');
+                })
+                .catch((e) => console.log(e));
+        }
+    };
+
+    const subjectList = () => {
+        const result: JSX.Element[] = [];
+        subjectDefaultOptions.map((subject: string, i: number) => {
+            result.push(
+                <span
+                    key={i}
+                    onClick={() => changeSubject({ subjectId: i + 1, name: subject })}
+                    className={
+                        profile.subjects.some((sub: any) => sub.subjectId === i + 1)
+                            ? 'isSelected'
+                            : ''
+                    }
+                >
+                    {i + 1}. {subject}
+                </span>
+            );
+        });
+        return result;
+    };
+
+    return profile.profileUrl != '' ? (
         <HomeLayout>
             <StyledMypage>
                 <InfoBox>
@@ -85,7 +239,44 @@ const Mypage = () => {
                         </SubInfoHeader>
                         <RequiredInfo>
                             <ProfileImg>
-                                <img src={profile.profileUrl} />
+                                {/* <UploadProfileImage
+                                    defaultImage={profile.profileUrl}
+                                    handleImageChange={(file) => updateProfileImg(file)}
+                                /> */}
+                                <StyledUploadProfileImage onClick={handleImageClick}>
+                                    {file ? (
+                                        <img
+                                            src={
+                                                file instanceof File
+                                                    ? URL.createObjectURL(file)
+                                                    : file
+                                            }
+                                            alt="Selected"
+                                        />
+                                    ) : (
+                                        <p>클릭하여 이미지 업로드</p>
+                                    )}
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        accept=".png, .jpg, .jpeg"
+                                        style={{ display: 'none' }}
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (
+                                                file &&
+                                                (file.type === 'image/png' ||
+                                                    file.type === 'image/jpeg')
+                                            ) {
+                                                setFile(file);
+                                            } else {
+                                                alert(
+                                                    '이미지 파일은 PNG 또는 JPEG 형식이어야 합니다.'
+                                                );
+                                            }
+                                        }}
+                                    ></input>
+                                </StyledUploadProfileImage>
                             </ProfileImg>
                             <ProfileInfo>
                                 <InfoName>
@@ -97,12 +288,21 @@ const Mypage = () => {
                                 </InfoName>
                                 <InfoContent>
                                     <div>
-                                        <input type="text" name="name" value={profile.name} />
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            value={profile.name}
+                                            onChange={changeProfile}
+                                        />
                                     </div>
                                     {isStudent() && (
                                         <div>
-                                            <input type="text" name="grade" value={profile.grade} />{' '}
-                                            select
+                                            <input
+                                                type="text"
+                                                name="grade"
+                                                value={profile.grade}
+                                                onChange={changeProfile}
+                                            />
                                         </div>
                                     )}
                                     {isStudent() && (
@@ -111,12 +311,18 @@ const Mypage = () => {
                                                 type="text"
                                                 name="school"
                                                 value={profile.school}
+                                                onChange={changeProfile}
                                             />
                                         </div>
                                     )}
                                     {isTeacher() && <div>{profile.college}</div>}
                                     <div>
-                                        <input type="text" name="phone" value={profile.phone} />
+                                        <input
+                                            type="text"
+                                            name="phone"
+                                            value={profile.phone}
+                                            onChange={changeProfile}
+                                        />
                                     </div>
                                 </InfoContent>
                             </ProfileInfo>
@@ -131,8 +337,18 @@ const Mypage = () => {
                                 <TeacherInfo>
                                     <div className="infoName">프로필 공개 여부</div>
                                     <div>
-                                        <span>공개</span>
-                                        <span>비공개</span>
+                                        <span
+                                            onClick={() => changeProfileStatus(true)}
+                                            className={isSelected(true)}
+                                        >
+                                            공개
+                                        </span>
+                                        <span
+                                            onClick={() => changeProfileStatus(false)}
+                                            className={isSelected(false)}
+                                        >
+                                            비공개
+                                        </span>
                                     </div>
                                     <div className="infoName">성별</div>
                                     <div>{gender()}</div>
@@ -143,16 +359,20 @@ const Mypage = () => {
                                         <input
                                             className="salaryInput"
                                             type="number"
+                                            name="salary"
                                             value={profile.salary}
+                                            onChange={changeProfile}
                                         />
-                                        만원
+                                        원
                                     </div>
                                     <div className="infoName">경력</div>
                                     <div>
                                         <input
                                             className="careerInput"
                                             type="number"
+                                            name="career"
                                             value={profile.career}
+                                            onChange={changeProfile}
                                         />
                                         년
                                     </div>
@@ -160,15 +380,30 @@ const Mypage = () => {
                                 <InfoContent>
                                     <div className="infoName">
                                         가르칠 과목
-                                        <button>+</button>
-                                        <button>-</button>
+                                        <StyledModal open={open}>
+                                            <ModalBackground open={open} onClick={closeModal} />
+                                            <ModalWrapper>
+                                                <SubjectList>{subjectList()}</SubjectList>
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <ModalCloseButton onClick={closeModal}>
+                                                    변경 완료
+                                                </ModalCloseButton>
+                                            </ModalWrapper>
+                                        </StyledModal>
+                                        <button onClick={() => openModal()}>변경하기</button>
                                     </div>
                                     <div>{subject()}</div>
                                     <div className="infoName">선생님 소개</div>
                                 </InfoContent>
                                 <br />
                                 <TeacherIntroduce>
-                                    <textarea value={profile.introduce} />
+                                    <textarea
+                                        name="introduce"
+                                        value={profile.introduce}
+                                        onChange={changeProfile}
+                                    />
                                 </TeacherIntroduce>
                             </OptionalInfo>
                         </InfoBody>
@@ -180,7 +415,7 @@ const Mypage = () => {
                 </InfoBox>
             </StyledMypage>
         </HomeLayout>
-    );
+    ) : null;
 };
 const StyledMypage = styled.div`
     margin: auto;
@@ -204,6 +439,9 @@ const StyledMypage = styled.div`
         background: rgba(0, 0, 0, 0.001);
         outline: none;
         box-shadow: 0 2px 0 ${({ theme }) => theme.PRIMARY};
+    }
+    input[type='file'] {
+        display: none;
     }
 `;
 const InfoBox = styled.div`
@@ -251,6 +489,9 @@ const RequiredInfo = styled.div`
     align-items: center;
     justify-content: space-around;
     text-align: center;
+    input {
+        max-width: 110px;
+    }
 `;
 
 const ProfileImg = styled.div`
@@ -278,6 +519,13 @@ const InfoName = styled.div`
     font-weight: 500;
 `;
 const InfoContent = styled.div`
+    .isSelected {
+        background-color: ${({ theme }) => theme.PRIMARY};
+        color: ${({ theme }) => theme.WHITE};
+        &:hover {
+            background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+        }
+    }
     div {
         padding: 0.5em 1em;
     }
@@ -295,13 +543,12 @@ const InfoContent = styled.div`
         border-radius: 0.4em;
     }
     button {
-        margin: 0 0.2em;
-        width: 18px;
-        height: 18px;
+        margin: 0 2em;
+        padding: 0.2em 0.5em;
         background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
         color: ${({ theme }) => theme.WHITE};
         font-weight: bold;
-        border-radius: 70%;
+        border-radius: 0.4em;
         &:hover {
             background-color: ${({ theme }) => theme.PRIMARY};
         }
@@ -333,6 +580,9 @@ const TeacherInfo = styled.div`
         flex-basis: 25%;
         padding: 0 0.5em;
     }
+    .selected {
+        background-color: ${({ theme }) => theme.PRIMARY};
+    }
     span {
         padding: 0 0.3em;
         background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
@@ -346,7 +596,7 @@ const TeacherInfo = styled.div`
         max-width: 1.5em;
     }
     input {
-        max-width: 2.5em;
+        max-width: 4em;
         text-align: center;
     }
     /* Chrome, Safari, Edge, Opera */
@@ -399,4 +649,84 @@ const Button = styled.div`
     justify-content: space-around;
     width: 30%;
 `;
-export default Mypage;
+
+const StyledModal = styled.div<{ open: boolean }>`
+    ${({ open }) => !open && `display:none;`}
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 100;
+`;
+
+const ModalWrapper = styled.div`
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+`;
+
+const ModalBackground = styled.div<{ open: boolean }>`
+    ${({ open }) => !open && `display:none;`}
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    height: 70%;
+    background-color: #e3e3e3;
+    border-radius: 2em;
+`;
+
+const ModalCloseButton = styled.button`
+    width: 20%;
+    min-width: 8em;
+    min-height: 2.5em;
+    padding: 3em;
+    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+    color: ${({ theme }) => theme.WHITE};
+    font-weight: bold;
+    border-radius: 0.4em;
+    &:hover {
+        background-color: ${({ theme }) => theme.PRIMARY};
+    }
+    text-align: center;
+`;
+
+const SubjectList = styled.div`
+    .selected {
+        background-color: ${({ theme }) => theme.PRIMARY};
+        color: ${({ theme }) => theme.WHITE};
+    }
+    span {
+        margin: 0.5em;
+        background-color: ${({ theme }) => theme.WHITE};
+        color: ${({ theme }) => theme.DARK_BLACK};
+        &:hover {
+            background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+            color: ${({ theme }) => theme.WHITE};
+        }
+        text-align: center;
+    }
+    text-align: center;
+`;
+
+const StyledUploadProfileImage = styled.div`
+    width: 150px;
+    height: 150px;
+    border-radius: 30%;
+    border: 1px solid #ccc;
+    overflow: hidden;
+    cursor: pointer;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+`;
+export default updatePage;

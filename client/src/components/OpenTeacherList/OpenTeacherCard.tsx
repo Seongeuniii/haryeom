@@ -22,21 +22,23 @@ const OpenTeacherCard = ({ onClick, openTeacher }: OpenTeacherCardProps) => {
                         <OptionIcon>
                             <BookIcon />
                         </OptionIcon>
-                        {openTeacher.subjects.map((subject) => {
-                            return <span key={subject.subjectId}>{subject.name}</span>;
-                        })}
+                        <Subjects>
+                            {openTeacher.subjects.map((subject) => {
+                                return <div key={subject.subjectId}>{subject.name}</div>;
+                            })}
+                        </Subjects>
                     </Option>
                     <Option>
                         <OptionIcon>
                             <GraduationCap />
                         </OptionIcon>
-                        <span>{openTeacher.college}</span>
+                        <div>{openTeacher.college}</div>
                     </Option>
                     <Option>
                         <OptionIcon>
                             <CareerIcon />
                         </OptionIcon>
-                        <span>경력 {openTeacher.career}년</span>
+                        <div>경력 {openTeacher.career}년</div>
                     </Option>
                 </Section>
                 <Section>
@@ -44,13 +46,13 @@ const OpenTeacherCard = ({ onClick, openTeacher }: OpenTeacherCardProps) => {
                         <OptionIcon>
                             <UserIcon />
                         </OptionIcon>
-                        <span>{openTeacher.gender === 'MALE' ? '여자' : '남자'}</span>
+                        <div>{openTeacher.gender === 'MALE' ? '남자' : '여자'}</div>
                     </Option>
                     <Option>
                         <OptionIcon>
                             <DollarIcon />
                         </OptionIcon>
-                        <span>최소 {openTeacher.salary}원</span>
+                        <div>최소 {openTeacher.salary}원</div>
                     </Option>
                 </Section>
             </TeacherInfo>
@@ -102,6 +104,17 @@ const Option = styled.div`
     display: flex;
     align-items: center;
     margin-bottom: 8px;
+
+    div {
+        height: 20px;
+        white-space: nowrap;
+    }
+`;
+
+const Subjects = styled.div`
+    width: 60px;
+    white-space: nowrap;
+    overflow: hidden;
 `;
 
 const OptionIcon = styled.div`

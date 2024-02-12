@@ -23,7 +23,7 @@ const InputForm = ({ label, name, handleChange, isValid = true }: InputFormProps
     }, [isValid]);
 
     return (
-        <StyledInputForm isValid={isValid} isShaking={isShaking}>
+        <StyledInputForm $isValid={isValid} $isShaking={isShaking}>
             <label htmlFor="inp" className={`inp ${isValid ? '' : 'invalid'}`}>
                 <input
                     name={name}
@@ -39,7 +39,7 @@ const InputForm = ({ label, name, handleChange, isValid = true }: InputFormProps
     );
 };
 
-const StyledInputForm = styled.div<{ isValid: boolean; isShaking: boolean }>`
+const StyledInputForm = styled.div<{ $isValid: boolean; $isShaking: boolean }>`
     width: 100%;
     display: grid;
     -webkit-font-smoothing: antialiased;
@@ -48,8 +48,8 @@ const StyledInputForm = styled.div<{ isValid: boolean; isShaking: boolean }>`
         position: relative;
         border-radius: 3px;
         overflow: hidden;
-        ${({ isShaking }) =>
-            isShaking &&
+        ${({ $isShaking }) =>
+            $isShaking &&
             css`
                 animation: ${shakeAnimation} 0.6s ease-in-out;
             `}
@@ -94,7 +94,7 @@ const StyledInputForm = styled.div<{ isValid: boolean; isShaking: boolean }>`
         box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.3);
         color: #000;
         transition: all 0.15s ease;
-        box-shadow: inset 0 -2px 0 ${({ isValid }) => (isValid ? 'inset 0 -1px 0 rgba(0, 0, 0, 0.3)' : 'red')};
+        box-shadow: inset 0 -2px 0 ${({ $isValid }) => ($isValid ? 'inset 0 -1px 0 rgba(0, 0, 0, 0.3)' : 'red')};
     }
     .inp input:not(:placeholder-shown) + .label {
         color: rgba(0, 0, 0, 0.5);
@@ -102,7 +102,7 @@ const StyledInputForm = styled.div<{ isValid: boolean; isShaking: boolean }>`
     }
     .inp input:focus {
         outline: none;
-        box-shadow: inset 0 -2px 0 ${({ theme, isValid }) => (isValid ? theme.PRIMARY : 'red')};
+        box-shadow: inset 0 -2px 0 ${({ theme, $isValid }) => ($isValid ? theme.PRIMARY : 'red')};
     }
     .inp input:focus + .label {
         color: black;

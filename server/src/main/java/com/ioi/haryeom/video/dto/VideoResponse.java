@@ -16,4 +16,6 @@ public class VideoResponse {
     private String title;
     private LocalDate scheduleDate;
     private String duration;
+    private Long tutoringScheduleId;
+    private Long teacherMemberId;
 }

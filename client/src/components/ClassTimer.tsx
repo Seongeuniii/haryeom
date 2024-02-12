@@ -1,34 +1,17 @@
-import React, { MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
+import React, { MouseEvent, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useClassTimer, getHour, getMinute, getSecond } from '../hooks/useClassTimer';
+import { getHour, getMinute, getSecond, ClassState } from '@/hooks/useClassTimer';
 
-type ClassState = '수업시작전' | '수업중' | '수업종료';
+interface ClassTimerProps {
+    progressTime: number;
+    classState: ClassState;
+    changeClassState: () => Promise<void>;
+}
 
-const ClassTimer = () => {
-    const [classState, setClassState] = useState<ClassState>('수업시작전');
-    const { startTimer, stopTimer, progressTime } = useClassTimer();
+const ClassTimer = ({ progressTime, classState, changeClassState }: ClassTimerProps) => {
     const [staticShow, setStaticShow] = useState<string>('수업 시작');
     const [hoverShow, setHoverShow] = useState<string>('수업 시작');
     const [isHover, setIsHover] = useState<boolean>(false);
-
-    const changeClassState = () => {
-        if (classState === '수업시작전') {
-            startTimer();
-            setStaticShow('progressTime');
-            setHoverShow('progressTime');
-            setTimeout(() => {
-                setHoverShow('수업 종료하기');
-            }, 2000);
-            setClassState('수업중');
-        } else if (classState === '수업중') {
-            stopTimer();
-            setStaticShow('수업종료');
-            setTimeout(() => {
-                setHoverShow('progressTime');
-            }, 2000);
-            setClassState('수업종료');
-        } else return;
-    };
 
     const handleMouseEnter = (e: MouseEvent) => {
         setIsHover(true);
@@ -38,9 +21,29 @@ const ClassTimer = () => {
         setIsHover(false);
     };
 
+    useEffect(() => {
+        switch (classState) {
+            case '수업중':
+                setStaticShow('progressTime');
+                setHoverShow('progressTime');
+                setTimeout(() => {
+                    setHoverShow('수업 종료하기');
+                }, 2000);
+                break;
+            case '수업종료':
+                setStaticShow('수업종료');
+                setTimeout(() => {
+                    setHoverShow('progressTime');
+                }, 2000);
+                break;
+            default:
+                break;
+        }
+    }, [classState]);
+
     return (
         <StyledClassTimer
-            classState={classState}
+            $classState={classState}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
@@ -81,7 +84,7 @@ const ClassTimer = () => {
     );
 };
 
-const StyledClassTimer = styled.div<{ classState: ClassState }>`
+const StyledClassTimer = styled.div<{ $classState: ClassState }>`
     width: 100%;
     height: 35px;
     display: flex;
@@ -89,8 +92,8 @@ const StyledClassTimer = styled.div<{ classState: ClassState }>`
     justify-content: center;
     font-size: 16px;
     border-radius: 0.3em;
-    background-color: ${({ theme, classState }) =>
-        classState === '수업시작전' ? theme.PRIMARY_LIGHT : theme.PRIMARY};
+    background-color: ${({ theme, $classState }) =>
+        $classState === '수업시작전' ? theme.PRIMARY_LIGHT : theme.PRIMARY};
     color: white;
     font-weight: bold;
     cursor: pointer;

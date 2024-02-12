@@ -5,7 +5,9 @@ import com.ioi.haryeom.tutoring.repository.TutoringScheduleRepository;
 import com.ioi.haryeom.video.domain.VideoTimestamp;
 import com.ioi.haryeom.video.dto.VideoTimestampRequest;
 import com.ioi.haryeom.video.dto.VideoTimestampResponse;
+import com.ioi.haryeom.video.exception.VideoNotFoundException;
 import com.ioi.haryeom.video.exception.VideoTimestampNotFoundException;
+import com.ioi.haryeom.video.exception.VideoTutoringNotFoundException;
 import com.ioi.haryeom.video.repository.VideoTimestampRepository;
 import com.ioi.haryeom.video.domain.Video;
 import com.ioi.haryeom.video.repository.VideoRepository;
@@ -27,8 +29,9 @@ public class VideoTimestampService {
     private final VideoRepository videoRepository;
 
     public List<VideoTimestampResponse> getTimestampList(Long tutoringScheduleId, Long memberId) {
-        Video video = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId).get();
-        if(video.getTutoringSchedule().getTutoring().getStudent().getId() !=memberId){
+        Video video = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId)
+                .orElseThrow(() -> new VideoTutoringNotFoundException(tutoringScheduleId));
+        if(video.getTutoringSchedule().getTutoring().getStudent().getId() !=memberId && video.getTutoringSchedule().getTutoring().getTeacher().getId() !=memberId){
             throw new AuthorizationException(memberId);
         }
         List<VideoTimestamp> timestampList = videoTimestampRepository.findByVideo_Id(video.getId());
@@ -41,8 +44,9 @@ public class VideoTimestampService {
 
     @Transactional
     public Long createVideoTimestamp(Long tutoringScheduleId, VideoTimestampRequest timestampRequest, Long memberId) {
-        Video video = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId).get();
-        if(video.getTutoringSchedule().getTutoring().getStudent().getId() !=memberId){
+        Video video = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId)
+                .orElseThrow(() -> new VideoTutoringNotFoundException(tutoringScheduleId));
+        if(video.getTutoringSchedule().getTutoring().getStudent().getId() !=memberId && video.getTutoringSchedule().getTutoring().getTeacher().getId() !=memberId){
             throw new AuthorizationException(memberId);
         }
         LocalTime stampTime = parseStampTime(timestampRequest.getStampTime());
@@ -57,14 +61,11 @@ public class VideoTimestampService {
     }
 
     @Transactional
-    public void updateVideoTimestamp(Long id, VideoTimestampRequest timestampRequest, Long memberId) {
-        Optional<VideoTimestamp> optionalTimestamp = videoTimestampRepository.findById(id);
-        if (!optionalTimestamp.isPresent()) {
-            throw new VideoTimestampNotFoundException(id);
-        }
-        //Todo: auth exception
-        VideoTimestamp videoTimestamp = optionalTimestamp.get();
-        if(videoTimestamp.getVideo().getTutoringSchedule().getTutoring().getStudent().getId() !=memberId){
+    public void updateVideoTimestamp(Long videoTimestampId, VideoTimestampRequest timestampRequest, Long memberId) {
+        VideoTimestamp videoTimestamp = videoTimestampRepository.findById(videoTimestampId)
+                .orElseThrow(() -> new VideoTimestampNotFoundException(videoTimestampId));
+
+        if(videoTimestamp.getVideo().getTutoringSchedule().getTutoring().getStudent().getId() !=memberId && videoTimestamp.getVideo().getTutoringSchedule().getTutoring().getTeacher().getId() != memberId){
             throw new AuthorizationException(memberId);
         }
         LocalTime stampTime = parseStampTime(timestampRequest.getStampTime());
@@ -72,14 +73,10 @@ public class VideoTimestampService {
     }
 
     @Transactional
-    public void deleteTimestamp(Long timestampId, Long memberId) {
-        //Todo: auth exception
-        Optional<VideoTimestamp> optionalTimestamp = findVideoById(timestampId);
-        if(!optionalTimestamp.isPresent()){
-            throw new VideoTimestampNotFoundException(timestampId);
-        }
-        VideoTimestamp videoTimestamp = optionalTimestamp.get();
-        if(videoTimestamp.getVideo().getTutoringSchedule().getTutoring().getStudent().getId()!=memberId){
+    public void deleteTimestamp(Long videoTimestampId, Long memberId) {
+        VideoTimestamp videoTimestamp = videoTimestampRepository.findById(videoTimestampId)
+                .orElseThrow(() -> new VideoTimestampNotFoundException(videoTimestampId));
+        if(videoTimestamp.getVideo().getTutoringSchedule().getTutoring().getStudent().getId()!=memberId && videoTimestamp.getVideo().getTutoringSchedule().getTutoring().getTeacher().getId() !=memberId){
             throw new AuthorizationException(memberId);
         }
         videoTimestampRepository.delete(videoTimestamp);

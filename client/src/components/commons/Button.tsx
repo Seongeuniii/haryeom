@@ -39,6 +39,10 @@ const StyledButton = styled.button<StyleProps>`
     display: flex;
     align-items: center;
     justify-content: center;
+
+    svg {
+        height: 100%;
+    }
 `;
 
 export default Button;

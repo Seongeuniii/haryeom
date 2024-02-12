@@ -1,12 +1,13 @@
-import { PointerEvent, useEffect, useRef, useState } from 'react';
+import { IPenStyle } from '@/hooks/useClass';
+import { PointerEvent, RefObject, useEffect, useRef, useState } from 'react';
 
 interface IUsePeerPaint {
+    canvasRef: RefObject<HTMLCanvasElement>;
     backgroundImage?: Blob | string;
-    dataChannels: RTCDataChannel[];
+    penStyle: IPenStyle;
 }
 
-const usePeerPaint = ({ backgroundImage, dataChannels }: IUsePeerPaint) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+const usePeerPaint = ({ canvasRef, backgroundImage, penStyle }: IUsePeerPaint) => {
     const contextRef = useRef<CanvasRenderingContext2D | null>(null);
     const canvasInformRef = useRef({
         width: 0,
@@ -31,7 +32,6 @@ const usePeerPaint = ({ backgroundImage, dataChannels }: IUsePeerPaint) => {
 
     const init = () => {
         if (!canvasRef.current) return;
-        console.log('init');
         const { clientWidth, clientHeight } = canvasRef.current;
         canvasSizeSetting(clientWidth, clientHeight);
 
@@ -111,8 +111,20 @@ const usePeerPaint = ({ backgroundImage, dataChannels }: IUsePeerPaint) => {
     const handlePointerMove = (offset: any) => {
         if (!contextRef.current) return;
         const { x, y } = offset;
-        contextRef.current.lineTo(x, y);
-        contextRef.current.stroke();
+
+        if (penStyle.isPen) {
+            contextRef.current.strokeStyle = penStyle.strokeStyle;
+            contextRef.current.lineWidth = penStyle.lineWidth;
+            contextRef.current.lineTo(x, y);
+            contextRef.current.stroke();
+        } else {
+            contextRef.current.globalCompositeOperation = 'destination-out';
+            contextRef.current.beginPath();
+            contextRef.current.arc(x, y, 15, 0, Math.PI * 2);
+            contextRef.current.fill();
+            contextRef.current.closePath();
+            contextRef.current.globalCompositeOperation = 'source-over';
+        }
     };
 
     const handlePointerUp = () => {
@@ -120,19 +132,7 @@ const usePeerPaint = ({ backgroundImage, dataChannels }: IUsePeerPaint) => {
         contextRef.current.closePath();
     };
 
-    useEffect(() => {
-        dataChannels.map((channel: RTCDataChannel) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            channel.onmessage = (e: MessageEvent<any>) => {
-                const { type, action, offset } = JSON.parse(e.data);
-                if (action === 'down') handlePointerDown(offset);
-                else if (action === 'move') requestAnimationFrame(() => handlePointerMove(offset));
-                else handlePointerUp();
-            };
-        });
-    }, [dataChannels]);
-
-    return { canvasRef };
+    return { handlePointerDown, handlePointerMove, handlePointerUp };
 };
 
 export default usePeerPaint;

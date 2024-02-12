@@ -16,7 +16,7 @@ const useCalendar = () => {
         setyearMonth(getYearMonth(activeStartDate));
     };
 
-    return { date, yearMonth, handleClickDay, handleYearMonthChange };
+    return { date, setDate, yearMonth, handleClickDay, handleYearMonthChange };
 };
 
 export default useCalendar;

@@ -5,7 +5,7 @@ const path = '/homework';
 
 type ReturnType = IHomework;
 
-export const getHomework = async (homeworkId: string) => {
+export const getHomework = async (homeworkId: number) => {
     try {
         const res = await axios.get<ReturnType>(
             `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${homeworkId}`

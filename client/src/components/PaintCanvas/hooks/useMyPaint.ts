@@ -1,12 +1,14 @@
-import { PointerEvent, useEffect, useRef, useState } from 'react';
+import { PointerEvent, RefObject, useEffect, useRef, useState } from 'react';
+import { IPenStyle } from '@/hooks/useClass';
 
 interface IUseMyPaint {
+    canvasRef: RefObject<HTMLCanvasElement>;
     backgroundImage?: Blob | string;
+    penStyle: IPenStyle;
     dataChannels?: RTCDataChannel[];
 }
 
-const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+const useMyPaint = ({ canvasRef, backgroundImage, penStyle, dataChannels }: IUseMyPaint) => {
     const contextRef = useRef<CanvasRenderingContext2D | null>(null);
     const canvasInformRef = useRef({
         width: 0,
@@ -14,15 +16,6 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
         pixelRatio: 1,
     });
     const [isDown, setIsDown] = useState<boolean>(false);
-    const [penStyle, setPenStyle] = useState<{
-        isPen: boolean;
-        strokeStyle: string;
-        lineWidth: number;
-    }>({
-        isPen: true,
-        strokeStyle: 'black',
-        lineWidth: 3,
-    });
 
     useEffect(() => {
         const isBrowser = typeof window !== 'undefined';
@@ -37,12 +30,24 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
 
     useEffect(() => {
         init();
-    }, [canvasRef.current, backgroundImage]);
+    }, [canvasRef.current?.width, canvasRef.current?.height, backgroundImage]);
 
     useEffect(() => {
         if (!contextRef.current) return;
         contextRef.current.strokeStyle = penStyle.strokeStyle;
         contextRef.current.lineWidth = penStyle.lineWidth;
+
+        dataChannels?.map((channel: RTCDataChannel) => {
+            try {
+                channel.send(
+                    JSON.stringify({
+                        updatedPenStyle: penStyle,
+                    })
+                );
+            } catch (e) {
+                console.log('전송 실패');
+            }
+        });
     }, [penStyle]);
 
     const init = () => {
@@ -92,6 +97,8 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
             const { clientWidth, clientHeight } = canvasRef.current;
             const imageAspectRatio = imageObj.width / imageObj.height;
 
+            console.log(clientWidth, clientHeight, imageObj.width, imageObj.height);
+
             let newWidth, newHeight;
             if (clientWidth / clientHeight > imageAspectRatio) {
                 newWidth = clientHeight * imageAspectRatio;
@@ -114,10 +121,6 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
         };
     };
 
-    const changePen = (name: string, value: string | number | boolean) => {
-        setPenStyle((prev) => ({ ...prev, [name]: value }));
-    };
-
     const handlePointerDown = ({ nativeEvent }: PointerEvent) => {
         setIsDown(true);
         if (!contextRef.current) return;
@@ -129,7 +132,6 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
             try {
                 channel.send(
                     JSON.stringify({
-                        type: 'pdf',
                         action: 'down',
                         offset: { x: offsetX, y: offsetY },
                     })
@@ -145,26 +147,29 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
         const { offsetX, offsetY } = nativeEvent;
 
         if (penStyle.isPen) {
+            contextRef.current.strokeStyle = penStyle.strokeStyle;
+            contextRef.current.lineWidth = penStyle.lineWidth;
             contextRef.current.lineTo(offsetX, offsetY);
             contextRef.current.stroke();
         } else {
+            contextRef.current.globalCompositeOperation = 'destination-out';
             contextRef.current.beginPath();
             contextRef.current.arc(offsetX, offsetY, 15, 0, Math.PI * 2);
-            contextRef.current.fillStyle = 'white';
             contextRef.current.fill();
             contextRef.current.closePath();
+            contextRef.current.globalCompositeOperation = 'source-over';
         }
 
         dataChannels?.map((channel: RTCDataChannel) => {
             try {
-                channel.send(
-                    JSON.stringify({
-                        type: 'pdf',
-                        action: 'move',
-                        offset: { x: offsetX, y: offsetY },
-                    })
-                );
-                console.log('send move');
+                if (offsetX && offsetY) {
+                    channel.send(
+                        JSON.stringify({
+                            action: 'move',
+                            offset: { x: offsetX, y: offsetY },
+                        })
+                    );
+                }
             } catch (e) {
                 console.log('전송 실패');
             }
@@ -180,7 +185,6 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
             try {
                 channel.send(
                     JSON.stringify({
-                        type: 'pdf',
                         action: 'up',
                     })
                 );
@@ -218,13 +222,11 @@ const useMyPaint = ({ backgroundImage, dataChannels }: IUseMyPaint) => {
     };
 
     return {
-        canvasRef,
         handlePointerDown,
         handlePointerMove,
         handlePointerUp,
         getCanvasDrawingImage,
         penStyle,
-        changePen,
     };
 };
 

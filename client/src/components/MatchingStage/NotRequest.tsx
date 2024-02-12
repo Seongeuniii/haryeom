@@ -51,6 +51,7 @@ const StyledNotRequest = styled.div`
     align-items: center;
     justify-content: center;
     background-color: ${({ theme }) => theme.PRIMARY};
+    height: 52px;
 `;
 
 const ApplyTutoringButton = styled.button`

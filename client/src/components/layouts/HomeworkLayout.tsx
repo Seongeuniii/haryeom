@@ -6,9 +6,10 @@ import { IHomework } from '@/apis/homework/homework';
 interface HomeworkLayoutProps {
     homeworkData: IHomework;
     children: ReactNode;
+    handleSubmit: () => void;
 }
 
-const HomeworkLayout = ({ homeworkData, children }: HomeworkLayoutProps) => {
+const HomeworkLayout = ({ homeworkData, children, handleSubmit }: HomeworkLayoutProps) => {
     return (
         <StyledHomeworkLayout>
             <HeaderWrapper>
@@ -18,6 +19,7 @@ const HomeworkLayout = ({ homeworkData, children }: HomeworkLayoutProps) => {
                         p.{homeworkData.startPage} ~ p.{homeworkData.endPage}
                     </Range>
                 </Header>
+                <SubmitHomeworkButton onClick={handleSubmit}>제출하기</SubmitHomeworkButton>
             </HeaderWrapper>
             <ContainerWrapper>{children}</ContainerWrapper>
             <ChatContainer />
@@ -37,16 +39,22 @@ const HeaderWrapper = styled.header`
 `;
 
 const Header = styled.div`
-    width: 80%;
+    width: 70%;
     height: 100%;
     max-width: 1200px;
     display: flex;
     align-items: center;
     justify-content: center;
+
+    @media screen and (max-width: 1200px) {
+        & {
+            width: 100%;
+        }
+    }
 `;
 
 const TextbookName = styled.span`
-    margin-right: 0.7em;
+    margin: 0 0.7em 0 2em;
     font-size: 18px;
     font-weight: 700;
 `;
@@ -72,6 +80,26 @@ const ContainerWrapper = styled.main`
         & {
             width: 100%;
         }
+    }
+`;
+
+const SubmitHomeworkButton = styled.button`
+    position: absolute;
+    right: 16.5%;
+    padding: 7px 12px;
+    border-radius: 5px;
+    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
+    color: white;
+
+    @media screen and (max-width: 1200px) {
+        & {
+            right: 2%;
+        }
+    }
+
+    &:hover {
+        background-color: ${({ theme }) => theme.PRIMARY};
+        transition: all 0.5s;
     }
 `;
 

@@ -13,11 +13,11 @@ interface DropdownnProps extends StyledProps {
 }
 
 const Dropdown = ({ children, ...props }: DropdownnProps) => {
-    const { open, closeDropdown } = props;
+    const { open, closeDropdown, ...styleProps } = props;
 
     return (
         <StyledDropDown open={open}>
-            <DropdownWrapper {...props}>{children}</DropdownWrapper>
+            <DropdownWrapper {...styleProps}>{children}</DropdownWrapper>
             <DropdownBackground onClick={closeDropdown} />
         </StyledDropDown>
     );

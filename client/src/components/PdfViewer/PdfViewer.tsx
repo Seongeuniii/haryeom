@@ -13,10 +13,10 @@ interface Homework {
 }
 
 interface PdfViewerProps extends Homework {
-    pdfFile: string;
+    pdfFile: string | undefined;
     totalPagesOfPdfFile: number;
     pdfPageCurrentSize: IPdfSize;
-    children: ReactNode;
+    children?: ReactNode;
     selectedPageNumber: number;
     movePage: (selectedPageNumber: number) => void;
     onDocumentLoadSuccess: OnDocumentLoadSuccess;
@@ -57,8 +57,17 @@ const PdfViewer = ({
     const getPdfPageWrapperSize = () => {
         if (!pdfPageWrapperRef.current) return { width: undefined, height: undefined };
         const { clientWidth, clientHeight } = pdfPageWrapperRef.current;
+        console.log(clientHeight, clientWidth);
         return { width: clientWidth, height: clientHeight };
     };
+
+    if (!pdfFile) {
+        return (
+            <StyledPdfViewer>
+                <NoPdfFile>파일을 불러오지 못했어요.</NoPdfFile>
+            </StyledPdfViewer>
+        );
+    }
 
     return (
         <StyledPdfViewer>
@@ -118,6 +127,13 @@ const StyledPdfViewer = styled.div`
     flex: 1;
     overflow: auto;
     display: flex;
+    align-items: center;
+    justify-content: center;
+`;
+
+const NoPdfFile = styled.span`
+    font-weight: 700;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
 `;
 
 const PdfThumbnailList = styled.div`
@@ -125,6 +141,7 @@ const PdfThumbnailList = styled.div`
     top: 0;
     left: 0;
     min-width: 125px;
+    height: 100%;
     padding-right: 8px;
     margin: 1em 0 1em 1em;
 
@@ -136,6 +153,7 @@ const PdfThumbnailList = styled.div`
 
 const PdfPageWrapper = styled.div`
     position: relative;
+    height: 100%;
     flex: 1;
     margin: 1em;
     display: flex;

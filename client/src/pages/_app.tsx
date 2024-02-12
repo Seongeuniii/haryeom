@@ -17,6 +17,8 @@ interface MyAppProps extends AppProps {
     loginUserData: IUser | undefined;
 }
 
+axios.defaults.withCredentials = true;
+
 function MyApp({ Component, pageProps, loginUserData }: MyAppProps) {
     const [queryClient] = useState(() => new QueryClient());
 

@@ -1,24 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
+import { useRecoilValue } from 'recoil';
 import MediaStream from './MediaStream';
+import userSessionAtom from '@/recoil/atoms/userSession';
 import useStream from '@/hooks/useStream';
 import useWebRTCStomp from '@/hooks/useWebRTC';
+import useClass from '@/hooks/useClass';
+import usePdf from '@/hooks/usePdf';
 import ClassLayout from '@/components/layouts/ClassLayout';
 import PdfViewer from '@/components/PdfViewer';
-import usePdf from '@/hooks/usePdf';
 import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
 import PaintCanvas from '@/components/PaintCanvas';
-import Button from '@/components/commons/Button';
-import { useRecoilValue } from 'recoil';
-import PeerPaintCanvas from '@/components/PaintCanvas/PeerPaintCanvas';
-import usePeerPaint from '@/components/PaintCanvas/hooks/usePeerPaint';
-import userSessionAtom from '@/recoil/atoms/userSession';
-import useMediaRecord from '@/hooks/useMediaRecord';
 import DrawingTools from '@/components/DrawingTools';
 import ClassTimer from '@/components/ClassTimer';
-
-type toolType = '빈페이지' | '학습자료';
+import ClassContentsType from '@/components/ClassContentsType';
+import LoadClassContent from '@/components/LoadClassContent';
+import Timestamp from '@/components/Timestamp';
 
 const ClassContainer = () => {
     const userSession = useRecoilValue(userSessionAtom);
@@ -47,29 +45,46 @@ const ClassContainer = () => {
         initialSelectedPageNumer: 1,
     });
 
-    const [seletedTool, setSelectedTool] = useState<toolType>('빈페이지');
-    const [myWhiteboardBackgroundImage, setMyWhiteBoardBackgroundImage] = useState<Blob | string>();
-    const [peerWhiteBoardBackgroundImage, setPeerWhiteBoard] = useState<Blob | string>();
     const {
-        canvasRef,
+        myAction,
+        textbook,
+        homework,
+        whiteboardCanvasRef,
+        textbookCanvasRef,
+        whiteboardCanvasBackgroundImage,
+        textbookCanvasBackgroundImage,
+        setTextbookCanvasBackgroundImage,
+        peerWatchingSameScreen,
+        cleanUpCanvas,
+        changeContents,
+        changePenStyle,
+        loadTextbook,
+        loadHomework,
+        progressTime,
+        classState,
+        changeClassState,
+    } = useClass({
+        tutoringScheduleId: parseInt(router.query.tutoringScheduleId as string),
+        dataChannels,
+    });
+
+    const {
         handlePointerDown,
         handlePointerMove,
         handlePointerUp,
         getCanvasDrawingImage,
         penStyle,
-        changePen,
     } = useMyPaint({
-        backgroundImage: myWhiteboardBackgroundImage,
-        dataChannels: dataChannels,
+        canvasRef: myAction.content === '빈페이지' ? whiteboardCanvasRef : textbookCanvasRef,
+        backgroundImage:
+            myAction.content === '빈페이지'
+                ? whiteboardCanvasBackgroundImage
+                : textbookCanvasBackgroundImage,
+        penStyle: myAction.penStyle,
+        dataChannels,
     });
-    const { canvasRef: peerCavasRef } = usePeerPaint({
-        backgroundImage: peerWhiteBoardBackgroundImage,
-        dataChannels: dataChannels,
-    });
-    const { startRecording, stopRecording, downloadRecording } = useMediaRecord();
 
-    const changeToolType = (type: toolType) => setSelectedTool(type);
-
+    // TOOD: 리팩토링
     useEffect(() => {
         const handleRouteChange = () => {
             stopStream();
@@ -91,43 +106,67 @@ const ClassContainer = () => {
                             <Subject>{router.query.subject}</Subject>
                             <Title>| {router.query.title}</Title>
                         </div>
-                        <ClassTimer />
+                        {userSession.role === 'TEACHER' && (
+                            <ClassTimer
+                                progressTime={progressTime}
+                                classState={classState}
+                                changeClassState={changeClassState}
+                            />
+                        )}
                     </ClassInfo>
                     <MediaStream myStream={myStream} peerStream={peerStream} />
+                    <Timestamp progressTime={progressTime} />
                 </LeftSection>
                 <TeachingTools>
                     <HelperBar>
-                        <Button
-                            content={'빈 페이지'}
-                            onClick={(e) => changeToolType('빈페이지')}
-                            width="80px"
-                            height="30px"
-                            $borderColor="#b9b9b9"
-                            $borderRadius="0.4em"
-                            $backgroundColor={seletedTool === '빈페이지' ? '#606060' : ''}
-                            color={seletedTool === '빈페이지' ? 'white' : ''}
-                        ></Button>
-                        <Button
-                            content={'학습자료'}
-                            onClick={(e) => changeToolType('학습자료')}
-                            width="100px"
-                            height="30px"
-                            $borderColor="#b9b9b9"
-                            $borderRadius="0.4em"
-                            $backgroundColor={seletedTool === '학습자료' ? '#606060' : ''}
-                            color={seletedTool === '학습자료' ? 'white' : ''}
-                        ></Button>
-                        <DrawingTools penStyle={penStyle} changePen={changePen} />
+                        <ClassContentsType
+                            changeContents={changeContents}
+                            contentType={myAction.content}
+                            LoadTextbook={
+                                userSession.role === 'TEACHER'
+                                    ? ({ closeModal }) =>
+                                          LoadClassContent({
+                                              content: 'textbook',
+                                              tutoringId: parseInt(
+                                                  router.query.tutoringId as string
+                                              ),
+                                              loadClassContent: loadTextbook,
+                                              closeModal,
+                                          })
+                                    : undefined
+                            }
+                            LoadHomework={
+                                userSession.role === 'TEACHER'
+                                    ? ({ closeModal }) =>
+                                          LoadClassContent({
+                                              content: 'homework',
+                                              tutoringId: parseInt(
+                                                  router.query.tutoringId as string
+                                              ),
+                                              loadClassContent: loadHomework,
+                                              closeModal,
+                                          })
+                                    : undefined
+                            }
+                            textbookName={
+                                myAction.content === '학습자료'
+                                    ? textbook?.textbookName
+                                    : homework?.textbook.textbookName
+                            }
+                        />
+                        <DrawingTools penStyle={penStyle} changePenStyle={changePenStyle} />
                     </HelperBar>
                     <Board>
-                        {seletedTool === '빈페이지' ? (
+                        {peerWatchingSameScreen && (
+                            <PeerWatchingStatus>
+                                선생님이 현재 화면을 보고있어요.
+                            </PeerWatchingStatus>
+                        )}
+                        {myAction.content === '빈페이지' ? (
                             <WhiteBoard>
                                 <DrawingLayer>
-                                    <PeerPaintCanvas canvasRef={peerCavasRef} />
-                                </DrawingLayer>
-                                <DrawingLayer>
                                     <PaintCanvas
-                                        canvasRef={canvasRef}
+                                        canvasRef={whiteboardCanvasRef}
                                         handlePointerDown={handlePointerDown}
                                         handlePointerMove={handlePointerMove}
                                         handlePointerUp={handlePointerUp}
@@ -135,30 +174,40 @@ const ClassContainer = () => {
                                 </DrawingLayer>
                             </WhiteBoard>
                         ) : (
-                            <PdfViewer
-                                pdfFile={
-                                    'https://d1b632bso7m0wd.cloudfront.net/EBS_2024%ED%95%99%EB%85%84%EB%8F%84_%EC%88%98%EB%8A%A5%ED%8A%B9%EA%B0%95_%EC%88%98%ED%95%99%EC%98%81%EC%97%AD_%EC%88%98%ED%95%99%E2%85%A0.pdf'
-                                }
-                                selectedPageNumber={selectedPageNumber}
-                                totalPagesOfPdfFile={totalPagesOfPdfFile}
-                                pdfPageCurrentSize={pdfPageCurrentSize}
-                                movePage={movePage}
-                                onDocumentLoadSuccess={onDocumentLoadSuccess}
-                                onPageLoadSuccess={onPageLoadSuccess}
-                                updatePdfPageCurrentSize={updatePdfPageCurrentSize}
-                                ZoomInPdfPageCurrentSize={ZoomInPdfPageCurrentSize}
-                                ZoomOutPdfPageCurrentSize={ZoomOutPdfPageCurrentSize}
-                                myHomeworkDrawings={[]}
-                            >
-                                <DrawingLayer>
-                                    <PaintCanvas
-                                        canvasRef={canvasRef}
-                                        handlePointerDown={handlePointerDown}
-                                        handlePointerMove={handlePointerMove}
-                                        handlePointerUp={handlePointerUp}
-                                    />
-                                </DrawingLayer>
-                            </PdfViewer>
+                            <>
+                                <PdfViewer
+                                    pdfFile={
+                                        myAction.content === '학습자료'
+                                            ? textbook?.textbookUrl
+                                            : homework?.textbook.textbookUrl
+                                    }
+                                    selectedPageNumber={selectedPageNumber}
+                                    totalPagesOfPdfFile={totalPagesOfPdfFile}
+                                    pdfPageCurrentSize={pdfPageCurrentSize}
+                                    movePage={(selectedPageNumber) => {
+                                        cleanUpCanvas(
+                                            textbookCanvasRef,
+                                            setTextbookCanvasBackgroundImage
+                                        );
+                                        movePage(selectedPageNumber);
+                                    }}
+                                    onDocumentLoadSuccess={onDocumentLoadSuccess}
+                                    onPageLoadSuccess={onPageLoadSuccess}
+                                    updatePdfPageCurrentSize={updatePdfPageCurrentSize}
+                                    ZoomInPdfPageCurrentSize={ZoomInPdfPageCurrentSize}
+                                    ZoomOutPdfPageCurrentSize={ZoomOutPdfPageCurrentSize}
+                                    myHomeworkDrawings={[]}
+                                >
+                                    <DrawingLayer>
+                                        <PaintCanvas
+                                            canvasRef={textbookCanvasRef}
+                                            handlePointerDown={handlePointerDown}
+                                            handlePointerMove={handlePointerMove}
+                                            handlePointerUp={handlePointerUp}
+                                        />
+                                    </DrawingLayer>
+                                </PdfViewer>
+                            </>
                         )}
                     </Board>
                 </TeachingTools>
@@ -179,6 +228,7 @@ const LeftSection = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
 
     @media screen and (max-width: 1100px) {
         & {
@@ -190,7 +240,7 @@ const LeftSection = styled.div`
 const ClassInfo = styled.div`
     width: 100%;
     padding: 1em;
-    margin-bottom: 2em;
+    /* margin-bottom: 2em; */
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -223,6 +273,19 @@ const Board = styled.div`
     display: flex;
 `;
 
+const PeerWatchingStatus = styled.div`
+    position: absolute;
+    top: 25px;
+    left: 50%;
+    padding: 0.7em 1.2em;
+    transform: translate(-50%, -50%);
+    border-radius: 2em;
+    background-color: ${({ theme }) => theme.PRIMARY};
+    color: white;
+    font-size: 11px;
+    z-index: 3;
+`;
+
 const TeachingTools = styled.div`
     position: relative;
     width: 100%;
@@ -239,6 +302,7 @@ const HelperBar = styled.div`
     height: 40px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 10px;
     display: flex;
     gap: 10px;

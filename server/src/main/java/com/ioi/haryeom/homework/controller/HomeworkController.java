@@ -9,19 +9,16 @@ import com.ioi.haryeom.homework.dto.HomeworkRequest;
 import com.ioi.haryeom.homework.dto.HomeworkResponse;
 import com.ioi.haryeom.homework.service.HomeworkService;
 import java.net.URI;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequestMapping("/api/tutoring")
 @RequiredArgsConstructor
@@ -66,5 +63,14 @@ public class HomeworkController {
     public ResponseEntity<Void> deleteHomework(@PathVariable Long tutoringId, @PathVariable Long homeworkId, @AuthMemberId Long memberId) {
         homeworkService.deleteHomework(tutoringId, homeworkId, memberId);
         return ResponseEntity.noContent().build();
+    }
+
+    // 선생님 드로잉 저장
+    @PostMapping(value = "/{homeworkId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    ResponseEntity<Void> saveTeacherDrawing(@PathVariable Long homeworkId, @RequestPart("file") List<MultipartFile> file, @RequestPart("page") String page, @AuthMemberId Long memberId) {
+
+        homeworkService.saveTeacherDrawing(homeworkId, file, page, memberId);
+
+        return ResponseEntity.ok().build();
     }
 }

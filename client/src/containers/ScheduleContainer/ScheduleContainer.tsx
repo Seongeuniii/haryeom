@@ -30,6 +30,7 @@ import { getTextbooks } from '@/apis/tutoring/get-textbooks';
 import CreateNewHomework from '@/components/CreateNewHomework';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
 import { useGetHomeworkList } from '@/queries/useGetHomeworkList';
+import TextbookList from '@/components/TextbookList';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -44,11 +45,11 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     if (!userSession) return;
 
     const {
-        tutorings,
-        tutoringSchedules,
+        tutorings = [],
+        tutoringSchedules = [],
         homeworkList: initHomeworkList,
         progressPercentage: initProgressPercentage,
-        tutoringTextbooks,
+        tutoringTextbooks = [],
     } = pageProps;
 
     console.log(
@@ -71,6 +72,8 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     }) as {
         data: { homeworkList: IHomeworkList; progressPercentage: IProgressPercentage };
     };
+
+    const [listTab, setListTab] = useState<'homework' | 'textbook'>('homework');
 
     return (
         <HomeLayout>
@@ -101,18 +104,34 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                             tutorings={tutorings as IStudentTutorings}
                         />
                     )}
-                    <HomeworkList
-                        homeworkList={homeworkList}
-                        CreateNewHomework={
-                            userSession.role === 'TEACHER' && tutorings
-                                ? () =>
-                                      CreateNewHomework({
-                                          tutoringId: seletedTutoring.tutoringId,
-                                          tutoringTextbooks,
-                                      })
-                                : undefined
-                        }
-                    />
+                    <ListSection>
+                        <ListHeader>
+                            <Title>
+                                <Tab
+                                    selected={listTab === 'homework'}
+                                    onClick={() => setListTab('homework')}
+                                >
+                                    숙제 목록
+                                </Tab>
+                                <Tab
+                                    selected={listTab === 'textbook'}
+                                    onClick={() => setListTab('textbook')}
+                                >
+                                    학습자료 목록
+                                </Tab>
+                            </Title>
+                            {userSession.role === 'TEACHER' && tutorings && (
+                                <CreateNewHomework
+                                    tutoringId={seletedTutoring.tutoringId}
+                                    tutoringTextbooks={tutoringTextbooks}
+                                />
+                            )}
+                        </ListHeader>
+                        {listTab === 'homework' && <HomeworkList homeworkList={homeworkList} />}
+                        {listTab === 'textbook' && (
+                            <TextbookList textbookList={tutoringTextbooks} />
+                        )}
+                    </ListSection>
                 </SelectedTutoring>
             </StyledScheduleContainer>
         </HomeLayout>
@@ -137,7 +156,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         homeworkListInfo = await getHomeworkList(tutorings[0].tutoringId);
         tutoringTextbooks = await getTextbooks(tutorings[0].tutoringId);
     }
-
     return {
         props: {
             tutorings: tutorings || null,
@@ -162,6 +180,44 @@ const SelectedTutoring = styled.main`
     height: 93%;
     display: flex;
     flex-direction: column;
+`;
+
+const ListHeader = styled.div`
+    width: 100%;
+    padding: 0.3em 0.6em 1.2em 0.5em;
+    font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+const Title = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 1em;
+`;
+
+const Tab = styled.span<{ selected: boolean }>`
+    font-size: 18px;
+    font-weight: ${({ theme, selected }) => (selected ? 600 : 400)};
+    color: ${({ theme, selected }) => (selected ? 'black' : theme.LIGHT_BLACK)};
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+    }
+`;
+
+const ListSection = styled.div`
+    width: 100%;
+    height: 100%;
+    padding: 1.8em;
+    display: flex;
+    flex-direction: column;
+    border-radius: 1em;
+    background-color: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    font-size: 16px;
 `;
 
 export default WithAuth(ScheduleContainer);

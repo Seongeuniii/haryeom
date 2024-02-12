@@ -1,5 +1,5 @@
 import { GetServerSideProps } from 'next';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import PdfViewer from '@/components/PdfViewer';
 import PaintCanvas from '@/components/PaintCanvas';
@@ -8,8 +8,10 @@ import { getHomework } from '@/apis/homework/get-homework';
 import { IHomework } from '@/apis/homework/homework';
 import usePdf, { IPdfSize } from '@/hooks/usePdf';
 import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
-import { saveHomework } from '@/apis/homework/save-homework';
 import HomeworkStatus from '@/components/HomeworkStatus';
+import { IPenStyle } from '@/hooks/useClass';
+import Button from '@/components/commons/Button';
+import { saveHomework } from '@/apis/homework/save-homework';
 
 interface HomeworkContainerProps {
     homeworkData: IHomework;
@@ -53,26 +55,32 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
     } = usePdf({
         initialSelectedPageNumer: homeworkData.startPage,
     });
-    const {
-        canvasRef,
-        handlePointerDown,
-        handlePointerMove,
-        handlePointerUp,
-        getCanvasDrawingImage,
-    } = useMyPaint({
-        backgroundImage: myHomeworkDrawings[selectedPageNumber],
+
+    const homeworkCanvasRef = useRef<HTMLCanvasElement>(null);
+
+    const [penStyle, setPenStyle] = useState<IPenStyle>({
+        isPen: true,
+        strokeStyle: 'black',
+        lineWidth: 3,
     });
+
+    const { handlePointerDown, handlePointerMove, handlePointerUp, getCanvasDrawingImage } =
+        useMyPaint({
+            canvasRef: homeworkCanvasRef,
+            backgroundImage: myHomeworkDrawings[selectedPageNumber],
+            penStyle,
+        });
 
     useEffect(() => {
         saveHomeworkDrawing();
     }, [selectedPageNumber]);
 
     return (
-        <HomeworkLayout homeworkData={homeworkData}>
+        <HomeworkLayout
+            homeworkData={homeworkData}
+            handleSubmit={() => saveHomework(homeworkData.homeworkId, myHomeworkDrawings)}
+        >
             <StyledHomeworkContainer>
-                <button onClick={() => saveHomework(homeworkData.homeworkId, myHomeworkDrawings)}>
-                    제출하기
-                </button>
                 <Board>
                     <PdfViewer
                         pdfFile={homeworkData.textbook.textbookUrl}
@@ -89,7 +97,7 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
                     >
                         <DrawingLayer>
                             <PaintCanvas
-                                canvasRef={canvasRef}
+                                canvasRef={homeworkCanvasRef}
                                 handlePointerDown={handlePointerDown}
                                 handlePointerMove={handlePointerMove}
                                 handlePointerUp={handlePointerUp}
@@ -111,7 +119,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     if (!homeworkId) return { props: {} };
 
-    const homeworkData = await getHomework(homeworkId);
+    const homeworkData = await getHomework(parseInt(homeworkId));
 
     return { props: { homeworkData: homeworkData || null } };
 };
