@@ -5,8 +5,8 @@ import { useClassTimer, getHour, getMinute, getSecond } from '../hooks/useClassT
 type ClassState = '수업시작전' | '수업중' | '수업종료';
 
 interface ClassTimerProps {
-    startClass: () => void;
-    endClass: () => void;
+    startClass: () => Promise<boolean>;
+    endClass: () => Promise<boolean>;
 }
 
 const ClassTimer = ({ startClass, endClass }: ClassTimerProps) => {
@@ -18,7 +18,8 @@ const ClassTimer = ({ startClass, endClass }: ClassTimerProps) => {
 
     const changeClassState = async () => {
         if (classState === '수업시작전') {
-            await startClass();
+            const isStart = await startClass();
+            if (!isStart) return;
             startTimer();
             setStaticShow('progressTime');
             setHoverShow('progressTime');
@@ -27,7 +28,8 @@ const ClassTimer = ({ startClass, endClass }: ClassTimerProps) => {
             }, 2000);
             setClassState('수업중');
         } else if (classState === '수업중') {
-            await endClass();
+            const isEnd = await endClass();
+            if (!isEnd) return;
             stopTimer();
             setStaticShow('수업종료');
             setTimeout(() => {
