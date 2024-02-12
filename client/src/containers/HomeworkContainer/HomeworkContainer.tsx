@@ -1,5 +1,5 @@
 import { GetServerSideProps } from 'next';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import styled from 'styled-components';
 import PdfViewer from '@/components/PdfViewer';
 import PaintCanvas from '@/components/PaintCanvas';
@@ -10,8 +10,9 @@ import usePdf, { IPdfSize } from '@/hooks/usePdf';
 import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
 import HomeworkStatus from '@/components/HomeworkStatus';
 import { IPenStyle } from '@/hooks/useClass';
-import Button from '@/components/commons/Button';
-import { saveHomework } from '@/apis/homework/save-homework';
+import { saveHomework, submitHomework } from '@/apis/homework/save-homework';
+import { useGetHomework } from '@/queries/useGetHomework';
+import { QueryClient } from 'react-query';
 
 interface HomeworkContainerProps {
     homeworkData: IHomework;
@@ -21,7 +22,13 @@ export interface IMyHomeworkDrawings {
     [pageNum: number]: Blob | string;
 }
 
-const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
+const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContainerProps) => {
+    const { data: homeworkData, refetch } = useGetHomework(
+        initialHomeworkData.homeworkId,
+        initialHomeworkData
+    );
+    if (!homeworkData) return <div>...loading</div>; // TODO : 리팩토링
+
     const [myHomeworkDrawings, setMyHomeworkDrawings] = useState<IMyHomeworkDrawings>(
         homeworkData.drawings.reduce((acc, { page, homeworkDrawingUrl }) => {
             acc[page] = homeworkDrawingUrl;
@@ -53,7 +60,7 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
         ZoomInPdfPageCurrentSize,
         ZoomOutPdfPageCurrentSize,
     } = usePdf({
-        initialSelectedPageNumer: homeworkData.startPage,
+        initialSelectedPageNumer: 1,
     });
 
     const homeworkCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -71,14 +78,17 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
             penStyle,
         });
 
-    useEffect(() => {
-        saveHomeworkDrawing();
-    }, [selectedPageNumber]);
-
     return (
         <HomeworkLayout
             homeworkData={homeworkData}
-            handleSubmit={() => saveHomework(homeworkData.homeworkId, myHomeworkDrawings)}
+            handleSave={async () => {
+                await saveHomework(homeworkData.homeworkId, myHomeworkDrawings);
+                refetch();
+            }}
+            handleSubmit={async () => {
+                await saveHomework(homeworkData.homeworkId, myHomeworkDrawings);
+                await submitHomework(homeworkData.homeworkId);
+            }}
         >
             <StyledHomeworkContainer>
                 <Board>
@@ -94,13 +104,17 @@ const HomeworkContainer = ({ homeworkData }: HomeworkContainerProps) => {
                         ZoomInPdfPageCurrentSize={ZoomInPdfPageCurrentSize}
                         ZoomOutPdfPageCurrentSize={ZoomOutPdfPageCurrentSize}
                         myHomeworkDrawings={myHomeworkDrawings}
+                        startPageNumber={homeworkData.startPage}
                     >
                         <DrawingLayer>
                             <PaintCanvas
                                 canvasRef={homeworkCanvasRef}
                                 handlePointerDown={handlePointerDown}
                                 handlePointerMove={handlePointerMove}
-                                handlePointerUp={handlePointerUp}
+                                handlePointerUp={() => {
+                                    handlePointerUp();
+                                    saveHomeworkDrawing();
+                                }}
                             />
                         </DrawingLayer>
                     </PdfViewer>
@@ -119,7 +133,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     if (!homeworkId) return { props: {} };
 
-    const homeworkData = await getHomework(parseInt(homeworkId));
+    const queryClient = new QueryClient();
+    await queryClient.prefetchQuery('homework', async () => {
+        const data = await getHomework(parseInt(homeworkId));
+        return data;
+    });
+
+    const homeworkData = queryClient.getQueryData('homework');
 
     return { props: { homeworkData: homeworkData || null } };
 };
