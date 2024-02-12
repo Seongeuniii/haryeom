@@ -7,6 +7,7 @@ import com.ioi.haryeom.tutoring.domain.TutoringSchedule;
 import com.ioi.haryeom.tutoring.exception.TutoringScheduleNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringScheduleRepository;
 import com.ioi.haryeom.video.domain.Video;
+import com.ioi.haryeom.video.exception.VideoExistException;
 import com.ioi.haryeom.video.exception.VideoNotFoundException;
 import com.ioi.haryeom.video.repository.VideoRepository;
 import java.io.IOException;
@@ -46,6 +47,10 @@ public class VideoService {
         TutoringSchedule tutoringSchedule = optionalTutoringSchedule.get();
         if(tutoringSchedule.getTutoring().getTeacher().getId()!=memberId){
             throw new AuthorizationException(memberId);
+        }
+        Optional<Video> optionalVideo = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId);
+        if(optionalVideo.isPresent()){
+            throw new VideoExistException(tutoringScheduleId);
         }
         log.info("Before create video - tutoringScheduleId : {}, startTime: {}", tutoringScheduleId, startTime);
         Video video = Video.builder()
