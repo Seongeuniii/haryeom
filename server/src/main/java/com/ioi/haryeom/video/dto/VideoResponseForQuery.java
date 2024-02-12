@@ -13,4 +13,6 @@ public class VideoResponseForQuery {
     private LocalDate scheduleDate;
     private LocalTime startTime;
     private LocalTime endTime;
+    private Long tutoringScheduleId;
+    private Long teacherMemberId;
 }
