@@ -4,20 +4,17 @@ import { IMyHomeworkDrawings } from '@/containers/HomeworkContainer/HomeworkCont
 const path = '/homework';
 
 export const saveHomework = async (homeworkId: number, myHomeworkDrawings: IMyHomeworkDrawings) => {
-    const page = [3, 5, 6];
-
     const formData = new FormData();
+    const page: number[] = [];
+
+    Object.entries(myHomeworkDrawings).forEach(([pageNum, drawing]) => {
+        // string: 변경 데이터 없음
+        if (drawing instanceof Blob) {
+            page.push(parseInt(pageNum));
+            formData.append('file', drawing);
+        }
+    });
     formData.append('page', new Blob([JSON.stringify(page)], { type: 'application/json' }));
-    if (myHomeworkDrawings[3] instanceof Blob) {
-        formData.append('file', myHomeworkDrawings[3] as Blob);
-    }
-    if (myHomeworkDrawings[5] instanceof Blob) {
-        formData.append('file', myHomeworkDrawings[5] as Blob);
-    }
-    if (myHomeworkDrawings[6] instanceof Blob) {
-        formData.append('file', myHomeworkDrawings[6] as Blob);
-    }
-    console.log(formData);
 
     try {
         const res = await axios.post(
@@ -30,6 +27,18 @@ export const saveHomework = async (homeworkId: number, myHomeworkDrawings: IMyHo
                 withCredentials: true,
             }
         );
+    } catch (e) {
+        return null;
+    }
+};
+
+export const submitHomework = async (homeworkId: number) => {
+    try {
+        const res = await axios.put<number>(
+            `${process.env.NEXT_PUBLIC_API_SERVER}${path}/submit/${homeworkId}`,
+            JSON.stringify({ status: 'COMPLETE' })
+        );
+        return;
     } catch (e) {
         return null;
     }
