@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import { useRecoilValue } from 'recoil';
@@ -24,6 +24,14 @@ const RegisterUserInfoContainer = () => {
     const router = useRouter();
     const userSession = useRecoilValue(userSessionAtom);
     if (!userSession) return;
+
+    // TODO : 리팩토링
+    // server or withauth에서 처리방법
+    useEffect(() => {
+        if (userSession.role !== 'GUEST') {
+            router.push('/');
+        }
+    }, []);
 
     const [step, setStep] = useState<number>(1);
     const [selectedUserRole, setSelectedUserRole] = useState<IUserRole>('GUEST');
