@@ -8,6 +8,14 @@ export interface IHomework {
     drawings: Drawing[];
 }
 
+export interface ISubmittedHomework {
+    homeworkId: number;
+    textbook: ITextbook;
+    startPage: number;
+    endPage: number;
+    drawings: IReviewDrawing[];
+}
+
 export interface ITextbook {
     textbookId: number;
     textbookName: string;
@@ -16,9 +24,17 @@ export interface ITextbook {
 }
 
 export interface Drawing {
+    drawingId: number;
     page: number;
     homeworkDrawingUrl: string;
+}
+
+export interface IReviewDrawing {
     drawingId: number;
+    page: number;
+    homeworkDrawingUrl: string;
+    reviewDrawingUrl: string;
+    teacherDrawingUrl: string;
 }
 
 export type IHomeworkStatus = 'UNCONFIRMED' | 'IN_PROGRESS' | 'COMPLETED';
