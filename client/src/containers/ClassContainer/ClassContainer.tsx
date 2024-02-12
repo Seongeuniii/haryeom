@@ -197,6 +197,11 @@ const ClassContainer = () => {
                                     ZoomInPdfPageCurrentSize={ZoomInPdfPageCurrentSize}
                                     ZoomOutPdfPageCurrentSize={ZoomOutPdfPageCurrentSize}
                                     myHomeworkDrawings={[]}
+                                    startPageNumber={
+                                        myAction.content === '학습자료'
+                                            ? 0
+                                            : (homework?.startPage as number)
+                                    }
                                 >
                                     <DrawingLayer>
                                         <PaintCanvas
