@@ -125,9 +125,12 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository{
             Long videoId = query.getVideoId();
             String title = query.getTitle();
             LocalDate scheduleDate = query.getScheduleDate();
-            Long seconds = Duration.between(query.getStartTime(),query.getEndTime()).toSeconds();
-            if(seconds<0) seconds+=60*60*24;
-            String duration = String.format("%02d:%02d:%02d",seconds/3600, (seconds%3600)/60, seconds%60);
+            String duration = null;
+            if(query.getStartTime() != null && query.getEndTime() != null){
+                Long seconds = Duration.between(query.getStartTime(),query.getEndTime()).toSeconds();
+                if(seconds<0) seconds+=60*60*24;
+                duration = String.format("%02d:%02d:%02d",seconds/3600, (seconds%3600)/60, seconds%60);
+            }
             Long tutoringScheduleId = query.getTutoringScheduleId();
             Long teacherMemberId = query.getTeacherMemberId();
             VideoResponse resp = new VideoResponse(videoId, title, scheduleDate, duration, tutoringScheduleId, teacherMemberId);
@@ -135,9 +138,5 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository{
         }
         Long total = results.getTotal();
         return new PageImpl<>(response, pageable, total);
-    }
-
-    private Long calculateDuration(TimePath<LocalTime> startTime, TimePath<LocalTime> endTime) {
-        return Duration.between((Temporal) startTime, (Temporal) endTime).getSeconds();
     }
 }
