@@ -22,7 +22,7 @@ const HomeworkStatus = ({ homeworkData, myHomeworkDrawings }: HomeworkStatusProp
         };
 
         return pageRange.map((page) => (
-            <PageButton key={page} className={getStatus(page)}>
+            <PageButton key={page} className={getStatus(page - startPage + 1)}>
                 {page}
             </PageButton>
         ));

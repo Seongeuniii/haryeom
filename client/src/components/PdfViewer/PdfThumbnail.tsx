@@ -5,6 +5,7 @@ import Check from '@/components/icons/Check';
 interface PdfThumbnailProps {
     pageNumber: number;
     selectedPageNumber: number;
+    startPageNumber: number;
     movePage: (selectedPageNumber: number) => void;
     homeworkStatus?: 'done' | 'inProgress' | 'notStart';
     children: ReactNode;
@@ -13,6 +14,7 @@ interface PdfThumbnailProps {
 const PdfThumbnail = ({
     children,
     pageNumber,
+    startPageNumber,
     selectedPageNumber,
     movePage,
     homeworkStatus,
@@ -36,7 +38,7 @@ const PdfThumbnail = ({
                 scrollToCenter();
             }}
         >
-            <PageNumber>{pageNumber}</PageNumber>
+            <PageNumber>{startPageNumber + pageNumber - 1}</PageNumber>
             <PageCanvasWrapper $isSelected={pageNumber === selectedPageNumber}>
                 {children}
                 {homeworkStatus && (

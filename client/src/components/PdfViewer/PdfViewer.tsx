@@ -18,6 +18,7 @@ interface PdfViewerProps extends Homework {
     pdfPageCurrentSize: IPdfSize;
     children?: ReactNode;
     selectedPageNumber: number;
+    startPageNumber: number;
     movePage: (selectedPageNumber: number) => void;
     onDocumentLoadSuccess: OnDocumentLoadSuccess;
     onPageLoadSuccess: OnPageLoadSuccess;
@@ -31,6 +32,7 @@ const PdfViewer = ({
     totalPagesOfPdfFile,
     pdfPageCurrentSize,
     selectedPageNumber,
+    startPageNumber,
     onDocumentLoadSuccess,
     onPageLoadSuccess,
     movePage,
@@ -42,6 +44,8 @@ const PdfViewer = ({
 }: PdfViewerProps) => {
     const pdfPageWrapperRef = useRef<HTMLDivElement>(null);
     const thumbnailListcontainer = useRef<HTMLDivElement>(null);
+
+    console.log(selectedPageNumber);
 
     useEffect(() => {
         updatePdfPageCurrentSize(getPdfPageWrapperSize());
@@ -76,6 +80,7 @@ const PdfViewer = ({
                     {Array.from({ length: totalPagesOfPdfFile }, (el, index) => (
                         <PdfThumbnail
                             key={`page_${index + 1}`}
+                            startPageNumber={startPageNumber}
                             pageNumber={index + 1}
                             selectedPageNumber={selectedPageNumber}
                             movePage={movePage}
