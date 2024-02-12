@@ -3,27 +3,34 @@ import styled from 'styled-components';
 import Pin from '@/components/icons/Pin';
 import { useRouter } from 'next/router';
 import { saveTimeStamp } from '@/apis/tutoring/save-timestamp';
+import { getHour, getMinute, getSecond } from '@/hooks/useClassTimer';
 
-const TimeStamp = () => {
+interface TimestampProps {
+    progressTime: number;
+}
+
+const Timestamp = ({ progressTime }: TimestampProps) => {
     const router = useRouter();
     const [message, setMessage] = useState<string>('');
 
     const handleClick = async (e: FormEvent) => {
         e.preventDefault();
-        const tutoringScheduleId = parseInt(router.query.tutoringScheduleId as string);
-        const stampTime = '00:00:32';
-        const content = '3번 문제풀이';
 
-        const data = await saveTimeStamp({ tutoringScheduleId, stampTime, content });
-        if (data) {
-            alert('등록에 성공');
-        } else {
+        const tutoringScheduleId = parseInt(router.query.tutoringScheduleId as string);
+        const stampTime = `${getHour(progressTime)}:${getMinute(progressTime)}:${getSecond(progressTime)}`;
+        const content = message;
+
+        try {
+            await saveTimeStamp({ tutoringScheduleId, stampTime, content });
+            alert('타임스탬프를 성공적으로 등록했어요.');
+            setMessage('');
+        } catch (e) {
             alert('실패');
         }
     };
 
     return (
-        <StyledTimeStamp>
+        <StyledTimestamp>
             <Title>
                 <Icon>
                     <Pin />
@@ -39,14 +46,14 @@ const TimeStamp = () => {
                 />
                 <SendButton onClick={handleClick}>저장</SendButton>
             </Form>
-        </StyledTimeStamp>
+        </StyledTimestamp>
     );
 };
 
-const StyledTimeStamp = styled.div`
+const StyledTimestamp = styled.div`
     width: 100%;
     /* height: 100px; */
-    padding: 1em;
+    padding: 0.8em;
     display: flex;
     flex-direction: column;
     border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
@@ -96,6 +103,7 @@ const SendButton = styled.button`
     border-radius: 0.9em;
     cursor: pointer;
     border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    color: ${({ theme }) => theme.LIGHT_BLACK};
 
     &:hover {
         background-color: ${({ theme }) => theme.PRIMARY};
@@ -104,4 +112,4 @@ const SendButton = styled.button`
     }
 `;
 
-export default TimeStamp;
+export default Timestamp;
