@@ -52,7 +52,13 @@ const TutoringStudentProfile = ({
                                             }}
                                             key={`select_teacher_${index}`}
                                         >
-                                            {tutoring.subject.name} | {tutoring.studentName} 학생
+                                            <StudentProfileImage src={tutoring.studentProfileUrl} />
+                                            <span>
+                                                <SubjectName>{tutoring.subject.name} </SubjectName>
+                                                <StudentName>
+                                                    ({tutoring.studentName}학생)
+                                                </StudentName>
+                                            </span>
                                         </Button>
                                     );
                                 })}
@@ -91,6 +97,14 @@ const ProfileImage = styled.div`
     }
 `;
 
+const StudentProfileImage = styled.img`
+    width: 35px;
+    height: 35px;
+    margin-right: 10px;
+    border-radius: 100%;
+    border: 1px solid ${({ theme }) => theme.LIGHT_BLACK};
+`;
+
 const StudentInfo = styled.div`
     position: relative;
     margin-left: 1.4em;
@@ -105,7 +119,13 @@ const SubjectName = styled.span`
     font-weight: 700;
     padding-bottom: 0.5em;
     margin-bottom: 0.5em;
-    border-bottom: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+`;
+
+const StudentName = styled.span`
+    font-size: 18px;
+    font-weight: 700;
+    padding-bottom: 0.5em;
+    margin-bottom: 0.5em;
 `;
 
 const SchoolGrade = styled.span`
@@ -133,10 +153,11 @@ const SelectStudentBox = styled.div`
 
 const Button = styled.button`
     width: 100%;
-    height: 30px;
+    height: 50px;
     padding: 0 1em;
+    display: flex;
+    align-items: center;
     border-radius: 0.2em;
-    text-align: center;
     cursor: pointer;
 
     &:hover {
