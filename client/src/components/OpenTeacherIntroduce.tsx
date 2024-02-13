@@ -26,20 +26,29 @@ const OpenTeacherIntroduce = ({ openTeacherDetail, startChat }: IOpenTeacherIntr
                         </span>
                         선생님에게
                         <br />
+                        <br />
                         원하는 수업에 대해 문의해 보세요!
+                        <br /> <br /> <br />
                     </MatchingButtonDescription>
                     <StartChattingButton onClick={startChat}>채팅으로 문의하기</StartChattingButton>
                 </StartMatching>
             </div>
             <TeacherTutoringInfo>
                 <Infos>
+                    <Title>수업 정보</Title>
                     <Info>
                         <Icon>
                             <BookIcon />
                         </Icon>
-                        {openTeacherDetail?.subjects.map((subject) => {
-                            return <span key={subject.subjectId}>{subject.name}</span>;
-                        })}
+                        <Subjects>
+                            {openTeacherDetail?.subjects.map((subject) => {
+                                return (
+                                    <SubjectName key={subject.subjectId}>
+                                        {subject.name}
+                                    </SubjectName>
+                                );
+                            })}
+                        </Subjects>
                     </Info>
                     <Info>
                         <Icon>
@@ -57,7 +66,7 @@ const OpenTeacherIntroduce = ({ openTeacherDetail, startChat }: IOpenTeacherIntr
                         <Icon>
                             <UserIcon />
                         </Icon>
-                        <span>{openTeacherDetail?.gender === 'MALE' ? '여자' : '남자'}</span>
+                        <span>{openTeacherDetail?.gender === 'MALE' ? '남자' : '여자'}</span>
                     </Info>
                     <Info>
                         <Icon>
@@ -67,17 +76,8 @@ const OpenTeacherIntroduce = ({ openTeacherDetail, startChat }: IOpenTeacherIntr
                     </Info>
                 </Infos>
                 <TeacherIntroduceText>
-                    학생이 잘 못하는 것에 절대 화내지 않고, 화나지 않습니다. 그것은, 그렇기 때문에
-                    저에게 찾아온 것이고, 개선되지 않는 것은 선생인 제 탓이기 때문입니다.
-                    <br />
-                    <br />
-                    공부는 인생의 수단일 뿐,
-                    <br />
-                    나를 주도하는 뭔가가 될 수 없습니다.
-                    <br />
-                    <br />
-                    수능이라는 과정을 통해서 문제상황을 감지하고, 분석하고, 대응하는 방식을 잘 배워
-                    앞으로 누군가의 도움 없이도 인생을 스스로 설계하는 어른으로 성장하기를 바랍니다.
+                    <Title>선생님 소개</Title>
+                    <span>{openTeacherDetail?.introduce}</span>
                 </TeacherIntroduceText>
             </TeacherTutoringInfo>
         </StyledOpenTeacherIntroduce>
@@ -85,16 +85,25 @@ const OpenTeacherIntroduce = ({ openTeacherDetail, startChat }: IOpenTeacherIntr
 };
 
 const StyledOpenTeacherIntroduce = styled.div`
-    background-color: white;
     padding: 2.5em;
     border-radius: 1em;
     width: min-content;
+    background-color: ${({ theme }) => theme.SECONDARY};
 `;
 
 const StyledOpenTeacherIntroduceHeader = styled.header`
-    font-size: 1.2em;
+    font-size: 22px;
     font-weight: bold;
     padding: 0.3em 0 1.2em 0;
+`;
+
+const Title = styled.div`
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 500;
+    border-bottom: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
 `;
 
 const TeacherProfileImg = styled.img`
@@ -109,18 +118,17 @@ const StartMatching = styled.div`
     width: 18em;
     height: 16em;
     margin-left: 1em;
-    border-radius: 0.5em;
-    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
-    border: 2px solid ${({ theme }) => theme.PRIMARY};
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    border-radius: 0.5em;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    background-color: white;
 `;
 
 const MatchingButtonDescription = styled.div`
-    text-align: center;
-    padding: 1em;
+    line-height: 0.75;
 `;
 
 const StartChattingButton = styled.button`
@@ -130,20 +138,26 @@ const StartChattingButton = styled.button`
     color: white;
     border-radius: 0.5em;
 
+    transition: transform 0.3s ease;
+
     &:hover {
-        border: 2px solid ${({ theme }) => theme.DARK_BLACK};
+        transform: scale(1.03);
     }
 `;
 
 const TeacherTutoringInfo = styled.div`
     display: flex;
-    padding: 1em 1em 0 1em;
-    font-size: 0.9em;
+    padding: 1em;
+    font-size: 14px;
+    border-radius: 0.5em;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    background-color: white;
 `;
 
 const Infos = styled.div`
     width: min-content;
-    padding-right: 2em;
+    min-width: 200px;
+    padding-right: 1.5em;
     border-right: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
 `;
 
@@ -154,14 +168,29 @@ const Info = styled.div`
     margin-bottom: 10px;
 `;
 
+const Subjects = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+`;
+
+const SubjectName = styled.li`
+    padding: 3px;
+`;
+
 const Icon = styled.div`
-    width: 30px;
-    text-align: center;
+    min-width: 30px;
     margin-right: 3px;
+    text-align: center;
 `;
 
 const TeacherIntroduceText = styled.span`
+    width: 100%;
     padding-left: 2em;
+
+    span {
+        padding: 10px;
+    }
 `;
 
 export default OpenTeacherIntroduce;
