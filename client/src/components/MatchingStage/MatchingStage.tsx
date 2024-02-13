@@ -3,6 +3,7 @@ import WaitResponse from './WaitResponse';
 import GetResponse from './GetResponse';
 import styled from 'styled-components';
 import { IRequestMatchingStatus, IResponseMatchingStatus } from '@/apis/chat/chat';
+import { useEffect } from 'react';
 
 interface MatchingStage {
     requestStatus: IRequestMatchingStatus | undefined;
@@ -10,6 +11,11 @@ interface MatchingStage {
 }
 
 const MatchingStage = ({ requestStatus, responseStatus }: MatchingStage) => {
+    useEffect(() => {
+        console.log(requestStatus, responseStatus);
+    }, [requestStatus, responseStatus]);
+
+    console.log(requestStatus, responseStatus);
     // 깜빡이는 문제
     if (!requestStatus && !responseStatus) {
         return (
@@ -34,7 +40,7 @@ const MatchingStage = ({ requestStatus, responseStatus }: MatchingStage) => {
      *
      * >> 배열의 마지막 데이터만 거절일 수 있다.
      */
-    if (!requestStatus && responseStatus) {
+    if (responseStatus) {
         return (
             <StyledMatchingRequest>
                 <GetResponse lastResponseStatus={responseStatus[responseStatus.length - 1]} />
