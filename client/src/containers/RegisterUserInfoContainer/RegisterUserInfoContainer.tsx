@@ -185,7 +185,7 @@ const RegisterUserInfoContainer = () => {
         ) {
             const message = (await registUser(selectedUserRole, userInputValue)) ? '성공' : '실패';
             alert(`회원 등록에 ${message}했어요:)`);
-            // router.reload();
+            router.reload();
         } else {
             setStep((prev) => prev + 1);
         }
