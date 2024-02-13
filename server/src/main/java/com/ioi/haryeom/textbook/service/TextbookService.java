@@ -117,7 +117,7 @@ public class TextbookService {
 
                     PDPageContentStream contentStream = new PDPageContentStream(doc, page);
                     // 텍스트 폰트 및 크기 설정
-                    InputStream fontStream = TextbookService.class.getResourceAsStream("/NanumGothicBold.ttf");
+                    InputStream fontStream = getClass().getClassLoader().getResourceAsStream("NanumGothicBold.ttf");
                     PDType0Font font = PDType0Font.load(doc, fontStream);
                     contentStream.setFont(font, FONT_SIZE);
 
