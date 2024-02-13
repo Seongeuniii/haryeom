@@ -1,8 +1,11 @@
 import styled from 'styled-components';
+import { useRecoilState } from 'recoil';
+import { useRouter } from 'next/router';
 import { IStudentSchedule } from '@/apis/tutoring/tutoring';
 import { addMinutesToTime, getHourMin } from '@/utils/time';
-import { useRouter } from 'next/router';
 import { getClassRoomCode } from '@/apis/tutoring/get-class-room-code';
+import chatSessionAtom from '@/recoil/atoms/chat';
+import Chat from '@/components/icons/Chat';
 
 interface StudentScheduleCardProps {
     schedule: IStudentSchedule;
@@ -19,13 +22,23 @@ const StudentScheduleCard = ({ schedule }: StudentScheduleCardProps) => {
                 title: schedule.title,
                 subject: schedule.subject.name,
                 time: `${getHourMin(schedule.startTime)} ~ ${addMinutesToTime(schedule.startTime, schedule.duration)}`,
+                tutoringScheduleId: schedule.tutoringScheduleId,
+                tutoringId: schedule.tutoringId,
             },
+        });
+    };
+
+    const [chatSession, setChatSession] = useRecoilState(chatSessionAtom);
+
+    const startChat = (open: boolean) => {
+        setChatSession((prev) => {
+            return { ...prev, openChat: open, chattingWithName: schedule.teacherName };
         });
     };
 
     return (
         <StyledStudentScheduleCard onClick={joinClass}>
-            <div>
+            <ScheduleInfoSection>
                 <ScheduledTime>
                     <StartTime>{getHourMin(schedule.startTime)}</StartTime>
                     <Duration>~ {addMinutesToTime(schedule.startTime, schedule.duration)}</Duration>
@@ -34,23 +47,62 @@ const StudentScheduleCard = ({ schedule }: StudentScheduleCardProps) => {
                     <Subject>{schedule.subject.name}</Subject>
                     <Curriculum>| {schedule.title}</Curriculum>
                 </ClassInfo>
-            </div>
-            {/* <ClassState>종료</ClassState> */}
+            </ScheduleInfoSection>
+            <TeacherInfoSection>
+                <ProfileImage src={schedule.teacherProfileUrl} />
+                <TeacherName>{schedule.teacherName} 선생님</TeacherName>
+                <StartChattingButton
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        startChat(true);
+                    }}
+                >
+                    <Chat backgroundColor="gray" />
+                </StartChattingButton>
+            </TeacherInfoSection>
         </StyledStudentScheduleCard>
     );
 };
 
 const StyledStudentScheduleCard = styled.div`
+    position: relative;
     width: 100%;
-    padding: 0.8em;
-    margin-bottom: 0.9em;
+    margin-bottom: 1.8em;
     border-radius: 0.8em;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     font-size: 0.9em;
-    border: 2px solid ${({ theme }) => theme.PRIMARY};
+    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
     background-color: ${({ theme }) => theme.SECONDARY};
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+
+    &:hover {
+        transform: scale(0.985);
+    }
 `;
+
+const ScheduleInfoSection = styled.section`
+    padding: 0.8em;
+`;
+
+const TeacherInfoSection = styled.section`
+    padding: 0.7em 1em;
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    background-color: white;
+`;
+
+const ProfileImage = styled.img`
+    width: 35px;
+    height: 35px;
+    border-radius: 100%;
+    border: 1px solid ${({ theme }) => theme.LIGHT_BLACK};
+`;
+
+const TeacherName = styled.div``;
 
 const ScheduledTime = styled.div`
     padding-left: 0.5em;
@@ -61,6 +113,19 @@ const ScheduledTime = styled.div`
     font-size: 0.9em;
 `;
 
+const StartChattingButton = styled.button`
+    width: 28px;
+    height: 28px;
+    padding-top: 3px;
+    margin-left: auto;
+    border: 1px solid #dcdcdc;
+    border-radius: 100%;
+
+    &:hover {
+        background-color: ${({ theme }) => theme.PRIMARY};
+    }
+`;
+
 const StartTime = styled.div``;
 
 const Duration = styled.div`
@@ -69,7 +134,7 @@ const Duration = styled.div`
 
 const ClassInfo = styled.div`
     display: flex;
-    align-items: center;
+    flex-direction: column;
 `;
 
 const Subject = styled.div`
@@ -79,11 +144,7 @@ const Subject = styled.div`
 `;
 
 const Curriculum = styled.div`
-    margin-left: 0.2em;
-`;
-
-const ClassState = styled.div`
-    margin-left: auto;
+    padding: 0.35em;
 `;
 
 export default StudentScheduleCard;
