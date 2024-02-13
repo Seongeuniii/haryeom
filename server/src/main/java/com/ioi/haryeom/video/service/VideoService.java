@@ -83,7 +83,7 @@ public class VideoService {
         metadata.setContentLength(file.getSize());
         metadata.setContentType(file.getContentType());
         amazonS3.putObject(bucket, "vod/"+ fileName+".webm", file.getInputStream(), metadata);
-        String videoUrl = cloudFrontUrl + "/vod/" + fileName + "/" + fileName + ".m3u8";
+        String videoUrl = cloudFrontUrl + "/vod/" + fileName + ".webm";
         return videoUrl;
     }
     @Transactional
