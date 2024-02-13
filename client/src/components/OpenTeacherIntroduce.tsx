@@ -5,6 +5,8 @@ import DollarIcon from '@/components/icons/Dollar';
 import UserIcon from '@/components/icons/User';
 import BookIcon from '@/components/icons/Book';
 import { IOpenTeacherDetail } from '@/apis/matching/matching';
+import { useRecoilValue } from 'recoil';
+import userSessionAtom from '@/recoil/atoms/userSession';
 
 interface IOpenTeacherIntroduceProps {
     openTeacherDetail: IOpenTeacherDetail | undefined;
@@ -12,6 +14,8 @@ interface IOpenTeacherIntroduceProps {
 }
 
 const OpenTeacherIntroduce = ({ openTeacherDetail, startChat }: IOpenTeacherIntroduceProps) => {
+    const userSession = useRecoilValue(userSessionAtom);
+
     return (
         <StyledOpenTeacherIntroduce>
             <StyledOpenTeacherIntroduceHeader>
@@ -30,7 +34,17 @@ const OpenTeacherIntroduce = ({ openTeacherDetail, startChat }: IOpenTeacherIntr
                         원하는 수업에 대해 문의해 보세요!
                         <br /> <br /> <br />
                     </MatchingButtonDescription>
-                    <StartChattingButton onClick={startChat}>채팅으로 문의하기</StartChattingButton>
+                    <StartChattingButton
+                        onClick={() => {
+                            if (!userSession) {
+                                alert('로그인이 필요해요');
+                                return;
+                            }
+                            startChat();
+                        }}
+                    >
+                        채팅으로 문의하기
+                    </StartChattingButton>
                 </StartMatching>
             </div>
             <TeacherTutoringInfo>
