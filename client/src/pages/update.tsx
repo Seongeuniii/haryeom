@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, JSX } from 'react';
 import styled from 'styled-components';
 import HomeLayout from '@/components/layouts/HomeLayout';
 import { IUserInfo, IUserRole } from '@/apis/user/user';
@@ -133,7 +133,7 @@ const updatePage = () => {
         );
         //겹치는게 없는 경우 추가
         if (updatedSubjects.length === profile.subjects.length) {
-            if (updatedSubjects.length === 3) {
+            if (updatedSubjects.length >= 3) {
                 alert('가르칠 과목은 최대 3개까지 지정할 수 있습니다.');
             } else updatedSubjects.push(subjectInfo);
         }
@@ -143,7 +143,16 @@ const updatePage = () => {
         }));
     };
 
+    const checkValidation = () => {
+        const regExp = /^\d{10,11}$/;
+        return regExp.test(profile.phone);
+    };
+
     const submit = () => {
+        if (!checkValidation()) {
+            alert('전화번호를 정확히 입력해주세요 (11자리 숫자)');
+            return;
+        }
         if (
             userSession?.role == 'STUDENT' ||
             (userSession?.role == 'TEACHER' && profile.profileStatus)
@@ -226,6 +235,28 @@ const updatePage = () => {
         return result;
     };
 
+    const gradeOption = () => {
+        const gradeDefaultOptions = [
+            '초등학교 1학년',
+            '초등학교 2학년',
+            '초등학교 3학년',
+            '초등학교 4학년',
+            '초등학교 5학년',
+            '초등학교 6학년',
+            '중학교 1학년',
+            '중학교 2학년',
+            '중학교 3학년',
+            '고등학교 1학년',
+            '고등학교 2학년',
+            '고등학교 3학년',
+        ];
+        const result: JSX.Element[] = [];
+        gradeDefaultOptions.map((grade: string, i: number) => {
+            result.push(<option value={grade}>{grade}</option>);
+        });
+        return result;
+    };
+
     return profile.profileUrl != '' ? (
         <HomeLayout>
             <StyledMypage>
@@ -280,50 +311,53 @@ const updatePage = () => {
                             </ProfileImg>
                             <ProfileInfo>
                                 <InfoName>
-                                    <div>이름</div>
-                                    {isStudent() && <div>학년</div>}
-                                    {isStudent() && <div>학교</div>}
-                                    {isTeacher() && <div>대학교</div>}
-                                    <div>전화번호</div>
+                                    <StyledInputWrapper>이름</StyledInputWrapper>
+                                    {isStudent() && <StyledInputWrapper>학년</StyledInputWrapper>}
+                                    {isStudent() && <StyledInputWrapper>학교</StyledInputWrapper>}
+                                    {isTeacher() && <StyledInputWrapper>대학교</StyledInputWrapper>}
+                                    <StyledInputWrapper>전화번호</StyledInputWrapper>
                                 </InfoName>
                                 <InfoContent>
-                                    <div>
+                                    <StyledInputWrapper>
                                         <input
                                             type="text"
                                             name="name"
                                             value={profile.name}
                                             onChange={changeProfile}
                                         />
-                                    </div>
+                                    </StyledInputWrapper>
                                     {isStudent() && (
-                                        <div>
-                                            <input
-                                                type="text"
+                                        <StyledSelectWrapper>
+                                            <StyledSelect
                                                 name="grade"
                                                 value={profile.grade}
                                                 onChange={changeProfile}
-                                            />
-                                        </div>
+                                            >
+                                                {gradeOption()}
+                                            </StyledSelect>
+                                        </StyledSelectWrapper>
                                     )}
                                     {isStudent() && (
-                                        <div>
+                                        <StyledInputWrapper>
                                             <input
                                                 type="text"
                                                 name="school"
                                                 value={profile.school}
                                                 onChange={changeProfile}
                                             />
-                                        </div>
+                                        </StyledInputWrapper>
                                     )}
-                                    {isTeacher() && <div>{profile.college}</div>}
-                                    <div>
+                                    {isTeacher() && (
+                                        <StyledInputWrapper>{profile.college}</StyledInputWrapper>
+                                    )}
+                                    <StyledInputWrapper>
                                         <input
                                             type="text"
                                             name="phone"
                                             value={profile.phone}
                                             onChange={changeProfile}
                                         />
-                                    </div>
+                                    </StyledInputWrapper>
                                 </InfoContent>
                             </ProfileInfo>
                         </RequiredInfo>
@@ -526,9 +560,9 @@ const InfoContent = styled.div`
             background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
         }
     }
-    div {
-        padding: 0.5em 1em;
-    }
+    // div {
+    //     padding: 0.5em 1em;
+    // }
     span {
         display: inline-block;
         margin: 0 0.5em;
@@ -729,4 +763,37 @@ const StyledUploadProfileImage = styled.div`
         object-fit: cover;
     }
 `;
+
+const StyledSelect = styled.select`
+    font-family: inherit;
+    border-width: 0;
+    height: 100%;
+    font-size: 16px;
+    select:hover {
+        background: rgba(0, 0, 0, 0.02);
+        box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+    }
+    select:not(:placeholder-shown) + .label {
+        color: rgba(0, 0, 0, 0.5);
+        transform: translate3d(0, -12px, 0) scale(0.75);
+    }
+    select:focus {
+        background: rgba(0, 0, 0, 0.001);
+        outline: none;
+        box-shadow: 0 2px 0 ${({ theme }) => theme.PRIMARY};
+    }
+`;
+
+const StyledInputWrapper = styled.div`
+    height: 32px;
+    display: flex;
+    align-items: center;
+`;
+
+const StyledSelectWrapper = styled.div`
+    height: 32px;
+    display: flex;
+    align-items: center;
+`;
+
 export default updatePage;
