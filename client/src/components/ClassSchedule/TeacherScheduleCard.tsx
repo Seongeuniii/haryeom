@@ -4,9 +4,14 @@ import { addMinutesToTime, getHourMin } from '@/utils/time';
 import { useRouter } from 'next/router';
 import { getClassRoomCode } from '@/apis/tutoring/get-class-room-code';
 import { deleteTutoringSchedule } from '@/apis/tutoring/delete-tutoring-schedule';
-import Button from '../commons/Button';
 import UpdateSchedule from './UpdateSchedule';
 import { useModal } from '@/hooks/useModal';
+import Chat from '../icons/Chat';
+import chatSessionAtom from '@/recoil/atoms/chat';
+import { useRecoilState } from 'recoil';
+import Group from '../icons/Group';
+import Dropdown from '../commons/Dropdown';
+import useDropdown from '@/hooks/useDropdown';
 
 interface TeacherScheduleCardProps {
     schedule: ITeacherSchedule;
@@ -31,6 +36,14 @@ const TeacherScheduleCard = ({ schedule, scheduleDate }: TeacherScheduleCardProp
         });
     };
 
+    const [chatSession, setChatSession] = useRecoilState(chatSessionAtom);
+
+    const startChat = (open: boolean) => {
+        setChatSession((prev) => {
+            return { ...prev, openChat: open, chattingWithName: schedule.studentName };
+        });
+    };
+
     const scheduleInfo: INewSchedule = {
         scheduleDate,
         startTime: schedule.startTime,
@@ -45,10 +58,19 @@ const TeacherScheduleCard = ({ schedule, scheduleDate }: TeacherScheduleCardProp
         }
     };
 
+    const { open: isOpenDropdown, openDropdown, closeDropdown } = useDropdown();
+
     return (
-        <CardWrapper>
+        <>
+            <UpdateSchedule
+                tutoringScheduleId={schedule.tutoringScheduleId}
+                scheduleInfo={scheduleInfo}
+                open={open}
+                closeModal={closeModal}
+            />
+
             <StyledTeacherScheduleCard onClick={joinClass}>
-                <div>
+                <ScheduleInfoSection>
                     <ScheduledTime>
                         <StartTime>{getHourMin(schedule.startTime)}</StartTime>
                         <Duration>
@@ -59,45 +81,100 @@ const TeacherScheduleCard = ({ schedule, scheduleDate }: TeacherScheduleCardProp
                         <Subject>{schedule.subject.name}</Subject>
                         <Curriculum>| {schedule.title}</Curriculum>
                     </ClassInfo>
-                </div>
-                {/* <ClassState>종료</ClassState> */}
+                </ScheduleInfoSection>
+                <StudentInfoSection>
+                    <ProfileImage src={schedule.studentProfileUrl} />
+                    <StudentName>{schedule.studentName} 학생</StudentName>
+                    <StartChattingButton
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            startChat(true);
+                        }}
+                    >
+                        <Chat backgroundColor="gray" />
+                    </StartChattingButton>
+                </StudentInfoSection>
+                <Dropdown open={isOpenDropdown} closeDropdown={closeDropdown} top="40px" left="73%">
+                    <EditScheduleBox>
+                        <Button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                closeDropdown();
+                                openModal();
+                            }}
+                        >
+                            수정
+                        </Button>
+                        <Button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                closeDropdown();
+                                deleteSchedule();
+                            }}
+                        >
+                            삭제
+                        </Button>
+                    </EditScheduleBox>
+                </Dropdown>
+                <EditDropdownButton
+                    onClick={
+                        !isOpenDropdown
+                            ? (e) => {
+                                  e.stopPropagation();
+                                  openDropdown();
+                              }
+                            : (e) => {
+                                  e.stopPropagation();
+                                  closeDropdown();
+                              }
+                    }
+                >
+                    <Group />
+                </EditDropdownButton>
             </StyledTeacherScheduleCard>
-            <Button content="수정" onClick={openModal} width="10%"></Button>
-            <Button content="삭제" onClick={deleteSchedule} width="10%"></Button>
-
-            {open && (
-                <UpdateSchedule
-                    tutoringScheduleId={schedule.tutoringScheduleId}
-                    scheduleInfo={scheduleInfo}
-                    open={open}
-                    closeModal={closeModal}
-                />
-            )}
-        </CardWrapper>
+        </>
     );
 };
 
-const CardWrapper = styled.div`
+const StyledTeacherScheduleCard = styled.div`
+    position: relative;
     width: 100%;
-    padding: 0.8em;
-    margin-bottom: 0.9em;
+    margin-bottom: 1.8em;
     border-radius: 0.8em;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     font-size: 0.9em;
+    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    background-color: ${({ theme }) => theme.SECONDARY};
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+
+    &:hover {
+        transform: scale(0.985);
+    }
 `;
 
-const StyledTeacherScheduleCard = styled.div`
-    width: 100%;
+const ScheduleInfoSection = styled.section`
     padding: 0.8em;
-    margin-bottom: 0.9em;
-    border-radius: 0.8em;
+`;
+
+const StudentInfoSection = styled.section`
+    padding: 0.7em 1em;
     display: flex;
     align-items: center;
-    font-size: 0.9em;
-    border: 2px solid ${({ theme }) => theme.PRIMARY};
-    background-color: ${({ theme }) => theme.SECONDARY};
+    gap: 1em;
+    background-color: white;
 `;
+
+const ProfileImage = styled.img`
+    width: 35px;
+    height: 35px;
+    border-radius: 100%;
+    border: 1px solid ${({ theme }) => theme.LIGHT_BLACK};
+`;
+
+const StudentName = styled.div``;
 
 const ScheduledTime = styled.div`
     padding-left: 0.5em;
@@ -108,6 +185,19 @@ const ScheduledTime = styled.div`
     font-size: 0.9em;
 `;
 
+const StartChattingButton = styled.button`
+    width: 28px;
+    height: 28px;
+    padding-top: 3px;
+    margin-left: auto;
+    border: 1px solid #dcdcdc;
+    border-radius: 100%;
+
+    &:hover {
+        background-color: ${({ theme }) => theme.PRIMARY};
+    }
+`;
+
 const StartTime = styled.div``;
 
 const Duration = styled.div`
@@ -116,7 +206,7 @@ const Duration = styled.div`
 
 const ClassInfo = styled.div`
     display: flex;
-    align-items: center;
+    flex-direction: column;
 `;
 
 const Subject = styled.div`
@@ -126,11 +216,51 @@ const Subject = styled.div`
 `;
 
 const Curriculum = styled.div`
-    margin-left: 0.2em;
+    padding: 0.35em;
 `;
 
 const ClassState = styled.div`
     margin-left: auto;
+`;
+
+const EditDropdownButton = styled.div`
+    position: absolute;
+    width: 23px;
+    height: 23px;
+    top: 10px;
+    right: 10px;
+
+    svg {
+        width: 100%;
+        height: 100%;
+    }
+`;
+
+const EditScheduleBox = styled.div`
+    width: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    border-radius: 0.3em;
+    gap: 5px;
+    padding: 0.4em 0.3em;
+`;
+
+const Button = styled.div`
+    font-size: 12px;
+    width: 100%;
+    height: 30px;
+    border-radius: 0.2em;
+    padding-top: 7px;
+    text-align: center;
+
+    &:hover {
+        /* background-color: ${({ theme }) => theme.PRIMARY_LIGHT}; */
+        transition: all 0.5s;
+    }
 `;
 
 export default TeacherScheduleCard;
