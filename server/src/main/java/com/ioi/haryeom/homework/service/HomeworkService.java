@@ -6,21 +6,29 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ioi.haryeom.auth.dto.AuthInfo;
 import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.aws.S3Upload;
 import com.ioi.haryeom.aws.exception.S3UploadException;
 import com.ioi.haryeom.homework.domain.Drawing;
 import com.ioi.haryeom.homework.domain.Homework;
 import com.ioi.haryeom.homework.domain.HomeworkStatus;
-import com.ioi.haryeom.homework.dto.*;
-import com.ioi.haryeom.homework.exception.*;
+import com.ioi.haryeom.homework.dto.HomeworkListResponse;
+import com.ioi.haryeom.homework.dto.HomeworkLoadResponse;
+import com.ioi.haryeom.homework.dto.HomeworkRequest;
+import com.ioi.haryeom.homework.dto.HomeworkResponse;
+import com.ioi.haryeom.homework.dto.HomeworkReviewResponse;
+import com.ioi.haryeom.homework.dto.StudentDrawingResponse;
+import com.ioi.haryeom.homework.dto.TeacherDrawingResponse;
+import com.ioi.haryeom.homework.exception.HomeworkAlreadySubmittedException;
+import com.ioi.haryeom.homework.exception.HomeworkNotFoundException;
+import com.ioi.haryeom.homework.exception.HomeworkStatusConcurrencyException;
+import com.ioi.haryeom.homework.exception.HomeworkStatusException;
+import com.ioi.haryeom.homework.exception.InvalidDeadlineException;
+import com.ioi.haryeom.homework.exception.InvalidPageRangeException;
 import com.ioi.haryeom.homework.repository.DrawingRepository;
 import com.ioi.haryeom.homework.repository.HomeworkRepository;
 import com.ioi.haryeom.member.domain.Member;
-import com.ioi.haryeom.member.domain.type.Role;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
-import com.ioi.haryeom.member.exception.NoStudentException;
 import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.textbook.domain.Textbook;
 import com.ioi.haryeom.textbook.dto.TextbookResponse;
@@ -30,8 +38,10 @@ import com.ioi.haryeom.tutoring.domain.Tutoring;
 import com.ioi.haryeom.tutoring.domain.TutoringStatus;
 import com.ioi.haryeom.tutoring.exception.TutoringNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
-
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -202,8 +212,8 @@ public class HomeworkService {
             PDDocument document = PDDocument.load(inputStream);
             PDDocument newDoc = new PDDocument();
 
-            for(int i = startPage; i <= endPage; i++){
-                newDoc.addPage(document.getPage(i-1));
+            for (int i = startPage; i <= endPage; i++) {
+                newDoc.addPage(document.getPage(i - 1));
             }
 
             String fileName = "homework_" + homework.getId() + "_" + textbook.getTextbookName() + ".pdf";
@@ -227,13 +237,13 @@ public class HomeworkService {
         }
 
         // 드로잉 불러오기
-        List<Drawing> drawings =  drawingRepository.findAllByHomework(homework);
+        List<Drawing> drawings = drawingRepository.findAllByHomework(homework);
         List<StudentDrawingResponse> drawingResponses = Collections.emptyList();
 
-        if(!drawings.isEmpty()){
+        if (!drawings.isEmpty()) {
             drawingResponses = drawings.stream()
-            .map(StudentDrawingResponse::new)
-            .collect(Collectors.toList());
+                .map(StudentDrawingResponse::new)
+                .collect(Collectors.toList());
         }
 
         return new HomeworkLoadResponse(homework, textbookInfo, drawingResponses);
@@ -262,8 +272,8 @@ public class HomeworkService {
             PDDocument document = PDDocument.load(inputStream);
             PDDocument newDoc = new PDDocument();
 
-            for(int i = startPage; i <= endPage; i++){
-                newDoc.addPage(document.getPage(i-1));
+            for (int i = startPage; i <= endPage; i++) {
+                newDoc.addPage(document.getPage(i - 1));
             }
 
             String fileName = "homework_" + textbook.getTextbookName();
@@ -285,25 +295,26 @@ public class HomeworkService {
         // 드로잉 불러오기
         List<Drawing> drawings = drawingRepository.findAllByHomework(homework);
         List<TeacherDrawingResponse> drawingResponses = drawings.stream()
-                .map(TeacherDrawingResponse::new)
-                .collect(Collectors.toList());
+            .map(TeacherDrawingResponse::new)
+            .collect(Collectors.toList());
 
         return new HomeworkReviewResponse(homework, textbookInfo, drawingResponses);
     }
 
     @Transactional
-    public void saveHomework(Long homeworkId, List<MultipartFile> file,String page, Long MemberId) {
+    public void saveHomework(Long homeworkId, List<MultipartFile> file, String page, Long MemberId) {
         Homework homework = findHomeworkById(homeworkId);
 
         ObjectMapper objectMapper = new ObjectMapper();
         List<Integer> pages = Collections.EMPTY_LIST;
         try {
-            pages = objectMapper.readValue(page, new TypeReference<List<Integer>>() {});
+            pages = objectMapper.readValue(page, new TypeReference<List<Integer>>() {
+            });
         } catch (JsonProcessingException e) {
             throw new RuntimeException("JSON parsing error");
         }
 
-        for(int i = 0; i < file.size(); i++) {
+        for (int i = 0; i < file.size(); i++) {
 
             MultipartFile f = file.get(i);
             Integer p = pages.get(i);
@@ -319,15 +330,15 @@ public class HomeworkService {
 
             Drawing homeworkDrawing = drawingRepository.findByHomeworkIdAndPage(homeworkId, p);
 
-            if(homeworkDrawing != null) {
+            if (homeworkDrawing != null) {
                 homeworkDrawing.ongoingUpdate(fileUrl);
                 drawingRepository.save(homeworkDrawing);
             } else {
                 Drawing drawing = Drawing.builder()
-                        .homework(homework)
-                        .page(p)
-                        .homeworkDrawingUrl(fileUrl)
-                        .build();
+                    .homework(homework)
+                    .page(p)
+                    .homeworkDrawingUrl(fileUrl)
+                    .build();
 
                 drawingRepository.save(drawing);
             }
@@ -341,12 +352,13 @@ public class HomeworkService {
         ObjectMapper objectMapper = new ObjectMapper();
         List<Integer> pages = Collections.EMPTY_LIST;
         try {
-            pages = objectMapper.readValue(page, new TypeReference<List<Integer>>() {});
+            pages = objectMapper.readValue(page, new TypeReference<List<Integer>>() {
+            });
         } catch (JsonProcessingException e) {
             throw new RuntimeException("JSON parsing error");
         }
 
-        for(int i = 0; i < file.size(); i++) {
+        for (int i = 0; i < file.size(); i++) {
 
             MultipartFile f = file.get(i);
             Integer p = pages.get(i);
@@ -362,15 +374,15 @@ public class HomeworkService {
 
             Drawing homeworkDrawing = drawingRepository.findByHomeworkIdAndPage(homeworkId, p);
 
-            if(homeworkDrawing != null) {
+            if (homeworkDrawing != null) {
                 homeworkDrawing.reviewUpdate(fileUrl);
                 drawingRepository.save(homeworkDrawing);
             } else {
                 Drawing drawing = Drawing.builder()
-                        .homework(homework)
-                        .page(p)
-                        .reviewDrawingUrl(fileUrl)
-                        .build();
+                    .homework(homework)
+                    .page(p)
+                    .reviewDrawingUrl(fileUrl)
+                    .build();
 
                 drawingRepository.save(drawing);
             }
@@ -385,6 +397,52 @@ public class HomeworkService {
 
         homework.submit();
     }
+
+    @Transactional
+    public void saveTeacherDrawing(Long homeworkId, List<MultipartFile> file, String page, Long MemberId) {
+        Homework homework = findHomeworkById(homeworkId);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Integer> pages = Collections.EMPTY_LIST;
+        try {
+            pages = objectMapper.readValue(page, new TypeReference<List<Integer>>() {
+            });
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("JSON parsing error");
+        }
+
+        for (int i = 0; i < file.size(); i++) {
+
+            MultipartFile f = file.get(i);
+            Integer p = pages.get(i);
+            String fileName = homeworkId + "_" + f.getOriginalFilename() + "_" + p;
+            String fileUrl = "";
+
+            try {
+                fileUrl = s3Upload.uploadFile(fileName, f.getInputStream(), f.getSize(), f.getContentType());
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new S3UploadException();
+            }
+
+            Drawing homeworkDrawing = drawingRepository.findByHomeworkIdAndPage(homeworkId, p);
+
+            if (homeworkDrawing != null) {
+                homeworkDrawing.teacherUpdate(fileUrl);
+                drawingRepository.save(homeworkDrawing);
+            } else {
+                Drawing drawing = Drawing.builder()
+                    .homework(homework)
+                    .page(p)
+                    .reviewDrawingUrl(fileUrl)
+                    .build();
+
+                drawingRepository.save(drawing);
+            }
+        }
+
+    }
+
 
     private void validateDeadline(LocalDate deadline) {
         LocalDate current = LocalDate.now();
@@ -444,8 +502,11 @@ public class HomeworkService {
 
     // URL 에서 fileKey 추출하는 메서드
     private String extractFileKey(String url) {
-        String[] parts =url.split("/");
-        if(parts.length > 3) return String.join("/", Arrays.copyOfRange(parts, 3, parts.length));
-        else return "";
+        String[] parts = url.split("/");
+        if (parts.length > 3) {
+            return String.join("/", Arrays.copyOfRange(parts, 3, parts.length));
+        } else {
+            return "";
+        }
     }
 }
