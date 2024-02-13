@@ -26,7 +26,7 @@ const HomeworkList = ({ homeworkList, handleClickHomeworkCard }: HomeworkListPro
     return (
         <StyledHomeworkList>
             <HomeworkTableTitle>
-                <State className="homework-list__header">구분</State>
+                <StateWrapper className="homework-list__header">구분</StateWrapper>
                 <Deadline className="homework-list__header">마감일</Deadline>
                 <Resource className="homework-list__header">학습자료</Resource>
                 <Scope className="homework-list__header">범위</Scope>
@@ -41,9 +41,11 @@ const HomeworkList = ({ homeworkList, handleClickHomeworkCard }: HomeworkListPro
                                     key={`homework_${index}`}
                                 >
                                     <HomeworkCard>
-                                        <State status={homework.status}>
-                                            {getStatusText(homework.status)}
-                                        </State>
+                                        <StateWrapper>
+                                            <State status={homework.status}>
+                                                {getStatusText(homework.status)}
+                                            </State>
+                                        </StateWrapper>
                                         <Deadline>{homework.deadline}</Deadline>
                                         <Resource>{homework.textbookName}</Resource>
                                         <Scope>{`p. ${homework.startPage} ~ ${homework.endPage}`}</Scope>
@@ -60,9 +62,11 @@ const HomeworkList = ({ homeworkList, handleClickHomeworkCard }: HomeworkListPro
                                         : undefined
                                 }
                             >
-                                <State status={homework.status}>
-                                    {getStatusText(homework.status)}
-                                </State>
+                                <StateWrapper>
+                                    <State status={homework.status}>
+                                        {getStatusText(homework.status)}
+                                    </State>
+                                </StateWrapper>
                                 <Deadline>{homework.deadline}</Deadline>
                                 <Resource>{homework.textbookName}</Resource>
                                 <Scope>{`p. ${homework.startPage} ~ ${homework.endPage}`}</Scope>
@@ -85,6 +89,7 @@ const StyledHomeworkList = styled.div`
 const HomeworkTableTitle = styled.header`
     width: 100%;
     display: flex;
+    align-items: center;
     justify-content: space-around;
     padding: 0.4em 0;
     background-color: #f5f4f4;
@@ -101,6 +106,7 @@ const HomeworkCards = styled.div`
 const HomeworkCard = styled.div`
     width: 100%;
     display: flex;
+    align-items: center;
     justify-content: space-around;
     padding: 0.7em 0;
     text-align: center;
@@ -113,15 +119,31 @@ const HomeworkCard = styled.div`
     }
 `;
 
-const State = styled.button<{ status?: IHomeworkStatus }>`
+const StateWrapper = styled.button`
     width: 18%;
-    color: ${({ status, theme }) => {
-        if (status === 'IN_PROGRESS') return theme.PRIMARY;
-        else if (status === 'UNCONFIRMED') return '#ff4e4e';
-    }};
+
     &.homework-list__header {
         color: ${({ theme }) => theme.LIGHT_BLACK};
     }
+`;
+
+const State = styled.span<{ status?: IHomeworkStatus }>`
+    padding: 6px 8px;
+    border-radius: 1em;
+    font-size: 14px;
+
+    background-color: ${({ status, theme }) => {
+        switch (status) {
+            case 'COMPLETED':
+                return theme.PRIMARY;
+            case 'IN_PROGRESS':
+                return theme.PRIMARY_LIGHT;
+            default:
+                return 'transparent'; // default background color
+        }
+    }};
+    color: ${({ status }) =>
+        status === 'COMPLETED' || status === 'IN_PROGRESS' ? 'white' : 'black'};
 `;
 
 const Deadline = styled.span`
