@@ -16,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -51,9 +52,13 @@ public class Homework extends BaseTimeEntity {
     @Column(columnDefinition = "TINYINT(1)")
     private Boolean isDeleted = false;
 
+    @Version
+    private Long version;
+
     @Builder
-    public Homework(Textbook textbook, Tutoring tutoring, LocalDate deadline,
+    public Homework(Long id, Textbook textbook, Tutoring tutoring, LocalDate deadline,
         Integer startPage, Integer endPage) {
+        this.id = id;
         this.textbook = textbook;
         this.tutoring = tutoring;
         this.deadline = deadline;
