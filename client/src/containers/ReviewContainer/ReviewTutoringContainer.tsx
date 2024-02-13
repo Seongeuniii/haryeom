@@ -5,6 +5,7 @@ import { ITutoringSubject } from '@/apis/tutoring/get-tutoring-video';
 import HomeLayout from '@/components/layouts/HomeLayout';
 import Pin from '@/components/icons/Pin';
 import { timeStringToSeconds } from '@/utils/time';
+import axios from 'axios';
 
 interface MediaRecordProps {
     jumpToTime: number;
@@ -13,7 +14,7 @@ interface MediaRecordProps {
 const MediaRecord = ({ jumpToTime }: MediaRecordProps) => {
     const recordVideoRef = useRef<HTMLVideoElement>(null);
     const [videoSource, setVideoSource] = useState<string>(
-        'https://d1b632bso7m0wd.cloudfront.net/vod/N8ECzA9p4xSH/N8ECzA9p4xSH.m3u8'
+        'https://d1b632bso7m0wd.cloudfront.net/vod/RikmcgCjhKIZ.webm'
     );
 
     useEffect(() => {
@@ -24,7 +25,7 @@ const MediaRecord = ({ jumpToTime }: MediaRecordProps) => {
 
     useEffect(() => {
         if (!recordVideoRef.current) return;
-        recordVideoRef.current.src = 'https://dl6.webmfiles.org/elephants-dream.webm';
+        recordVideoRef.current.src = videoSource;
     }, [videoSource]);
 
     return (
@@ -46,18 +47,68 @@ interface ReviewTutoringContainerProps {
     tutoringSubjectList: ITutoringSubject[];
 }
 
+interface IVideoTimeStamp {
+    timestampId: number;
+    stampTime: string;
+    content: string;
+}
+
+interface IReviewTutoring {
+    videoId: number;
+    startTime: string;
+    endTime: string;
+    videoUrl: string;
+    duration: string;
+    teacherName: string;
+    teacherProfileUrl: string;
+    title: string;
+    scheduleDate: string;
+    subjectName: string;
+    videoTimestampList: IVideoTimeStamp[];
+}
+
 const ReviewTutoringContainer = ({ tutoringSubjectList }: ReviewTutoringContainerProps) => {
+    const [reviewTutoring, setReviewTutoring] = useState<IReviewTutoring | null>(null);
+    const [videoId, setVideoId] = useState<number>(34);
+
+    useEffect(() => {
+        const fetchReviewData = async () => {
+            try {
+                const res = await axios.get<IReviewTutoring>(
+                    `${process.env.NEXT_PUBLIC_API_SERVER}/review/video/detail/${videoId}`
+                );
+                setReviewTutoring(res.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchReviewData();
+    }, [videoId]);
+
     const [jumpToTime, setJumpToTime] = useState<number>(0);
+
+    const [teacherName, setTeacherName] = useState<string>('김선생');
+    const [teacherImg, setTeacherImg] = useState<string>(
+        'https://d1b632bso7m0wd.cloudfront.net/41'
+    );
 
     return (
         <HomeLayout>
             <StyledReviewTutoringContainer>
                 <MediaSection>
                     <MediaRecord jumpToTime={jumpToTime} />
+                    {/*영상 부분*/}
                     <MediaInfo>
-                        <Title>중등수학</Title>
-                        <SubTitle>지수함수와 로그함수</SubTitle>
+                        <Title>
+                            {reviewTutoring?.subjectName} - {reviewTutoring?.scheduleDate}
+                        </Title>
+                        <SubTitle>{reviewTutoring?.title}</SubTitle>
+                        <TeacherInfoSection>
+                            <TeacherProfileImg src={reviewTutoring?.teacherProfileUrl} />
+                            <TeacherName>{reviewTutoring?.teacherName} 선생님</TeacherName>
+                        </TeacherInfoSection>
                     </MediaInfo>
+                    {/*영상 부분*/}
                 </MediaSection>
                 <TimestampSection>
                     <TimestampHeader>
@@ -67,12 +118,26 @@ const ReviewTutoringContainer = ({ tutoringSubjectList }: ReviewTutoringContaine
                         <span>타임스탬프</span>
                     </TimestampHeader>
                     <TimestampCards>
+                        {reviewTutoring?.videoTimestampList?.map((videoTimestamp) => {
+                            return (
+                                <TimestampCard>
+                                    <Time
+                                        onClick={() =>
+                                            setJumpToTime(timeStringToSeconds('00:00:10'))
+                                        }
+                                    >
+                                        {videoTimestamp.stampTime}
+                                    </Time>
+                                    <Content>{videoTimestamp.content}</Content>
+                                </TimestampCard>
+                            );
+                        })}
                         <TimestampCard>
                             <Time onClick={() => setJumpToTime(timeStringToSeconds('00:00:10'))}>
                                 00:10:29
                             </Time>
                             <Content>
-                                중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요
+                                중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요
                             </Content>
                         </TimestampCard>
                     </TimestampCards>
@@ -127,6 +192,27 @@ const SubTitle = styled.span`
     font-size: 0.8em;
     padding-left: 0.1em;
     color: ${({ theme }) => theme.LIGHT_BLACK};
+`;
+
+const TeacherInfoSection = styled.div`
+    min-width: calc(50% - 6px);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 15px;
+`;
+
+const TeacherProfileImg = styled.img`
+    width: 40px;
+    height: 40px;
+    border-radius: 35px;
+    object-fit: cover;
+`;
+
+const TeacherName = styled.span`
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 0.5em;
 `;
 
 const TimestampSection = styled.div`
