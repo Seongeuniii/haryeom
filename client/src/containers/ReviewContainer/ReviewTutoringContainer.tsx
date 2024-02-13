@@ -1,21 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { GetServerSideProps } from 'next';
 import styled from 'styled-components';
-import { ITutoringSubject } from '@/apis/tutoring/get-tutoring-video';
+import { IRecordedTutoringDetail, getTutoringVideo } from '@/apis/tutoring/get-tutoring-video';
 import HomeLayout from '@/components/layouts/HomeLayout';
 import Pin from '@/components/icons/Pin';
 import { timeStringToSeconds } from '@/utils/time';
-import axios from 'axios';
 
 interface MediaRecordProps {
+    videoSource: string;
     jumpToTime: number;
 }
 
-const MediaRecord = ({ jumpToTime }: MediaRecordProps) => {
+const MediaRecord = ({ videoSource, jumpToTime }: MediaRecordProps) => {
     const recordVideoRef = useRef<HTMLVideoElement>(null);
-    const [videoSource, setVideoSource] = useState<string>(
-        'https://d1b632bso7m0wd.cloudfront.net/vod/RikmcgCjhKIZ.webm'
-    );
 
     useEffect(() => {
         if (recordVideoRef.current) {
@@ -44,71 +41,27 @@ export const StyledMediaRecord = styled.div`
 `;
 
 interface ReviewTutoringContainerProps {
-    tutoringSubjectList: ITutoringSubject[];
+    videoDetail: IRecordedTutoringDetail;
 }
 
-interface IVideoTimeStamp {
-    timestampId: number;
-    stampTime: string;
-    content: string;
-}
-
-interface IReviewTutoring {
-    videoId: number;
-    startTime: string;
-    endTime: string;
-    videoUrl: string;
-    duration: string;
-    teacherName: string;
-    teacherProfileUrl: string;
-    title: string;
-    scheduleDate: string;
-    subjectName: string;
-    videoTimestampList: IVideoTimeStamp[];
-}
-
-const ReviewTutoringContainer = ({ tutoringSubjectList }: ReviewTutoringContainerProps) => {
-    const [reviewTutoring, setReviewTutoring] = useState<IReviewTutoring | null>(null);
-    const [videoId, setVideoId] = useState<number>(34);
-
-    useEffect(() => {
-        const fetchReviewData = async () => {
-            try {
-                const res = await axios.get<IReviewTutoring>(
-                    `${process.env.NEXT_PUBLIC_API_SERVER}/review/video/detail/${videoId}`
-                );
-                setReviewTutoring(res.data);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-        fetchReviewData();
-    }, [videoId]);
-
+const ReviewTutoringContainer = ({ videoDetail }: ReviewTutoringContainerProps) => {
     const [jumpToTime, setJumpToTime] = useState<number>(0);
-
-    const [teacherName, setTeacherName] = useState<string>('김선생');
-    const [teacherImg, setTeacherImg] = useState<string>(
-        'https://d1b632bso7m0wd.cloudfront.net/41'
-    );
 
     return (
         <HomeLayout>
             <StyledReviewTutoringContainer>
                 <MediaSection>
-                    <MediaRecord jumpToTime={jumpToTime} />
-                    {/*영상 부분*/}
+                    <MediaRecord videoSource={videoDetail.videoUrl} jumpToTime={jumpToTime} />
                     <MediaInfo>
                         <Title>
-                            {reviewTutoring?.subjectName} - {reviewTutoring?.scheduleDate}
+                            {videoDetail.subjectName} - {videoDetail.scheduleDate}
                         </Title>
-                        <SubTitle>{reviewTutoring?.title}</SubTitle>
+                        <SubTitle>{videoDetail.title}</SubTitle>
                         <TeacherInfoSection>
-                            <TeacherProfileImg src={reviewTutoring?.teacherProfileUrl} />
-                            <TeacherName>{reviewTutoring?.teacherName} 선생님</TeacherName>
+                            <TeacherProfileImg src={videoDetail.teacherProfileUrl} />
+                            <TeacherName>{videoDetail.teacherName} 선생님</TeacherName>
                         </TeacherInfoSection>
                     </MediaInfo>
-                    {/*영상 부분*/}
                 </MediaSection>
                 <TimestampSection>
                     <TimestampHeader>
@@ -118,30 +71,32 @@ const ReviewTutoringContainer = ({ tutoringSubjectList }: ReviewTutoringContaine
                         <span>타임스탬프</span>
                     </TimestampHeader>
                     <TimestampCards>
-                        {reviewTutoring?.videoTimestampList?.map((videoTimestamp) => {
-                            return (
-                                <TimestampCard
-                                    key={`video_timestamp_${videoTimestamp.timestampId}`}
-                                >
-                                    <Time
-                                        onClick={() =>
-                                            setJumpToTime(timeStringToSeconds('00:00:10'))
-                                        }
-                                    >
-                                        {videoTimestamp.stampTime}
-                                    </Time>
-                                    <Content>{videoTimestamp.content}</Content>
-                                </TimestampCard>
-                            );
-                        })}
-                        <TimestampCard>
-                            <Time onClick={() => setJumpToTime(timeStringToSeconds('00:00:10'))}>
-                                00:10:29
-                            </Time>
-                            <Content>
-                                중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요중요해요
-                            </Content>
-                        </TimestampCard>
+                        {videoDetail.videoTimestampList.length > 0 ? (
+                            <>
+                                {videoDetail.videoTimestampList?.map((videoTimestamp) => {
+                                    return (
+                                        <TimestampCard
+                                            key={`video_timestamp_${videoTimestamp.timestampId}`}
+                                        >
+                                            <Time
+                                                onClick={() =>
+                                                    setJumpToTime(
+                                                        timeStringToSeconds(
+                                                            videoTimestamp.stampTime
+                                                        )
+                                                    )
+                                                }
+                                            >
+                                                {videoTimestamp.stampTime}
+                                            </Time>
+                                            <Content>{videoTimestamp.content}</Content>
+                                        </TimestampCard>
+                                    );
+                                })}
+                            </>
+                        ) : (
+                            <NoTimestamp>타임스탬프 기록이 없어요.</NoTimestamp>
+                        )}
                     </TimestampCards>
                 </TimestampSection>
             </StyledReviewTutoringContainer>
@@ -150,20 +105,19 @@ const ReviewTutoringContainer = ({ tutoringSubjectList }: ReviewTutoringContaine
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    const videoId = context.params?.id as string;
+    const videoId = parseInt(context.params?.id as string);
 
     if (!videoId) return { props: {} };
 
-    return {
-        props: {},
-    };
+    const videoDetail = await getTutoringVideo(videoId);
+
+    return { props: { videoDetail } };
 };
 
 const StyledReviewTutoringContainer = styled.div`
     width: 100%;
     height: 100%;
     display: flex;
-    /* flex-direction: column; */
     justify-content: center;
     align-items: center;
 `;
@@ -219,7 +173,7 @@ const TeacherName = styled.span`
 
 const TimestampSection = styled.div`
     flex: 1;
-    height: 85%;
+    height: 70%;
     padding-left: 2em;
     display: flex;
     flex-direction: column;
@@ -275,6 +229,16 @@ const Time = styled.button`
 
 const Content = styled.span`
     padding: 0 2px;
+`;
+
+const NoTimestamp = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
 `;
 
 export default ReviewTutoringContainer;

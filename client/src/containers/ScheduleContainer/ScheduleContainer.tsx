@@ -32,6 +32,7 @@ import { getTutorings } from '@/apis/tutoring/get-tutorings';
 import { useGetHomeworkList } from '@/queries/useGetHomeworkList';
 import TextbookList from '@/components/TextbookList';
 import HomeworkProgressPercentage from '@/components/Homework/HomeworkProgressPercentage';
+import TutoringVideoList from '@/components/TutoringVideoList';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -74,7 +75,7 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
         data: { homeworkList: IHomeworkList; progressPercentage: IProgressPercentage };
     };
 
-    const [listTab, setListTab] = useState<'homework' | 'textbook'>('homework');
+    const [listTab, setListTab] = useState<'homework' | 'textbook' | 'review'>('homework');
 
     return (
         <HomeLayout>
@@ -131,6 +132,14 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                                 >
                                     학습자료
                                 </Tab>
+                                {userSession.role === 'STUDENT' && (
+                                    <Tab
+                                        selected={listTab === 'review'}
+                                        onClick={() => setListTab('review')}
+                                    >
+                                        복습
+                                    </Tab>
+                                )}
                             </Title>
                             {userSession.role === 'TEACHER' && tutorings && (
                                 <CreateNewHomework
@@ -142,6 +151,9 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                         {listTab === 'homework' && <HomeworkList homeworkList={homeworkList} />}
                         {listTab === 'textbook' && (
                             <TextbookList textbookList={tutoringTextbooks} />
+                        )}
+                        {listTab === 'review' && (
+                            <TutoringVideoList subjectId={seletedTutoring.subject.subjectId} />
                         )}
                     </ListSection>
                 </SelectedTutoring>

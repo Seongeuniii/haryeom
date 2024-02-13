@@ -30,25 +30,37 @@ export const getTutoringSubjectList = async () => {
 
 export const getTutoringVideoList = async (subjectId: number) => {
     try {
-        const res = await axios.get<IReviewVideo[]>(
+        const res = await axios.get<{ videoList: IReviewVideo[] }>(
             `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${subjectId}`
         );
-        return res.data;
+        return res.data.videoList;
     } catch (e) {
         console.log(e);
     }
 };
 
-interface IVideoDetail {
-    startTime: string;
-    videoUrl: string;
-    videoId: number;
-    endTime: string;
+interface IVideoTimeStamp {
+    timestampId: number;
+    stampTime: string;
+    content: string;
 }
 
+export interface IRecordedTutoringDetail {
+    videoId: number;
+    startTime: string;
+    endTime: string;
+    videoUrl: string;
+    duration: string;
+    teacherName: string;
+    teacherProfileUrl: string;
+    title: string;
+    scheduleDate: string;
+    subjectName: string;
+    videoTimestampList: IVideoTimeStamp[];
+}
 export const getTutoringVideo = async (videoId: number) => {
     try {
-        const res = await axios.get<IVideoDetail>(
+        const res = await axios.get<IRecordedTutoringDetail>(
             `${process.env.NEXT_PUBLIC_API_SERVER}${path}/detail/${videoId}`
         );
         return res.data;
