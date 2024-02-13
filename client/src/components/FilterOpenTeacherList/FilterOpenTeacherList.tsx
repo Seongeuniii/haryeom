@@ -104,7 +104,7 @@ const FilterOpenTeacherList = ({ filterers, setFilterers }: FilterOpenTeacherLis
                             children,
                             name: 'maxSalary',
                             minMax: '최대',
-                            unit: '만원',
+                            unit: '원',
                             handleInput,
                         })
                     }
@@ -129,10 +129,20 @@ const FilterOpenTeacherList = ({ filterers, setFilterers }: FilterOpenTeacherLis
                         )
                 )}
                 {(filterers.minCareer as number) > 0 && (
-                    <SelectedOptionValue>최소 {filterers.minCareer}년 경력</SelectedOptionValue>
+                    <SelectedOptionValue>
+                        <span>최소 {filterers.minCareer}년 경력</span>
+                        <DeleteButton onClick={() => handleInput('minCareer', '0')}>
+                            <Close />
+                        </DeleteButton>
+                    </SelectedOptionValue>
                 )}
                 {(filterers.maxSalary as number) > 0 && (
-                    <SelectedOptionValue>수강료 최대 {filterers.maxSalary}원</SelectedOptionValue>
+                    <SelectedOptionValue>
+                        <span>수강료 최대 {filterers.maxSalary}원</span>
+                        <DeleteButton onClick={() => handleInput('maxSalary', '0')}>
+                            <Close />
+                        </DeleteButton>
+                    </SelectedOptionValue>
                 )}
             </SelectedOptionValues>
         </>
