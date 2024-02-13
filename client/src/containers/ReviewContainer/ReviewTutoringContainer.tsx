@@ -120,7 +120,9 @@ const ReviewTutoringContainer = ({ tutoringSubjectList }: ReviewTutoringContaine
                     <TimestampCards>
                         {reviewTutoring?.videoTimestampList?.map((videoTimestamp) => {
                             return (
-                                <TimestampCard>
+                                <TimestampCard
+                                    key={`video_timestamp_${videoTimestamp.timestampId}`}
+                                >
                                     <Time
                                         onClick={() =>
                                             setJumpToTime(timeStringToSeconds('00:00:10'))
