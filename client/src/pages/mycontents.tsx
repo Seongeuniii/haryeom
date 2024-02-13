@@ -348,12 +348,23 @@ const OpenTextbookLoad = () => {
             <InputForm
                 label={'학습 자료명'}
                 name={'textbookName'}
-                handleChange={(e) =>
+                handleChange={(e) => {
+                    if (e.target.value.includes('/')) {
+                        e.target.value = e.target.value.replace(/\//g, '');
+                        alert("'/' 는 입력이 불가능합니다.");
+                        return;
+                    }
+                    if (e.target.value.includes('.')) {
+                        e.target.value = e.target.value.replace(/\./g, '');
+                        alert("'.' 는 입력이 불가능합니다.");
+                        return;
+                    }
+
                     setTextbookData((prev) => ({
                         ...prev,
                         textbookName: e.target.value,
-                    }))
-                }
+                    }));
+                }}
             />
             <RegistMyContentCover>
                 <label htmlFor="firstPageCover">첫 페이지 표지 등록 여부</label>
