@@ -31,17 +31,15 @@ const TextbookList = ({ textbookList, handleClickTextbookCard }: TextbookListPro
                             }
                         >
                             <TextbookCard>
-                                {textbook.firstPageCover && (
-                                    <BookCover>
-                                        <img src={textbook.coverImg} alt="book_cover" />
-                                    </BookCover>
-                                )}
+                                <BookCover>
+                                    <img src={textbook.coverImg} alt="book_cover" />
+                                </BookCover>
                                 <BookName>{textbook.textbookName}</BookName>
                             </TextbookCard>
                         </Link>
                     ))
                 ) : (
-                    <NoTextbook>숙제가 없어요.</NoTextbook>
+                    <NoTextbook>지정된 학습 자료가 없어요.</NoTextbook>
                 )}
             </TextbookCards>
         </StyledTextbookList>

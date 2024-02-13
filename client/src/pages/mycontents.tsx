@@ -142,7 +142,6 @@ const MyContents = () => {
                 </MyContentsHeader>
                 <MyContentsListHeader>
                     <div>학습자료명</div>
-                    <div>표지 등록 여부</div>
                     <div>등록된 학생</div>
                 </MyContentsListHeader>
                 <Modal open={openAssignStudentModal} closeModal={closeAssignStudentwithClean}>
@@ -158,52 +157,55 @@ const MyContents = () => {
                     )}
                 </Modal>
                 <MyContentList>
-                    {textbooks.map((textbook: Textbook) => (
-                        <div className="textbookList" key={textbook.textbookId}>
-                            <input
-                                type="checkbox"
-                                onChange={(e) =>
-                                    handleCheckboxChange(textbook.textbookId, e.target.checked)
-                                }
-                                checked={selectedTextbookIds.includes(textbook.textbookId)}
-                            />
-                            <div
-                                className="textbookNameContainer"
-                                onClick={() => console.log('학습자료 보기 ' + textbook.textbookId)}
-                            >
-                                {textbook.textbookName}
-                            </div>
-                            <div className="textbookisCoverContainer">
-                                {textbook.firstPageCover ? 'O' : 'X'}
-                            </div>
-                            <div className="textbookmemberListContainer">
-                                {textbook.students &&
-                                    textbook.students.map((student: Member) => (
-                                        <div className="memberContainer" key={student.memberId}>
-                                            <div>
-                                                <img
-                                                    src={student.profileUrl}
-                                                    width={'40px'}
-                                                    height={'40px'}
-                                                />
+                    {textbooks && textbooks.length > 0 ? (
+                        textbooks.map((textbook: Textbook) => (
+                            <div className="textbookList" key={textbook.textbookId}>
+                                <input
+                                    type="checkbox"
+                                    onChange={(e) =>
+                                        handleCheckboxChange(textbook.textbookId, e.target.checked)
+                                    }
+                                    checked={selectedTextbookIds.includes(textbook.textbookId)}
+                                />
+                                <div
+                                    className="textbookNameContainer"
+                                    onClick={() =>
+                                        console.log('학습자료 보기 ' + textbook.textbookId)
+                                    }
+                                >
+                                    {textbook.textbookName}
+                                </div>
+                                <div className="textbookmemberListContainer">
+                                    {textbook.students &&
+                                        textbook.students.map((student: Member) => (
+                                            <div className="memberContainer" key={student.memberId}>
+                                                <div>
+                                                    <img
+                                                        src={student.profileUrl}
+                                                        width={'40px'}
+                                                        height={'40px'}
+                                                    />
+                                                </div>
+                                                <div className="memberListName">{student.name}</div>
                                             </div>
-                                            <div className="memberListName">{student.name}</div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                </div>
+                                <button
+                                    className="addStudent"
+                                    onClick={() =>
+                                        openAssignStudentWithInfo(
+                                            textbook.textbookId,
+                                            textbook.students
+                                        )
+                                    }
+                                >
+                                    +
+                                </button>
                             </div>
-                            <button
-                                className="addStudent"
-                                onClick={() =>
-                                    openAssignStudentWithInfo(
-                                        textbook.textbookId,
-                                        textbook.students
-                                    )
-                                }
-                            >
-                                +
-                            </button>
-                        </div>
-                    ))}
+                        ))
+                    ) : (
+                        <NoTextbook>등록한 학습 자료가 없어요.</NoTextbook>
+                    )}
                 </MyContentList>
             </StyledMyContents>
         </HomeLayout>
@@ -215,7 +217,7 @@ const OpenTextbookLoad = () => {
     const [textbookData, setTextbookData] = useState<INewTextbook>({
         subjectId: 0,
         textbookName: '',
-        firstPageCover: true,
+        firstPageCover: false,
     });
     const [file, setFile] = useState<File | null>(null);
     const [subjects, setSubjects] = useState<ISubject[]>([]);
@@ -270,9 +272,11 @@ const OpenTextbookLoad = () => {
     };
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
+        if (e.target.files && e.target.files[0] && e.target.files[0].type === 'application/pdf') {
             setFile(e.target.files[0]);
             setFileName(e.target.files[0].name);
+        } else {
+            alert('PDF 파일만 업로드 가능합니다.');
         }
     };
 
@@ -328,13 +332,14 @@ const OpenTextbookLoad = () => {
                         <div>파일 찾기</div>
                     </label>
                     <ul>
-                        <li>- 첨부파일 용량은 최대 10MB를 초과할 수 없습니다.</li>
+                        <li>- 첨부파일 용량은 최대 100MB를 초과할 수 없습니다.</li>
                         <li>- 첨부 가능 파일 : pdf</li>
                     </ul>
                 </div>
                 <input
                     type="file"
                     name="file"
+                    accept=".pdf"
                     onChange={handleFileChange}
                     id="textbookFile"
                     style={{ display: 'none' }}
@@ -474,9 +479,12 @@ const OpenAssignStudent = ({
         <AssignStudent>
             <AssignStudentHeader>학생 등록하기</AssignStudentHeader>
             <div>
-                <AlreadyAssignStudentHeader>등록된 학생</AlreadyAssignStudentHeader>
+                <AlreadyAssignStudentHeader>
+                    등록된 학생
+                    <div>- 선택한 학생들은 등록이 해제됩니다.</div>
+                </AlreadyAssignStudentHeader>
                 <div className="memberListContainer">
-                    {assignedStudents &&
+                    {assignedStudents && assignedStudents.length > 0 ? (
                         assignedStudents.map((student: Member) => (
                             <div
                                 className="memberContainer"
@@ -484,9 +492,12 @@ const OpenAssignStudent = ({
                                 onClick={() => handleDeselectStudentChange(student.memberId)}
                                 style={{
                                     border: deselectedStudentIds.includes(student.memberId)
-                                        ? '1px solid red'
-                                        : '1px solid #ddd',
+                                        ? '1px solid #ff5757'
+                                        : '1px solid white',
                                     borderRadius: '5px',
+                                    background: deselectedStudentIds.includes(student.memberId)
+                                        ? '#ff5757'
+                                        : '',
                                 }}
                             >
                                 <div>
@@ -500,13 +511,19 @@ const OpenAssignStudent = ({
                                     style={{ visibility: 'hidden', position: 'absolute' }}
                                 />
                             </div>
-                        ))}
+                        ))
+                    ) : (
+                        <NoStudent>등록된 학생이 없어요.</NoStudent>
+                    )}
                 </div>
             </div>
             <div>
-                <AssignableStudentHeader>학생 추가하기</AssignableStudentHeader>
+                <AssignableStudentHeader>
+                    학생 추가하기
+                    <div>- 선택한 학생을 해당 교재에 등록합니다.</div>
+                </AssignableStudentHeader>
                 <div className="memberListContainer">
-                    {assignableStudent &&
+                    {assignableStudent && assignableStudent.length > 0 ? (
                         assignableStudent.map((student: Member) => (
                             <div
                                 className="memberContainer"
@@ -514,9 +531,12 @@ const OpenAssignStudent = ({
                                 onClick={() => handleCheckStudentChange(student.memberId)}
                                 style={{
                                     border: selectedStudentIds.includes(student.memberId)
-                                        ? '1px solid red'
-                                        : '1px solid #ddd',
+                                        ? '1px solid #57c08d'
+                                        : '1px solid white',
                                     borderRadius: '5px',
+                                    background: selectedStudentIds.includes(student.memberId)
+                                        ? '#57c08d'
+                                        : '',
                                 }}
                             >
                                 <div>
@@ -530,7 +550,10 @@ const OpenAssignStudent = ({
                                     style={{ visibility: 'hidden', position: 'absolute' }}
                                 />
                             </div>
-                        ))}
+                        ))
+                    ) : (
+                        <NoStudent>지정 가능한 학생이 없어요.</NoStudent>
+                    )}
                 </div>
             </div>
             <button className="registBtn" onClick={() => AssignStudentAndTextbook(textbookId)}>
@@ -596,19 +619,14 @@ const MyContentList = styled.div`
     }
 
     .textbookNameContainer {
-        width: 33%;
+        width: 50%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    .textbookisCoverContainer {
-        width: 33%;
-        text-align: center;
-    }
-
     .textbookmemberListContainer {
-        width: 25%;
+        width: 45%;
         display: flex;
         padding-left: 1em;
         overflow-x: auto;
@@ -616,7 +634,10 @@ const MyContentList = styled.div`
     }
 
     .memberContainer {
+        display: flex;
+        flex-direction: column;
         margin-right: 0.2em;
+        justify-content: center;
     }
 
     .textbookList img {
@@ -636,6 +657,17 @@ const MyContentList = styled.div`
         height: 20px;
         font-size: 20px;
     }
+`;
+
+const NoTextbook = styled.div`
+    margin-top: 3em;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
 `;
 
 // 학습자료 추가 모달
@@ -769,7 +801,12 @@ const AssignStudent = styled.div`
     }
 
     .memberContainer {
+        display: flex;
+        padding: 0.3em;
         margin-right: 0.2em;
+        flex-direction: column;
+        justify-content: center;
+        cursor: pointer;
     }
 
     .memberListName {
@@ -785,13 +822,39 @@ const AssignStudentHeader = styled.div`
 `;
 
 const AlreadyAssignStudentHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
     font-weight: bold;
     margin-bottom: 1em;
+
+    div {
+        display: flex;
+        align-items: center;
+        font-size: 10px;
+    }
+`;
+
+const NoStudent = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
 `;
 
 const AssignableStudentHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
     font-weight: bold;
-    margin-bottom: 1em;
+    margin: 1em 0;
+
+    div {
+        display: flex;
+        align-items: center;
+        font-size: 10px;
+    }
 `;
 
 export default MyContents;

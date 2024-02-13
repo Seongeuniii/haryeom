@@ -28,6 +28,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,9 +50,7 @@ public class TextbookService {
     private final S3Upload s3Upload;
 
     private final TextbookRepository textbookRepository;
-
     private final MemberRepository memberRepository;
-
     private final AssignmentRespository assignmentRespository;
     private final SubjectRepository subjectRepository;
     private final TeacherSubjectRepository teacherSubjectRepository;
@@ -98,15 +98,88 @@ public class TextbookService {
                 InputStream is = new ByteArrayInputStream(buffer);
 
                 // 적당한 이름 설정 후 S3 업로드
-                String coverImageFileName = request.getTextbookName() + "_cover.png";
+                String coverImageFileName = teacherMemberId + "_" + request.getTextbookName() + "_cover.png";
 
                 coverImg = s3Upload.uploadFile(coverImageFileName, is, buffer.length, "image/png");
 
                 os.close();
                 is.close();
                 document.close();
+            } else {
+                float MARGIN = 40; // 페이지 여백
+                int FONT_SIZE = 50; // 기본 폰트 크기
+                float LEADING = 1.5f * FONT_SIZE; // 줄 간격
+                PDDocument doc = new PDDocument();
 
+                try {
+                    PDPage page = new PDPage();
+                    doc.addPage(page);
+
+                    PDPageContentStream contentStream = new PDPageContentStream(doc, page);
+                    // 텍스트 폰트 및 크기 설정
+                    InputStream fontStream = TextbookService.class.getResourceAsStream("/NanumGothicBold.ttf");
+                    PDType0Font font = PDType0Font.load(doc, fontStream);
+                    contentStream.setFont(font, FONT_SIZE);
+
+                    float pageWidth = page.getMediaBox().getWidth();
+                    float pageHeight = page.getMediaBox().getHeight();
+
+                    // 자동 줄바꿈 및 가운데 정렬 처리
+                    String[] words = request.getTextbookName().split(" ");
+                    StringBuilder line = new StringBuilder();
+                    float startX = MARGIN;
+                    float startY = pageHeight - MARGIN - FONT_SIZE*5;
+
+                    for(String word : words) {
+                        float wordWidth = font.getStringWidth(line + word + " ") / 1000 * FONT_SIZE;
+                        if(startX + wordWidth < pageWidth - MARGIN) line.append(word).append(" ");
+                        else {
+                            float lineWidth = font.getStringWidth(line.toString()) / 1000 * FONT_SIZE;
+                            float centerX = (pageWidth - lineWidth) / 2;
+
+                            contentStream.beginText();
+                            contentStream.newLineAtOffset(centerX, startY);
+                            contentStream.showText(line.toString());
+                            contentStream.endText();
+
+                            line = new StringBuilder(word).append(" ");
+                            startY -= LEADING;
+                        }
+                    }
+
+                    if(line.length() > 0) {
+                        float lineWidth = font.getStringWidth(line.toString()) / 1000 * FONT_SIZE;
+                        float centerX = (pageWidth - lineWidth) / 2;
+                        contentStream.beginText();
+                        contentStream.newLineAtOffset(centerX, startY);
+                        contentStream.showText(line.toString());
+                        contentStream.endText();
+                    }
+                    contentStream.close();
+
+                    // 이미지로 변환
+                    PDFRenderer pdfRenderer = new PDFRenderer(doc);
+                    int dpi = 300;
+                    BufferedImage image = pdfRenderer.renderImageWithDPI(0, dpi);
+
+                    // BufferedImage 를 InputStream 으로 변환
+                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    ImageIO.write(image, "png", os);
+                    byte[] buffer = os.toByteArray();
+                    InputStream is = new ByteArrayInputStream(buffer);
+
+                    // 적당한 이름 설정 후 S3 업로드
+                    String coverImageFileName = teacherMemberId + "_" + request.getTextbookName() + "_cover.png";
+
+                    coverImg = s3Upload.uploadFile(coverImageFileName, is, buffer.length, "image/png");
+                    os.close();
+                    is.close();
+
+                } finally {
+                    if(doc != null) doc.close();
+                }
             }
+
             Member teacherMember = findMemberById(teacherMemberId);
             if(teacherMember == null) throw new RuntimeException("선생님이없어요");
             Subject subject = subjectRepository.findById(request.getSubjectId())
