@@ -254,7 +254,7 @@ public class MemberService {
 
             List<TeacherSubject> teacherSubjects = teacher.getTeacherSubjects();
 
-            teacherSubjectRepository.deleteAll(teacherSubjects);
+            teacherSubjectRepository.deleteAllInBatch(teacherSubjects);
 
             List<SubjectInfo> subjects = teacherRequest.getSubjects();
             for (SubjectInfo subjectInfo : subjects) {
