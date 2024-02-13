@@ -65,7 +65,11 @@ const Header = () => {
                 </Nav>
                 {userSession ? (
                     <User onClick={!open ? openDropdown : undefined}>
-                        <Name>{userSession?.name}</Name>
+                        <Name>
+                            {userSession?.name} {userSession.role === 'TEACHER' ? '선생님' : '학생'}
+                        </Name>
+
+                        <ProfileImage src={userSession.profileUrl} />
                         <Dropdown open={open} closeDropdown={closeDropdown}>
                             <UserControlBox>
                                 <Button>마이페이지</Button>
@@ -116,9 +120,19 @@ const Nav = styled.nav`
 
 const User = styled.button`
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 `;
 
 const Name = styled.div``;
+
+const ProfileImage = styled.img`
+    width: 35px;
+    height: 35px;
+    border-radius: 100%;
+    border: 1px solid ${({ theme }) => theme.LIGHT_BLACK};
+`;
 
 const UserControlBox = styled.div`
     width: 6em;
