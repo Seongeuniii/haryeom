@@ -1,1 +1,1 @@
-export { default } from './ReviewContainer';
+export { default, getServerSideProps } from './ReviewContainer';
