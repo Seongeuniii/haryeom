@@ -31,6 +31,7 @@ import CreateNewHomework from '@/components/CreateNewHomework';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
 import { useGetHomeworkList } from '@/queries/useGetHomeworkList';
 import TextbookList from '@/components/TextbookList';
+import HomeworkProgressPercentage from '@/components/Homework/HomeworkProgressPercentage';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -96,13 +97,24 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                             tutorings={tutorings as ITeacherTutorings}
                         />
                     ) : (
-                        <TutoringTeacherProfile
-                            seletedTutoring={seletedTutoring as IStudentTutoring}
-                            setSelectedTutoring={
-                                setSelectedTutoring as Dispatch<SetStateAction<IStudentTutoring>>
-                            }
-                            tutorings={tutorings as IStudentTutorings}
-                        />
+                        <Container>
+                            <ProfileContainer>
+                                <TutoringTeacherProfile
+                                    seletedTutoring={seletedTutoring as IStudentTutoring}
+                                    setSelectedTutoring={
+                                        setSelectedTutoring as Dispatch<
+                                            SetStateAction<IStudentTutoring>
+                                        >
+                                    }
+                                    tutorings={tutorings as IStudentTutorings}
+                                />
+                            </ProfileContainer>
+                            <ChartContainer>
+                                <HomeworkProgressPercentage
+                                    progressPercentage={progressPercentage}
+                                />
+                            </ChartContainer>
+                        </Container>
                     )}
                     <ListSection>
                         <ListHeader>
@@ -161,7 +173,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             tutorings: tutorings || null,
             tutoringSchedules: tutoringSchedules || null,
             homeworkList: homeworkListInfo?.homeworkList || null,
-            progressPercentage: homeworkListInfo?.progressPercentage || null,
+            progressPercentage: homeworkListInfo?.progressPercentage || 0,
             tutoringTextbooks: tutoringTextbooks || null,
         },
     };
@@ -225,6 +237,23 @@ const ListSection = styled.div`
     background-color: white;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     font-size: 16px;
+`;
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 30vh;
+`;
+
+const ProfileContainer = styled.div`
+    width: 80%;
+    padding-right: 5px;
+`;
+
+const ChartContainer = styled.div`
+    width: 20%;
+    padding-left: 5px;
 `;
 
 export default WithAuth(ScheduleContainer);
