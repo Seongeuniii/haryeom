@@ -1,6 +1,7 @@
 package com.ioi.haryeom.chat.dto;
 
 import com.ioi.haryeom.chat.document.ChatMessage;
+import com.ioi.haryeom.chat.domain.ChatRoom;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.domain.type.Role;
 import java.time.LocalDateTime;
@@ -24,15 +25,17 @@ public class ChatRoomResponse {
         this.unreadMessageCount = unreadMessageCount;
     }
 
-    public static ChatRoomResponse of(Long chatRoomId, ChatMessage lastChatMessage, Member oppositeMember,
+    public static ChatRoomResponse of(ChatRoom chatRoom, ChatMessage lastChatMessage, Member oppositeMember,
         Integer unreadMessageCount) {
 
         OppositeMemberResponse oppositeMemberResponse = new OppositeMemberResponse(oppositeMember);
 
         String lastMessage = (lastChatMessage != null) ? lastChatMessage.getContent() : null;
-        LocalDateTime lastMessageCreatedAt = (lastChatMessage != null) ? lastChatMessage.getCreatedAt() : null;
 
-        return new ChatRoomResponse(chatRoomId, oppositeMemberResponse, lastMessage, lastMessageCreatedAt,
+        // 마지막 메시지가 없는 경우 채팅방 생성된 시간을 기준으로 한다.
+        LocalDateTime lastMessageCreatedAt = (lastChatMessage != null) ? lastChatMessage.getCreatedAt() : chatRoom.getCreatedAt();
+
+        return new ChatRoomResponse(chatRoom.getId(), oppositeMemberResponse, lastMessage, lastMessageCreatedAt,
             unreadMessageCount);
     }
 

@@ -26,6 +26,7 @@ import com.ioi.haryeom.tutoring.domain.TutoringStatus;
 import com.ioi.haryeom.tutoring.dto.TutoringResponse;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -111,6 +112,7 @@ public class ChatRoomService {
 
         return chatRoomStates.stream()
             .map(chatRoomState -> createChatRoomResponse(chatRoomState, member))
+            .sorted(Comparator.comparing(ChatRoomResponse::getLastMessageCreatedAt, Comparator.nullsFirst(Comparator.reverseOrder())))
             .collect(Collectors.toList());
     }
 
@@ -202,13 +204,13 @@ public class ChatRoomService {
 
     private ChatRoomResponse createChatRoomResponse(ChatRoomState chatRoomState, Member member) {
         String lastReadMessageId = chatRoomState.getLastReadMessageId();
-        Long chatRoomId = chatRoomState.getChatRoom().getId();
+        ChatRoom chatRoom = chatRoomState.getChatRoom();
 
-        ChatMessage lastChatMessage = chatMessageRepository.findFirstByChatRoomIdOrderByCreatedAtDesc(chatRoomId);
-        Integer unreadMessageCount = chatMessageRepository.countAllByChatRoomIdAndIdGreaterThan(chatRoomId, new ObjectId(lastReadMessageId));
-        Member oppositeMember = chatRoomState.getChatRoom().getOppositeMember(member);
+        ChatMessage lastChatMessage = chatMessageRepository.findFirstByChatRoomIdOrderByCreatedAtDesc(chatRoom.getId());
+        Integer unreadMessageCount = chatMessageRepository.countAllByChatRoomIdAndIdGreaterThan(chatRoom.getId(), new ObjectId(lastReadMessageId));
+        Member oppositeMember = chatRoom.getOppositeMember(member);
 
-        return ChatRoomResponse.of(chatRoomId, lastChatMessage, oppositeMember, unreadMessageCount);
+        return ChatRoomResponse.of(chatRoom, lastChatMessage, oppositeMember, unreadMessageCount);
     }
 
     private void updateLastReadMessageId(ChatRoom chatRoom, Member member, Page<ChatMessage> chatMessagePage) {
