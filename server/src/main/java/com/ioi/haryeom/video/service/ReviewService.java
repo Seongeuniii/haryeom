@@ -1,16 +1,22 @@
 package com.ioi.haryeom.video.service;
 
 import com.ioi.haryeom.auth.exception.AuthorizationException;
+import com.ioi.haryeom.common.domain.Subject;
 import com.ioi.haryeom.common.dto.SubjectResponse;
 import com.ioi.haryeom.homework.dto.HomeworkResponse;
 import com.ioi.haryeom.homework.repository.HomeworkRepository;
+import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.textbook.dto.TextbookResponse;
+import com.ioi.haryeom.tutoring.domain.TutoringSchedule;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import com.ioi.haryeom.video.domain.Video;
+import com.ioi.haryeom.video.domain.VideoTimestamp;
 import com.ioi.haryeom.video.dto.*;
 import com.ioi.haryeom.video.exception.VideoNotFoundException;
 import com.ioi.haryeom.video.repository.ReviewCustomRepositoryImpl;
 import com.ioi.haryeom.video.repository.VideoRepository;
+import com.ioi.haryeom.video.repository.VideoTimestampRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +32,7 @@ public class ReviewService {
     private final VideoRepository videoRepository;
     private final ReviewCustomRepositoryImpl reviewCustomRepository;
     private final TutoringRepository tutoringRepository;
+    private final VideoTimestampRepository videoTimestampRepository;
 
     // 학생별 학습자료 리스트 조회
     public List<TextbookResponse> getTextbookListByAssignmentByTutoringByMember(Long memberId){
@@ -67,6 +74,14 @@ public class ReviewService {
         if(memberId!=studentId){
             throw new AuthorizationException(memberId);
         }
-        return new VideoDetailResponse(video);
+        TutoringSchedule tutoringSchedule = video.getTutoringSchedule();
+        Subject subject = tutoringSchedule.getTutoring().getSubject();
+        Member teacher = tutoringSchedule.getTutoring().getTeacher();
+        List<VideoTimestamp> videoTimestampList = videoTimestampRepository.findByVideo_Id(videoId);
+        List<VideoTimestampResponse> videoTimestampResponseList = new ArrayList<>();
+        for(VideoTimestamp timestamp : videoTimestampList){
+            videoTimestampResponseList.add(new VideoTimestampResponse(timestamp));
+        }
+        return new VideoDetailResponse(video, tutoringSchedule, teacher, videoTimestampList, subject);
     }
 }
