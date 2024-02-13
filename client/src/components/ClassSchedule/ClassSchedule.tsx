@@ -40,7 +40,7 @@ const ClassSchedule = ({
                 (schedule) => schedule.scheduleDate === getFormattedYearMonthDay(date)
             ) as ITutoringSchedules
         );
-    }, [date]);
+    }, [date, tutoringSchedules]);
 
     useEffect(() => {
         setDate(new Date());
