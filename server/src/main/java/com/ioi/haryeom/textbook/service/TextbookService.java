@@ -177,6 +177,7 @@ public class TextbookService {
 
                 } finally {
                     if(doc != null) doc.close();
+                    document.close();
                 }
             }
 
