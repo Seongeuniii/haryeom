@@ -106,7 +106,7 @@ const InputTutoringFeeHeader = styled.header`
 const InputTutoringFee = styled.div`
     display: flex;
     align-items: end;
-    width: 150px;
+    width: 180px;
 
     span {
         min-width: 100px;
