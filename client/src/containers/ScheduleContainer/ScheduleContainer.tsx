@@ -25,7 +25,7 @@ import { IUserRole } from '@/apis/user/user';
 import TutoringTeacherProfile from '@/components/TutoringTeacherProfile';
 import TutoringStudentProfile from '@/components/TutoringStudentProfile';
 import CreateNewClass from '@/components/CreateNewClass';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useState, useEffect } from 'react';
 import { getTextbooks } from '@/apis/tutoring/get-textbooks';
 import CreateNewHomework from '@/components/CreateNewHomework';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
@@ -50,7 +50,7 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
         tutoringSchedules = [],
         homeworkList: initHomeworkList,
         progressPercentage: initProgressPercentage,
-        tutoringTextbooks = [],
+        tutoringTextbooks: initTutoringTextbooks = [],
     } = pageProps;
 
     console.log(
@@ -58,21 +58,41 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
         tutoringSchedules,
         initHomeworkList,
         initProgressPercentage,
-        tutoringTextbooks
+        initTutoringTextbooks
     );
     console.log(userSession);
 
     const [seletedTutoring, setSelectedTutoring] = useState<ITeacherTutoring | IStudentTutoring>(
         tutorings[0]
     );
-    const {
-        data: { homeworkList, progressPercentage },
-    } = useGetHomeworkList(seletedTutoring.tutoringId, {
+    const [textbooks, setTextbooks] = useState<ITutoringTextbook[]>(initTutoringTextbooks);
+
+    const { data } = useGetHomeworkList(seletedTutoring.tutoringId, {
         homeworkList: initHomeworkList,
         progressPercentage: initProgressPercentage,
     }) as {
         data: { homeworkList: IHomeworkList; progressPercentage: IProgressPercentage };
     };
+    const { homeworkList, progressPercentage } = data ?? {
+        homeworkList: initHomeworkList,
+        progressPercentage: initProgressPercentage,
+    };
+
+    // 교재 목록을 비동기적으로 불러오는 로직
+    useEffect(() => {
+        const fetchTextbooks = async () => {
+            if (seletedTutoring && seletedTutoring.tutoringId) {
+                try {
+                    const fetchedTextbooks = await getTextbooks(seletedTutoring.tutoringId);
+                    setTextbooks(fetchedTextbooks || []);
+                } catch (error) {
+                    console.error('Error fetching textbooks:', error);
+                }
+            }
+        };
+
+        fetchTextbooks();
+    }, [seletedTutoring.tutoringId]);
 
     const [listTab, setListTab] = useState<'homework' | 'textbook'>('homework');
 
@@ -135,14 +155,12 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                             {userSession.role === 'TEACHER' && tutorings && (
                                 <CreateNewHomework
                                     tutoringId={seletedTutoring.tutoringId}
-                                    tutoringTextbooks={tutoringTextbooks}
+                                    tutoringTextbooks={textbooks}
                                 />
                             )}
                         </ListHeader>
                         {listTab === 'homework' && <HomeworkList homeworkList={homeworkList} />}
-                        {listTab === 'textbook' && (
-                            <TextbookList textbookList={tutoringTextbooks} />
-                        )}
+                        {listTab === 'textbook' && <TextbookList textbookList={textbooks} />}
                     </ListSection>
                 </SelectedTutoring>
             </StyledScheduleContainer>
