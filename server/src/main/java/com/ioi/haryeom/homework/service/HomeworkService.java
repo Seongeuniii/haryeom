@@ -190,8 +190,10 @@ public class HomeworkService {
         Homework homework = findHomeworkById(homeworkId);
 
         // 숙제 상태 변경
-        homework.confirm();
-        homeworkRepository.save(homework);
+        if(homework.getStatus() != HomeworkStatus.COMPLETED){
+            homework.confirm();
+            homeworkRepository.save(homework);
+        }
 
         Textbook textbook = homework.getTextbook();
         // pdf 숙제 범위만큼 자르기
