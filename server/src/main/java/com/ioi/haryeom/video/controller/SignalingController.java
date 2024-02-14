@@ -27,7 +27,7 @@ public class SignalingController {
     // 방 입장
     @MessageMapping("/join/room/{roomCode}")
     public void joinToWelcome(@Payload MemberSignalingInfo memberSignalingInfo, @DestinationVariable (value = "roomCode") String roomCode) {
-
+//
         log.info("joinRoom : {} roomCode : {}", memberSignalingInfo.getMemberId(), roomCode);
         // 방에 처음 입장하는 사람의 경우, join을 알리지 않고 방 안 유저리스트에만 추가된다
         if(classRoom.isFirstJoin(roomCode)){
