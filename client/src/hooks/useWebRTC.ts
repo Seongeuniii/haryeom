@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { CompatClient, IMessage, Stomp, messageCallbackType } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { useRecoilValue } from 'recoil';
+import userSessionAtom from '@/recoil/atoms/userSession';
 
 export interface ISubscription {
     destination: string;
@@ -24,28 +26,46 @@ interface IUseWebRTCStompProps {
 }
 
 const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) => {
+    const userSession = useRecoilValue(userSessionAtom);
     const [stompClient, setStompClient] = useState<CompatClient>();
     const peerConnections = useRef<{ [socketId: string]: RTCPeerConnection }>({});
     const [peerStream, setPeerStream] = useState<any[]>([]);
     const [dataChannels, setDataChannels] = useState<RTCDataChannel[]>([]);
     const [socketId, setSocketId] = useState<string>();
+    const [peerNames, setPeerNames] = useState<{ [socketId: string]: string }>({});
 
-    const sendIceCandidate = (e: RTCPeerConnectionIceEvent, peerId: string) => {
+    useEffect(() => {
+        if (!peerNames || !peerStream) return;
+        setPeerStream((prevPeerStream) => {
+            const updatedPeerStream = prevPeerStream.map((peer) => {
+                const memberName = peerNames[peer.socketId] || `이름_${peer.socketId}`;
+                return { ...peer, memberName };
+            });
+
+            if (JSON.stringify(updatedPeerStream) !== JSON.stringify(peerStream)) {
+                return updatedPeerStream;
+            }
+
+            return prevPeerStream;
+        });
+    }, [peerStream, peerNames]);
+
+    const sendIceCandidate = (e: RTCPeerConnectionIceEvent, peerSocketId: string) => {
         if (!stompClient) return;
         const data = { iceCandidate: e.candidate, socketId };
-        stompClient.send(`/app/ice/room/${roomCode}/${peerId}`, {}, JSON.stringify(data));
+        stompClient.send(`/app/ice/room/${roomCode}/${peerSocketId}`, {}, JSON.stringify(data));
     };
-    const handleRemoteStream = (e: RTCTrackEvent, peerId: string) => {
+    const handleRemoteStream = (e: RTCTrackEvent, peerSocketId: string) => {
         setPeerStream((curr) => {
-            const existingPeerIndex = curr.findIndex((item) => item.socketId === peerId);
+            const existingPeerIndex = curr.findIndex((item) => item.socketId === peerSocketId);
             if (existingPeerIndex !== -1) {
                 return [
                     ...curr.slice(0, existingPeerIndex),
-                    { stream: e.streams[0], socketId: peerId },
+                    { stream: e.streams[0], socketId: peerSocketId },
                     ...curr.slice(existingPeerIndex + 1),
                 ];
             }
-            return [...curr, { stream: e.streams[0], socketId: peerId }];
+            return [...curr, { stream: e.streams[0], socketId: peerSocketId }];
         });
     };
 
@@ -110,7 +130,12 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
 
     const handleWelcome = (message: IMessage) => {
         if (!stompClient) return;
-        const peer: IPeerInfo = JSON.parse(message.body); // 참여자 정보
+        const peers: IPeerInfo[] = JSON.parse(message.body); // 참여자 정보
+        const names: { [socketId: string]: string } = {};
+        peers.forEach((peer) => {
+            names[peer.socketId] = peer.memberName;
+        });
+        setPeerNames(names);
     };
 
     const handleJoinRoom = async (message: IMessage) => {
@@ -164,8 +189,8 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
 
     const handleIce = (message: IMessage) => {
         if (!stompClient) return;
-        const { iceCandidate, peerId } = JSON.parse(message.body);
-        peerConnections.current[peerId]?.addIceCandidate(iceCandidate);
+        const { iceCandidate, socketId } = JSON.parse(message.body);
+        peerConnections.current[socketId]?.addIceCandidate(iceCandidate);
     };
 
     const handlePeerDisconnect = (message: IMessage) => {
@@ -226,7 +251,7 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
         stompClient.send(
             destination,
             {},
-            JSON.stringify({ memberId, socketId, memberName: `이름_${memberId}` })
+            JSON.stringify({ memberId, socketId, memberName: `${userSession?.name}` })
         );
     };
 
