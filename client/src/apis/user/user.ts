@@ -8,6 +8,7 @@ export interface IUser {
 }
 
 export interface IUserInfo extends ITeacherInfo, IStudentInfo {}
+
 export type TeacherInfoKeys = keyof ITeacherInfo;
 export type IStudentInfoKeys = keyof IStudentInfo;
 
@@ -21,7 +22,7 @@ export interface ITeacherInfo {
     gender?: string;
     salary?: number;
     career?: number;
-    subjects?: string;
+    subjects?: string[];
     introduce?: string;
 }
 

@@ -47,7 +47,7 @@ const RegisterUserInfoContainer = () => {
         gender: '',
         salary: 0,
         career: 0,
-        subjects: '',
+        subjects: [],
         introduce: '',
     });
     const [isValidated, setIsValidated] = useState<{ [step: number]: boolean }>({
@@ -211,7 +211,11 @@ const RegisterUserInfoContainer = () => {
                             ))}
                         {step === 3 &&
                             (selectedUserRole === 'TEACHER' ? (
-                                <TeacherOptionalForm updateUserInfo={updateUserInfo} />
+                                <TeacherOptionalForm
+                                    updateUserInfo={updateUserInfo}
+                                    userInputValue={userInputValue}
+                                    setUserInputValue={setUserInputValue}
+                                />
                             ) : (
                                 <StudentOptionalForm />
                             ))}

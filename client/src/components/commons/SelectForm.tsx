@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 
 interface StyledProps {
@@ -9,7 +9,7 @@ interface SelectFormProps extends StyledProps {
     label: string;
     name: string;
     optionList: string[];
-    handleSelect: (name: string, clickedOption: string | number) => void;
+    handleSelect: (name: string, clickedOption: string | number | string[]) => void;
 }
 
 const SelectForm = ({ label, name, optionList, handleSelect, ...props }: SelectFormProps) => {
