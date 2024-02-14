@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public class IceResponse {
     private Object iceCandidate;
-    private Long peerId;
+    private String peerId;
 
-    public IceResponse(Object iceCandidate, Long peerId){
+    public IceResponse(Object iceCandidate, String peerId){
         this.iceCandidate=iceCandidate;
         this.peerId=peerId;
     }
