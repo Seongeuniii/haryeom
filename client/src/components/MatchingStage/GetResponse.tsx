@@ -22,8 +22,10 @@ const GetResponse = ({ lastResponseStatus }: GetResponseProps) => {
             <ResponseMessageHeader>
                 {lastResponseStatus?.isAccepted ? (
                     <div>
-                        {lastResponseStatus?.teacherName} {gerRole(userSession.role)}과 과외를
-                        진행중입니다.
+                        {userSession.role === 'STUDENT'
+                            ? lastResponseStatus?.teacherName
+                            : lastResponseStatus.studentName}{' '}
+                        {gerRole(userSession.role)}과 과외를 진행중입니다.
                     </div>
                 ) : (
                     <div>
