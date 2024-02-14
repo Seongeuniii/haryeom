@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class MemberSignalingInfo {
 
-    private Long memberId;
+    private String memberId;
+    private String socketId;
     private String memberName;
-
 }
