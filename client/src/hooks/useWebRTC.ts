@@ -176,7 +176,7 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
         stomp.debug = () => {};
         stomp.connect({}, () => {
             setStompClient(stomp);
-            setSocketId(socket._transport.url.split('/')[5]);
+            setSocketId((socket as any)._transport.url.split('/')[5]);
             // return () => {
             //     stompSubscriptions.forEach((stompSubscription) => stompSubscription.unsubscribe());
             // };
