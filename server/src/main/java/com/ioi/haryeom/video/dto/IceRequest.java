@@ -8,5 +8,5 @@ import lombok.Setter;
 public class IceRequest {
 
     private Object iceCandidate;
-    private Long memberId;
+    private String socketId;
 }

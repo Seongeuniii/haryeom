@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ClassRoom {
 
     private static ClassRoom classRoom = new ClassRoom();
@@ -18,6 +20,7 @@ public class ClassRoom {
     }
 
     private Map<String, List<MemberSignalingInfo>> roomList = new Hashtable<>();
+    private Map<String, String> sessionRoomList = new Hashtable<>();
 
     public boolean isFirstJoin(String roomCode) {
         if (!roomList.containsKey(roomCode)) {
@@ -31,7 +34,25 @@ public class ClassRoom {
         return roomList.get(roomCode);
     }
 
-    public void addUser(String roomCode, MemberSignalingInfo userDto) {
-        roomList.get(roomCode).add(userDto);
+    public void addUser(String roomCode, MemberSignalingInfo memberSignalingInfo) {
+        roomList.get(roomCode).add(memberSignalingInfo);
+        sessionRoomList.put(memberSignalingInfo.getMemberId(), roomCode);
+    }
+
+    public void deleteUser(String memberId){
+        if(sessionRoomList.containsKey(memberId)){
+            String roomCode = sessionRoomList.get(memberId);
+            MemberSignalingInfo memberSignalingInfo = new MemberSignalingInfo();
+            memberSignalingInfo.setMemberId(memberId);
+            log.info("Before Delete member: {}", roomList.get(roomCode).size());
+            for(int i=0;i<roomList.get(roomCode).size(); i++){
+                if(roomList.get(roomCode).get(i).getMemberId().equals(memberId)){
+                    roomList.get(roomCode).remove(i);
+                    break;
+                }
+            }
+            sessionRoomList.remove(memberId);
+            log.info("After Delete member: {}", roomList.get(roomCode).size());
+        }
     }
 }
