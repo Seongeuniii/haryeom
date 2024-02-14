@@ -28,10 +28,10 @@ export const getTutoringSubjectList = async () => {
     }
 };
 
-export const getTutoringVideoList = async (subjectId: number) => {
+export const getTutoringVideoList = async (tutoringId: number) => {
     try {
         const res = await axios.get<{ videoList: IReviewVideo[] }>(
-            `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${subjectId}`
+            `${process.env.NEXT_PUBLIC_API_SERVER}${path}/${tutoringId}`
         );
         return res.data.videoList;
     } catch (e) {
@@ -58,6 +58,7 @@ export interface IRecordedTutoringDetail {
     subjectName: string;
     videoTimestampList: IVideoTimeStamp[];
 }
+
 export const getTutoringVideo = async (videoId: number) => {
     try {
         const res = await axios.get<IRecordedTutoringDetail>(
