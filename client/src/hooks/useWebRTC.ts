@@ -130,16 +130,17 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
     const handleWelcome = (message: IMessage) => {
         if (!stompClient) return;
         const peers: IPeerInfo[] = JSON.parse(message.body); // 참여자 정보
-        const names: { [socketId: string]: string } = {};
+        const newPeerNames: { [socketId: string]: string } = { ...peerNames };
         peers.forEach((peer) => {
-            names[peer.socketId] = peer.memberName;
+            newPeerNames[peer.socketId] = peer.memberName;
         });
-        setPeerNames(names);
+        setPeerNames(newPeerNames);
     };
 
     const handleJoinRoom = async (message: IMessage) => {
         if (!stompClient) return;
-        const peer: IPeerSession = JSON.parse(message.body);
+        const peer: IPeerInfo = JSON.parse(message.body);
+        setPeerNames((prev) => ({ ...prev, [peer.socketId]: peer.memberName }));
         const pc = createPeerConnection(peer, true);
         if (!pc) return;
         const offer = await pc.createOffer();
