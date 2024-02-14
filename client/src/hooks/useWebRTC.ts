@@ -2,16 +2,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { CompatClient, IMessage, Stomp, messageCallbackType } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import userSessionAtom from '@/recoil/atoms/userSession';
 
 export interface ISubscription {
     destination: string;
     callback: messageCallbackType;
 }
 
-interface PeerInfo {
+interface IPeerSession {
     memberId: number;
     socketId: string;
+}
+
+interface IPeerInfo extends IPeerSession {
+    memberName: string;
 }
 
 interface IUseWebRTCStompProps {
@@ -47,7 +50,7 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
     };
 
     const createPeerConnection = (
-        peerInfo: PeerInfo,
+        peerInfo: IPeerSession,
         isOfferer: boolean
     ): RTCPeerConnection | null => {
         try {
@@ -107,13 +110,12 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
 
     const handleWelcome = (message: IMessage) => {
         if (!stompClient) return;
-        const peer = JSON.parse(message.body); // 참여자 정보
+        const peer: IPeerInfo = JSON.parse(message.body); // 참여자 정보
     };
 
     const handleJoinRoom = async (message: IMessage) => {
         if (!stompClient) return;
-        const peer: PeerInfo = JSON.parse(message.body);
-
+        const peer: IPeerSession = JSON.parse(message.body);
         const pc = createPeerConnection(peer, true);
         if (!pc) return;
         const offer = await pc.createOffer();
@@ -134,7 +136,7 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
         if (!stompClient) return;
 
         const { offer, callerId, callerMemberId, calleeId } = JSON.parse(message.body);
-        const peer: PeerInfo = { memberId: callerMemberId, socketId: callerId };
+        const peer: IPeerSession = { memberId: callerMemberId, socketId: callerId };
 
         const pc = createPeerConnection(peer, false);
         if (!pc) return;
@@ -156,7 +158,7 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
     const handleAnswer = async (message: IMessage) => {
         if (!stompClient) return;
         const { answer, callerId, calleeId, calleeMemberId } = JSON.parse(message.body);
-        const peer: PeerInfo = { memberId: calleeMemberId, socketId: calleeId };
+        const peer: IPeerSession = { memberId: calleeMemberId, socketId: calleeId };
         peerConnections.current[peer.socketId].setRemoteDescription(answer);
     };
 
@@ -166,26 +168,23 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
         peerConnections.current[peerId]?.addIceCandidate(iceCandidate);
     };
 
-    // const handleDisconnect = (message: IMessage) => {
-    //     if (!stompClient) return;
-    //     const { peerId } = JSON.parse(message.body);
-    //     peerConnections.current[peerId]?.close();
-    // };
+    const handlePeerDisconnect = (message: IMessage) => {
+        if (!stompClient) return;
+        const { socketId } = JSON.parse(message.body);
 
-    useEffect(() => {
-        if (!myStream) return;
-        console.log('connectSocket: ', memberId);
-        const socket = new SockJS(`${process.env.NEXT_PUBLIC_SIGNALING_SERVER}`); // 변경
-        const stomp = Stomp.over(socket);
-        stomp.debug = () => {};
-        stomp.connect({}, () => {
-            setStompClient(stomp);
-            setSocketId((socket as any)._transport.url.split('/')[5]);
-            // return () => {
-            //     stompSubscriptions.forEach((stompSubscription) => stompSubscription.unsubscribe());
-            // };
-        });
-    }, [myStream]);
+        if (peerConnections.current[socketId]) {
+            peerConnections.current[socketId].close();
+            delete peerConnections.current[socketId];
+        }
+
+        setDataChannels((prevChannels) =>
+            prevChannels.filter((channel) => channel.label !== socketId)
+        );
+
+        setPeerStream((prevStreams) =>
+            prevStreams.filter((stream) => stream.socketId !== socketId)
+        );
+    };
 
     const subscribe = () => {
         if (!stompClient) return;
@@ -211,39 +210,45 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
                 destination: `/topic/ice/room/${roomCode}/${socketId}`,
                 callback: handleIce,
             },
-            // {
-            //     destination: `/topic/disconnect/room/${roomCode}/${socketId}`,
-            //     callback: handleDisconnect,
-            // },
+            {
+                destination: `/topic/disconnect/room/${roomCode}/${socketId}`,
+                callback: handlePeerDisconnect,
+            },
         ];
         subscriptions.map((subscription) => {
             return stompClient.subscribe(subscription.destination, subscription.callback);
         });
     };
 
-    useEffect(() => {
+    const sendJoin = () => {
         if (!stompClient) return;
-
-        // subscribe
-        subscribe();
-
-        console.log('sendJoin: ', socketId);
-
-        // send join
         const destination = `/app/join/room/${roomCode}`;
         stompClient.send(
             destination,
             {},
             JSON.stringify({ memberId, socketId, memberName: `이름_${memberId}` })
         );
+    };
+
+    useEffect(() => {
+        if (!stompClient) return;
+        subscribe();
+        sendJoin();
     }, [stompClient]);
 
     useEffect(() => {
-        return () => {
-            console.log(stompClient);
-            stompClient?.disconnect();
-        };
-    }, []);
+        if (!myStream) return;
+        const socket = new SockJS(`${process.env.NEXT_PUBLIC_SIGNALING_SERVER}`); // 변경
+        const stomp = Stomp.over(socket);
+        stomp.debug = () => {};
+        stomp.connect({}, () => {
+            setStompClient(stomp);
+            setSocketId((socket as any)._transport.url.split('/')[5]);
+            // return () => {
+            //     stompSubscriptions.forEach((stompSubscription) => stompSubscription.unsubscribe());
+            // };
+        });
+    }, [myStream]);
 
     return { stompClient, peerStream, peerConnections, dataChannels };
 };
