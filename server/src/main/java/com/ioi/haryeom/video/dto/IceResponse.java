@@ -5,10 +5,10 @@ import lombok.Getter;
 @Getter
 public class IceResponse {
     private Object iceCandidate;
-    private String peerId;
+    private String socketId;
 
-    public IceResponse(Object iceCandidate, String peerId){
+    public IceResponse(Object iceCandidate, String socketId){
         this.iceCandidate=iceCandidate;
-        this.peerId=peerId;
+        this.socketId=socketId;
     }
 }
