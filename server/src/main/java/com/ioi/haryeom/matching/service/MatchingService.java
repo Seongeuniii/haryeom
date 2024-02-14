@@ -84,7 +84,8 @@ public class MatchingService {
         boolean isLastResponseRejected = processMatchingResponses(chatRoom.getId());
 
         // [매칭 요청 정보] 전송
-        redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME, new MatchingResponse<>(chatRoom.getId(), MatchingStatus.REQUEST, CreateMatchingResponse.from(matching)));
+        redisTemplate.convertAndSend(MATCHING_CHANNEL_NAME,
+            new MatchingResponse<>(chatRoom.getId(), MatchingStatus.REQUEST, CreateMatchingResponse.from(matching)));
         log.info("[MATCHING REQUEST INFO] SEND");
 
         // [매칭 응답 정보] 변경이 있는 경우 전송 (마지막 응답이 거절인 경우)
@@ -119,8 +120,6 @@ public class MatchingService {
         // [매칭 응답 정보] 저장
         log.info("[MATCHING RESPONSE INFO] SAVE");
         MatchingResult matchingResult = MatchingResult.builder()
-            .member(member)
-            .chatRoom(chatRoom)
             .isAccepted(request.getIsAccepted())
             .matching(matching)
             .build();
@@ -158,7 +157,8 @@ public class MatchingService {
 
         ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
 
-        redisTemplate.convertAndSend(CHAT_ROOM_CHANNEL_NAME, new ChatMessageEvent(savedChatMessage.getChatRoomId(), ChatMessageResponse.from(savedChatMessage)));
+        redisTemplate.convertAndSend(CHAT_ROOM_CHANNEL_NAME,
+            new ChatMessageEvent(savedChatMessage.getChatRoomId(), ChatMessageResponse.from(savedChatMessage)));
         //TODO: 지금까지 과외한 거 정산해줘야함
     }
 
