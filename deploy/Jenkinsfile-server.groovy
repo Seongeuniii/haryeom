@@ -13,6 +13,7 @@ pipeline {
         latestImage = 'demise1426/haryeom-be:latest'
         MATTERMOST_ENDPOINT = credentials('mattermost_endpoint')
         MATTERMOST_CHANNEL = credentials('mattermost_channel')
+        APPLICATION_YML = credentials('SpringBootEnv')
     }
 
     stages {
@@ -66,6 +67,9 @@ pipeline {
         stage('Jar Build') {
             steps {
                 dir('server') {
+                    withCredentials([file(credentialsId: 'SpringBootEnv', variable: 'SpringBootEnv')]) {
+                        sh "cp ${SpringBootEnv} src/main/resources/application.yml"
+                    }
                     sh 'chmod +x ./gradlew'
                     sh './gradlew clean bootJar'
                 }
