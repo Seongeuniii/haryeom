@@ -75,6 +75,7 @@ public class ChatMessageService {
 
     @Transactional
     public void disconnectChatRoom(String sessionId) {
+        if(redisTemplate.opsForValue().get(SESSION_MEMBER_NAME + sessionId) == null) return;
         Long memberId = Long.valueOf(Objects.requireNonNull(redisTemplate.opsForValue().get(SESSION_MEMBER_NAME + sessionId)).toString());
         Long chatRoomId = Long.valueOf(Objects.requireNonNull(redisTemplate.opsForValue().get(SESSION_CHAT_ROOM_NAME + sessionId)).toString());
         redisTemplate.delete(SESSION_MEMBER_NAME + sessionId);

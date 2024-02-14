@@ -33,6 +33,7 @@ import { useGetHomeworkList } from '@/queries/useGetHomeworkList';
 import TextbookList from '@/components/TextbookList';
 import HomeworkProgressPercentage from '@/components/Homework/HomeworkProgressPercentage';
 import TutoringVideoList from '@/components/TutoringVideoList';
+import { useGetTutoringVideoList } from '@/queries/useGetTutoringVideoList';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -63,21 +64,26 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     );
     console.log(userSession);
 
-    const [seletedTutoring, setSelectedTutoring] = useState<ITeacherTutoring | IStudentTutoring>(
-        tutorings[0]
-    );
+    const [seletedTutoring, setSelectedTutoring] = useState<
+        ITeacherTutoring | IStudentTutoring | undefined
+    >(tutorings[0]);
     const [textbooks, setTextbooks] = useState<ITutoringTextbook[]>(initTutoringTextbooks);
 
-    const { data } = useGetHomeworkList(seletedTutoring.tutoringId, {
-        homeworkList: initHomeworkList,
-        progressPercentage: initProgressPercentage,
-    }) as {
-        data: { homeworkList: IHomeworkList; progressPercentage: IProgressPercentage };
-    };
+    const { data } = seletedTutoring
+        ? (useGetHomeworkList(seletedTutoring.tutoringId, {
+              homeworkList: initHomeworkList,
+              progressPercentage: initProgressPercentage,
+          }) as {
+              data: { homeworkList: IHomeworkList; progressPercentage: IProgressPercentage };
+          })
+        : { data: undefined };
     const { homeworkList, progressPercentage } = data ?? {
         homeworkList: initHomeworkList,
         progressPercentage: initProgressPercentage,
     };
+    const { data: videoList } = seletedTutoring
+        ? useGetTutoringVideoList(seletedTutoring.subject.subjectId)
+        : { data: undefined };
 
     // 교재 목록을 비동기적으로 불러오는 로직
     useEffect(() => {
@@ -93,7 +99,7 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
         };
 
         fetchTextbooks();
-    }, [seletedTutoring.tutoringId]);
+    }, [seletedTutoring?.tutoringId]);
 
     const [listTab, setListTab] = useState<'homework' | 'textbook' | 'review'>('homework');
 
@@ -163,16 +169,14 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                             </Title>
                             {userSession.role === 'TEACHER' && tutorings && (
                                 <CreateNewHomework
-                                    tutoringId={seletedTutoring.tutoringId}
+                                    tutoringId={seletedTutoring?.tutoringId}
                                     tutoringTextbooks={textbooks}
                                 />
                             )}
                         </ListHeader>
                         {listTab === 'homework' && <HomeworkList homeworkList={homeworkList} />}
                         {listTab === 'textbook' && <TextbookList textbookList={textbooks} />}
-                        {listTab === 'review' && (
-                            <TutoringVideoList subjectId={seletedTutoring.subject.subjectId} />
-                        )}
+                        {listTab === 'review' && <TutoringVideoList videoList={videoList} />}
                     </ListSection>
                 </SelectedTutoring>
             </StyledScheduleContainer>

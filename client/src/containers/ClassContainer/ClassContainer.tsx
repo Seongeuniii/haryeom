@@ -101,18 +101,19 @@ const ClassContainer = () => {
             <StyledClassContainer>
                 <LeftSection>
                     <ClassInfo>
-                        <Logo>하렴</Logo>
+                        <ClassInfoHeader>
+                            <Logo>하렴</Logo>
+                            {classState === '수업중' && <RecordState>녹화중</RecordState>}
+                        </ClassInfoHeader>
                         <div>
                             <Subject>{router.query.subject}</Subject>
                             <Title>| {router.query.title}</Title>
                         </div>
-                        {userSession.role === 'TEACHER' && (
-                            <ClassTimer
-                                progressTime={progressTime}
-                                classState={classState}
-                                changeClassState={changeClassState}
-                            />
-                        )}
+                        <ClassTimer
+                            progressTime={progressTime}
+                            classState={classState}
+                            changeClassState={changeClassState}
+                        />
                     </ClassInfo>
                     <MediaStream myStream={myStream} peerStream={peerStream} />
                     <Timestamp progressTime={progressTime} />
@@ -254,10 +255,38 @@ const ClassInfo = styled.div`
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 `;
 
+const ClassInfoHeader = styled.div`
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+`;
+
 const Logo = styled.span`
     font-weight: 700;
     font-size: 22px;
     color: ${({ theme }) => theme.PRIMARY};
+`;
+
+const RecordState = styled.div`
+    background-color: #ff4e4e;
+    padding: 5px;
+    font-size: 12px;
+    border-radius: 13px;
+    color: white;
+    animation: blink 2s infinite;
+
+    @keyframes blink {
+        0% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.7;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
 `;
 
 const Subject = styled.div`
@@ -303,12 +332,12 @@ const TeachingTools = styled.div`
 `;
 
 const HelperBar = styled.div`
-    width: 93%;
+    width: 90%;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     display: flex;
     gap: 10px;
 `;

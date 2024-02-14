@@ -1,14 +1,12 @@
 import Link from 'next/link';
 import styled from 'styled-components';
-import { useGetTutoringVideoList } from '@/queries/useGetTutoringVideoList';
+import { IReviewVideo } from '@/apis/tutoring/get-tutoring-video';
 
 interface TutoringVideoListProps {
-    subjectId: number;
+    videoList: IReviewVideo[] | undefined;
 }
 
-const TutoringVideoList = ({ subjectId }: TutoringVideoListProps) => {
-    const { data: videoList } = useGetTutoringVideoList(subjectId);
-
+const TutoringVideoList = ({ videoList }: TutoringVideoListProps) => {
     return (
         <StyledTutoringVideoList>
             <TutoringVideoTableTitle>
@@ -32,14 +30,17 @@ const TutoringVideoList = ({ subjectId }: TutoringVideoListProps) => {
                         </Link>
                     ))
                 ) : (
-                    <NoHomework>과외 녹화본이 없어요.</NoHomework>
+                    <NoHomework>과외 녹화본이 없어요:)</NoHomework>
                 )}
             </TutoringVideoCards>
         </StyledTutoringVideoList>
     );
 };
 
-const StyledTutoringVideoList = styled.div``;
+const StyledTutoringVideoList = styled.div`
+    width: 100%;
+    height: 100%;
+`;
 
 const TutoringVideoTableTitle = styled.header`
     width: 100%;
@@ -55,6 +56,9 @@ const TutoringVideoCards = styled.div`
     width: 100%;
     min-width: 700px;
     height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow-y: scroll;
 `;
 

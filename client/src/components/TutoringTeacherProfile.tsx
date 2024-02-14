@@ -5,6 +5,8 @@ import Select from '@/components/icons/Select';
 import { IStudentTutoring, IStudentTutorings } from '@/apis/tutoring/tutoring';
 import Dropdown from './commons/Dropdown';
 import useDropdown from '@/hooks/useDropdown';
+import { useRecoilValue } from 'recoil';
+import userSessionAtom from '@/recoil/atoms/userSession';
 
 interface TutoringTeacherProfileProps {
     seletedTutoring: IStudentTutoring | undefined;
@@ -17,12 +19,20 @@ const TutoringTeacherProfile = ({
     setSelectedTutoring,
     tutorings,
 }: TutoringTeacherProfileProps) => {
+    const userSession = useRecoilValue(userSessionAtom);
     const { open, openDropdown, closeDropdown } = useDropdown();
 
     return (
         <StyledTutoringTeacherProfile>
             {!seletedTutoring ? (
-                <Link href={'/find'}>과외 매칭 하러가기</Link>
+                <NoTutoring>
+                    {userSession?.role === 'STUDENT' ? (
+                        <span>과외 선생님이 없어요</span>
+                    ) : (
+                        <span>과외 학생 없어요</span>
+                    )}
+                    <Link href={'/find'}>(과외 매칭 바로가기)</Link>
+                </NoTutoring>
             ) : (
                 <>
                     <ProfileImage>
@@ -70,6 +80,7 @@ const TutoringTeacherProfile = ({
 const StyledTutoringTeacherProfile = styled.div`
     position: relative;
     width: 100%;
+    min-height: 160px;
     padding: 1.3em;
     margin-bottom: 1em;
     display: flex;
@@ -156,6 +167,21 @@ const Button = styled.button`
     &:hover {
         background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
         transition: all 0.5s;
+    }
+`;
+
+const NoTutoring = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    font-weight: 700;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
+
+    a {
+        text-decoration: underline;
     }
 `;
 

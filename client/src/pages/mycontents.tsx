@@ -127,6 +127,10 @@ const MyContents = () => {
         clearSelectedStudents();
     };
 
+    const handleClickTextbookCard = (textbookId: number) => {
+        window.open(`/textbook/${textbookId}`, '_blank', 'noopener, noreferrer');
+    };
+
     return (
         <HomeLayout>
             <StyledMyContents>
@@ -169,8 +173,10 @@ const MyContents = () => {
                                 />
                                 <div
                                     className="textbookNameContainer"
-                                    onClick={() =>
-                                        console.log('학습자료 보기 ' + textbook.textbookId)
+                                    onClick={
+                                        handleClickTextbookCard
+                                            ? () => handleClickTextbookCard(textbook.textbookId)
+                                            : undefined
                                     }
                                 >
                                     {textbook.textbookName}

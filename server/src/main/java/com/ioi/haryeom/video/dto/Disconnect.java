@@ -5,8 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class IceRequest {
-
-    private Object iceCandidate;
-    private String socketId;
+public class Disconnect {
+    private String peerId;
 }
