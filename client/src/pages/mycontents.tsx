@@ -583,14 +583,10 @@ const OpenAssignStudent = ({
 const StyledMyContents = styled.div`
     width: 100%;
     height: 100%;
-    padding-top: 10em;
+    padding-top: 5em;
     display: flex;
     align-items: center;
     flex-direction: column;
-
-    /* &:hover {
-        background-color: beige;
-    } */
 `;
 
 const MyContentsHeader = styled.div`
@@ -600,7 +596,8 @@ const MyContentsHeader = styled.div`
     justify-content: space-between;
 
     .title {
-        font-size: 2rem;
+        font-size: 1.5rem;
+        font-weight: bold;
     }
     .contents-btn button {
         padding: 2px 10px;
@@ -608,6 +605,14 @@ const MyContentsHeader = styled.div`
         font-size: 0.8rem;
         border: 1px solid rgb(0, 0, 0);
         border-radius: 10px;
+    }
+
+    button {
+        font-weight: bold;
+        &:hover {
+            background-color: ${({ theme }) => theme.PRIMARY};
+            color: white;
+        }
     }
 `;
 
@@ -630,9 +635,15 @@ const MyContentList = styled.div`
 
     .textbookList {
         display: flex;
-        margin-top: 1em;
+        padding: 2.5em 1em;
         align-items: center;
         height: 4vw;
+        border-bottom: 1px solid rgb(198, 198, 198);
+
+        input[type='checkbox'] {
+            transform: scale(1.5);
+            margin-right: 10px;
+        }
     }
 
     .textbookNameContainer {
@@ -673,6 +684,14 @@ const MyContentList = styled.div`
         width: 20px;
         height: 20px;
         font-size: 20px;
+    }
+
+    button {
+        font-weight: bold;
+        &:hover {
+            background-color: ${({ theme }) => theme.PRIMARY};
+            color: white;
+        }
     }
 `;
 
