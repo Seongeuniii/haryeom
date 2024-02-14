@@ -24,7 +24,15 @@ const useClassTimer = ({ startClass, endClass }: IUseClassTimer) => {
         clearInterval(timerId);
     };
 
-    const changeClassState = async () => {
+    const changeClassState = async (state?: string) => {
+        if (state === 'start') {
+            startTimer();
+            setClassState('수업중');
+        } else if (state === 'stop') {
+            stopTimer();
+            setClassState('수업종료');
+        }
+
         if (classState === '수업시작전') {
             const isStart = await startClass();
             if (!isStart) return;

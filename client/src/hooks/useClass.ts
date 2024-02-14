@@ -238,6 +238,22 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
         });
     };
 
+    const sendClassState = (state: string) => {
+        dataChannels?.map((channel: RTCDataChannel) => {
+            try {
+                if (state) {
+                    channel.send(
+                        JSON.stringify({
+                            classState: state,
+                        })
+                    );
+                }
+            } catch (e) {
+                console.log('전송 실패');
+            }
+        });
+    };
+
     useEffect(() => {
         sendMyAction('content');
     }, [dataChannels, myAction.content]);
@@ -257,6 +273,12 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
     }, [dataChannels, homework]);
 
     useEffect(() => {
+        if (userSession?.role === 'STUDENT') return;
+        if (classState === '수업중') sendClassState('start');
+        if (classState === '수업종료') sendClassState('stop');
+    }, [dataChannels, classState]);
+
+    useEffect(() => {
         dataChannels.map((channel: RTCDataChannel) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             channel.onmessage = (e: MessageEvent<any>) => {
@@ -268,6 +290,7 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
                     content,
                     textbook: loadTextbook,
                     homework: loadHomework,
+                    classState,
                 } = JSON.parse(e.data);
 
                 if (action) {
@@ -303,9 +326,15 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
                     console.log('peer가 homework를 변경했어요: ', loadHomework);
                     setHomework(loadHomework);
                 }
+
+                if (classState) {
+                    console.log('peer가 classState를 변경했어요: ', classState);
+                    if (classState === 'start') changeClassState('start');
+                    if (classState === 'stop') changeClassState('stop');
+                }
             };
         });
-    }, [dataChannels, peerAction, textbook, homework]);
+    }, [dataChannels, peerAction, textbook, homework, changeClassState]);
 
     return {
         myAction,

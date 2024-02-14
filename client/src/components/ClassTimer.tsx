@@ -1,14 +1,17 @@
 import React, { MouseEvent, useEffect, useState } from 'react';
+import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import { getHour, getMinute, getSecond, ClassState } from '@/hooks/useClassTimer';
+import userSessionAtom from '@/recoil/atoms/userSession';
 
 interface ClassTimerProps {
     progressTime: number;
     classState: ClassState;
-    changeClassState: () => Promise<void>;
+    changeClassState?: () => Promise<void>;
 }
 
 const ClassTimer = ({ progressTime, classState, changeClassState }: ClassTimerProps) => {
+    const userSession = useRecoilValue(userSessionAtom);
     const [staticShow, setStaticShow] = useState<string>('수업 시작');
     const [hoverShow, setHoverShow] = useState<string>('수업 시작');
     const [isHover, setIsHover] = useState<boolean>(false);
@@ -41,6 +44,20 @@ const ClassTimer = ({ progressTime, classState, changeClassState }: ClassTimerPr
         }
     }, [classState]);
 
+    if (userSession?.role === 'STUDENT') {
+        return (
+            <StyledStudentClassTimer
+                $classState={classState}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+            >
+                <Clock>
+                    {getHour(progressTime)}:{getMinute(progressTime)}:{getSecond(progressTime)}
+                </Clock>
+            </StyledStudentClassTimer>
+        );
+    }
+
     return (
         <StyledClassTimer
             $classState={classState}
@@ -48,14 +65,6 @@ const ClassTimer = ({ progressTime, classState, changeClassState }: ClassTimerPr
             onMouseLeave={handleMouseLeave}
         >
             <Clock onClick={changeClassState}>
-                {/* {showTime ? (
-                    <>
-                        {getHour(progressTime)}:{getMinute(progressTime)}:{getSecond(progressTime)}
-                    </>
-                ) : (
-                    <>{classState === '수업시작전' ? '수업시작' : '수업종료'}</>
-                )} */}
-
                 {isHover ? (
                     <>
                         {hoverShow === 'progressTime' ? (
@@ -101,6 +110,20 @@ const StyledClassTimer = styled.div<{ $classState: ClassState }>`
     &:hover {
         background-color: ${({ theme }) => theme.PRIMARY};
     }
+`;
+
+const StyledStudentClassTimer = styled.div<{ $classState: ClassState }>`
+    width: 100%;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    border-radius: 0.3em;
+    background-color: ${({ theme }) => theme.PRIMARY};
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
 `;
 
 const Clock = styled.div`
