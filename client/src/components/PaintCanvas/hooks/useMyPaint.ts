@@ -86,6 +86,7 @@ const useMyPaint = ({ canvasRef, backgroundImage, penStyle, dataChannels }: IUse
         if (!backgroundImage) return;
 
         const imageObj = new Image();
+        imageObj.crossOrigin = 'anonymous';
         if (typeof backgroundImage === 'string') {
             imageObj.src = backgroundImage;
         } else {
