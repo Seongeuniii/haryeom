@@ -12,6 +12,10 @@ const gerRole = (role: IUserRole) => {
     if (role === 'TEACHER') return '학생';
     else return '선생님';
 };
+const getName = (role: IUserRole, lastResponseStatus: IResponseMatchingStatus) => {
+    if (role === 'TEACHER') return lastResponseStatus?.studentName;
+    else return lastResponseStatus?.teacherName;
+};
 
 const GetResponse = ({ lastResponseStatus }: GetResponseProps) => {
     const userSession = useRecoilValue(userSessionAtom);
@@ -22,8 +26,8 @@ const GetResponse = ({ lastResponseStatus }: GetResponseProps) => {
             <ResponseMessageHeader>
                 {lastResponseStatus?.isAccepted ? (
                     <div>
-                        {lastResponseStatus?.teacherName} {gerRole(userSession.role)}과 과외를
-                        진행중입니다.
+                        {getName(userSession.role, lastResponseStatus)} {gerRole(userSession.role)}
+                        과 과외를 진행중입니다.
                     </div>
                 ) : (
                     <div>
