@@ -8,7 +8,7 @@ interface GetResponseProps {
     lastResponseStatus: IResponseMatchingStatus;
 }
 
-const gerRole = (role: IUserRole) => {
+export const gerRole = (role: IUserRole) => {
     if (role === 'TEACHER') return '학생';
     else return '선생님';
 };

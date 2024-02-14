@@ -12,7 +12,7 @@ import { saveTutoringvideo } from '@/apis/tutoring/save-tutoring-video';
 import useClassTimer from './useClassTimer';
 import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
 
-export type ContentsType = '빈페이지' | '학습자료' | '숙제';
+export type ContentsType = '화이트보드' | '학습자료' | '숙제';
 export interface IPenStyle {
     isPen: boolean;
     strokeStyle: string;
@@ -26,6 +26,7 @@ interface IUseClass {
 
 interface IClassAction {
     content: ContentsType;
+    pageNumber: number | undefined;
     penStyle: IPenStyle;
 }
 
@@ -33,7 +34,8 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
     const userSession = useRecoilValue(userSessionAtom);
 
     const [myAction, setMyAction] = useState<IClassAction>({
-        content: '빈페이지',
+        content: '화이트보드',
+        pageNumber: undefined,
         penStyle: {
             isPen: true,
             strokeStyle: 'black',
@@ -42,7 +44,8 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
     });
 
     const [peerAction, setPeerAction] = useState<IClassAction>({
-        content: '빈페이지',
+        content: '화이트보드',
+        pageNumber: undefined,
         penStyle: {
             isPen: true,
             strokeStyle: 'black',
@@ -72,6 +75,48 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
     const [peerTextbookCanvasBackgroundImage, setPeerTextbookCanvasBackgroundImage] = useState<
         Blob | string
     >();
+    const myHomeworkCanvasRef = useRef<HTMLCanvasElement>(null);
+    const [myHomeworkCanvasBackgroundImage, setMyHomeworkCanvasBackgroundImage] = useState<
+        Blob | string
+    >();
+    const peerHomeworkCanvasRef = useRef<HTMLCanvasElement>(null);
+    const [peerHomeworkCanvasBackgroundImage, setPeerHomeworkCanvasBackgroundImage] = useState<
+        Blob | string
+    >();
+
+    // const [selectedMyCanvasRef, setSelectedMyCanvasRef] =
+    //     useState<RefObject<HTMLCanvasElement>>(myWhiteboardCanvasRef);
+    // const [selectedMyCanvasBackgroundImage, setSelectedMyCanvasBackgroundImage] = useState<
+    //     string | Blob | undefined
+    // >(myWhiteboardCanvasBackgroundImage);
+    // const [selectedPeerCanvasRef, setSelectedPeerCanvasRef] =
+    //     useState<RefObject<HTMLCanvasElement>>(peerWhiteboardCanvasRef);
+    // const [selectedPeerCanvasBackgroundImage, setSelectedPeerCanvasBackgroundImage] = useState<
+    //     string | Blob | undefined
+    // >(peerWhiteboardCanvasBackgroundImage);
+
+    // useEffect(() => {
+    //     switch (myAction.content) {
+    //         case '화이트보드':
+    //             setSelectedMyCanvasRef(myWhiteboardCanvasRef);
+    //             setSelectedMyCanvasBackgroundImage(myWhiteboardCanvasBackgroundImage);
+    //             setSelectedPeerCanvasRef(peerWhiteboardCanvasRef);
+    //             setSelectedPeerCanvasBackgroundImage(peerWhiteboardCanvasBackgroundImage);
+    //             break;
+    //         case '학습자료':
+    //             setSelectedMyCanvasRef(myTextbookCanvasRef);
+    //             setSelectedMyCanvasBackgroundImage(myTextbookCanvasBackgroundImage);
+    //             setSelectedPeerCanvasRef(peerTextbookCanvasRef);
+    //             setSelectedPeerCanvasBackgroundImage(peerTextbookCanvasBackgroundImage);
+    //             break;
+    //         case '숙제':
+    //             setSelectedMyCanvasRef(myHomeworkCanvasRef);
+    //             setSelectedMyCanvasBackgroundImage(myHomeworkCanvasBackgroundImage);
+    //             setSelectedPeerCanvasRef(peerHomeworkCanvasRef);
+    //             setSelectedPeerCanvasBackgroundImage(peerHomeworkCanvasBackgroundImage);
+    //             break;
+    //     }
+    // }, [myAction.content, selectedPeerCanvasRef, selectedPeerCanvasBackgroundImage]);
 
     const {
         handlePointerDown: handlePeerPointerDown,
@@ -80,11 +125,17 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
         erase: erasePeerPaint,
     } = usePeerPaint({
         canvasRef:
-            myAction.content === '빈페이지' ? peerWhiteboardCanvasRef : peerTextbookCanvasRef,
+            myAction.content === '화이트보드'
+                ? peerWhiteboardCanvasRef
+                : myAction.content === '학습자료'
+                  ? peerTextbookCanvasRef
+                  : peerHomeworkCanvasRef,
         backgroundImage:
-            myAction.content === '빈페이지'
+            myAction.content === '화이트보드'
                 ? peerWhiteboardCanvasBackgroundImage
-                : peerTextbookCanvasBackgroundImage,
+                : myAction.content === '학습자료'
+                  ? peerTextbookCanvasBackgroundImage
+                  : peerHomeworkCanvasBackgroundImage,
         penStyle: peerAction.penStyle,
     });
 
@@ -96,17 +147,34 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
         getCanvasDrawingImage,
         penStyle,
     } = useMyPaint({
-        canvasRef: myAction.content === '빈페이지' ? myWhiteboardCanvasRef : myTextbookCanvasRef,
+        canvasRef:
+            myAction.content === '화이트보드'
+                ? myWhiteboardCanvasRef
+                : myTextbookCanvasRef
+                  ? myTextbookCanvasRef
+                  : myHomeworkCanvasRef,
         backgroundImage:
-            myAction.content === '빈페이지'
+            myAction.content === '화이트보드'
                 ? myWhiteboardCanvasBackgroundImage
-                : myTextbookCanvasBackgroundImage,
+                : myAction.content === '학습자료'
+                  ? myTextbookCanvasBackgroundImage
+                  : myHomeworkCanvasBackgroundImage,
         penStyle: myAction.penStyle,
         dataChannels,
         erasePeerPaint,
     });
+    /**
+     * 따라가기
+     */
+    const [watchingSameScreen, setWatchingSameScreen] = useState<boolean>(true);
 
-    const [peerWatchingSameScreen, setPeerWatchingSameScreen] = useState<boolean>(true);
+    useEffect(() => {
+        if (myAction.content === peerAction.content) {
+            setWatchingSameScreen(true);
+        } else {
+            setWatchingSameScreen(false);
+        }
+    }, [myAction.content, peerAction.content]);
 
     /**
      * 수업 컨텐츠
@@ -131,9 +199,8 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
 
     const changeContents = (value: ContentsType) => {
         // 1. 드로잉 데이터 저장
-        if (myAction.content === '빈페이지') {
+        if (myAction.content === '화이트보드') {
             if (myWhiteboardCanvasRef.current) {
-                console.log('내 화이트보드 저장');
                 const drawingBlobData = saveDrawing({
                     canvasRef: myWhiteboardCanvasRef,
                     size: {
@@ -144,7 +211,6 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
                 setMyWhiteboardCanvasBackgroundImage(drawingBlobData);
             }
             if (peerWhiteboardCanvasRef.current) {
-                console.log('피어 화이트보드 저장');
                 const drawingBlobData = saveDrawing({
                     canvasRef: peerWhiteboardCanvasRef,
                     size: {
@@ -175,7 +241,29 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
                 });
                 setPeerTextbookCanvasBackgroundImage(drawingBlobData);
             }
+        } else {
+            if (myHomeworkCanvasRef.current) {
+                const drawingBlobData = saveDrawing({
+                    canvasRef: myHomeworkCanvasRef,
+                    size: {
+                        width: myHomeworkCanvasRef.current.width,
+                        height: myHomeworkCanvasRef.current.height,
+                    },
+                });
+                setMyHomeworkCanvasBackgroundImage(drawingBlobData);
+            }
+            if (peerHomeworkCanvasRef.current) {
+                const drawingBlobData = saveDrawing({
+                    canvasRef: peerHomeworkCanvasRef,
+                    size: {
+                        width: peerHomeworkCanvasRef.current.width,
+                        height: peerHomeworkCanvasRef.current.height,
+                    },
+                });
+                setPeerHomeworkCanvasBackgroundImage(drawingBlobData);
+            }
         }
+
         // 2. 컨텐츠 변경
         setMyAction((prev) => ({ ...prev, content: value }));
     };
@@ -419,7 +507,7 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
         handlePeerPointerMove,
         handlePeerPointerUp,
 
-        peerWatchingSameScreen,
+        watchingSameScreen,
         cleanUpCanvas,
         changeContents,
         changePenStyle,

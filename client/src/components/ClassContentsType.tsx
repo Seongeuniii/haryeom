@@ -13,7 +13,7 @@ import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
 
 const contentsIcon = {
-    빈페이지: <Drawing />,
+    화이트보드: <Drawing />,
     학습자료: <ClassContents />,
     숙제: <Homework />,
 };
@@ -69,9 +69,9 @@ const ClassContentsType = ({
                     <Dropdown open={open} closeDropdown={closeDropdown} top="43px">
                         <SelectContentButtons>
                             <Button
-                                content={contentsIcon.빈페이지}
+                                content={contentsIcon.화이트보드}
                                 onClick={() => {
-                                    changeContents('빈페이지');
+                                    changeContents('화이트보드');
                                     closeDropdown();
                                 }}
                                 width="30px"
@@ -105,7 +105,7 @@ const ClassContentsType = ({
                     </Dropdown>
                 </ContentButtons>
                 <ContentInfo>
-                    {contentType === '빈페이지' && (
+                    {contentType === '화이트보드' && (
                         <>
                             <ContentType>화이트보드</ContentType>
                         </>

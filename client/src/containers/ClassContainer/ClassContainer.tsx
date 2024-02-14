@@ -17,6 +17,7 @@ import ClassTimer from '@/components/ClassTimer';
 import ClassContentsType from '@/components/ClassContentsType';
 import LoadClassContent from '@/components/LoadClassContent';
 import Timestamp from '@/components/Timestamp';
+import { gerRole } from '@/components/MatchingStage/GetResponse';
 
 const ClassContainer = () => {
     const userSession = useRecoilValue(userSessionAtom);
@@ -47,6 +48,7 @@ const ClassContainer = () => {
 
     const {
         myAction,
+        peerAction,
         textbook,
         homework,
 
@@ -69,7 +71,7 @@ const ClassContainer = () => {
         handlePeerPointerMove,
         handlePeerPointerUp,
 
-        peerWatchingSameScreen,
+        watchingSameScreen,
         cleanUpCanvas,
         changeContents,
         changePenStyle,
@@ -82,6 +84,10 @@ const ClassContainer = () => {
         tutoringScheduleId: parseInt(router.query.tutoringScheduleId as string),
         dataChannels,
     });
+
+    useEffect(() => {
+        console.log(pdfPageOriginalSize);
+    }, [pdfPageOriginalSize]);
 
     // TOOD: 리팩토링
     useEffect(() => {
@@ -157,12 +163,12 @@ const ClassContainer = () => {
                         <DrawingTools penStyle={penStyle} changePenStyle={changePenStyle} />
                     </HelperBar>
                     <Board>
-                        {peerWatchingSameScreen && (
-                            <PeerWatchingStatus>
-                                선생님이 현재 화면을 보고있어요.
-                            </PeerWatchingStatus>
-                        )}
-                        {myAction.content === '빈페이지' ? (
+                        <PeerWatchingSameScreen isWatching={watchingSameScreen}>
+                            {watchingSameScreen
+                                ? `${gerRole(userSession.role)}이 현재 화면을 보고있어요.`
+                                : `${gerRole(userSession.role)}이 다른 화면을 보고있어요`}
+                        </PeerWatchingSameScreen>
+                        {myAction.content === '화이트보드' ? (
                             <WhiteBoard>
                                 <DrawingLayer>
                                     <PaintCanvas
@@ -322,14 +328,14 @@ const Board = styled.div`
     display: flex;
 `;
 
-const PeerWatchingStatus = styled.div`
+const PeerWatchingSameScreen = styled.div<{ isWatching: boolean }>`
     position: absolute;
     top: 25px;
     left: 50%;
     padding: 0.7em 1.2em;
     transform: translate(-50%, -50%);
     border-radius: 2em;
-    background-color: ${({ theme }) => theme.PRIMARY};
+    background-color: ${({ theme, isWatching }) => (isWatching ? theme.PRIMARY : '#ff4e4e')};
     color: white;
     font-size: 11px;
     z-index: 3;
