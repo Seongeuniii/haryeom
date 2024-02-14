@@ -10,9 +10,9 @@ import {
     IStudentTutorings,
     ITeacherTutoring,
     ITeacherTutorings,
+    ITutorings,
     ITutoringSchedules,
     ITutoringTextbook,
-    ITutorings,
 } from '@/apis/tutoring/tutoring';
 import { getHomeworkList } from '@/apis/homework/get-homework-list';
 import { IHomeworkList, IProgressPercentage } from '@/apis/homework/homework';
@@ -25,7 +25,7 @@ import { IUserRole } from '@/apis/user/user';
 import TutoringTeacherProfile from '@/components/TutoringTeacherProfile';
 import TutoringStudentProfile from '@/components/TutoringStudentProfile';
 import CreateNewClass from '@/components/CreateNewClass';
-import { Dispatch, SetStateAction, useState, useEffect } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { getTextbooks } from '@/apis/tutoring/get-textbooks';
 import CreateNewHomework from '@/components/CreateNewHomework';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
@@ -69,20 +69,18 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     >(tutorings[0]);
     const [textbooks, setTextbooks] = useState<ITutoringTextbook[]>(initTutoringTextbooks);
 
-    const { data } = seletedTutoring
-        ? (useGetHomeworkList(seletedTutoring.tutoringId, {
+    const { data, refetch } = seletedTutoring
+        ? useGetHomeworkList(seletedTutoring.tutoringId, {
               homeworkList: initHomeworkList,
               progressPercentage: initProgressPercentage,
-          }) as {
-              data: { homeworkList: IHomeworkList; progressPercentage: IProgressPercentage };
           })
-        : { data: undefined };
+        : { data: undefined, refetch: undefined };
     const { homeworkList, progressPercentage } = data ?? {
         homeworkList: initHomeworkList,
         progressPercentage: initProgressPercentage,
     };
     const { data: videoList } = seletedTutoring
-        ? useGetTutoringVideoList(seletedTutoring.subject.subjectId)
+        ? useGetTutoringVideoList(seletedTutoring.tutoringId)
         : { data: undefined };
 
     // 교재 목록을 비동기적으로 불러오는 로직
@@ -171,6 +169,7 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                                 <CreateNewHomework
                                     tutoringId={seletedTutoring?.tutoringId}
                                     tutoringTextbooks={textbooks}
+                                    refetch={refetch}
                                 />
                             )}
                         </ListHeader>

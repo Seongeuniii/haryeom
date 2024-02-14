@@ -9,11 +9,11 @@ export const useGetHomeworkList = (
         progressPercentage: IProgressPercentage;
     }
 ) => {
-    const { data, isLoading } = useQuery({
+    const { data, isLoading, refetch } = useQuery({
         queryKey: ['homeworkList', tutoringId],
         queryFn: () => getHomeworkList(tutoringId),
         cacheTime: Infinity,
         initialData: initialData,
     });
-    return { data, isLoading };
+    return { data, isLoading, refetch };
 };

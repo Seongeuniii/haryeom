@@ -16,13 +16,22 @@ const MediaStream = ({ myStream, peerStream }: MediaStreamProps) => {
 
     return (
         <StyledMediaStream>
-            <MediaStreamDisplay stream={myStream} nickname={userSession?.name as string} />
+            <MediaStreamDisplay
+                stream={myStream}
+                nickname={userSession?.name as string}
+                muted={true}
+            />
             {peerStream?.length ? (
                 peerStream?.map((data, idx) => (
-                    <MediaStreamDisplay stream={data.stream} key={idx} nickname={data.socketId} />
+                    <MediaStreamDisplay
+                        stream={data.stream}
+                        key={idx}
+                        nickname={data.memberName}
+                        muted={false}
+                    />
                 ))
             ) : (
-                <MediaStreamDisplay stream={null} nickname="대기중" />
+                <MediaStreamDisplay stream={null} nickname="대기중" muted={true} />
             )}
         </StyledMediaStream>
     );
