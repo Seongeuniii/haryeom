@@ -10,23 +10,23 @@ const TutoringVideoList = ({ videoList }: TutoringVideoListProps) => {
     return (
         <StyledTutoringVideoList>
             <TutoringVideoTableTitle>
-                <Deadline className="homework-list__header">과외 날짜</Deadline>
-                <Resource className="homework-list__header">커리큘럼</Resource>
-                <Scope className="homework-list__header">진행 시간</Scope>
+                <TutoringDate className="homework-list__header">과외 날짜</TutoringDate>
+                <Curriculum className="homework-list__header">커리큘럼</Curriculum>
+                <Duration className="homework-list__header">진행 시간</Duration>
             </TutoringVideoTableTitle>
             <TutoringVideoCards>
                 {videoList && videoList.length > 0 ? (
                     videoList.map((videoInfo, index) => (
                         <Link
                             href={`review/${videoInfo.videoId}`}
-                            target="_blank"
+                            target="_self"
                             key={`review_${index}`}
                         >
-                            <HomeworkCard>
-                                <Scope>{videoInfo.scheduleDate} </Scope>
-                                <Resource>{videoInfo.title}</Resource>
-                                <Deadline>{videoInfo.duration}</Deadline>
-                            </HomeworkCard>
+                            <TutoringVideoCard>
+                                <TutoringDate>{videoInfo.scheduleDate} </TutoringDate>
+                                <Curriculum>{videoInfo.title}</Curriculum>
+                                <Duration>{videoInfo.duration}</Duration>
+                            </TutoringVideoCard>
                         </Link>
                     ))
                 ) : (
@@ -56,13 +56,10 @@ const TutoringVideoCards = styled.div`
     width: 100%;
     min-width: 700px;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     overflow-y: scroll;
 `;
 
-const HomeworkCard = styled.div`
+const TutoringVideoCard = styled.div`
     width: 100%;
     display: flex;
     align-items: center;
@@ -78,7 +75,7 @@ const HomeworkCard = styled.div`
     }
 `;
 
-const Deadline = styled.span`
+const Duration = styled.span`
     width: 33%;
 
     &.homework-list__header {
@@ -86,7 +83,7 @@ const Deadline = styled.span`
     }
 `;
 
-const Resource = styled.button`
+const Curriculum = styled.button`
     width: 33%;
 
     &.homework-list__header {
@@ -94,7 +91,7 @@ const Resource = styled.button`
     }
 `;
 
-const Scope = styled.span`
+const TutoringDate = styled.span`
     width: 33%;
 
     &.homework-list__header {

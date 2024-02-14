@@ -92,7 +92,7 @@ public class SignalingController {
     public void peerICE(@Payload IceRequest ice, @DestinationVariable (value="roomCode") String roomCode, @DestinationVariable (value = "peerId") String peerId){
         log.info("ice : subscriberId: {}, senderId: {}", peerId, ice.getSocketId());
         IceResponse iceResponse = new IceResponse(ice.getIceCandidate(), ice.getSocketId());
-        log.info("iceResponse : subscriberId: {}, senderId: {}", peerId, iceResponse.getPeerId());
+        log.info("iceResponse : subscriberId: {}, senderId: {}", peerId, iceResponse.getSocketId());
         String destination = "/topic/ice/room/"+roomCode+"/"+peerId;
         log.info("destination : {}, sender: {}", destination, ice.getSocketId());
         simpMessagingTemplate.convertAndSend(destination, iceResponse);
