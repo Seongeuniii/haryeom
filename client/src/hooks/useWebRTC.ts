@@ -94,9 +94,8 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
                 sendIceCandidate(e, peerInfo.socketId);
             });
 
-            // // TODO: 오디오
             pc.addEventListener('track', (e: RTCTrackEvent) => {
-                if (e.track.kind === 'video') handleRemoteStream(e, peerInfo.socketId);
+                handleRemoteStream(e, peerInfo.socketId);
             });
 
             /**
