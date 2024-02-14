@@ -17,6 +17,6 @@ public interface ReviewCustomRepository {
     // 학생별 과목 리스트 조회
     List<SubjectResponse> findAllByTutoringByMember(Long memberId);
     //학생별 과목별 영상 리스트 조회
-    Page<VideoResponse> findAllBySubjectAndTutoringServiceByTutoringByMember(Long subjectId, Long memberId, Pageable pageable);
+    Page<VideoResponse> findAllByTutoringIdByMemberId(Long tutoringId, Long memberId, Pageable pageable);
 
 }
