@@ -8,6 +8,7 @@ import lombok.Setter;
 public class Answer {
 
     private Object answer;
-    private Long callerId;
-    private Long calleeId;
+    private String callerId;
+    private String calleeId;
+    private Long calleeMemberId;
 }
