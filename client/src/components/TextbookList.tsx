@@ -19,7 +19,7 @@ const TextbookList = ({ textbookList, handleClickTextbookCard }: TextbookListPro
                 {textbookList && textbookList.length > 0 ? (
                     textbookList.map((textbook, index) => (
                         <Link
-                            href={`textbook`}
+                            href={`textbook/${textbook.textbookId}`}
                             key={`textbook${index}`}
                             onClick={
                                 handleClickTextbookCard
@@ -29,6 +29,7 @@ const TextbookList = ({ textbookList, handleClickTextbookCard }: TextbookListPro
                                       }
                                     : undefined
                             }
+                            target={'_blank'}
                         >
                             <TextbookCard>
                                 <BookCover>
