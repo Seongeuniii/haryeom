@@ -22,6 +22,8 @@ public class Matching {
     private ObjectId id;
     private Long chatRoomId;
     private Long recipientMemberId;
+    private String recipientName;
+    private Long senderMemberId;
     private String senderName;
     private SubjectResponse subject;
     private Integer hourlyRate;
@@ -30,6 +32,8 @@ public class Matching {
     public Matching(ChatRoom chatRoom, Member member, Subject subject, Integer hourlyRate) {
         this.chatRoomId = chatRoom.getId();
         this.recipientMemberId = chatRoom.getOppositeMember(member).getId();
+        this.recipientName = chatRoom.getOppositeMember(member).getName();
+        this.senderMemberId = member.getId();
         this.senderName = member.getName();
         this.subject = new SubjectResponse(subject);
         this.hourlyRate = hourlyRate;
