@@ -49,11 +49,26 @@ const ClassContainer = () => {
         myAction,
         textbook,
         homework,
-        whiteboardCanvasRef,
-        textbookCanvasRef,
-        whiteboardCanvasBackgroundImage,
-        textbookCanvasBackgroundImage,
-        setTextbookCanvasBackgroundImage,
+
+        myWhiteboardCanvasRef,
+        myWhiteboardCanvasBackgroundImage,
+        myTextbookCanvasRef,
+        myTextbookCanvasBackgroundImage,
+        setMyTextbookCanvasBackgroundImage,
+        handlePointerDown,
+        handlePointerMove,
+        handlePointerUp,
+        penStyle,
+
+        peerWhiteboardCanvasRef,
+        peerWhiteboardCanvasBackgroundImage,
+        peerTextbookCanvasRef,
+        peerTextbookCanvasBackgroundImage,
+        setPeerTextbookCanvasBackgroundImage,
+        handlePeerPointerDown,
+        handlePeerPointerMove,
+        handlePeerPointerUp,
+
         peerWatchingSameScreen,
         cleanUpCanvas,
         changeContents,
@@ -65,22 +80,6 @@ const ClassContainer = () => {
         changeClassState,
     } = useClass({
         tutoringScheduleId: parseInt(router.query.tutoringScheduleId as string),
-        dataChannels,
-    });
-
-    const {
-        handlePointerDown,
-        handlePointerMove,
-        handlePointerUp,
-        getCanvasDrawingImage,
-        penStyle,
-    } = useMyPaint({
-        canvasRef: myAction.content === '빈페이지' ? whiteboardCanvasRef : textbookCanvasRef,
-        backgroundImage:
-            myAction.content === '빈페이지'
-                ? whiteboardCanvasBackgroundImage
-                : textbookCanvasBackgroundImage,
-        penStyle: myAction.penStyle,
         dataChannels,
     });
 
@@ -167,7 +166,15 @@ const ClassContainer = () => {
                             <WhiteBoard>
                                 <DrawingLayer>
                                     <PaintCanvas
-                                        canvasRef={whiteboardCanvasRef}
+                                        canvasRef={peerWhiteboardCanvasRef}
+                                        handlePointerDown={handlePeerPointerDown}
+                                        handlePointerMove={handlePeerPointerMove}
+                                        handlePointerUp={handlePeerPointerUp}
+                                    />
+                                </DrawingLayer>
+                                <DrawingLayer>
+                                    <PaintCanvas
+                                        canvasRef={myWhiteboardCanvasRef}
                                         handlePointerDown={handlePointerDown}
                                         handlePointerMove={handlePointerMove}
                                         handlePointerUp={handlePointerUp}
@@ -187,8 +194,8 @@ const ClassContainer = () => {
                                     pdfPageCurrentSize={pdfPageCurrentSize}
                                     movePage={(selectedPageNumber) => {
                                         cleanUpCanvas(
-                                            textbookCanvasRef,
-                                            setTextbookCanvasBackgroundImage
+                                            myTextbookCanvasRef,
+                                            setMyTextbookCanvasBackgroundImage
                                         );
                                         movePage(selectedPageNumber);
                                     }}
@@ -206,7 +213,7 @@ const ClassContainer = () => {
                                 >
                                     <DrawingLayer>
                                         <PaintCanvas
-                                            canvasRef={textbookCanvasRef}
+                                            canvasRef={myTextbookCanvasRef}
                                             handlePointerDown={handlePointerDown}
                                             handlePointerMove={handlePointerMove}
                                             handlePointerUp={handlePointerUp}

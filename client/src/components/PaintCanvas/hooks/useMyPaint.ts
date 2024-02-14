@@ -6,9 +6,17 @@ interface IUseMyPaint {
     backgroundImage?: Blob | string;
     penStyle: IPenStyle;
     dataChannels?: RTCDataChannel[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    erasePeerPaint?: (offset: any) => void;
 }
 
-const useMyPaint = ({ canvasRef, backgroundImage, penStyle, dataChannels }: IUseMyPaint) => {
+const useMyPaint = ({
+    canvasRef,
+    backgroundImage,
+    penStyle,
+    dataChannels,
+    erasePeerPaint,
+}: IUseMyPaint) => {
     const contextRef = useRef<CanvasRenderingContext2D | null>(null);
     const canvasInformRef = useRef({
         width: 0,
@@ -122,6 +130,20 @@ const useMyPaint = ({ canvasRef, backgroundImage, penStyle, dataChannels }: IUse
         };
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const erase = (offset: any) => {
+        if (!contextRef.current) return;
+        const { x, y } = offset;
+        contextRef.current.globalCompositeOperation = 'destination-out';
+        contextRef.current.beginPath();
+        contextRef.current.arc(x, y, 15, 0, Math.PI * 2);
+        contextRef.current.fill();
+        contextRef.current.closePath();
+        contextRef.current.globalCompositeOperation = 'source-over';
+
+        erasePeerPaint && erasePeerPaint(offset);
+    };
+
     const handlePointerDown = ({ nativeEvent }: PointerEvent) => {
         setIsDown(true);
         if (!contextRef.current) return;
@@ -153,12 +175,7 @@ const useMyPaint = ({ canvasRef, backgroundImage, penStyle, dataChannels }: IUse
             contextRef.current.lineTo(offsetX, offsetY);
             contextRef.current.stroke();
         } else {
-            contextRef.current.globalCompositeOperation = 'destination-out';
-            contextRef.current.beginPath();
-            contextRef.current.arc(offsetX, offsetY, 15, 0, Math.PI * 2);
-            contextRef.current.fill();
-            contextRef.current.closePath();
-            contextRef.current.globalCompositeOperation = 'source-over';
+            erase({ x: offsetX, y: offsetY });
         }
 
         dataChannels?.map((channel: RTCDataChannel) => {
@@ -226,6 +243,7 @@ const useMyPaint = ({ canvasRef, backgroundImage, penStyle, dataChannels }: IUse
         handlePointerDown,
         handlePointerMove,
         handlePointerUp,
+        erase,
         getCanvasDrawingImage,
         penStyle,
     };

@@ -10,6 +10,7 @@ import { getHomework } from '@/apis/homework/get-homework';
 import { ICanvasSize, saveDrawing } from '@/utils/canvas';
 import { saveTutoringvideo } from '@/apis/tutoring/save-tutoring-video';
 import useClassTimer from './useClassTimer';
+import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
 
 export type ContentsType = '빈페이지' | '학습자료' | '숙제';
 export interface IPenStyle {
@@ -55,23 +56,54 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
     /**
      * 화이트보드
      */
-    const whiteboardCanvasRef = useRef<HTMLCanvasElement>(null);
-    const [whiteboardCanvasBackgroundImage, setWhiteboardCanvasBackgroundImage] = useState<
+    const myWhiteboardCanvasRef = useRef<HTMLCanvasElement>(null);
+    const [myWhiteboardCanvasBackgroundImage, setMyWhiteboardCanvasBackgroundImage] = useState<
+        Blob | string
+    >();
+    const peerWhiteboardCanvasRef = useRef<HTMLCanvasElement>(null);
+    const [peerWhiteboardCanvasBackgroundImage, setPeerWhiteboardCanvasBackgroundImage] = useState<
+        Blob | string
+    >();
+    const myTextbookCanvasRef = useRef<HTMLCanvasElement>(null);
+    const [myTextbookCanvasBackgroundImage, setMyTextbookCanvasBackgroundImage] = useState<
+        Blob | string
+    >();
+    const peerTextbookCanvasRef = useRef<HTMLCanvasElement>(null);
+    const [peerTextbookCanvasBackgroundImage, setPeerTextbookCanvasBackgroundImage] = useState<
         Blob | string
     >();
 
-    const textbookCanvasRef = useRef<HTMLCanvasElement>(null);
-    const [textbookCanvasBackgroundImage, setTextbookCanvasBackgroundImage] = useState<
-        Blob | string
-    >();
-
-    const { handlePointerDown, handlePointerMove, handlePointerUp } = usePeerPaint({
-        canvasRef: peerAction.content === '빈페이지' ? whiteboardCanvasRef : textbookCanvasRef,
+    const {
+        handlePointerDown: handlePeerPointerDown,
+        handlePointerMove: handlePeerPointerMove,
+        handlePointerUp: handlePeerPointerUp,
+        erase: erasePeerPaint,
+    } = usePeerPaint({
+        canvasRef:
+            peerAction.content === '빈페이지' ? peerWhiteboardCanvasRef : peerTextbookCanvasRef,
         backgroundImage:
             peerAction.content === '빈페이지'
-                ? whiteboardCanvasBackgroundImage
-                : textbookCanvasBackgroundImage,
+                ? peerWhiteboardCanvasBackgroundImage
+                : peerTextbookCanvasBackgroundImage,
         penStyle: peerAction.penStyle,
+    });
+
+    const {
+        handlePointerDown,
+        handlePointerMove,
+        handlePointerUp,
+        erase,
+        getCanvasDrawingImage,
+        penStyle,
+    } = useMyPaint({
+        canvasRef: myAction.content === '빈페이지' ? myWhiteboardCanvasRef : myTextbookCanvasRef,
+        backgroundImage:
+            myAction.content === '빈페이지'
+                ? myWhiteboardCanvasBackgroundImage
+                : myTextbookCanvasBackgroundImage,
+        penStyle: myAction.penStyle,
+        dataChannels,
+        erasePeerPaint,
     });
 
     const [peerWatchingSameScreen, setPeerWatchingSameScreen] = useState<boolean>(true);
@@ -100,28 +132,28 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
     const changeContents = (value: ContentsType) => {
         // 1. 드로잉 데이터 저장
         if (myAction.content === '빈페이지') {
-            if (whiteboardCanvasRef.current) {
+            if (myWhiteboardCanvasRef.current) {
                 console.log('whiteboard 드로잉 저장');
                 const drawingBlobData = saveDrawing({
-                    canvasRef: whiteboardCanvasRef,
+                    canvasRef: myWhiteboardCanvasRef,
                     size: {
-                        width: whiteboardCanvasRef.current.width,
-                        height: whiteboardCanvasRef.current.height,
+                        width: myWhiteboardCanvasRef.current.width,
+                        height: myWhiteboardCanvasRef.current.height,
                     },
                 });
-                setWhiteboardCanvasBackgroundImage(drawingBlobData);
+                setMyWhiteboardCanvasBackgroundImage(drawingBlobData);
             }
         } else if (myAction.content === '학습자료') {
-            if (textbookCanvasRef.current) {
+            if (myTextbookCanvasRef.current) {
                 console.log('textbook 드로잉 저장');
                 const drawingBlobData = saveDrawing({
-                    canvasRef: textbookCanvasRef,
+                    canvasRef: myTextbookCanvasRef,
                     size: {
-                        width: textbookCanvasRef.current.width,
-                        height: textbookCanvasRef.current.height,
+                        width: myTextbookCanvasRef.current.width,
+                        height: myTextbookCanvasRef.current.height,
                     },
                 });
-                setTextbookCanvasBackgroundImage(drawingBlobData);
+                setMyTextbookCanvasBackgroundImage(drawingBlobData);
             }
         }
         // 2. 컨텐츠 변경
@@ -296,13 +328,16 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
                 if (action) {
                     switch (action) {
                         case 'down':
-                            handlePointerDown(offset);
+                            handlePeerPointerDown(offset);
                             break;
                         case 'move':
-                            requestAnimationFrame(() => handlePointerMove(offset));
+                            requestAnimationFrame(() => handlePeerPointerMove(offset));
+                            if (!peerAction.penStyle.isPen) {
+                                erase(offset);
+                            }
                             break;
                         case 'up':
-                            handlePointerUp();
+                            handlePeerPointerUp();
                             break;
                     }
                 }
@@ -339,13 +374,30 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
     return {
         myAction,
         peerAction,
+
         textbook,
         homework,
-        whiteboardCanvasRef,
-        whiteboardCanvasBackgroundImage,
-        textbookCanvasRef,
-        setTextbookCanvasBackgroundImage,
-        textbookCanvasBackgroundImage,
+
+        myWhiteboardCanvasRef,
+        myWhiteboardCanvasBackgroundImage,
+        myTextbookCanvasRef,
+        myTextbookCanvasBackgroundImage,
+        setMyTextbookCanvasBackgroundImage,
+        handlePointerDown,
+        handlePointerMove,
+        handlePointerUp,
+        getCanvasDrawingImage,
+        penStyle,
+
+        peerWhiteboardCanvasRef,
+        peerWhiteboardCanvasBackgroundImage,
+        peerTextbookCanvasRef,
+        peerTextbookCanvasBackgroundImage,
+        setPeerTextbookCanvasBackgroundImage,
+        handlePeerPointerDown,
+        handlePeerPointerMove,
+        handlePeerPointerUp,
+
         peerWatchingSameScreen,
         cleanUpCanvas,
         changeContents,

@@ -100,6 +100,18 @@ const usePeerPaint = ({ canvasRef, backgroundImage, penStyle }: IUsePeerPaint) =
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const erase = (offset: any) => {
+        if (!contextRef.current) return;
+        const { x, y } = offset;
+        contextRef.current.globalCompositeOperation = 'destination-out';
+        contextRef.current.beginPath();
+        contextRef.current.arc(x, y, 15, 0, Math.PI * 2);
+        contextRef.current.fill();
+        contextRef.current.closePath();
+        contextRef.current.globalCompositeOperation = 'source-over';
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handlePointerDown = (offset: any) => {
         if (!contextRef.current) return;
         const { x, y } = offset;
@@ -118,12 +130,7 @@ const usePeerPaint = ({ canvasRef, backgroundImage, penStyle }: IUsePeerPaint) =
             contextRef.current.lineTo(x, y);
             contextRef.current.stroke();
         } else {
-            contextRef.current.globalCompositeOperation = 'destination-out';
-            contextRef.current.beginPath();
-            contextRef.current.arc(x, y, 15, 0, Math.PI * 2);
-            contextRef.current.fill();
-            contextRef.current.closePath();
-            contextRef.current.globalCompositeOperation = 'source-over';
+            erase(offset);
         }
     };
 
@@ -132,7 +139,7 @@ const usePeerPaint = ({ canvasRef, backgroundImage, penStyle }: IUsePeerPaint) =
         contextRef.current.closePath();
     };
 
-    return { handlePointerDown, handlePointerMove, handlePointerUp };
+    return { handlePointerDown, handlePointerMove, handlePointerUp, erase };
 };
 
 export default usePeerPaint;
