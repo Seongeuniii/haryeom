@@ -17,10 +17,9 @@ public class RespondToMatchingResponse {
     private Integer hourlyRate;
 
 
-    private RespondToMatchingResponse(Long recipientMemberId, String teacherName, String studentName, Boolean isAccepted,
+    private RespondToMatchingResponse(String teacherName, String studentName, Boolean isAccepted,
         SubjectResponse subjectResponse,
         Integer hourlyRate) {
-        this.recipientMemberId = recipientMemberId;
         this.teacherName = teacherName;
         this.studentName = studentName;
         this.isAccepted = isAccepted;
@@ -30,7 +29,6 @@ public class RespondToMatchingResponse {
 
     public static RespondToMatchingResponse from(MatchingResult matchingResult) {
         return new RespondToMatchingResponse(
-            matchingResult.getRecipientMemberId(),
             matchingResult.getTeacherName(),
             matchingResult.getStudentName(),
             matchingResult.getIsAccepted(),
