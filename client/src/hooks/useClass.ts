@@ -80,9 +80,9 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
         erase: erasePeerPaint,
     } = usePeerPaint({
         canvasRef:
-            peerAction.content === '빈페이지' ? peerWhiteboardCanvasRef : peerTextbookCanvasRef,
+            myAction.content === '빈페이지' ? peerWhiteboardCanvasRef : peerTextbookCanvasRef,
         backgroundImage:
-            peerAction.content === '빈페이지'
+            myAction.content === '빈페이지'
                 ? peerWhiteboardCanvasBackgroundImage
                 : peerTextbookCanvasBackgroundImage,
         penStyle: peerAction.penStyle,
@@ -133,7 +133,7 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
         // 1. 드로잉 데이터 저장
         if (myAction.content === '빈페이지') {
             if (myWhiteboardCanvasRef.current) {
-                console.log('whiteboard 드로잉 저장');
+                console.log('내 화이트보드 저장');
                 const drawingBlobData = saveDrawing({
                     canvasRef: myWhiteboardCanvasRef,
                     size: {
@@ -143,9 +143,19 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
                 });
                 setMyWhiteboardCanvasBackgroundImage(drawingBlobData);
             }
+            if (peerWhiteboardCanvasRef.current) {
+                console.log('피어 화이트보드 저장');
+                const drawingBlobData = saveDrawing({
+                    canvasRef: peerWhiteboardCanvasRef,
+                    size: {
+                        width: peerWhiteboardCanvasRef.current.width,
+                        height: peerWhiteboardCanvasRef.current.height,
+                    },
+                });
+                setPeerWhiteboardCanvasBackgroundImage(drawingBlobData);
+            }
         } else if (myAction.content === '학습자료') {
             if (myTextbookCanvasRef.current) {
-                console.log('textbook 드로잉 저장');
                 const drawingBlobData = saveDrawing({
                     canvasRef: myTextbookCanvasRef,
                     size: {
@@ -154,6 +164,16 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
                     },
                 });
                 setMyTextbookCanvasBackgroundImage(drawingBlobData);
+            }
+            if (peerTextbookCanvasRef.current) {
+                const drawingBlobData = saveDrawing({
+                    canvasRef: peerTextbookCanvasRef,
+                    size: {
+                        width: peerTextbookCanvasRef.current.width,
+                        height: peerTextbookCanvasRef.current.height,
+                    },
+                });
+                setPeerTextbookCanvasBackgroundImage(drawingBlobData);
             }
         }
         // 2. 컨텐츠 변경
@@ -326,6 +346,7 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
                 } = JSON.parse(e.data);
 
                 if (action) {
+                    if (myAction.content !== peerAction.content) return;
                     switch (action) {
                         case 'down':
                             handlePeerPointerDown(offset);

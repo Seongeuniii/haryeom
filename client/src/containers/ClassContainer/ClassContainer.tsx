@@ -213,6 +213,14 @@ const ClassContainer = () => {
                                 >
                                     <DrawingLayer>
                                         <PaintCanvas
+                                            canvasRef={peerTextbookCanvasRef}
+                                            handlePointerDown={handlePeerPointerDown}
+                                            handlePointerMove={handlePeerPointerMove}
+                                            handlePointerUp={handlePeerPointerUp}
+                                        />
+                                    </DrawingLayer>
+                                    <DrawingLayer>
+                                        <PaintCanvas
                                             canvasRef={myTextbookCanvasRef}
                                             handlePointerDown={handlePointerDown}
                                             handlePointerMove={handlePointerMove}
