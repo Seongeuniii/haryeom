@@ -68,7 +68,7 @@ pipeline {
             steps {
                 dir('server') {
                     withCredentials([file(credentialsId: 'SpringBootEnv', variable: 'SpringBootEnv')]) {
-                        sh "cp ${SpringBootEnv} src/main/resources/application.yml"
+                        sh "cp ${SpringBootEnv} ./src/main/resources/application.yml"
                     }
                     sh 'chmod +x ./gradlew'
                     sh './gradlew clean bootJar'
