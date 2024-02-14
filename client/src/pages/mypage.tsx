@@ -43,7 +43,7 @@ const Mypage = () => {
                 setProfile(res.data);
             });
     }, []); // 최초 렌더링 직후에만 실행
-
+    //
     const subject = () => {
         const result = [];
         for (let i = 0; i < profile.subjects.length; i++) {
