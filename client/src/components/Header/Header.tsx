@@ -29,10 +29,6 @@ const navLinks: { [key in IUserRole]: Page[] } = {
             name: '마이홈',
             link: '/',
         },
-        {
-            name: '복습하렴',
-            link: '/review',
-        },
     ],
     GUEST: [],
 };
@@ -66,7 +62,8 @@ const Header = () => {
                 {userSession ? (
                     <User onClick={!open ? openDropdown : undefined}>
                         <Name>
-                            {userSession?.name} {userSession.role === 'TEACHER' ? '선생님' : '학생'}
+                            {userSession?.name} {userSession.role === 'TEACHER' && '선생님'}
+                            {userSession.role === 'STUDENT' && '학생'}
                         </Name>
 
                         <ProfileImage src={userSession.profileUrl} />
