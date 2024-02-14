@@ -25,7 +25,7 @@ const DrawingTools = ({ penStyle, changePenStyle }: DrawingToolsProps) => {
                 <Button
                     content={<Pen />}
                     onClick={(e) => {
-                        changePenStyle({ ...penStyle, lineWidth: 3 });
+                        changePenStyle({ ...penStyle, isPen: true, lineWidth: 3 });
                     }}
                     width="30px"
                     height="30px"
@@ -36,7 +36,7 @@ const DrawingTools = ({ penStyle, changePenStyle }: DrawingToolsProps) => {
                 <Button
                     content={<ThickPen />}
                     onClick={(e) => {
-                        changePenStyle({ ...penStyle, lineWidth: 15 });
+                        changePenStyle({ ...penStyle, isPen: true, lineWidth: 15 });
                     }}
                     width="30px"
                     height="30px"
