@@ -31,6 +31,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -117,7 +118,8 @@ public class TextbookService {
 
                     PDPageContentStream contentStream = new PDPageContentStream(doc, page);
                     // 텍스트 폰트 및 크기 설정
-                    InputStream fontStream = getClass().getClassLoader().getResourceAsStream("NanumGothicBold.ttf");
+                    ClassPathResource resource = new ClassPathResource("NanumGothicBold.ttf");
+                    InputStream fontStream = resource.getInputStream();
                     PDType0Font font = PDType0Font.load(doc, fontStream);
                     contentStream.setFont(font, FONT_SIZE);
 
