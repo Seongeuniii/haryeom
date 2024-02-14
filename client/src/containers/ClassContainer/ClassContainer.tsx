@@ -303,12 +303,12 @@ const TeachingTools = styled.div`
 `;
 
 const HelperBar = styled.div`
-    width: 93%;
+    width: 90%;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     display: flex;
     gap: 10px;
 `;

@@ -5,6 +5,7 @@ import PdfThumbnail from './PdfThumbnail';
 import { OnDocumentLoadSuccess, OnPageLoadSuccess } from 'react-pdf/dist/cjs/shared/types';
 import { IPdfSize } from '@/hooks/usePdf';
 import { IMyHomeworkDrawings } from '@/containers/HomeworkContainer/HomeworkContainer';
+import Fold from '../icons/Fold';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
@@ -44,8 +45,7 @@ const PdfViewer = ({
 }: PdfViewerProps) => {
     const pdfPageWrapperRef = useRef<HTMLDivElement>(null);
     const thumbnailListcontainer = useRef<HTMLDivElement>(null);
-
-    console.log(selectedPageNumber);
+    const [show, setShow] = useState<boolean>(true);
 
     useEffect(() => {
         updatePdfPageCurrentSize(getPdfPageWrapperSize());
@@ -68,7 +68,7 @@ const PdfViewer = ({
     if (!pdfFile) {
         return (
             <StyledPdfViewer>
-                <NoPdfFile>파일을 불러오지 못했어요.</NoPdfFile>
+                <NoPdfFile>불러온 파일이 없어요:)</NoPdfFile>
             </StyledPdfViewer>
         );
     }
@@ -76,29 +76,36 @@ const PdfViewer = ({
     return (
         <StyledPdfViewer>
             <PdfThumbnailList ref={thumbnailListcontainer}>
-                <Document file={pdfFile}>
-                    {Array.from({ length: totalPagesOfPdfFile }, (el, index) => (
-                        <PdfThumbnail
-                            key={`page_${index + 1}`}
-                            startPageNumber={startPageNumber}
-                            pageNumber={index + 1}
-                            selectedPageNumber={selectedPageNumber}
-                            movePage={movePage}
-                            homeworkStatus={
-                                myHomeworkDrawings[index + 1] === undefined ? 'notStart' : 'done'
-                            }
-                        >
-                            <Page
+                {show && (
+                    <Document file={pdfFile}>
+                        {Array.from({ length: totalPagesOfPdfFile }, (el, index) => (
+                            <PdfThumbnail
+                                key={`page_${index + 1}`}
+                                startPageNumber={startPageNumber}
                                 pageNumber={index + 1}
-                                renderAnnotationLayer={false}
-                                renderTextLayer={false}
-                                width={90}
-                            />
-                        </PdfThumbnail>
-                    ))}
-                </Document>
+                                selectedPageNumber={selectedPageNumber}
+                                movePage={movePage}
+                                homeworkStatus={
+                                    myHomeworkDrawings[index + 1] === undefined
+                                        ? 'notStart'
+                                        : 'done'
+                                }
+                            >
+                                <Page
+                                    pageNumber={index + 1}
+                                    renderAnnotationLayer={false}
+                                    renderTextLayer={false}
+                                    width={70}
+                                />
+                            </PdfThumbnail>
+                        ))}
+                    </Document>
+                )}
             </PdfThumbnailList>
             <PdfPageWrapper ref={pdfPageWrapperRef}>
+                <ToggleThumbnailButton onClick={(prev) => setShow(!show)}>
+                    <Fold />
+                </ToggleThumbnailButton>
                 <div
                     style={{
                         width: `${pdfPageCurrentSize.width}`,
@@ -141,14 +148,31 @@ const NoPdfFile = styled.span`
     color: ${({ theme }) => theme.LIGHT_BLACK};
 `;
 
+const ToggleThumbnailButton = styled.button`
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 25px;
+    height: 25px;
+    padding-top: 3px;
+    z-index: 10;
+    background-color: white;
+    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    border-radius: 100%;
+
+    svg {
+        width: 13px;
+        height: 13px;
+    }
+`;
+
 const PdfThumbnailList = styled.div`
     position: sticky;
     top: 0;
     left: 0;
-    min-width: 125px;
     height: 100%;
-    padding-right: 8px;
-    margin: 1em 0 1em 1em;
+    margin-right: 8px;
+    margin: 1em 0;
 
     overflow: scroll;
     &::-webkit-scrollbar {
