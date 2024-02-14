@@ -109,7 +109,7 @@ public class SignalingController {
             String peerId = peerList.get(i).getSocketId();
             String destination = "/topic/disconnect/room/"+roomCode+"/"+peerId;
             Disconnect disconnect = new Disconnect();
-            disconnect.setPeerId(socketId);
+            disconnect.setSocketId(socketId);
             simpMessagingTemplate.convertAndSend(destination, disconnect);
         }
     }
