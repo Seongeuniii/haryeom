@@ -23,12 +23,10 @@ export const registUser = async (role: IUserRole, form: IUserInfo) => {
                 profileStatus: form.profileStatus,
                 gender: form.gender === '여자' ? 'FEMALE' : 'MALE',
                 salary: parseInt(String(form.salary), 10),
-                subjects: [
-                    {
-                        subjectId: subjectDefaultOptions.indexOf(form.subjects as string) + 1,
-                        name: form.subjects,
-                    },
-                ],
+                subjects: form.subjects?.map((subject) => ({
+                    subjectId: subjectDefaultOptions.indexOf(subject as string) + 1,
+                    name: subject,
+                })),
                 career: parseInt(String(form.career), 10),
                 introduce: form.introduce,
             };
