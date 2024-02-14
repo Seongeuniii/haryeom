@@ -56,9 +56,9 @@ public class ReviewService {
     }
 
     //학생별 과목별 영상 리스트 조회 - queryDsl 활용
-    public VideoReviewListResponse getVideoBySubjectByTutoringByMember(Long subjectId, Long memberId, Pageable pageable){
+    public VideoReviewListResponse getVideoBySubjectByTutoringByMember(Long tutoringId, Long memberId, Pageable pageable){
         //Todo: 목록이 0개일때?
-        Page<VideoResponse> response = reviewCustomRepository.findAllBySubjectAndTutoringServiceByTutoringByMember(subjectId, memberId, pageable);
+        Page<VideoResponse> response = reviewCustomRepository.findAllByTutoringIdByMemberId(tutoringId, memberId, pageable);
         VideoReviewListResponse videoReviewListResponse = new VideoReviewListResponse(response.getContent(), response.getTotalPages());
         return videoReviewListResponse;
     }

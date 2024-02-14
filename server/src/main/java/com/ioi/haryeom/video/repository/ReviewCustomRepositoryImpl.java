@@ -102,7 +102,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository{
     }
 
     @Override
-    public Page<VideoResponse> findAllBySubjectAndTutoringServiceByTutoringByMember(Long subjectId,
+    public Page<VideoResponse> findAllByTutoringIdByMemberId(Long tutoringId,
         Long memberId, Pageable pageable) {
         QueryResults<VideoResponseForQuery> results = queryFactory
             .select(
@@ -112,7 +112,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository{
             .from(video)
             .leftJoin(video.tutoringSchedule, tutoringSchedule)
             .leftJoin(tutoringSchedule.tutoring, tutoring)
-            .where(tutoring.subject.id.eq(subjectId),tutoring.student.id.eq(memberId))
+            .where(tutoring.id.eq(tutoringId),tutoring.student.id.eq(memberId))
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .orderBy(video.createdAt.desc())
