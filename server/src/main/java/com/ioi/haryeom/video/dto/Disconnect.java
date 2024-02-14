@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Disconnect {
-    private String peerId;
+    private String socketId;
 }
