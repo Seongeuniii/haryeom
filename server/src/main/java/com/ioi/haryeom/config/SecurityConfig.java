@@ -86,10 +86,10 @@ public class SecurityConfig {
             .antMatchers(PATCH, "/api/lesson/video/{videoId}/end").hasRole("TEACHER")
             .antMatchers(POST, "/api/lesson/video/{videoId}").hasRole("TEACHER")
             // 타임스탬프
-            .antMatchers(GET, "/api/lesson/timestamp/{tutoringScheduleId}").hasRole("STUDENT")
-            .antMatchers(POST, "/api/lesson/timestamp/{tutoringScheduleId}").hasRole("STUDENT")
-            .antMatchers(PUT, "/api/lesson/timestamp/{timestampId}").hasRole("STUDENT")
-            .antMatchers(DELETE, "/api/lesson/timestamp/{timestampId}").hasRole("STUDENT")
+            .antMatchers(GET, "/api/lesson/timestamp/{tutoringScheduleId}").hasAnyRole("STUDENT", "TEACHER")
+            .antMatchers(POST, "/api/lesson/timestamp/{tutoringScheduleId}").hasAnyRole("STUDENT", "TEACHER")
+            .antMatchers(PUT, "/api/lesson/timestamp/{timestampId}").hasAnyRole("STUDENT", "TEACHER")
+            .antMatchers(DELETE, "/api/lesson/timestamp/{timestampId}").hasAnyRole("STUDENT", "TEACHER")
 
             // 하재률
             // 학습자료
