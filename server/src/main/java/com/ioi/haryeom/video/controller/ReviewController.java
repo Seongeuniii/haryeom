@@ -45,9 +45,9 @@ public class ReviewController {
     }
 
     // 과목별 비디오 리스트 찾기 -- 일단 성?공
-    @GetMapping("/video/{subjectId}")
-    public ResponseEntity<VideoReviewListResponse> getVideoListBySubject(@AuthMemberId Long memberId, @PathVariable Long subjectId, @PageableDefault(size = 10, sort = "createdAt", direction = DESC) Pageable pageable){
-        return ResponseEntity.ok(reviewService.getVideoBySubjectByTutoringByMember(subjectId, memberId, pageable));
+    @GetMapping("/video/{tutoringId}")
+    public ResponseEntity<VideoReviewListResponse> getVideoListBySubject(@AuthMemberId Long memberId, @PathVariable Long tutoringId, @PageableDefault(size = 10, sort = "createdAt", direction = DESC) Pageable pageable){
+        return ResponseEntity.ok(reviewService.getVideoBySubjectByTutoringByMember(tutoringId, memberId, pageable));
     }
 
     // 영상 상세 정보 보기
