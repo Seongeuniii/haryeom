@@ -25,9 +25,11 @@ export interface INewHomework {
 interface CreateNewHomeworkProps {
     tutoringId: number | undefined;
     tutoringTextbooks: ITutoringTextbook[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    refetch: any;
 }
 
-const CreateNewHomework = ({ tutoringId, tutoringTextbooks }: CreateNewHomeworkProps) => {
+const CreateNewHomework = ({ tutoringId, tutoringTextbooks, refetch }: CreateNewHomeworkProps) => {
     const { open, openModal, closeModal } = useModal();
 
     if (!tutoringId) {
@@ -67,6 +69,7 @@ const CreateNewHomework = ({ tutoringId, tutoringTextbooks }: CreateNewHomeworkP
 
     const registForm = async () => {
         const data = await registHomework(tutoringId, homeworkData);
+        refetch();
         if (data) closeModal();
         else alert('등록에 실패했어요:)');
     };
@@ -132,7 +135,13 @@ const CreateNewHomework = ({ tutoringId, tutoringTextbooks }: CreateNewHomeworkP
                             }))
                         }
                     />
-                    <SubmitButton onClick={registForm}>등록</SubmitButton>
+                    <SubmitButton
+                        onClick={() => {
+                            registForm();
+                        }}
+                    >
+                        등록
+                    </SubmitButton>
                 </StyledCreateNewHomeworkForm>
             </Modal>
             <StyledCreateNewHomework>

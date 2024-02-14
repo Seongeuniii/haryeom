@@ -69,14 +69,12 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     >(tutorings[0]);
     const [textbooks, setTextbooks] = useState<ITutoringTextbook[]>(initTutoringTextbooks);
 
-    const { data } = seletedTutoring
-        ? (useGetHomeworkList(seletedTutoring.tutoringId, {
+    const { data, refetch } = seletedTutoring
+        ? useGetHomeworkList(seletedTutoring.tutoringId, {
               homeworkList: initHomeworkList,
               progressPercentage: initProgressPercentage,
-          }) as {
-              data: { homeworkList: IHomeworkList; progressPercentage: IProgressPercentage };
           })
-        : { data: undefined };
+        : { data: undefined, refetch: undefined };
     const { homeworkList, progressPercentage } = data ?? {
         homeworkList: initHomeworkList,
         progressPercentage: initProgressPercentage,
@@ -171,6 +169,7 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                                 <CreateNewHomework
                                     tutoringId={seletedTutoring?.tutoringId}
                                     tutoringTextbooks={textbooks}
+                                    refetch={refetch}
                                 />
                             )}
                         </ListHeader>
