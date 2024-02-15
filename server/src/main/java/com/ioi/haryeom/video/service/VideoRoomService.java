@@ -10,6 +10,7 @@ import com.ioi.haryeom.video.repository.VideoRoomRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -44,7 +46,7 @@ public class VideoRoomService {
 
         TutoringSchedule newSchedule = tutoringScheduleOptional.get();
         // 오늘 수업이 아닌 경우 예외처리
-        if(!newSchedule.getScheduleDate().isEqual(LocalDate.now())){
+        if (!newSchedule.getScheduleDate().isEqual(LocalDate.now())) {
             throw new VideoRoomNotFoundException(tutoringScheduleId);
         }
         // 코드 재활용을 위해서 굳이 리스트로 tutoringSchedule 저장
@@ -54,16 +56,19 @@ public class VideoRoomService {
         // 생성됐으니까 생성된거 조회해서 다시 리턴
         return videoRoomRepository.findByTutoringScheduleId(tutoringScheduleId).get().getRoomCode();
     }
-    private void isScheduleValid(Optional<TutoringSchedule> tutoringScheduleOptional, Long tutoringScheduleId){
-        if(!tutoringScheduleOptional.isPresent()){
+
+    private void isScheduleValid(Optional<TutoringSchedule> tutoringScheduleOptional, Long tutoringScheduleId) {
+        if (!tutoringScheduleOptional.isPresent()) {
             throw new TutoringScheduleNotFoundException(tutoringScheduleId);
         }
     }
-    private void isMemberValid(Optional<TutoringSchedule> tutoringScheduleOptional, Long memberId){
-        TutoringSchedule tutoringSchedule =tutoringScheduleOptional.get();
+
+    private void isMemberValid(Optional<TutoringSchedule> tutoringScheduleOptional, Long memberId) {
+        TutoringSchedule tutoringSchedule = tutoringScheduleOptional.get();
         Long studentId = tutoringSchedule.getTutoring().getStudent().getId();
         Long teacherId = tutoringSchedule.getTutoring().getTeacher().getId();
-        if(memberId!=studentId && memberId != teacherId){
+        log.info("[GET VIDEO ROOM] memberId : {}, studentMemberId : {}, teacherMemberId : {}", memberId, studentId, teacherId);
+        if (!Objects.equals(memberId, studentId) && !Objects.equals(memberId, teacherId)) {
             throw new AuthorizationException(memberId);
         }
     }
@@ -80,13 +85,15 @@ public class VideoRoomService {
         //3. 당일 과외일정 방코드 생성 및 저장하기
         createRooms(tutoringScheduleList);
     }
+
     //1. 기존 방코드 목록 폐기
     @Transactional
-    public void truncateVideoRooms(){
+    public void truncateVideoRooms() {
         videoRoomRepository.truncateVideoRoom();
     }
+
     //2. 당일 과외일정 가져오기
-    private List<TutoringSchedule> getTodayTutoringSchedule(){
+    private List<TutoringSchedule> getTodayTutoringSchedule() {
         LocalDate today = LocalDate.now();
         List<TutoringSchedule> tutoringScheduleList = tutoringScheduleRepository.findAllByScheduleDate(today);
         return tutoringScheduleList;
@@ -94,9 +101,9 @@ public class VideoRoomService {
 
     //3. 당일 과외일정 방코드 생성 및 저장하기
     @Transactional
-    public void createRooms(List<TutoringSchedule> tutoringScheduleList){
+    public void createRooms(List<TutoringSchedule> tutoringScheduleList) {
         List<VideoRoom> videoRoomList = new ArrayList<>();
-        for(TutoringSchedule tutoringSchedule : tutoringScheduleList){
+        for (TutoringSchedule tutoringSchedule : tutoringScheduleList) {
             String roomCode = UUID.randomUUID().toString();
             VideoRoom videoRoom = VideoRoom.builder()
                 .tutoringSchedule(tutoringSchedule)
