@@ -7,7 +7,7 @@ import userSessionAtom from '@/recoil/atoms/userSession';
 interface ClassTimerProps {
     progressTime: number;
     classState: ClassState;
-    changeClassState?: () => Promise<void>;
+    changeClassState: (state?: string) => Promise<void>;
 }
 
 const ClassTimer = ({ progressTime, classState, changeClassState }: ClassTimerProps) => {
@@ -64,7 +64,7 @@ const ClassTimer = ({ progressTime, classState, changeClassState }: ClassTimerPr
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
-            <Clock onClick={changeClassState}>
+            <Clock onClick={() => changeClassState()}>
                 {isHover ? (
                     <>
                         {hoverShow === 'progressTime' ? (

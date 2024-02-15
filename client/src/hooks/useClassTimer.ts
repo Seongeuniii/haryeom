@@ -25,12 +25,16 @@ const useClassTimer = ({ startClass, endClass }: IUseClassTimer) => {
     };
 
     const changeClassState = async (state?: string) => {
-        if (state === 'start') {
-            startTimer();
-            setClassState('수업중');
-        } else if (state === 'stop') {
-            stopTimer();
-            setClassState('수업종료');
+        console.log(state);
+        if (state) {
+            if (state === 'start') {
+                startTimer();
+                setClassState('수업중');
+            } else if (state === 'stop') {
+                stopTimer();
+                setClassState('수업종료');
+            }
+            return;
         }
 
         if (classState === '수업시작전') {
