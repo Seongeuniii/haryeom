@@ -49,7 +49,7 @@ const ModalBackground = styled.div<{ open: boolean }>`
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #f2f2f229;
+    background-color: rgb(224 224 224 / 49%);
 `;
 
 const ModalCloseButton = styled.button`
