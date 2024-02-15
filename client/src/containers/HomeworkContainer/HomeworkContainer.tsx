@@ -14,6 +14,7 @@ import { saveHomework, submitHomework } from '@/apis/homework/save-homework';
 import { useGetHomework } from '@/queries/useGetHomework';
 import { QueryClient } from 'react-query';
 import DrawingTools from '@/components/DrawingTools';
+import { useRouter } from 'next/router';
 
 interface HomeworkContainerProps {
     homeworkData: IHomework;
@@ -24,6 +25,8 @@ export interface IMyHomeworkDrawings {
 }
 
 const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContainerProps) => {
+    const router = useRouter();
+
     const { data: homeworkData, refetch } = useGetHomework(
         initialHomeworkData.homeworkId,
         initialHomeworkData
@@ -98,6 +101,7 @@ const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContai
             handleSubmit={async () => {
                 await saveHomework(homeworkData.homeworkId, myHomeworkDrawings);
                 await submitHomework(homeworkData.homeworkId);
+                router.push('/');
             }}
         >
             <StyledHomeworkContainer>
