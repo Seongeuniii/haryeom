@@ -47,11 +47,18 @@ const ClassSchedule = ({
         setDate(new Date());
     }, []);
 
+    const renderTotalSchedules = () => {
+        if (!tutoringSchedules) return;
+        setRenderedTutoringSchedules(tutoringSchedules);
+    };
+
     return (
         <StyledClassSchedule>
             <ClassScheduleHeader>
                 <Title>과외 일정</Title>
-                <TodayScheduleButton>오늘</TodayScheduleButton>
+                <TodayScheduleButton onClick={renderTotalSchedules}>
+                    이번 달 전체
+                </TodayScheduleButton>
             </ClassScheduleHeader>
             <MyCalendar
                 selectedDate={date}
@@ -118,7 +125,7 @@ const Title = styled.span`
     font-weight: 600;
 `;
 
-const TodayScheduleButton = styled.span`
+const TodayScheduleButton = styled.button`
     font-size: 0.8em;
     color: ${({ theme }) => theme.LIGHT_BLACK};
     text-decoration: underline;
