@@ -22,9 +22,28 @@ const ClassSchedule = ({
     CreateNewSchedule,
 }: ClassScheduleProps) => {
     const userSession = useRecoilValue(userSessionAtom);
-    if (!userSession) return null;
-
     const { date, setDate, yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
+
+    if (!userSession)
+        return (
+            <StyledClassSchedule>
+                <ClassScheduleHeader>
+                    <Title>과외 일정</Title>
+                </ClassScheduleHeader>
+                <MyCalendar
+                    selectedDate={date}
+                    handleClickDay={handleClickDay}
+                    handleYearMonthChange={handleYearMonthChange}
+                ></MyCalendar>
+                <ScheduleList>
+                    <NoSchedule>
+                        <span>과외 일정 없음</span>
+                    </NoSchedule>
+                </ScheduleList>
+                {CreateNewSchedule && <CreateNewSchedule />}
+            </StyledClassSchedule>
+        );
+
     const { data: tutoringSchedules, isLoading } = useGetTutoringSchedules(
         userSession.role,
         yearMonth,

@@ -35,6 +35,7 @@ import HomeworkProgressPercentage from '@/components/Homework/HomeworkProgressPe
 import TutoringVideoList from '@/components/TutoringVideoList';
 import { useGetTutoringVideoList } from '@/queries/useGetTutoringVideoList';
 import { useGetTutoringTextbooks } from '@/queries/useGetTutoringTextbooks';
+import LoginModal from '@/components/LoginModal';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -42,11 +43,11 @@ interface ScheduleContainerProps {
     homeworkList: IHomeworkList;
     progressPercentage: IProgressPercentage;
     tutoringTextbooks: ITutoringTextbook[];
+    openLoginModal: boolean;
 }
 
 const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const userSession = useRecoilValue(userSessionAtom);
-    if (!userSession) return;
 
     const {
         tutorings = [],
@@ -54,6 +55,7 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
         homeworkList: initHomeworkList,
         progressPercentage: initProgressPercentage,
         tutoringTextbooks: initTutoringTextbooks = [],
+        openLoginModal,
     } = pageProps;
 
     console.log(
@@ -90,97 +92,101 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const [listTab, setListTab] = useState<'homework' | 'textbook' | 'review'>('homework');
 
     return (
-        <HomeLayout>
-            <StyledScheduleContainer>
-                <ClassSchedule
-                    tutoringSchedules={tutoringSchedules}
-                    CreateNewSchedule={
-                        userSession.role === 'TEACHER' && tutorings
-                            ? () => CreateNewClass({ tutorings: tutorings as ITeacherTutorings })
-                            : undefined
-                    }
-                />
-                <SelectedTutoring>
-                    {userSession.role === 'TEACHER' ? (
-                        <Container>
-                            <ProfileContainer>
-                                <TutoringStudentProfile
-                                    seletedTutoring={seletedTutoring as ITeacherTutoring}
-                                    setSelectedTutoring={
-                                        setSelectedTutoring as Dispatch<
-                                            SetStateAction<ITeacherTutoring>
-                                        >
-                                    }
-                                    tutorings={tutorings as ITeacherTutorings}
-                                />
-                            </ProfileContainer>
-                            <ChartContainer>
-                                <HomeworkProgressPercentage
-                                    progressPercentage={progressPercentage}
-                                />
-                            </ChartContainer>
-                        </Container>
-                    ) : (
-                        <Container>
-                            <ProfileContainer>
-                                <TutoringTeacherProfile
-                                    seletedTutoring={seletedTutoring as IStudentTutoring}
-                                    setSelectedTutoring={
-                                        setSelectedTutoring as Dispatch<
-                                            SetStateAction<IStudentTutoring>
-                                        >
-                                    }
-                                    tutorings={tutorings as IStudentTutorings}
-                                />
-                            </ProfileContainer>
-                            <ChartContainer>
-                                <HomeworkProgressPercentage
-                                    progressPercentage={progressPercentage}
-                                />
-                            </ChartContainer>
-                        </Container>
-                    )}
-                    <ListSection>
-                        <ListHeader>
-                            <Title>
-                                <Tab
-                                    selected={listTab === 'homework'}
-                                    onClick={() => setListTab('homework')}
-                                >
-                                    숙제
-                                </Tab>
-                                <Tab
-                                    selected={listTab === 'textbook'}
-                                    onClick={() => setListTab('textbook')}
-                                >
-                                    학습자료
-                                </Tab>
-                                {userSession.role === 'STUDENT' && (
-                                    <Tab
-                                        selected={listTab === 'review'}
-                                        onClick={() => setListTab('review')}
-                                    >
-                                        복습
-                                    </Tab>
-                                )}
-                            </Title>
-                            {userSession.role === 'TEACHER' && seletedTutoring && (
-                                <CreateNewHomework
-                                    tutoringId={seletedTutoring.tutoringId}
-                                    tutoringTextbooks={tutoringTextbooks}
-                                    refetch={refetch}
-                                />
-                            )}
-                        </ListHeader>
-                        {listTab === 'homework' && <HomeworkList homeworkList={homeworkList} />}
-                        {listTab === 'textbook' && (
-                            <TextbookList textbookList={tutoringTextbooks} />
+        <>
+            {openLoginModal && <LoginModal />}
+            <HomeLayout>
+                <StyledScheduleContainer>
+                    <ClassSchedule
+                        tutoringSchedules={tutoringSchedules}
+                        CreateNewSchedule={
+                            userSession?.role === 'TEACHER' && tutorings
+                                ? () =>
+                                      CreateNewClass({ tutorings: tutorings as ITeacherTutorings })
+                                : undefined
+                        }
+                    />
+                    <SelectedTutoring>
+                        {userSession?.role === 'TEACHER' ? (
+                            <Container>
+                                <ProfileContainer>
+                                    <TutoringStudentProfile
+                                        seletedTutoring={seletedTutoring as ITeacherTutoring}
+                                        setSelectedTutoring={
+                                            setSelectedTutoring as Dispatch<
+                                                SetStateAction<ITeacherTutoring>
+                                            >
+                                        }
+                                        tutorings={tutorings as ITeacherTutorings}
+                                    />
+                                </ProfileContainer>
+                                <ChartContainer>
+                                    <HomeworkProgressPercentage
+                                        progressPercentage={progressPercentage}
+                                    />
+                                </ChartContainer>
+                            </Container>
+                        ) : (
+                            <Container>
+                                <ProfileContainer>
+                                    <TutoringTeacherProfile
+                                        seletedTutoring={seletedTutoring as IStudentTutoring}
+                                        setSelectedTutoring={
+                                            setSelectedTutoring as Dispatch<
+                                                SetStateAction<IStudentTutoring>
+                                            >
+                                        }
+                                        tutorings={tutorings as IStudentTutorings}
+                                    />
+                                </ProfileContainer>
+                                <ChartContainer>
+                                    <HomeworkProgressPercentage
+                                        progressPercentage={progressPercentage}
+                                    />
+                                </ChartContainer>
+                            </Container>
                         )}
-                        {listTab === 'review' && <TutoringVideoList videoList={videoList} />}
-                    </ListSection>
-                </SelectedTutoring>
-            </StyledScheduleContainer>
-        </HomeLayout>
+                        <ListSection>
+                            <ListHeader>
+                                <Title>
+                                    <Tab
+                                        selected={listTab === 'homework'}
+                                        onClick={() => setListTab('homework')}
+                                    >
+                                        숙제
+                                    </Tab>
+                                    <Tab
+                                        selected={listTab === 'textbook'}
+                                        onClick={() => setListTab('textbook')}
+                                    >
+                                        학습자료
+                                    </Tab>
+                                    {userSession?.role === 'STUDENT' && (
+                                        <Tab
+                                            selected={listTab === 'review'}
+                                            onClick={() => setListTab('review')}
+                                        >
+                                            복습
+                                        </Tab>
+                                    )}
+                                </Title>
+                                {userSession?.role === 'TEACHER' && seletedTutoring && (
+                                    <CreateNewHomework
+                                        tutoringId={seletedTutoring.tutoringId}
+                                        tutoringTextbooks={tutoringTextbooks}
+                                        refetch={refetch}
+                                    />
+                                )}
+                            </ListHeader>
+                            {listTab === 'homework' && <HomeworkList homeworkList={homeworkList} />}
+                            {listTab === 'textbook' && (
+                                <TextbookList textbookList={tutoringTextbooks} />
+                            )}
+                            {listTab === 'review' && <TutoringVideoList videoList={videoList} />}
+                        </ListSection>
+                    </SelectedTutoring>
+                </StyledScheduleContainer>
+            </HomeLayout>
+        </>
     );
 };
 

@@ -15,7 +15,7 @@ const Modal = ({ children, ...props }: ModalProps) => {
         <StyledModal open={open}>
             <ModalBackground open={open} onClick={closeModal} />
             <ModalWrapper>
-                <ModalCloseButton onClick={closeModal}>
+                <ModalCloseButton onClick={closeModal} style={{ width: '15px', height: '15px' }}>
                     <Close />
                 </ModalCloseButton>
                 {children}
@@ -49,7 +49,7 @@ const ModalBackground = styled.div<{ open: boolean }>`
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #e3e3e3b0;
+    background-color: #f2f2f229;
 `;
 
 const ModalCloseButton = styled.button`

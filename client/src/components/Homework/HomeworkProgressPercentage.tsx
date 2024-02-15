@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart, ArcElement } from 'chart.js';
 import theme from '@/theme';
+import { useRecoilValue } from 'recoil';
+import userSessionAtom from '@/recoil/atoms/userSession';
 Chart.register(ArcElement);
 
 interface HomeworkProgressPercentageProps {
@@ -9,6 +11,10 @@ interface HomeworkProgressPercentageProps {
 }
 
 const HomeworkProgressPercentage = ({ progressPercentage }: HomeworkProgressPercentageProps) => {
+    const userSession = useRecoilValue(userSessionAtom);
+
+    if (!userSession) return <ChartContainer />;
+
     // Chart.js 데이터 설정
     const chartData = {
         labels: ['Completed', 'Remaining'],
