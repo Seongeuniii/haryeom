@@ -3,11 +3,15 @@ package com.ioi.haryeom.video.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.ioi.haryeom.auth.exception.AuthorizationException;
+import com.ioi.haryeom.member.domain.Member;
+import com.ioi.haryeom.member.exception.MemberNotFoundException;
+import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.tutoring.domain.TutoringSchedule;
 import com.ioi.haryeom.tutoring.exception.TutoringScheduleNotFoundException;
 import com.ioi.haryeom.tutoring.repository.TutoringScheduleRepository;
 import com.ioi.haryeom.video.domain.Video;
-import com.ioi.haryeom.video.exception.VideoExistException;
+import com.ioi.haryeom.video.exception.DuplicateVideoException;
+import com.ioi.haryeom.video.exception.UnauthorizedTeacherAccessException;
 import com.ioi.haryeom.video.exception.VideoNotFoundException;
 import com.ioi.haryeom.video.repository.VideoRepository;
 import java.io.IOException;
@@ -27,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class VideoService {
 
+    private final MemberRepository memberRepository;
     private final VideoRepository videoRepository;
     private final TutoringScheduleRepository tutoringScheduleRepository;
 
@@ -40,25 +45,28 @@ public class VideoService {
     @Transactional
     public Long createVideo(Long tutoringScheduleId, Long memberId) {
         LocalTime startTime = LocalTime.now();
-        Optional<TutoringSchedule> optionalTutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId);
-        if (!optionalTutoringSchedule.isPresent()) {
-            throw new TutoringScheduleNotFoundException(tutoringScheduleId);
+
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
+
+        TutoringSchedule tutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId)
+            .orElseThrow(() -> new TutoringScheduleNotFoundException(tutoringScheduleId));
+
+        Member teacherMember = tutoringSchedule.getTutoring().getTeacher();
+        if (!teacherMember.equals(member)) {
+            throw new UnauthorizedTeacherAccessException(teacherMember.getId(), member.getId());
         }
-        TutoringSchedule tutoringSchedule = optionalTutoringSchedule.get();
-        if (tutoringSchedule.getTutoring().getTeacher().getId() != memberId) {
-            throw new AuthorizationException(memberId);
+
+        if (videoRepository.existsByTutoringSchedule(tutoringSchedule)) {
+            throw new DuplicateVideoException(tutoringScheduleId);
         }
-        Optional<Video> optionalVideo = videoRepository.findByTutoringScheduleId(tutoringScheduleId);
-        if (optionalVideo.isPresent()) {
-            throw new VideoExistException(tutoringScheduleId);
-        }
-        log.info("Before create video - tutoringScheduleId : {}, startTime: {}", tutoringScheduleId, startTime);
+
+        log.info("[CREATE VIDEO] tutoringScheduleId : {}, startTime: {}", tutoringScheduleId, startTime);
         Video video = Video.builder()
             .tutoringSchedule(tutoringSchedule)
             .startTime(startTime)
             .build();
         Video savedVideo = videoRepository.save(video);
-        log.info("Video saved - videoId : {}", savedVideo.getId());
+        log.info("[CREATE VIDEO] savedVideoId : {}", savedVideo.getId());
         return savedVideo.getId();
     }
 
