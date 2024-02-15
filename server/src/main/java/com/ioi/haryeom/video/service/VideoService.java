@@ -41,15 +41,15 @@ public class VideoService {
     public Long createVideo(Long tutoringScheduleId, Long memberId) {
         LocalTime startTime = LocalTime.now();
         Optional<TutoringSchedule> optionalTutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId);
-        if(!optionalTutoringSchedule.isPresent()){
+        if (!optionalTutoringSchedule.isPresent()) {
             throw new TutoringScheduleNotFoundException(tutoringScheduleId);
         }
         TutoringSchedule tutoringSchedule = optionalTutoringSchedule.get();
-        if(tutoringSchedule.getTutoring().getTeacher().getId()!=memberId){
+        if (tutoringSchedule.getTutoring().getTeacher().getId() != memberId) {
             throw new AuthorizationException(memberId);
         }
-        Optional<Video> optionalVideo = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId);
-        if(optionalVideo.isPresent()){
+        Optional<Video> optionalVideo = videoRepository.findByTutoringScheduleId(tutoringScheduleId);
+        if (optionalVideo.isPresent()) {
             throw new VideoExistException(tutoringScheduleId);
         }
         log.info("Before create video - tutoringScheduleId : {}, startTime: {}", tutoringScheduleId, startTime);
@@ -65,30 +65,32 @@ public class VideoService {
     @Transactional
     public void updateVideoEndTime(Long tutoringScheduleId, Long memberId) {
         Optional<TutoringSchedule> optionalTutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId);
-        if(!optionalTutoringSchedule.isPresent()){
+        if (!optionalTutoringSchedule.isPresent()) {
             throw new TutoringScheduleNotFoundException(tutoringScheduleId);
         }
         TutoringSchedule tutoringSchedule = optionalTutoringSchedule.get();
-        if(tutoringSchedule.getTutoring().getTeacher().getId()!=memberId){
+        if (tutoringSchedule.getTutoring().getTeacher().getId() != memberId) {
             throw new AuthorizationException(memberId);
         }
-        Optional<Video> video = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId);
+        Optional<Video> video = videoRepository.findByTutoringScheduleId(tutoringScheduleId);
         Video updateVideo = video.get();
         LocalTime endTime = LocalTime.now();
         updateVideo.updateVideoEndTime(endTime);
     }
+
     public String uploadVideo(MultipartFile file) throws IOException {
         String fileName = randomString();
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
         metadata.setContentType(file.getContentType());
-        amazonS3.putObject(bucket, "vod/"+ fileName+".webm", file.getInputStream(), metadata);
+        amazonS3.putObject(bucket, "vod/" + fileName + ".webm", file.getInputStream(), metadata);
         String videoUrl = cloudFrontUrl + "/vod/" + fileName + ".webm";
         return videoUrl;
     }
+
     @Transactional
     public void updateVideoUrl(Long tutoringScheduleId, String videoUrl) {
-        Optional<Video> videoOptional = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId);
+        Optional<Video> videoOptional = videoRepository.findByTutoringScheduleId(tutoringScheduleId);
         Video video = videoOptional.get(); //Todo: optional check
         video.updateVideoUrl(videoUrl);
     }
@@ -99,13 +101,13 @@ public class VideoService {
         videoRepository.deleteById(videoId);
     }
 
-    public Long videoUploadExceptionTest(Long tutoringScheduleId, Long memberId){
-        Optional<Video> videoOptional = videoRepository.findByTutoringSchedule_Id(tutoringScheduleId);
-        if(!videoOptional.isPresent()){
+    public Long videoUploadExceptionTest(Long tutoringScheduleId, Long memberId) {
+        Optional<Video> videoOptional = videoRepository.findByTutoringScheduleId(tutoringScheduleId);
+        if (!videoOptional.isPresent()) {
             throw new VideoNotFoundException(tutoringScheduleId); //Todo: VideoNotFoundException 수정
         }
         Video video = videoOptional.get();
-        if(video.getTutoringSchedule().getTutoring().getTeacher().getId()!=memberId){
+        if (video.getTutoringSchedule().getTutoring().getTeacher().getId() != memberId) {
             throw new AuthorizationException(memberId);
         }
         return video.getId();
@@ -117,7 +119,7 @@ public class VideoService {
         return localTime;
     }
 
-    private String randomString(){
+    private String randomString() {
         return RandomStringUtils.randomAlphanumeric(12);
     }
 }
