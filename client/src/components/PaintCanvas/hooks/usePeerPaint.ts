@@ -139,7 +139,12 @@ const usePeerPaint = ({ canvasRef, backgroundImage, penStyle }: IUsePeerPaint) =
         contextRef.current.closePath();
     };
 
-    return { handlePointerDown, handlePointerMove, handlePointerUp, erase };
+    const resetCanvas = () => {
+        if (!canvasRef.current || !contextRef.current) return;
+        contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    };
+
+    return { handlePointerDown, handlePointerMove, handlePointerUp, erase, resetCanvas };
 };
 
 export default usePeerPaint;

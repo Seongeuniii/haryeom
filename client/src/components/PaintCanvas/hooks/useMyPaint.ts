@@ -239,12 +239,18 @@ const useMyPaint = ({
         return blob;
     };
 
+    const resetCanvas = () => {
+        if (!canvasRef.current || !contextRef.current) return;
+        contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    };
+
     return {
         handlePointerDown,
         handlePointerMove,
         handlePointerUp,
         erase,
         getCanvasDrawingImage,
+        resetCanvas,
         penStyle,
     };
 };

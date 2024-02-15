@@ -30,14 +30,13 @@ const PdfThumbnail = ({
         e.stopPropagation(); // movePage()
     };
 
+    const handleThumbnailClick = () => {
+        movePage(pageNumber);
+        scrollToCenter();
+    };
+
     return (
-        <StyledPdfThumbnail
-            ref={item}
-            onClick={() => {
-                movePage(pageNumber);
-                scrollToCenter();
-            }}
-        >
+        <StyledPdfThumbnail ref={item} onClick={handleThumbnailClick}>
             <PageNumber>{startPageNumber + pageNumber - 1}</PageNumber>
             <PageCanvasWrapper $isSelected={pageNumber === selectedPageNumber}>
                 {children}

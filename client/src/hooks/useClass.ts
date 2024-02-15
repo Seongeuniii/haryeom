@@ -20,16 +20,16 @@ export interface IPenStyle {
     lineWidth: number;
 }
 
-interface IUseClass {
-    tutoringScheduleId: number;
-    dataChannels: RTCDataChannel[];
-    selectedPageNumber: number;
-}
-
 interface IClassAction {
     content: ContentsType;
     pageNumber: number;
     penStyle: IPenStyle;
+}
+
+interface IUseClass {
+    tutoringScheduleId: number;
+    dataChannels: RTCDataChannel[];
+    selectedPageNumber: number;
 }
 
 const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUseClass) => {
@@ -77,6 +77,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
     /**
      * 화이트보드
      */
+    // TODO : canvasRef를 여러개 할 필요가,,, background만 바꿔주면 됨
     const myWhiteboardCanvasRef = useRef<HTMLCanvasElement>(null);
     const [myWhiteboardCanvasBackgroundImage, setMyWhiteboardCanvasBackgroundImage] = useState<
         Blob | string
@@ -141,6 +142,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         handlePointerMove: handlePeerPointerMove,
         handlePointerUp: handlePeerPointerUp,
         erase: erasePeerPaint,
+        resetCanvas: resetPeerCanvas,
     } = usePeerPaint({
         canvasRef:
             myAction.content === '화이트보드'
@@ -163,6 +165,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         handlePointerUp,
         erase,
         getCanvasDrawingImage,
+        resetCanvas: resetMyCanvas,
         penStyle,
     } = useMyPaint({
         canvasRef:
@@ -177,12 +180,18 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                 : myAction.content === '학습자료'
                   ? myTextbookCanvasBackgroundImage
                   : homeworkDrawings
-                    ? homeworkDrawings[myAction.pageNumber]
+                    ? homeworkDrawings[myAction.pageNumber] // backgroundImage 변경하고 그걸 여따가 넣자
                     : '',
         penStyle: myAction.penStyle,
         dataChannels,
         erasePeerPaint,
     });
+
+    const resetCanvas = () => {
+        resetPeerCanvas();
+        resetMyCanvas();
+    };
+
     /**
      * 따라가기
      */
@@ -215,6 +224,21 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
             });
             setState(drawingBlobData);
         }
+    };
+
+    const saveHomeworkDrawing = () => {
+        console.log(myHomeworkCanvasRef.current);
+        if (!myHomeworkCanvasRef.current) return;
+        const imageSize = {
+            width: myHomeworkCanvasRef.current.width,
+            height: myHomeworkCanvasRef.current.height,
+        };
+        setHomeworkDrawings((prev) => {
+            const newbackgroundImage = { ...prev };
+            newbackgroundImage[selectedPageNumber] = getCanvasDrawingImage(imageSize) as Blob;
+            return newbackgroundImage;
+        });
+        console.log(homeworkDrawings);
     };
 
     const changeContents = (value: ContentsType) => {
@@ -419,6 +443,10 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
     }, [dataChannels, myAction.content]);
 
     useEffect(() => {
+        sendMyAction('pageNumber');
+    }, [dataChannels, myAction.pageNumber]);
+
+    useEffect(() => {
         sendMyAction('penStyle');
     }, [dataChannels, myAction.penStyle]);
 
@@ -448,6 +476,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                     offset,
                     penStyle,
                     content,
+                    pageNumber,
                     textbook: loadTextbook,
                     homework: loadHomework,
                     classState,
@@ -481,6 +510,11 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                     setPeerAction((prev) => ({ ...prev, content }));
                 }
 
+                if (pageNumber) {
+                    console.log('peer가 pageNumber를 변경했어요: ', pageNumber);
+                    setPeerAction((prev) => ({ ...prev, pageNumber }));
+                }
+
                 if (loadTextbook) {
                     console.log('peer가 textbook을 변경했어요: ', loadTextbook);
                     setTextbook(loadTextbook);
@@ -512,7 +546,10 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         myWhiteboardCanvasBackgroundImage,
         myTextbookCanvasRef,
         myTextbookCanvasBackgroundImage,
+        myHomeworkCanvasRef,
+        myHomeworkCanvasBackgroundImage,
         setMyTextbookCanvasBackgroundImage,
+        setMyHomeworkCanvasBackgroundImage,
         handlePointerDown,
         handlePointerMove,
         handlePointerUp,
@@ -523,7 +560,10 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         peerWhiteboardCanvasBackgroundImage,
         peerTextbookCanvasRef,
         peerTextbookCanvasBackgroundImage,
+        peerHomeworkCanvasRef,
+        peerHomeworkCanvasBackgroundImage,
         setPeerTextbookCanvasBackgroundImage,
+        setPeerHomeworkCanvasBackgroundImage,
         handlePeerPointerDown,
         handlePeerPointerMove,
         handlePeerPointerUp,
@@ -539,6 +579,8 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         progressTime,
         classState,
         changeClassState,
+        saveHomeworkDrawing,
+        resetCanvas,
     };
 };
 

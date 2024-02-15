@@ -17,6 +17,7 @@ import ClassContentsType from '@/components/ClassContentsType';
 import LoadClassContent from '@/components/LoadClassContent';
 import Timestamp from '@/components/Timestamp';
 import { gerRole } from '@/components/MatchingStage/GetResponse';
+import Display from '@/components/icons/Display';
 
 const ClassContainer = () => {
     const userSession = useRecoilValue(userSessionAtom);
@@ -56,7 +57,9 @@ const ClassContainer = () => {
         myWhiteboardCanvasBackgroundImage,
         myTextbookCanvasRef,
         myTextbookCanvasBackgroundImage,
+        myHomeworkCanvasRef,
         setMyTextbookCanvasBackgroundImage,
+        setMyHomeworkCanvasBackgroundImage,
         handlePointerDown,
         handlePointerMove,
         handlePointerUp,
@@ -66,6 +69,8 @@ const ClassContainer = () => {
         peerWhiteboardCanvasBackgroundImage,
         peerTextbookCanvasRef,
         peerTextbookCanvasBackgroundImage,
+        peerHomeworkCanvasRef,
+        peerHomeworkCanvasBackgroundImage,
         setPeerTextbookCanvasBackgroundImage,
         handlePeerPointerDown,
         handlePeerPointerMove,
@@ -80,6 +85,8 @@ const ClassContainer = () => {
         progressTime,
         classState,
         changeClassState,
+        saveHomeworkDrawing,
+        resetCanvas,
     } = useClass({
         tutoringScheduleId: parseInt(router.query.tutoringScheduleId as string),
         dataChannels,
@@ -122,6 +129,7 @@ const ClassContainer = () => {
                 </LeftSection>
                 <TeachingTools>
                     <HelperBar>
+                        <button onClick={resetCanvas}>reset</button>
                         <ClassContentsType
                             changeContents={changeContents}
                             contentType={myAction.content}
@@ -157,7 +165,16 @@ const ClassContainer = () => {
                                     : homework?.textbook.textbookName
                             }
                         />
-                        <DrawingTools penStyle={penStyle} changePenStyle={changePenStyle} />
+                        <Section>
+                            <FollowingMode onClick={() => movePage(peerAction.pageNumber)}>
+                                <Display />
+                            </FollowingMode>
+                            <DrawingTools
+                                penStyle={penStyle}
+                                changePenStyle={changePenStyle}
+                                resetCanvas={resetCanvas}
+                            />
+                        </Section>
                     </HelperBar>
                     <Board>
                         <PeerWatchingSameScreen isWatching={watchingSameScreen}>
@@ -196,10 +213,13 @@ const ClassContainer = () => {
                                     totalPagesOfPdfFile={totalPagesOfPdfFile}
                                     pdfPageCurrentSize={pdfPageCurrentSize}
                                     movePage={(selectedPageNumber) => {
-                                        cleanUpCanvas(
-                                            myTextbookCanvasRef,
-                                            setMyTextbookCanvasBackgroundImage
-                                        );
+                                        myAction.content === '학습자료' &&
+                                            cleanUpCanvas(
+                                                myTextbookCanvasRef,
+                                                setMyTextbookCanvasBackgroundImage
+                                            );
+                                        myAction.content === '숙제' && saveHomeworkDrawing();
+                                        saveHomeworkDrawing();
                                         movePage(selectedPageNumber);
                                     }}
                                     onDocumentLoadSuccess={onDocumentLoadSuccess}
@@ -216,7 +236,11 @@ const ClassContainer = () => {
                                 >
                                     <DrawingLayer>
                                         <PaintCanvas
-                                            canvasRef={peerTextbookCanvasRef}
+                                            canvasRef={
+                                                myAction.content === '학습자료'
+                                                    ? peerTextbookCanvasRef
+                                                    : peerHomeworkCanvasRef
+                                            }
                                             handlePointerDown={handlePeerPointerDown}
                                             handlePointerMove={handlePeerPointerMove}
                                             handlePointerUp={handlePeerPointerUp}
@@ -224,7 +248,11 @@ const ClassContainer = () => {
                                     </DrawingLayer>
                                     <DrawingLayer>
                                         <PaintCanvas
-                                            canvasRef={myTextbookCanvasRef}
+                                            canvasRef={
+                                                myAction.content === '학습자료'
+                                                    ? myTextbookCanvasRef
+                                                    : myHomeworkCanvasRef
+                                            }
                                             handlePointerDown={handlePointerDown}
                                             handlePointerMove={handlePointerMove}
                                             handlePointerUp={handlePointerUp}
@@ -247,6 +275,21 @@ const StyledClassContainer = styled.main`
     align-items: center;
 `;
 
+const FollowingMode = styled.button`
+    width: 40px;
+    height: 40px;
+    padding-top: 3px;
+    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    border-radius: 100%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    background-color: ${({ theme }) => theme.PRIMARY};
+
+    svg {
+        width: 25px;
+        height: 25px;
+    }
+`;
+
 const LeftSection = styled.div`
     height: 92%;
     display: flex;
@@ -259,6 +302,12 @@ const LeftSection = styled.div`
             display: none;
         }
     }
+`;
+
+const Section = styled.div`
+    display: flex;
+    height: 100%;
+    gap: 15px;
 `;
 
 const ClassInfo = styled.div`
