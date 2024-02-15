@@ -171,7 +171,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         canvasRef:
             myAction.content === '화이트보드'
                 ? myWhiteboardCanvasRef
-                : myTextbookCanvasRef
+                : myAction.content === '학습자료'
                   ? myTextbookCanvasRef
                   : myHomeworkCanvasRef,
         backgroundImage:
