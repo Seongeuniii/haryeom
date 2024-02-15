@@ -12,4 +12,6 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
     Optional<Video> findByTutoringScheduleId(Long tutoringScheduleId);
 
     boolean existsByTutoringSchedule(TutoringSchedule tutoringSchedule);
+
+    Optional<Video> findByTutoringSchedule(TutoringSchedule tutoringSchedule);
 }
