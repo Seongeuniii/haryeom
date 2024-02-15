@@ -61,7 +61,6 @@ const PdfViewer = ({
     const getPdfPageWrapperSize = () => {
         if (!pdfPageWrapperRef.current) return { width: undefined, height: undefined };
         const { clientWidth, clientHeight } = pdfPageWrapperRef.current;
-        console.log(clientHeight, clientWidth);
         return { width: clientWidth, height: clientHeight };
     };
 

@@ -106,8 +106,6 @@ const useMyPaint = ({
             const { clientWidth, clientHeight } = canvasRef.current;
             const imageAspectRatio = imageObj.width / imageObj.height;
 
-            console.log(clientWidth, clientHeight, imageObj.width, imageObj.height);
-
             let newWidth, newHeight;
             if (clientWidth / clientHeight > imageAspectRatio) {
                 newWidth = clientHeight * imageAspectRatio;
@@ -148,6 +146,8 @@ const useMyPaint = ({
         setIsDown(true);
         if (!contextRef.current) return;
         const { offsetX, offsetY } = nativeEvent;
+        console.log(offsetX, offsetY);
+        console.log(canvasRef.current?.width, canvasRef.current?.height);
         contextRef.current.beginPath();
         contextRef.current.moveTo(offsetX, offsetY);
 
@@ -156,7 +156,12 @@ const useMyPaint = ({
                 channel.send(
                     JSON.stringify({
                         action: 'down',
-                        offset: { x: offsetX, y: offsetY },
+                        offset: {
+                            x: offsetX,
+                            y: offsetY,
+                            canvasWidth: canvasRef.current?.width,
+                            canvasHeight: canvasRef.current?.height,
+                        },
                     })
                 );
             } catch (e) {
@@ -184,7 +189,12 @@ const useMyPaint = ({
                     channel.send(
                         JSON.stringify({
                             action: 'move',
-                            offset: { x: offsetX, y: offsetY },
+                            offset: {
+                                x: offsetX,
+                                y: offsetY,
+                                canvasWidth: canvasRef.current?.width,
+                                canvasHeight: canvasRef.current?.height,
+                            },
                         })
                     );
                 }

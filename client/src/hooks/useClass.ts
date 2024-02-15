@@ -487,6 +487,40 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         if (classState === '수업종료') sendClassState('stop');
     }, [dataChannels, classState]);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const calculateOffsetRelativeToCanvasSize = (offsetFromPeer: any) => {
+        const {
+            x: offsetXFromPeer,
+            y: offsetYFromPeer,
+            canvasWidth,
+            canvasHeight,
+        } = offsetFromPeer;
+
+        const xFromPeer = offsetXFromPeer;
+        const yFromPeer = offsetYFromPeer;
+
+        const myCanvasWidth =
+            myAction.content === '화이트보드'
+                ? peerWhiteboardCanvasRef.current?.width
+                : myAction.content === '학습자료'
+                  ? peerTextbookCanvasRef.current?.width
+                  : peerHomeworkCanvasRef.current?.width;
+        const myCanvasHeight =
+            myAction.content === '화이트보드'
+                ? peerWhiteboardCanvasRef.current?.height
+                : myAction.content === '학습자료'
+                  ? peerTextbookCanvasRef.current?.height
+                  : peerHomeworkCanvasRef.current?.height;
+
+        const widthRatio = myCanvasWidth ? myCanvasWidth / canvasWidth : 1;
+        const heightRatio = myCanvasHeight ? myCanvasHeight / canvasHeight : 1;
+
+        const x = xFromPeer * widthRatio;
+        const y = yFromPeer * heightRatio;
+
+        return { x, y };
+    };
+
     useEffect(() => {
         dataChannels.map((channel: RTCDataChannel) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -508,12 +542,14 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                     if (myAction.content !== peerAction.content) return;
                     switch (action) {
                         case 'down':
-                            handlePeerPointerDown(offset);
+                            handlePeerPointerDown(calculateOffsetRelativeToCanvasSize(offset));
                             break;
                         case 'move':
-                            requestAnimationFrame(() => handlePeerPointerMove(offset));
+                            requestAnimationFrame(() =>
+                                handlePeerPointerMove(calculateOffsetRelativeToCanvasSize(offset))
+                            );
                             if (!peerAction.penStyle.isPen) {
-                                erase(offset);
+                                erase(calculateOffsetRelativeToCanvasSize(offset));
                             }
                             break;
                         case 'up':
