@@ -6,6 +6,7 @@ import Eraser from '@/components/icons/Eraser';
 import Dropdown from '../commons/Dropdown';
 import useDropdown from '@/hooks/useDropdown';
 import { IPenStyle } from '@/hooks/useClass';
+import Reset from '@/components/icons/Reset';
 
 interface DrawingToolsProps {
     penStyle: {
@@ -14,14 +15,25 @@ interface DrawingToolsProps {
         lineWidth: number;
     };
     changePenStyle: (value: IPenStyle) => void;
+    resetCanvas: () => void;
 }
 
-const DrawingTools = ({ penStyle, changePenStyle }: DrawingToolsProps) => {
+const DrawingTools = ({ penStyle, changePenStyle, resetCanvas }: DrawingToolsProps) => {
     const { open, openDropdown, closeDropdown } = useDropdown();
 
     return (
         <StyledDrawingTools>
             <SelectToolType>
+                <ResetButton>
+                    <Button
+                        content={<Reset />}
+                        onClick={resetCanvas}
+                        width="30px"
+                        height="30px"
+                        padding="6px"
+                        $borderRadius="100%"
+                    />
+                </ResetButton>
                 <Button
                     content={<Pen />}
                     onClick={(e) => {
@@ -152,6 +164,14 @@ const ColorButtons = styled.div`
     border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
     border-radius: 0.5em;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+`;
+
+const ResetButton = styled.div`
+    border-radius: 100%;
+
+    &:hover {
+        background-color: ${({ theme }) => theme.BORDER_LIGHT};
+    }
 `;
 
 export default DrawingTools;
