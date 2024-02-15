@@ -32,7 +32,7 @@ interface CreateNewHomeworkProps {
 const CreateNewHomework = ({ tutoringId, tutoringTextbooks, refetch }: CreateNewHomeworkProps) => {
     const { open, openModal, closeModal } = useModal();
 
-    if (!tutoringId) {
+    if (!tutoringId || !tutoringTextbooks || tutoringTextbooks.length == 0) {
         return (
             <>
                 <Modal open={open} closeModal={closeModal}>
