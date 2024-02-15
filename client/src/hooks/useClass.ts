@@ -553,7 +553,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                             }
                             break;
                         case 'up':
-                            handlePeerPointerUp();
+                            requestAnimationFrame(() => handlePeerPointerUp());
                             break;
                     }
                 }
@@ -590,7 +590,8 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                 }
 
                 if (canvasReset) {
-                    resetCanvas();
+                    resetPeerCanvas();
+                    resetMyCanvas();
                 }
             };
         });
