@@ -34,6 +34,7 @@ import TextbookList from '@/components/TextbookList';
 import HomeworkProgressPercentage from '@/components/Homework/HomeworkProgressPercentage';
 import TutoringVideoList from '@/components/TutoringVideoList';
 import { useGetTutoringVideoList } from '@/queries/useGetTutoringVideoList';
+import { useGetTutoringTextbooks } from '@/queries/useGetTutoringTextbooks';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -67,7 +68,6 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const [seletedTutoring, setSelectedTutoring] = useState<
         ITeacherTutoring | IStudentTutoring | undefined
     >(tutorings[0]);
-    const [textbooks, setTextbooks] = useState<ITutoringTextbook[]>(initTutoringTextbooks);
 
     const { data, refetch } = seletedTutoring
         ? useGetHomeworkList(seletedTutoring.tutoringId, {
@@ -83,21 +83,9 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
         ? useGetTutoringVideoList(seletedTutoring.tutoringId)
         : { data: undefined };
 
-    // 교재 목록을 비동기적으로 불러오는 로직
-    useEffect(() => {
-        const fetchTextbooks = async () => {
-            if (seletedTutoring && seletedTutoring.tutoringId) {
-                try {
-                    const fetchedTextbooks = await getTextbooks(seletedTutoring.tutoringId);
-                    setTextbooks(fetchedTextbooks || []);
-                } catch (error) {
-                    console.error('Error fetching textbooks:', error);
-                }
-            }
-        };
-
-        fetchTextbooks();
-    }, [seletedTutoring?.tutoringId]);
+    const { data: tutoringTextbooks } = seletedTutoring
+        ? useGetTutoringTextbooks(seletedTutoring.tutoringId, initTutoringTextbooks)
+        : { data: undefined };
 
     const [listTab, setListTab] = useState<'homework' | 'textbook' | 'review'>('homework');
 
@@ -176,16 +164,18 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                                     </Tab>
                                 )}
                             </Title>
-                            {userSession.role === 'TEACHER' && tutorings && (
+                            {userSession.role === 'TEACHER' && seletedTutoring && (
                                 <CreateNewHomework
-                                    tutoringId={seletedTutoring?.tutoringId}
-                                    tutoringTextbooks={textbooks}
+                                    tutoringId={seletedTutoring.tutoringId}
+                                    tutoringTextbooks={tutoringTextbooks}
                                     refetch={refetch}
                                 />
                             )}
                         </ListHeader>
                         {listTab === 'homework' && <HomeworkList homeworkList={homeworkList} />}
-                        {listTab === 'textbook' && <TextbookList textbookList={textbooks} />}
+                        {listTab === 'textbook' && (
+                            <TextbookList textbookList={tutoringTextbooks} />
+                        )}
                         {listTab === 'review' && <TutoringVideoList videoList={videoList} />}
                     </ListSection>
                 </SelectedTutoring>
