@@ -114,13 +114,24 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                 />
                 <SelectedTutoring>
                     {userSession.role === 'TEACHER' ? (
-                        <TutoringStudentProfile
-                            seletedTutoring={seletedTutoring as ITeacherTutoring}
-                            setSelectedTutoring={
-                                setSelectedTutoring as Dispatch<SetStateAction<ITeacherTutoring>>
-                            }
-                            tutorings={tutorings as ITeacherTutorings}
-                        />
+                        <Container>
+                            <ProfileContainer>
+                                <TutoringStudentProfile
+                                    seletedTutoring={seletedTutoring as ITeacherTutoring}
+                                    setSelectedTutoring={
+                                        setSelectedTutoring as Dispatch<
+                                            SetStateAction<ITeacherTutoring>
+                                        >
+                                    }
+                                    tutorings={tutorings as ITeacherTutorings}
+                                />
+                            </ProfileContainer>
+                            <ChartContainer>
+                                <HomeworkProgressPercentage
+                                    progressPercentage={progressPercentage}
+                                />
+                            </ChartContainer>
+                        </Container>
                     ) : (
                         <Container>
                             <ProfileContainer>
