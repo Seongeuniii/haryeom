@@ -180,7 +180,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                 : myAction.content === '학습자료'
                   ? myTextbookCanvasBackgroundImage
                   : homeworkDrawings
-                    ? homeworkDrawings[myAction.pageNumber] // backgroundImage 변경하고 그걸 여따가 넣자
+                    ? homeworkDrawings[myAction.pageNumber]
                     : '',
         penStyle: myAction.penStyle,
         dataChannels,
