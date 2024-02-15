@@ -2,7 +2,6 @@ package com.ioi.haryeom.video.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.ioi.haryeom.auth.exception.AuthorizationException;
 import com.ioi.haryeom.aws.exception.S3UploadException;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
@@ -13,7 +12,7 @@ import com.ioi.haryeom.tutoring.repository.TutoringScheduleRepository;
 import com.ioi.haryeom.video.domain.Video;
 import com.ioi.haryeom.video.exception.DuplicateVideoException;
 import com.ioi.haryeom.video.exception.UnauthorizedTeacherAccessException;
-import com.ioi.haryeom.video.exception.VideoNotFoundException;
+import com.ioi.haryeom.video.exception.VideoTutoringNotFoundException;
 import com.ioi.haryeom.video.repository.VideoRepository;
 import java.io.IOException;
 import java.time.LocalTime;
@@ -74,7 +73,8 @@ public class VideoService {
 
         validateTutoringTeacher(memberId, tutoringSchedule);
 
-        Video video = videoRepository.findByTutoringSchedule(tutoringSchedule).orElseThrow(() -> new VideoNotFoundException(tutoringScheduleId));
+        Video video = videoRepository.findByTutoringSchedule(tutoringSchedule)
+            .orElseThrow(() -> new VideoTutoringNotFoundException(tutoringScheduleId));
         LocalTime endTime = LocalTime.now();
         video.updateVideoEndTime(endTime);
     }
@@ -85,7 +85,8 @@ public class VideoService {
         TutoringSchedule tutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId)
             .orElseThrow(() -> new TutoringScheduleNotFoundException(tutoringScheduleId));
 
-        Video video = videoRepository.findByTutoringSchedule(tutoringSchedule).orElseThrow(() -> new VideoNotFoundException(tutoringScheduleId));
+        Video video = videoRepository.findByTutoringSchedule(tutoringSchedule)
+            .orElseThrow(() -> new VideoTutoringNotFoundException(tutoringScheduleId));
 
         validateTutoringTeacher(memberId, tutoringSchedule);
 
@@ -118,18 +119,6 @@ public class VideoService {
     @Transactional
     public void deleteVideo(Long videoId) {
         videoRepository.deleteById(videoId);
-    }
-
-    public Long videoUploadExceptionTest(Long tutoringScheduleId, Long memberId) {
-        Optional<Video> videoOptional = videoRepository.findByTutoringScheduleId(tutoringScheduleId);
-        if (!videoOptional.isPresent()) {
-            throw new VideoNotFoundException(tutoringScheduleId); //Todo: VideoNotFoundException 수정
-        }
-        Video video = videoOptional.get();
-        if (video.getTutoringSchedule().getTutoring().getTeacher().getId() != memberId) {
-            throw new AuthorizationException(memberId);
-        }
-        return video.getId();
     }
 
     private LocalTime parseLocalTime(String stringDateTime) {
