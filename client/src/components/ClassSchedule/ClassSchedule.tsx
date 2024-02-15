@@ -10,6 +10,7 @@ import TeacherScheduleCard from './TeacherScheduleCard';
 import StudentScheduleCard from './StudentScheduleCard';
 import { getFormattedYearMonthDay, getYearMonth } from '@/utils/time';
 import { useGetTutoringSchedules } from '@/queries/useGetTutoringSchedules';
+import moment from 'moment';
 
 interface ClassScheduleProps {
     tutoringSchedules: ITutoringSchedules | undefined;
@@ -46,10 +47,6 @@ const ClassSchedule = ({
         setDate(new Date());
     }, []);
 
-    useEffect(() => {
-        console.log(renderedTutoringSchedules);
-    }, [renderedTutoringSchedules]);
-
     return (
         <StyledClassSchedule>
             <ClassScheduleHeader>
@@ -60,6 +57,7 @@ const ClassSchedule = ({
                 selectedDate={date}
                 handleClickDay={handleClickDay}
                 handleYearMonthChange={handleYearMonthChange}
+                dotDates={tutoringSchedules?.flatMap((schedule) => schedule.scheduleDate)}
             ></MyCalendar>
             <ScheduleList>
                 {renderedTutoringSchedules.length > 0 ? (

@@ -1,3 +1,4 @@
+import moment from 'moment';
 import Calendar, { OnArgs } from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import styled from 'styled-components';
@@ -6,16 +7,36 @@ interface MyCalendarProps {
     selectedDate: Date | undefined;
     handleClickDay: (date: Date) => void;
     handleYearMonthChange: (onArgs: OnArgs) => void;
+    dotDates?: string[];
 }
 
-const MyCalendar = ({ selectedDate, handleClickDay, handleYearMonthChange }: MyCalendarProps) => {
+const MyCalendar = ({
+    selectedDate,
+    handleClickDay,
+    handleYearMonthChange,
+    dotDates,
+}: MyCalendarProps) => {
+    const tileContent = ({ date, view }: { date: Date; view: string }) => {
+        if (!dotDates) return;
+        if (view === 'month') {
+            const dateString = moment(date).format('YYYY-MM-DD');
+            if (dotDates.includes(dateString)) {
+                return <StyledDot className="dot"></StyledDot>;
+            }
+        }
+        return null;
+    };
+
     return (
         <CalendarContainer>
             <Calendar
-                locale="en-US"
+                locale="ko-KR"
+                calendarType="US"
+                formatDay={(locale, date) => moment(date).format('D')}
                 value={selectedDate}
                 onClickDay={handleClickDay}
                 onActiveStartDateChange={handleYearMonthChange}
+                tileContent={dotDates && tileContent}
             ></Calendar>
         </CalendarContainer>
     );
@@ -38,13 +59,7 @@ const CalendarContainer = styled.div`
         }
     }
 
-    .react-calendar abbr[title='Sunday'],
-    .react-calendar abbr[title='Monday'],
-    .react-calendar abbr[title='Tuesday'],
-    .react-calendar abbr[title='Wednesday'],
-    .react-calendar abbr[title='Thursday'],
-    .react-calendar abbr[title='Friday'],
-    .react-calendar abbr[title='Saturday'] {
+    .react-calendar__month-view__weekdays abbr {
         text-decoration: none;
         border-bottom: none;
         &:after {
@@ -73,6 +88,21 @@ const CalendarContainer = styled.div`
             background: ${({ theme }) => theme.PRIMARY} !important;
         }
     }
+
+    .react-calendar__tile {
+        position: relative;
+    }
+`;
+
+const StyledDot = styled.div`
+    position: absolute;
+    background-color: ${({ theme }) => theme.PRIMARY};
+    border-radius: 50%;
+    width: 5px;
+    height: 5px;
+    top: 75%;
+    left: 50%;
+    transform: translateX(-50%);
 `;
 
 export default MyCalendar;
