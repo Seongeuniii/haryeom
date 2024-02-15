@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import { useRecoilValue } from 'recoil';
@@ -10,7 +10,6 @@ import useClass from '@/hooks/useClass';
 import usePdf from '@/hooks/usePdf';
 import ClassLayout from '@/components/layouts/ClassLayout';
 import PdfViewer from '@/components/PdfViewer';
-import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
 import PaintCanvas from '@/components/PaintCanvas';
 import DrawingTools from '@/components/DrawingTools';
 import ClassTimer from '@/components/ClassTimer';
@@ -51,6 +50,7 @@ const ClassContainer = () => {
         peerAction,
         textbook,
         homework,
+        homeworkDrawings,
 
         myWhiteboardCanvasRef,
         myWhiteboardCanvasBackgroundImage,
@@ -83,11 +83,8 @@ const ClassContainer = () => {
     } = useClass({
         tutoringScheduleId: parseInt(router.query.tutoringScheduleId as string),
         dataChannels,
+        selectedPageNumber,
     });
-
-    useEffect(() => {
-        console.log(pdfPageOriginalSize);
-    }, [pdfPageOriginalSize]);
 
     // TOOD: 리팩토링
     useEffect(() => {
@@ -210,7 +207,7 @@ const ClassContainer = () => {
                                     updatePdfPageCurrentSize={updatePdfPageCurrentSize}
                                     ZoomInPdfPageCurrentSize={ZoomInPdfPageCurrentSize}
                                     ZoomOutPdfPageCurrentSize={ZoomOutPdfPageCurrentSize}
-                                    myHomeworkDrawings={[]}
+                                    myHomeworkDrawings={homeworkDrawings || {}}
                                     startPageNumber={
                                         myAction.content === '학습자료'
                                             ? 0
