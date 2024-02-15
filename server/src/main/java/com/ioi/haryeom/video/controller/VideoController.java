@@ -2,7 +2,6 @@ package com.ioi.haryeom.video.controller;
 
 import com.ioi.haryeom.common.util.AuthMemberId;
 import com.ioi.haryeom.video.service.VideoService;
-import java.io.IOException;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -30,11 +29,8 @@ public class VideoController {
     }
 
     @PostMapping(value = "/upload/{tutoringScheduleId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Void> uploadVideo(@PathVariable Long tutoringScheduleId,
-        @RequestPart MultipartFile file, @AuthMemberId Long memberId) throws IOException {
-        Long videoId = videoService.videoUploadExceptionTest(tutoringScheduleId, memberId);
-        String videoUrl = videoService.uploadVideo(file);
-        videoService.updateVideoUrl(tutoringScheduleId, videoUrl);
+    public ResponseEntity<Void> uploadVideo(@PathVariable Long tutoringScheduleId, @RequestPart MultipartFile file, @AuthMemberId Long memberId) {
+        Long videoId = videoService.uploadVideo(tutoringScheduleId, memberId, file);
         return ResponseEntity.created(URI.create("/lesson/video/" + videoId)).build();
     }
 
