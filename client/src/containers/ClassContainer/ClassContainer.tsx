@@ -129,7 +129,6 @@ const ClassContainer = () => {
                 </LeftSection>
                 <TeachingTools>
                     <HelperBar>
-                        <button onClick={resetCanvas}>reset</button>
                         <ClassContentsType
                             changeContents={changeContents}
                             contentType={myAction.content}
