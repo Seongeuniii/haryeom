@@ -97,10 +97,12 @@ const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContai
             handleSave={async () => {
                 await saveHomework(homeworkData.homeworkId, myHomeworkDrawings);
                 refetch();
+                alert('숙제가 임시 저장되었어요. 제출하여 완료해주세요:)');
             }}
             handleSubmit={async () => {
                 await saveHomework(homeworkData.homeworkId, myHomeworkDrawings);
                 await submitHomework(homeworkData.homeworkId);
+                alert('숙제가 제출되었어요. 홈 화면으로 이동합니다:)');
                 router.push('/');
             }}
         >
