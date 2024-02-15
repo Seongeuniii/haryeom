@@ -82,14 +82,18 @@ public class SecurityConfig {
             // 화상 과외방 접근
             .antMatchers(GET, "/api/room/{scheduleId}").hasAnyRole("STUDENT", "TEACHER")
             // 수업
-            .antMatchers(POST, "/api/lesson/video").hasRole("TEACHER")
+            .antMatchers(POST, "/api/lesson/video").hasAnyRole("STUDENT", "TEACHER")
             .antMatchers(PATCH, "/api/lesson/video/{videoId}/end").hasRole("TEACHER")
             .antMatchers(POST, "/api/lesson/video/{videoId}").hasRole("TEACHER")
             // 타임스탬프
-            .antMatchers(GET, "/api/lesson/timestamp/{tutoringScheduleId}").hasAnyRole("STUDENT", "TEACHER")
-            .antMatchers(POST, "/api/lesson/timestamp/{tutoringScheduleId}").hasAnyRole("STUDENT", "TEACHER")
-            .antMatchers(PUT, "/api/lesson/timestamp/{timestampId}").hasAnyRole("STUDENT", "TEACHER")
-            .antMatchers(DELETE, "/api/lesson/timestamp/{timestampId}").hasAnyRole("STUDENT", "TEACHER")
+            .antMatchers(GET, "/api/lesson/timestamp/{tutoringScheduleId}")
+            .hasAnyRole("STUDENT", "TEACHER")
+            .antMatchers(POST, "/api/lesson/timestamp/{tutoringScheduleId}")
+            .hasAnyRole("STUDENT", "TEACHER")
+            .antMatchers(PUT, "/api/lesson/timestamp/{timestampId}")
+            .hasAnyRole("STUDENT", "TEACHER")
+            .antMatchers(DELETE, "/api/lesson/timestamp/{timestampId}")
+            .hasAnyRole("STUDENT", "TEACHER")
 
             // 하재률
             // 학습자료
