@@ -7,10 +7,11 @@ import { IHomework, ITextbook } from '@/apis/homework/homework';
 import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import { getHomework } from '@/apis/homework/get-homework';
-import { ICanvasSize, saveDrawing } from '@/utils/canvas';
+import { saveDrawing } from '@/utils/canvas';
 import { saveTutoringvideo } from '@/apis/tutoring/save-tutoring-video';
 import useClassTimer from './useClassTimer';
 import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
+import { IMyHomeworkDrawings } from '@/containers/HomeworkContainer/HomeworkContainer';
 
 export type ContentsType = '화이트보드' | '학습자료' | '숙제';
 export interface IPenStyle {
@@ -22,20 +23,21 @@ export interface IPenStyle {
 interface IUseClass {
     tutoringScheduleId: number;
     dataChannels: RTCDataChannel[];
+    selectedPageNumber: number;
 }
 
 interface IClassAction {
     content: ContentsType;
-    pageNumber: number | undefined;
+    pageNumber: number;
     penStyle: IPenStyle;
 }
 
-const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
+const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUseClass) => {
     const userSession = useRecoilValue(userSessionAtom);
 
     const [myAction, setMyAction] = useState<IClassAction>({
         content: '화이트보드',
-        pageNumber: undefined,
+        pageNumber: 1,
         penStyle: {
             isPen: true,
             strokeStyle: 'black',
@@ -45,7 +47,7 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
 
     const [peerAction, setPeerAction] = useState<IClassAction>({
         content: '화이트보드',
-        pageNumber: undefined,
+        pageNumber: 1,
         penStyle: {
             isPen: true,
             strokeStyle: 'black',
@@ -53,8 +55,24 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
         },
     });
 
+    useEffect(() => {
+        setMyAction((prev) => ({ ...prev, pageNumber: selectedPageNumber }));
+    }, [selectedPageNumber, setMyAction]);
+
     const [textbook, setTextbook] = useState<ITextbook>();
     const [homework, setHomework] = useState<IHomework>();
+
+    const [homeworkDrawings, setHomeworkDrawings] = useState<IMyHomeworkDrawings>();
+
+    useEffect(() => {
+        if (!homework) return;
+        setHomeworkDrawings(
+            homework.drawings.reduce((acc, { page, homeworkDrawingUrl }) => {
+                acc[page] = homeworkDrawingUrl;
+                return acc;
+            }, {} as IMyHomeworkDrawings)
+        );
+    }, [homework, setHomeworkDrawings]);
 
     /**
      * 화이트보드
@@ -158,7 +176,9 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
                 ? myWhiteboardCanvasBackgroundImage
                 : myAction.content === '학습자료'
                   ? myTextbookCanvasBackgroundImage
-                  : myHomeworkCanvasBackgroundImage,
+                  : homeworkDrawings
+                    ? homeworkDrawings[myAction.pageNumber]
+                    : '',
         penStyle: myAction.penStyle,
         dataChannels,
         erasePeerPaint,
@@ -486,6 +506,7 @@ const useClass = ({ tutoringScheduleId, dataChannels }: IUseClass) => {
 
         textbook,
         homework,
+        homeworkDrawings,
 
         myWhiteboardCanvasRef,
         myWhiteboardCanvasBackgroundImage,
