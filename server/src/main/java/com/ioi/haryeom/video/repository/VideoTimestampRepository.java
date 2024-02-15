@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VideoTimestampRepository extends JpaRepository<VideoTimestamp, Long> {
-    List<VideoTimestamp> findByVideo_Id(Long videoId);
+
+    List<VideoTimestamp> findByVideoId(Long videoId);
 }
