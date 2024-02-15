@@ -46,15 +46,10 @@ public class VideoService {
     public Long createVideo(Long tutoringScheduleId, Long memberId) {
         LocalTime startTime = LocalTime.now();
 
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
-
         TutoringSchedule tutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId)
             .orElseThrow(() -> new TutoringScheduleNotFoundException(tutoringScheduleId));
 
-        Member teacherMember = tutoringSchedule.getTutoring().getTeacher();
-        if (!teacherMember.equals(member)) {
-            throw new UnauthorizedTeacherAccessException(teacherMember.getId(), member.getId());
-        }
+        validateTutoringTeacher(memberId, tutoringSchedule);
 
         if (videoRepository.existsByTutoringSchedule(tutoringSchedule)) {
             throw new DuplicateVideoException(tutoringScheduleId);
@@ -72,18 +67,15 @@ public class VideoService {
 
     @Transactional
     public void updateVideoEndTime(Long tutoringScheduleId, Long memberId) {
-        Optional<TutoringSchedule> optionalTutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId);
-        if (!optionalTutoringSchedule.isPresent()) {
-            throw new TutoringScheduleNotFoundException(tutoringScheduleId);
-        }
-        TutoringSchedule tutoringSchedule = optionalTutoringSchedule.get();
-        if (tutoringSchedule.getTutoring().getTeacher().getId() != memberId) {
-            throw new AuthorizationException(memberId);
-        }
-        Optional<Video> video = videoRepository.findByTutoringScheduleId(tutoringScheduleId);
-        Video updateVideo = video.get();
+
+        TutoringSchedule tutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId)
+            .orElseThrow(() -> new TutoringScheduleNotFoundException(tutoringScheduleId));
+
+        validateTutoringTeacher(memberId, tutoringSchedule);
+
+        Video video = videoRepository.findByTutoringSchedule(tutoringSchedule).orElseThrow(VideoNotFoundException::new);
         LocalTime endTime = LocalTime.now();
-        updateVideo.updateVideoEndTime(endTime);
+        video.updateVideoEndTime(endTime);
     }
 
     public String uploadVideo(MultipartFile file) throws IOException {
@@ -129,5 +121,13 @@ public class VideoService {
 
     private String randomString() {
         return RandomStringUtils.randomAlphanumeric(12);
+    }
+
+    private void validateTutoringTeacher(Long memberId, TutoringSchedule tutoringSchedule) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
+        Member teacherMember = tutoringSchedule.getTutoring().getTeacher();
+        if (!teacherMember.equals(member)) {
+            throw new UnauthorizedTeacherAccessException(teacherMember.getId(), member.getId());
+        }
     }
 }
