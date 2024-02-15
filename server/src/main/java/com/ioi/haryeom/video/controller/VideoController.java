@@ -25,8 +25,8 @@ public class VideoController {
     //수업 시작 클릭
     @PostMapping("/{tutoringScheduleId}")
     public ResponseEntity<Void> createVideo(@PathVariable Long tutoringScheduleId, @AuthMemberId Long memberId) {
-        Long id = videoService.createVideo(tutoringScheduleId, memberId);
-        return ResponseEntity.created(URI.create("/lesson/" + id)).build();
+        Long videoId = videoService.createVideo(tutoringScheduleId, memberId);
+        return ResponseEntity.created(URI.create("/lesson/" + videoId)).build();
     }
 
     @PostMapping(value = "/upload/{tutoringScheduleId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -35,7 +35,7 @@ public class VideoController {
         Long videoId = videoService.videoUploadExceptionTest(tutoringScheduleId, memberId);
         String videoUrl = videoService.uploadVideo(file);
         videoService.updateVideoUrl(tutoringScheduleId, videoUrl);
-        return ResponseEntity.created(URI.create("/lesson/video/"+videoId)).build();
+        return ResponseEntity.created(URI.create("/lesson/video/" + videoId)).build();
     }
 
     @PutMapping("/{tutoringScheduleId}")
