@@ -3,6 +3,7 @@ package com.ioi.haryeom.video.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.ioi.haryeom.auth.exception.AuthorizationException;
+import com.ioi.haryeom.aws.exception.S3UploadException;
 import com.ioi.haryeom.member.domain.Member;
 import com.ioi.haryeom.member.exception.MemberNotFoundException;
 import com.ioi.haryeom.member.repository.MemberRepository;
@@ -73,19 +74,37 @@ public class VideoService {
 
         validateTutoringTeacher(memberId, tutoringSchedule);
 
-        Video video = videoRepository.findByTutoringSchedule(tutoringSchedule).orElseThrow(VideoNotFoundException::new);
+        Video video = videoRepository.findByTutoringSchedule(tutoringSchedule).orElseThrow(() -> new VideoNotFoundException(tutoringScheduleId));
         LocalTime endTime = LocalTime.now();
         video.updateVideoEndTime(endTime);
     }
 
-    public String uploadVideo(MultipartFile file) throws IOException {
+    @Transactional
+    public Long uploadVideo(Long tutoringScheduleId, Long memberId, MultipartFile file) {
+
+        TutoringSchedule tutoringSchedule = tutoringScheduleRepository.findById(tutoringScheduleId)
+            .orElseThrow(() -> new TutoringScheduleNotFoundException(tutoringScheduleId));
+
+        Video video = videoRepository.findByTutoringSchedule(tutoringSchedule).orElseThrow(() -> new VideoNotFoundException(tutoringScheduleId));
+
+        validateTutoringTeacher(memberId, tutoringSchedule);
+
         String fileName = randomString();
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
         metadata.setContentType(file.getContentType());
-        amazonS3.putObject(bucket, "vod/" + fileName + ".webm", file.getInputStream(), metadata);
+
+        try {
+            amazonS3.putObject(bucket, "vod/" + fileName + ".webm", file.getInputStream(), metadata);
+        } catch (IOException e) {
+            throw new S3UploadException();
+        }
+
         String videoUrl = cloudFrontUrl + "/vod/" + fileName + ".webm";
-        return videoUrl;
+
+        video.updateVideoUrl(videoUrl);
+
+        return video.getId();
     }
 
     @Transactional
