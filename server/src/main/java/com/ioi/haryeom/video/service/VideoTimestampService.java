@@ -45,7 +45,7 @@ public class VideoTimestampService {
             throw new AuthorizationException(member.getId());
         }
 
-        List<VideoTimestamp> timestampList = videoTimestampRepository.findByVideoId(video.getId());
+        List<VideoTimestamp> timestampList = videoTimestampRepository.findAllByVideo(video);
         List<VideoTimestampResponse> videoTimestampResponseList = new ArrayList<>();
         for (VideoTimestamp timestamp : timestampList) {
             videoTimestampResponseList.add(new VideoTimestampResponse(timestamp));

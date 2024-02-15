@@ -6,7 +6,10 @@ import com.ioi.haryeom.common.dto.SubjectResponse;
 import com.ioi.haryeom.homework.dto.HomeworkResponse;
 import com.ioi.haryeom.homework.repository.HomeworkRepository;
 import com.ioi.haryeom.member.domain.Member;
+import com.ioi.haryeom.member.exception.MemberNotFoundException;
+import com.ioi.haryeom.member.repository.MemberRepository;
 import com.ioi.haryeom.textbook.dto.TextbookResponse;
+import com.ioi.haryeom.tutoring.domain.Tutoring;
 import com.ioi.haryeom.tutoring.domain.TutoringSchedule;
 import com.ioi.haryeom.tutoring.repository.TutoringRepository;
 import com.ioi.haryeom.video.domain.Video;
@@ -15,14 +18,11 @@ import com.ioi.haryeom.video.dto.HomeworkReviewListResponse;
 import com.ioi.haryeom.video.dto.VideoDetailResponse;
 import com.ioi.haryeom.video.dto.VideoResponse;
 import com.ioi.haryeom.video.dto.VideoReviewListResponse;
-import com.ioi.haryeom.video.dto.VideoTimestampResponse;
 import com.ioi.haryeom.video.exception.VideoNotFoundException;
 import com.ioi.haryeom.video.repository.ReviewCustomRepositoryImpl;
 import com.ioi.haryeom.video.repository.VideoRepository;
 import com.ioi.haryeom.video.repository.VideoTimestampRepository;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ReviewService {
 
+    private final MemberRepository memberRepository;
     private final HomeworkRepository homeworkRepository;
     private final VideoRepository videoRepository;
     private final ReviewCustomRepositoryImpl reviewCustomRepository;
@@ -69,23 +70,25 @@ public class ReviewService {
 
     // 비디오 상세조회
     public VideoDetailResponse getVideoDetail(Long memberId, Long videoId) {
-        Optional<Video> videoOptional = videoRepository.findById(videoId);
-        if (!videoOptional.isPresent()) {
-            throw new VideoNotFoundException(videoId);
-        }
-        Video video = videoRepository.findById(videoId).get();
-        Long studentId = video.getTutoringSchedule().getTutoring().getStudent().getId();
-        if (memberId != studentId) {
-            throw new AuthorizationException(memberId);
-        }
+
+        Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException(videoId));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
+
         TutoringSchedule tutoringSchedule = video.getTutoringSchedule();
-        Subject subject = tutoringSchedule.getTutoring().getSubject();
-        Member teacher = tutoringSchedule.getTutoring().getTeacher();
-        List<VideoTimestamp> videoTimestampList = videoTimestampRepository.findByVideoId(videoId);
-        List<VideoTimestampResponse> videoTimestampResponseList = new ArrayList<>();
-        for (VideoTimestamp timestamp : videoTimestampList) {
-            videoTimestampResponseList.add(new VideoTimestampResponse(timestamp));
+        Tutoring tutoring = tutoringSchedule.getTutoring();
+        if (!tutoring.isMemberPartOfTutoring(member)) {
+            throw new AuthorizationException(member.getId());
         }
-        return new VideoDetailResponse(video, tutoringSchedule, teacher, videoTimestampList, subject);
+
+        Subject subject = tutoring.getSubject();
+        Member teacherMember = tutoring.getTeacher();
+
+        List<VideoTimestamp> videoTimestampList = videoTimestampRepository.findAllByVideo(video);
+
+//        List<VideoTimestampResponse> videoTimestampResponses = new ArrayList<>();
+//        for (VideoTimestamp timestamp : videoTimestampList) {
+//            videoTimestampResponses.add(new VideoTimestampResponse(timestamp));
+//        }
+        return new VideoDetailResponse(video, tutoringSchedule, teacherMember, videoTimestampList, subject);
     }
 }
