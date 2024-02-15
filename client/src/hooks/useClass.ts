@@ -171,7 +171,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         canvasRef:
             myAction.content === '화이트보드'
                 ? myWhiteboardCanvasRef
-                : myTextbookCanvasRef
+                : myAction.content === '학습자료'
                   ? myTextbookCanvasRef
                   : myHomeworkCanvasRef,
         backgroundImage:
@@ -190,6 +190,18 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
     const resetCanvas = () => {
         resetPeerCanvas();
         resetMyCanvas();
+
+        dataChannels?.map((channel: RTCDataChannel) => {
+            try {
+                channel.send(
+                    JSON.stringify({
+                        canvasReset: 'reset',
+                    })
+                );
+            } catch (e) {
+                console.log('전송 실패');
+            }
+        });
     };
 
     /**
@@ -198,12 +210,15 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
     const [watchingSameScreen, setWatchingSameScreen] = useState<boolean>(true);
 
     useEffect(() => {
-        if (myAction.content === peerAction.content) {
+        if (
+            myAction.content === peerAction.content &&
+            myAction.pageNumber === peerAction.pageNumber
+        ) {
             setWatchingSameScreen(true);
         } else {
             setWatchingSameScreen(false);
         }
-    }, [myAction.content, peerAction.content]);
+    }, [myAction.content, peerAction.content, myAction.pageNumber, peerAction.pageNumber]);
 
     /**
      * 수업 컨텐츠
@@ -227,7 +242,6 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
     };
 
     const saveHomeworkDrawing = () => {
-        console.log(myHomeworkCanvasRef.current);
         if (!myHomeworkCanvasRef.current) return;
         const imageSize = {
             width: myHomeworkCanvasRef.current.width,
@@ -310,6 +324,13 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
 
         // 2. 컨텐츠 변경
         setMyAction((prev) => ({ ...prev, content: value }));
+    };
+    const followPeer = () => {
+        setMyAction((prev) => ({
+            ...prev,
+            content: peerAction.content,
+            pageNumber: peerAction.pageNumber,
+        }));
     };
     const changePenStyle = (value: IPenStyle) => {
         setMyAction((prev) => ({ ...prev, penStyle: value }));
@@ -480,6 +501,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                     textbook: loadTextbook,
                     homework: loadHomework,
                     classState,
+                    canvasReset,
                 } = JSON.parse(e.data);
 
                 if (action) {
@@ -530,6 +552,10 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                     if (classState === 'start') changeClassState('start');
                     if (classState === 'stop') changeClassState('stop');
                 }
+
+                if (canvasReset) {
+                    resetCanvas();
+                }
             };
         });
     }, [dataChannels, peerAction, textbook, homework, changeClassState]);
@@ -570,6 +596,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
 
         watchingSameScreen,
         cleanUpCanvas,
+        followPeer,
         changeContents,
         changePenStyle,
         loadTextbook,

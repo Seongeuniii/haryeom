@@ -39,6 +39,7 @@ const HomeworkList = ({ homeworkList, handleClickHomeworkCard }: HomeworkListPro
                                 <Link
                                     href={`homework/${homework.homeworkId}`}
                                     key={`homework_${index}`}
+                                    target="_blank"
                                 >
                                     <HomeworkCard>
                                         <StateWrapper>

@@ -78,6 +78,7 @@ const ClassContainer = () => {
 
         watchingSameScreen,
         cleanUpCanvas,
+        followPeer,
         changeContents,
         changePenStyle,
         loadTextbook,
@@ -165,7 +166,13 @@ const ClassContainer = () => {
                             }
                         />
                         <Section>
-                            <FollowingMode onClick={() => movePage(peerAction.pageNumber)}>
+                            <FollowingMode
+                                onClick={() => {
+                                    followPeer();
+                                    movePage(peerAction.pageNumber);
+                                }}
+                                isWatching={watchingSameScreen}
+                            >
                                 <Display />
                             </FollowingMode>
                             <DrawingTools
@@ -274,14 +281,14 @@ const StyledClassContainer = styled.main`
     align-items: center;
 `;
 
-const FollowingMode = styled.button`
+const FollowingMode = styled.button<{ isWatching: boolean }>`
     width: 40px;
     height: 40px;
     padding-top: 3px;
     border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
     border-radius: 100%;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    background-color: ${({ theme }) => theme.PRIMARY};
+    background-color: ${({ theme, isWatching }) => (isWatching ? theme.PRIMARY : '#ff4e4e')};
 
     svg {
         width: 25px;

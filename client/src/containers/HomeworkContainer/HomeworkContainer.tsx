@@ -13,6 +13,8 @@ import { IPenStyle } from '@/hooks/useClass';
 import { saveHomework, submitHomework } from '@/apis/homework/save-homework';
 import { useGetHomework } from '@/queries/useGetHomework';
 import { QueryClient } from 'react-query';
+import DrawingTools from '@/components/DrawingTools';
+import { useRouter } from 'next/router';
 
 interface HomeworkContainerProps {
     homeworkData: IHomework;
@@ -23,6 +25,8 @@ export interface IMyHomeworkDrawings {
 }
 
 const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContainerProps) => {
+    const router = useRouter();
+
     const { data: homeworkData, refetch } = useGetHomework(
         initialHomeworkData.homeworkId,
         initialHomeworkData
@@ -71,12 +75,21 @@ const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContai
         lineWidth: 3,
     });
 
-    const { handlePointerDown, handlePointerMove, handlePointerUp, getCanvasDrawingImage } =
-        useMyPaint({
-            canvasRef: homeworkCanvasRef,
-            backgroundImage: myHomeworkDrawings[selectedPageNumber],
-            penStyle,
-        });
+    const changePenStyle = (value: IPenStyle) => {
+        setPenStyle((prev) => ({ ...prev, ...value }));
+    };
+
+    const {
+        handlePointerDown,
+        handlePointerMove,
+        handlePointerUp,
+        getCanvasDrawingImage,
+        resetCanvas,
+    } = useMyPaint({
+        canvasRef: homeworkCanvasRef,
+        backgroundImage: myHomeworkDrawings[selectedPageNumber],
+        penStyle,
+    });
 
     return (
         <HomeworkLayout
@@ -84,14 +97,24 @@ const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContai
             handleSave={async () => {
                 await saveHomework(homeworkData.homeworkId, myHomeworkDrawings);
                 refetch();
+                alert('숙제가 임시 저장되었어요. 제출하여 완료해주세요:)');
             }}
             handleSubmit={async () => {
                 await saveHomework(homeworkData.homeworkId, myHomeworkDrawings);
                 await submitHomework(homeworkData.homeworkId);
+                alert('숙제가 제출되었어요. 홈 화면으로 이동합니다:)');
+                router.push('/');
             }}
         >
             <StyledHomeworkContainer>
                 <Board>
+                    <DrawingToolWrapper>
+                        <DrawingTools
+                            penStyle={penStyle}
+                            changePenStyle={changePenStyle}
+                            resetCanvas={resetCanvas}
+                        />
+                    </DrawingToolWrapper>
                     <PdfViewer
                         pdfFile={homeworkData.textbook.textbookUrl}
                         selectedPageNumber={selectedPageNumber}
@@ -157,6 +180,7 @@ const StyledHomeworkContainer = styled.div`
 const Board = styled.div`
     position: relative;
     width: 100%;
+    margin-top: 1em;
     overflow: auto;
     display: flex;
 `;
@@ -167,6 +191,21 @@ const DrawingLayer = styled.div`
     height: 0;
     width: 100%;
     height: 100%;
+`;
+
+const DrawingToolWrapper = styled.div`
+    position: absolute;
+    width: 95%;
+    height: 40px;
+    top: 10px;
+    right: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    margin-bottom: 15px;
+    display: flex;
+    gap: 10px;
+    z-index: 10;
 `;
 
 export default HomeworkContainer;
