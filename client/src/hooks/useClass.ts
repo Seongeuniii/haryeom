@@ -190,6 +190,18 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
     const resetCanvas = () => {
         resetPeerCanvas();
         resetMyCanvas();
+
+        dataChannels?.map((channel: RTCDataChannel) => {
+            try {
+                channel.send(
+                    JSON.stringify({
+                        canvasReset: 'reset',
+                    })
+                );
+            } catch (e) {
+                console.log('전송 실패');
+            }
+        });
     };
 
     /**
@@ -489,6 +501,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                     textbook: loadTextbook,
                     homework: loadHomework,
                     classState,
+                    canvasReset,
                 } = JSON.parse(e.data);
 
                 if (action) {
@@ -538,6 +551,10 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                     console.log('peer가 classState를 변경했어요: ', classState);
                     if (classState === 'start') changeClassState('start');
                     if (classState === 'stop') changeClassState('stop');
+                }
+
+                if (canvasReset) {
+                    resetCanvas();
                 }
             };
         });
