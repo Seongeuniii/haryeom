@@ -7,28 +7,6 @@ import { getToken } from '@/apis/user/get-token';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import Modal from '@/components/commons/Modal';
 
-const KakaoLoginButton = () => {
-    return (
-        <StyledKakaoLoginButton
-            href={`https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_REST_API_KEY}&redirect_uri=${process.env.NEXT_PUBLIC_REDIRECT_URI}&response_type=code&scope=profile_nickname,profile_image,account_email`}
-        >
-            <img src="/images/kakao.png" alt="kakao login" />
-        </StyledKakaoLoginButton>
-    );
-};
-
-const StyledKakaoLoginButton = styled.a`
-    width: 39%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 1em 0 0 1em;
-
-    img {
-        width: 100%;
-    }
-`;
-
 const LoginContainer = () => {
     const userSession = useRecoilValue(userSessionAtom);
     const router = useRouter();
@@ -44,12 +22,13 @@ const LoginContainer = () => {
         <Modal open={true} closeModal={() => {}}>
             <StyledLoginModal>
                 <SpeechBubble>하렴!</SpeechBubble>
-                <LoginModalHeader>어디서나 편리하게 과외를!</LoginModalHeader>
-                <KakaoLoginButton />
-                {/*<ServiceImg />*/}
-                {/*<Link href="/logindemo">2월 8일 테스트를 위한 계정입니다.</Link>*/}
-                {/*<Link href="/login">로그인 하러가기</Link>*/}
-                {/*<Link href="/find">선생님 둘러보기</Link>*/}
+                <HaryeomHeader>어디서든 편리하게 과외를</HaryeomHeader>
+                <HaryeomTitle>하렴</HaryeomTitle>
+                <StyledKakaoLoginButton
+                    href={`https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_REST_API_KEY}&redirect_uri=${process.env.NEXT_PUBLIC_REDIRECT_URI}&response_type=code&scope=profile_nickname,profile_image,account_email`}
+                >
+                    <KakaoLoginImg src={'/images/kakao.png'} />
+                </StyledKakaoLoginButton>
             </StyledLoginModal>
         </Modal>
     );
@@ -73,43 +52,138 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 const StyledLoginModal = styled.div`
+    position: relative;
     background-color: white;
-    width: 55vw;
-    height: 82.5vh;
+    width: 43.5vw;
+    max-width: 688px;
+    height: calc(43vw * 0.73);
+    max-height: 500px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     background-image: url('/images/loginbackground.png');
     background-size: cover;
+    background-position: center;
+    margin: auto;
 
-    a {
-        padding: 10px 20px;
-        color: white;
-        border-radius: 20px;
-        text-decoration: none;
-        font-weight: bold;
-        transition: background-color 0.3s;
+    @media (max-width: 768px) {
+        width: 60vw;
+        min-width: 300px;
+        height: calc(59vw * 0.73);
     }
 `;
+
 const SpeechBubble = styled.div`
-    font-size: 28px;
-    font-weight: bolder;
-    padding: 0 0 0 0;
-    width: 30%;
-    margin: 1.28em 0 0 5.1em;
-    line-height: 1.2em;
-    color: #ffffff;
+    position: absolute;
+    top: 8.7%;
+    left: 20.48%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 1.3em;
+
+    @media (max-width: 1024px) {
+        font-size: 0.9em;
+    }
+
+    @media (max-width: 768px) {
+        font-size: 0.8em;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 0.7em;
+    }
 `;
 
-const LoginModalHeader = styled.div`
-    font-size: 68px;
-    font-weight: bolder;
-    margin: 1.4em 0 0 0.7em;
-    width: 30%;
-    line-height: 1.2em;
+const HaryeomHeader = styled.div`
+    position: absolute;
+    top: 40%;
+    left: 20%;
+    transform: translate(-50%, -50%);
+    color: black;
+    font-size: 2.5em;
+    font-weight: bold;
+    max-width: 3.7em;
     text-align: center;
+    line-height: 1.2em;
+
+    @media (max-width: 1245px) {
+        font-size: 2em;
+        line-height: 1em;
+    }
+
+    @media (max-width: 1024px) {
+        font-size: 2em;
+        line-height: 1em;
+    }
+
+    @media (max-width: 820px) {
+        font-size: 1.7em;
+        line-height: 1em;
+    }
+
+    @media (max-width: 768px) {
+        font-size: 2em;
+        line-height: 1em;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 1.9em;
+        line-height: 1em;
+    }
+`;
+
+const HaryeomTitle = styled.div`
+    position: absolute;
+    top: 65%;
+    left: 19%;
+    transform: translate(-50%, -50%);
+    font-size: 4em;
+    font-weight: bold;
+    max-width: 3.7em;
+    text-align: center;
+    color: #57c08d;
+
+    @media (max-width: 1024px) {
+        font-size: 2em;
+    }
+
+    @media (max-width: 768px) {
+        font-size: 2em;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 1.9em;
+    }
+`;
+
+const StyledKakaoLoginButton = styled.a`
+    position: absolute;
+    bottom: 13%;
+    left: 21%;
+    transform: translateX(-50%);
+    width: 70%;
+    max-width: 233px;
+
+    @media (max-width: 1245px) {
+        width: 35%;
+    }
+
+    @media (max-width: 1024px) {
+        width: 35%;
+    }
+
+    @media (max-width: 768px) {
+        width: 37%;
+    }
+
+    @media (max-width: 480px) {
+        width: 40%;
+    }
+`;
+
+const KakaoLoginImg = styled.img`
+    width: 100%;
 `;
 
 export default LoginContainer;
