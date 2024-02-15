@@ -380,7 +380,6 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         stopRecording();
         startClass;
         await endTutoring(tutoringScheduleId); // api
-        alert('수업이 종료되었어요.');
         return true;
     };
 

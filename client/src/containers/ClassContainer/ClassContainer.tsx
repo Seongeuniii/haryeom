@@ -94,6 +94,13 @@ const ClassContainer = () => {
         selectedPageNumber,
     });
 
+    useEffect(() => {
+        if (classState === '수업종료') {
+            alert('수업이 종료되었어요:) 홈 화면으로 이동합니다.');
+            router.push('/');
+        }
+    }, [classState]);
+
     // TOOD: 리팩토링
     useEffect(() => {
         const handleRouteChange = () => {
