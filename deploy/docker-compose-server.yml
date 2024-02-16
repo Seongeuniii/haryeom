@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: ../server
+      dockerfile: Dockerfile
+    image: demise1426/haryeom-be
+    ports:
+      - "8080:8080"
+    container_name: haryeom-be
