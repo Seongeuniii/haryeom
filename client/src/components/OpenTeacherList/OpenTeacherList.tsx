@@ -11,7 +11,7 @@ import chatSessionAtom from '@/recoil/atoms/chat';
 import { createChatRoom } from '@/apis/matching/create-chat-room';
 
 interface OpenTeacherListProps {
-    openTeacherList: IOpenTeacher[];
+    openTeacherList: IOpenTeacher[] | undefined;
 }
 
 const OpenTeacherList = ({ openTeacherList }: OpenTeacherListProps) => {

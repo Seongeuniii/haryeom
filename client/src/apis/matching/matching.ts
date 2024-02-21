@@ -22,3 +22,12 @@ export interface IOpenTeacherDetail {
     subjects: ISubject[];
     introduce: string;
 }
+
+export interface IFindTeacherFilterers {
+    [key: string]: string[] | number;
+    subjectIds: string[];
+    colleges: string[];
+    minCareer: number;
+    gender: string[];
+    maxSalary: number;
+}

@@ -5,15 +5,16 @@ import HomeLayout from '@/components/layouts/HomeLayout';
 import FilterOpenTeacherList from '@/components/FilterOpenTeacherList/FilterOpenTeacherList';
 import OpenTeacherList from '@/components/OpenTeacherList';
 import { getOpenTeacherList } from '@/apis/matching/get-open-teacher-list';
-import { IOpenTeacher } from '@/apis/matching/matching';
-import { IFilterers, useGetOpenTeacherList } from '@/queries/useGetOpenTeacherList';
+import { IFindTeacherFilterers, IOpenTeacher } from '@/apis/matching/matching';
+import { useGetOpenTeacherList } from '@/queries/useGetOpenTeacherList';
+import Spinner from '@/components/icons/Spinner';
 
 interface FindTeacherContainerProps {
     openTeacherList: IOpenTeacher[];
 }
 
-const FindTeacherContainer = ({ openTeacherList: initialData }: FindTeacherContainerProps) => {
-    const [filterers, setFilterers] = useState<IFilterers>({
+const FindTeacherContainer = ({ openTeacherList: _openTeacherList }: FindTeacherContainerProps) => {
+    const [filterers, setFilterers] = useState<IFindTeacherFilterers>({
         subjectIds: [],
         colleges: [],
         minCareer: 0,
@@ -21,7 +22,10 @@ const FindTeacherContainer = ({ openTeacherList: initialData }: FindTeacherConta
         maxSalary: 0,
     });
 
-    const { data: openTeacherList, isLoading } = useGetOpenTeacherList(filterers, initialData);
+    const { data: openTeacherList, isFetching } = useGetOpenTeacherList(
+        filterers,
+        _openTeacherList
+    );
 
     return (
         <HomeLayout>
@@ -31,7 +35,8 @@ const FindTeacherContainer = ({ openTeacherList: initialData }: FindTeacherConta
                     <SubTitle>원하는 선생님을 찾아 과외를 신청해보세요.</SubTitle>
                 </FindTeacherContainerHeader>
                 <FilterOpenTeacherList filterers={filterers} setFilterers={setFilterers} />
-                {openTeacherList && <OpenTeacherList openTeacherList={openTeacherList} />}
+                {isFetching && <Spinner />}
+                <OpenTeacherList openTeacherList={openTeacherList} />
             </StyledFindTeacherContainer>
         </HomeLayout>
     );
@@ -40,11 +45,7 @@ const FindTeacherContainer = ({ openTeacherList: initialData }: FindTeacherConta
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const openTeacherList = await getOpenTeacherList();
 
-    return {
-        props: {
-            openTeacherList: openTeacherList || null,
-        },
-    };
+    return { props: { openTeacherList } };
 };
 
 const StyledFindTeacherContainer = styled.div`

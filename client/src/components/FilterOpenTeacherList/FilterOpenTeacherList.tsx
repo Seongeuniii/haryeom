@@ -11,14 +11,11 @@ import { subjectDefaultOptions, univDefaultOptions } from './filterDefaultOption
 import SelectOptionBox from './SelectOptionBox';
 import InputTextOptionBox from './InputTextBox';
 import Close from '../icons/Close';
+import { IFindTeacherFilterers } from '@/apis/matching';
 
 interface FilterOpenTeacherListProps {
-    filterers: { [key: string]: number | string[] };
-    setFilterers: Dispatch<
-        SetStateAction<{
-            [key: string]: number | string[];
-        }>
-    >;
+    filterers: IFindTeacherFilterers;
+    setFilterers: Dispatch<SetStateAction<IFindTeacherFilterers>>;
 }
 
 const FilterOpenTeacherList = ({ filterers, setFilterers }: FilterOpenTeacherListProps) => {
