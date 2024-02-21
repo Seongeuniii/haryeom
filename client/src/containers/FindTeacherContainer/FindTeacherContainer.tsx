@@ -1,27 +1,21 @@
-import { useState } from 'react';
 import styled from 'styled-components';
 import { GetServerSideProps } from 'next';
 import HomeLayout from '@/components/layouts/HomeLayout';
 import FilterOpenTeacherList from '@/components/FilterOpenTeacherList/FilterOpenTeacherList';
 import OpenTeacherList from '@/components/OpenTeacherList';
 import { getOpenTeacherList } from '@/apis/matching/get-open-teacher-list';
-import { IFindTeacherFilterers, IOpenTeacher } from '@/apis/matching/matching';
+import { IOpenTeacher } from '@/apis/matching/matching';
 import { useGetOpenTeacherList } from '@/queries/useGetOpenTeacherList';
 import Spinner from '@/components/icons/Spinner';
+import useFilter from '@/components/FilterOpenTeacherList/hooks/useFilter';
+import SelectedOptionValues from '@/components/FilterOpenTeacherList/SelectedOptionValues';
 
 interface FindTeacherContainerProps {
     openTeacherList: IOpenTeacher[];
 }
 
 const FindTeacherContainer = ({ openTeacherList: _openTeacherList }: FindTeacherContainerProps) => {
-    const [filterers, setFilterers] = useState<IFindTeacherFilterers>({
-        subjectIds: [],
-        colleges: [],
-        minCareer: 0,
-        gender: [],
-        maxSalary: 0,
-    });
-
+    const { filterers, handleSelectOption, handleInput, isSelected } = useFilter();
     const { data: openTeacherList, isFetching } = useGetOpenTeacherList(
         filterers,
         _openTeacherList
@@ -34,7 +28,16 @@ const FindTeacherContainer = ({ openTeacherList: _openTeacherList }: FindTeacher
                     <Title>선생님 찾기</Title>
                     <SubTitle>원하는 선생님을 찾아 과외를 신청해보세요.</SubTitle>
                 </FindTeacherContainerHeader>
-                <FilterOpenTeacherList filterers={filterers} setFilterers={setFilterers} />
+                <FilterOpenTeacherList
+                    handleSelectOption={handleSelectOption}
+                    handleInput={handleInput}
+                    isSelected={isSelected}
+                />
+                <SelectedOptionValues
+                    filterers={filterers}
+                    handleSelectOption={handleSelectOption}
+                    handleInput={handleInput}
+                />
                 {isFetching && <Spinner />}
                 <OpenTeacherList openTeacherList={openTeacherList} />
             </StyledFindTeacherContainer>
