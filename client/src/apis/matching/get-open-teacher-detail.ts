@@ -6,7 +6,7 @@ const path = '/matching/teachers';
 type ReturnType = IOpenTeacherDetail;
 
 // TODO : 필터 파라미터 추가
-export const getOpenTeacherDetail = async (teacherId: number | null) => {
+export const getOpenTeacherDetail = async (teacherId: number | undefined) => {
     if (!teacherId) return;
 
     try {

@@ -1,17 +1,16 @@
 import styled from 'styled-components';
-import { INewSchedule, ITeacherSchedule } from '@/apis/tutoring/tutoring';
-import { addMinutesToTime, getHourMin } from '@/utils/time';
 import { useRouter } from 'next/router';
+import UpdateSchedule from './UpdateSchedule';
+import { addMinutesToTime, getHourMin } from '@/utils/time';
+import { INewSchedule, ITeacherSchedule } from '@/apis/tutoring/tutoring';
 import { getClassRoomCode } from '@/apis/tutoring/get-class-room-code';
 import { deleteTutoringSchedule } from '@/apis/tutoring/delete-tutoring-schedule';
-import UpdateSchedule from './UpdateSchedule';
-import { useModal } from '@/hooks/useModal';
-import Chat from '../icons/Chat';
-import chatSessionAtom from '@/recoil/atoms/chat';
-import { useRecoilState } from 'recoil';
-import Group from '../icons/Group';
-import Dropdown from '../commons/Dropdown';
+import Chat from '@/components/icons/Chat';
+import Group from '@/components/icons/Group';
+import Dropdown from '@/components/commons/Dropdown';
 import useDropdown from '@/hooks/useDropdown';
+import { useModal } from '@/hooks/useModal';
+import useChat from '@/hooks/useChat';
 
 interface TeacherScheduleCardProps {
     schedule: ITeacherSchedule;
@@ -20,6 +19,7 @@ interface TeacherScheduleCardProps {
 
 const TeacherScheduleCard = ({ schedule, scheduleDate }: TeacherScheduleCardProps) => {
     const router = useRouter();
+    const { openChatContainer } = useChat();
     const { open, openModal, closeModal } = useModal();
 
     const joinClass = async () => {
@@ -33,14 +33,6 @@ const TeacherScheduleCard = ({ schedule, scheduleDate }: TeacherScheduleCardProp
                 tutoringScheduleId: schedule.tutoringScheduleId,
                 tutoringId: schedule.tutoringId,
             },
-        });
-    };
-
-    const [chatSession, setChatSession] = useRecoilState(chatSessionAtom);
-
-    const startChat = (open: boolean) => {
-        setChatSession((prev) => {
-            return { ...prev, openChat: open, chattingWithName: schedule.studentName };
         });
     };
 
@@ -88,7 +80,7 @@ const TeacherScheduleCard = ({ schedule, scheduleDate }: TeacherScheduleCardProp
                     <StartChattingButton
                         onClick={(e) => {
                             e.stopPropagation();
-                            startChat(true);
+                            openChatContainer();
                         }}
                     >
                         <Chat backgroundColor="gray" />

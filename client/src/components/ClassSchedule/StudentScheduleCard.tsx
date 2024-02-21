@@ -6,6 +6,7 @@ import { addMinutesToTime, getHourMin } from '@/utils/time';
 import { getClassRoomCode } from '@/apis/tutoring/get-class-room-code';
 import chatSessionAtom from '@/recoil/atoms/chat';
 import Chat from '@/components/icons/Chat';
+import useChat from '@/hooks/useChat';
 
 interface StudentScheduleCardProps {
     schedule: IStudentSchedule;
@@ -13,6 +14,7 @@ interface StudentScheduleCardProps {
 
 const StudentScheduleCard = ({ schedule }: StudentScheduleCardProps) => {
     const router = useRouter();
+    const { openChatContainer } = useChat();
 
     const joinClass = async () => {
         const data = await getClassRoomCode(schedule.tutoringScheduleId);
@@ -25,14 +27,6 @@ const StudentScheduleCard = ({ schedule }: StudentScheduleCardProps) => {
                 tutoringScheduleId: schedule.tutoringScheduleId,
                 tutoringId: schedule.tutoringId,
             },
-        });
-    };
-
-    const [chatSession, setChatSession] = useRecoilState(chatSessionAtom);
-
-    const startChat = (open: boolean) => {
-        setChatSession((prev) => {
-            return { ...prev, openChat: open, chattingWithName: schedule.teacherName };
         });
     };
 
@@ -54,7 +48,7 @@ const StudentScheduleCard = ({ schedule }: StudentScheduleCardProps) => {
                 <StartChattingButton
                     onClick={(e) => {
                         e.stopPropagation();
-                        startChat(true);
+                        openChatContainer();
                     }}
                 >
                     <Chat backgroundColor="gray" />
