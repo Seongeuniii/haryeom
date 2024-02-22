@@ -5,25 +5,26 @@ import Dropdown from '@/components/commons/Dropdown';
 
 interface FilterOptionProps {
     label: string;
-    Icon: () => JSX.Element;
-    InputBox?: (children: ReactNode) => JSX.Element;
+    Icon?: () => JSX.Element;
+    InputOptionBox?: (children: ReactNode) => JSX.Element;
 }
 
-const FilterOption = ({ label, Icon, InputBox }: FilterOptionProps) => {
+const FilterOption = ({ label, Icon, InputOptionBox }: FilterOptionProps) => {
     const { open, openDropdown, closeDropdown } = useDropdown();
+
+    const filterTitle = (
+        <FilterTitle>
+            {Icon && <IconWrapper>{Icon()}</IconWrapper>}
+            <FilterOptionLabel>{label}</FilterOptionLabel>
+        </FilterTitle>
+    );
 
     return (
         <StyledFilterOption onClick={!open ? openDropdown : undefined}>
-            <IconWrapper>{Icon()}</IconWrapper>
-            <FilterOptionLabel>{label}</FilterOptionLabel>
-            {InputBox && (
+            {filterTitle}
+            {InputOptionBox && (
                 <Dropdown open={open} closeDropdown={closeDropdown} top="0em" left="1em">
-                    {InputBox(
-                        <InputBoxHeader>
-                            <IconWrapper>{Icon()}</IconWrapper>
-                            <FilterOptionLabel>{label}</FilterOptionLabel>
-                        </InputBoxHeader>
-                    )}
+                    {InputOptionBox(filterTitle)}
                 </Dropdown>
             )}
         </StyledFilterOption>
@@ -34,7 +35,7 @@ const StyledFilterOption = styled.div`
     position: relative;
     display: flex;
     align-items: center;
-    padding: 0 1.5em;
+    padding: 0 2em;
     border-right: 2px solid ${({ theme }) => theme.LIGHT_BLACK};
     font-size: 1em;
 
@@ -46,7 +47,7 @@ const StyledFilterOption = styled.div`
 const IconWrapper = styled.div`
     width: 1.5em;
     text-align: end;
-    margin-right: 0.6em;
+    margin-right: 0.7em;
     padding-top: 0.1em;
     cursor: pointer;
 `;
@@ -56,15 +57,11 @@ const FilterOptionLabel = styled.span`
     cursor: pointer;
 `;
 
-const InputBoxHeader = styled.div`
+const FilterTitle = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0em 1em 0.6em 0.5em;
-    margin-bottom: 0.3em;
-    font-size: 1.1em;
     font-weight: bold;
-    border-bottom: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
     background-color: white;
 `;
 

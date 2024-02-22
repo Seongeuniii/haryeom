@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import styled from 'styled-components';
 
 interface SelectOptionBoxProps {
-    children: ReactNode;
+    title: ReactNode;
     name: string;
     optionValues: string[];
     handleSelectOption: (name: string, value: string) => void;
@@ -10,15 +10,15 @@ interface SelectOptionBoxProps {
 }
 
 const SelectOptionBox = ({
-    children,
+    title,
     name,
     optionValues,
     handleSelectOption,
     isSelected,
 }: SelectOptionBoxProps) => {
     return (
-        <StyledSelectOptionValuBox>
-            {children}
+        <StyledSelectOptionBox>
+            <Title>{title}</Title>
             <Options>
                 {optionValues.map((optionValue: string, index: number) => {
                     return (
@@ -32,18 +32,24 @@ const SelectOptionBox = ({
                     );
                 })}
             </Options>
-        </StyledSelectOptionValuBox>
+        </StyledSelectOptionBox>
     );
 };
 
-const StyledSelectOptionValuBox = styled.div`
+const StyledSelectOptionBox = styled.div`
     min-width: 100px;
-    padding: 1em;
+    padding: 1em 1em 0.3em 1em;
     background-color: white;
     border-radius: 0.6em;
 
     border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
     box-shadow: 0px 0px 20px rgba(105, 105, 105, 0.25);
+`;
+
+const Title = styled.div`
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
+    font-size: 15px;
 `;
 
 const Options = styled.div`
