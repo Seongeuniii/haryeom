@@ -29,7 +29,7 @@ public class MatchingTeacherController {
     @GetMapping("")
     public ResponseEntity<List<TeacherResponse>> getTeacherList(
         @ModelAttribute @Validated MatchingTeacherRequest request,
-        @PageableDefault(sort = "createdAt", direction = DESC, size = 50) Pageable pageable) {
+        @PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable) {
         List<TeacherResponse> response = matchingTeacherService.getTeacherList(request, pageable);
         return ResponseEntity.ok(response);
     }
