@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import styled from 'styled-components';
 import OpenTeacherCard from './OpenTeacherCard';
 import Modal from '@/components/commons/Modal';
@@ -10,9 +10,10 @@ import useChat from '@/hooks/useChat';
 
 interface OpenTeacherListProps {
     openTeacherList: IOpenTeacher[] | undefined;
+    setTarget: Dispatch<SetStateAction<HTMLDivElement | null | undefined>>;
 }
 
-const OpenTeacherList = ({ openTeacherList }: OpenTeacherListProps) => {
+const OpenTeacherList = ({ openTeacherList, setTarget }: OpenTeacherListProps) => {
     const { startChat } = useChat();
     const { open, openModal, closeModal } = useModal();
     const [selectedOpenTeacherId, setSelectedOpenTeacherId] = useState<number | undefined>();
@@ -30,20 +31,25 @@ const OpenTeacherList = ({ openTeacherList }: OpenTeacherListProps) => {
             </Modal>
             <StyledOpenTeacherList>
                 {openTeacherList ? (
-                    openTeacherList.map((openTeacher, index) => {
-                        return (
-                            <OpenTeacherCard
-                                openTeacher={openTeacher}
-                                onClick={() => {
-                                    openModal();
-                                    setSelectedOpenTeacherId(openTeacher.teacherId);
-                                }}
-                                key={`open_teacher_${index}`}
-                            />
-                        );
-                    })
+                    <>
+                        <InfiniteScrollList>
+                            {openTeacherList.map((openTeacher, index) => {
+                                return (
+                                    <OpenTeacherCard
+                                        openTeacher={openTeacher}
+                                        onClick={() => {
+                                            openModal();
+                                            setSelectedOpenTeacherId(openTeacher.teacherId);
+                                        }}
+                                        key={`open_teacher_${index}`}
+                                    />
+                                );
+                            })}
+                        </InfiniteScrollList>
+                        <LastItem ref={setTarget}>hello</LastItem>
+                    </>
                 ) : (
-                    <>매칭 가능한 선생님이 없어요:)</>
+                    <NoOpenTeacher>매칭 가능한 선생님이 없어요:)</NoOpenTeacher>
                 )}
             </StyledOpenTeacherList>
         </>
@@ -53,10 +59,25 @@ const OpenTeacherList = ({ openTeacherList }: OpenTeacherListProps) => {
 const StyledOpenTeacherList = styled.div`
     width: 100%;
     padding: 1.2em 1em 3em 1em;
+    overflow: scroll;
+`;
+
+const InfiniteScrollList = styled.div`
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(14em, 1fr));
     gap: 2.2em;
-    overflow: scroll;
+`;
+
+const LastItem = styled.div`
+    background-color: yellow;
+`;
+
+const NoOpenTeacher = styled.div`
+    width: 100%;
+    height: 100%;
+    padding: 3em;
+    text-align: center;
+    font-weight: 500;
 `;
 
 export default OpenTeacherList;
