@@ -9,6 +9,7 @@ import { useGetOpenTeacherList } from '@/queries/useGetOpenTeacherList';
 import Spinner from '@/components/icons/Spinner';
 import useFilter from '@/components/FilterOpenTeacherList/hooks/useFilter';
 import SelectedOptionValues from '@/components/FilterOpenTeacherList/SelectedOptionValues';
+import { useIntersect } from '@/hooks/useIntersect';
 
 interface FindTeacherContainerProps {
     openTeacherList: IOpenTeacher[];
@@ -16,10 +17,20 @@ interface FindTeacherContainerProps {
 
 const FindTeacherContainer = ({ openTeacherList: _openTeacherList }: FindTeacherContainerProps) => {
     const { filterers, handleSelectOption, handleInput, isSelected } = useFilter();
-    const { data: openTeacherList, isFetching } = useGetOpenTeacherList(
-        filterers,
-        _openTeacherList
-    );
+
+    const {
+        data: openTeacherList,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useGetOpenTeacherList(filterers, _openTeacherList);
+
+    const lastItemRef = useIntersect(async (entry, observer) => {
+        observer.unobserve(entry.target);
+        if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+        }
+    });
 
     return (
         <HomeLayout>
@@ -28,6 +39,9 @@ const FindTeacherContainer = ({ openTeacherList: _openTeacherList }: FindTeacher
                     <Title>선생님 찾기</Title>
                     <SubTitle>원하는 선생님을 찾아 과외를 신청해보세요.</SubTitle>
                 </FindTeacherContainerHeader>
+                <button className="border" onClick={() => fetchNextPage()} disabled={!hasNextPage}>
+                    Load More
+                </button>
                 <FilterOpenTeacherList
                     handleSelectOption={handleSelectOption}
                     handleInput={handleInput}
@@ -38,15 +52,18 @@ const FindTeacherContainer = ({ openTeacherList: _openTeacherList }: FindTeacher
                     handleSelectOption={handleSelectOption}
                     handleInput={handleInput}
                 />
-                {isFetching && <Spinner />}
-                <OpenTeacherList openTeacherList={openTeacherList} />
+                {isFetchingNextPage && <Spinner />}
+                <OpenTeacherList
+                    openTeacherList={openTeacherList as IOpenTeacher[]}
+                    lastItemRef={lastItemRef}
+                />
             </StyledFindTeacherContainer>
         </HomeLayout>
     );
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    const openTeacherList = await getOpenTeacherList();
+    const openTeacherList = await getOpenTeacherList(0, 10);
 
     return { props: { openTeacherList } };
 };
