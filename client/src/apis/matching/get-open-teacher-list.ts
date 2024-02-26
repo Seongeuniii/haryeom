@@ -6,7 +6,11 @@ const path = '/matching/teachers';
 
 type ReturnType = IOpenTeacher[];
 
-export const getOpenTeacherList = async (filterers?: { [key: string]: string[] | number }) => {
+export const getOpenTeacherList = async (
+    page: number,
+    pageSize: number,
+    filterers?: { [key: string]: string[] | number }
+) => {
     const query = Object.entries(filterers || {})
         .filter(([key, value]) => value !== 0 && !(Array.isArray(value) && value.length === 0))
         .map(([key, value]) => {
@@ -27,7 +31,7 @@ export const getOpenTeacherList = async (filterers?: { [key: string]: string[] |
 
     try {
         const res = await axios.get<ReturnType>(
-            `${process.env.NEXT_PUBLIC_API_SERVER}${path}?${query}`
+            `${process.env.NEXT_PUBLIC_API_SERVER}${path}?page=${page}&pageSize=${pageSize}&${query}`
         );
         return res.data;
     } catch (e) {
