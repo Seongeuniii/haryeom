@@ -46,7 +46,7 @@ const OpenTeacherList = ({ openTeacherList, lastItemRef }: OpenTeacherListProps)
                                 );
                             })}
                         </InfiniteScrollList>
-                        <LastItem ref={lastItemRef}>hello</LastItem>
+                        <LastItem ref={lastItemRef} />
                     </>
                 ) : (
                     <NoOpenTeacher>매칭 가능한 선생님이 없어요:)</NoOpenTeacher>
@@ -69,7 +69,8 @@ const InfiniteScrollList = styled.div`
 `;
 
 const LastItem = styled.div`
-    background-color: yellow;
+    width: 100%;
+    height: 1px;
 `;
 
 const NoOpenTeacher = styled.div`
