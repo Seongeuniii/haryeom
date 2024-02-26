@@ -21,8 +21,8 @@ export const useGetOpenTeacherList = (
         queryFn: ({ pageParam = 0 }) => {
             return getOpenTeacherList(pageParam, defaultPageSize, filterers);
         },
-        getNextPageParam: (_lastPage, pages) => {
-            return pages.length + 1;
+        getNextPageParam: (lastPage, pages) => {
+            return lastPage?.length === 0 ? undefined : pages.length + 1;
         },
         initialData: () => {
             const data = initialData;
