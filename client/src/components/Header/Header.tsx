@@ -7,6 +7,7 @@ import useDropdown from '@/hooks/useDropdown';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import { useRouter } from 'next/router';
 import { deleteCookie } from 'cookies-next';
+import Image from 'next/image';
 
 export interface Page {
     name: string;
@@ -65,8 +66,18 @@ const Header = () => {
                             {userSession?.name} {userSession.role === 'TEACHER' && '선생님'}
                             {userSession.role === 'STUDENT' && '학생'}
                         </Name>
-
-                        <ProfileImage src={userSession.profileUrl} />
+                        {/* <Image
+                            src={userSession.profileUrl}
+                            alt="프로필 사진"
+                            width={35}
+                            height={35}
+                        /> */}
+                        <ProfileImage
+                            src={userSession.profileUrl}
+                            alt="프로필 사진"
+                            width={35}
+                            height={35}
+                        />
                         <Dropdown open={open} closeDropdown={closeDropdown}>
                             <UserControlBox>
                                 <Button>마이페이지</Button>

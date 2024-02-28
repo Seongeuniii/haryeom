@@ -26,7 +26,7 @@ const TutoringStudentProfile = ({
             ) : (
                 <>
                     <ProfileImage>
-                        <img src={seletedTutoring.studentProfileUrl} alt="" />
+                        <img src={seletedTutoring.studentProfileUrl} alt="학생 프로필 사진" />
                     </ProfileImage>
                     <StudentInfo onClick={!open ? openDropdown : undefined}>
                         <SubjectName>
@@ -52,7 +52,10 @@ const TutoringStudentProfile = ({
                                             }}
                                             key={`select_teacher_${index}`}
                                         >
-                                            <StudentProfileImage src={tutoring.studentProfileUrl} />
+                                            <StudentProfileImage
+                                                src={tutoring.studentProfileUrl}
+                                                alt="학생 프로필 사진"
+                                            />
                                             <span>
                                                 <SubjectName>{tutoring.subject.name} </SubjectName>
                                                 <StudentName>
@@ -67,8 +70,16 @@ const TutoringStudentProfile = ({
                     </StudentInfo>
                 </>
             )}
-            <Icon src="/images/student-girl.png" style={{ bottom: '0', right: '4em' }}></Icon>
-            <Icon src="/images/student-boy.png" style={{ bottom: '0', right: '1em' }}></Icon>
+            <Icon
+                src="/images/student-girl.png"
+                style={{ bottom: '0', right: '4em' }}
+                alt="학생 이미지"
+            ></Icon>
+            <Icon
+                src="/images/student-boy.png"
+                style={{ bottom: '0', right: '1em' }}
+                alt="학생 이미지"
+            ></Icon>
         </StyledTutoringStudentProfile>
     );
 };

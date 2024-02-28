@@ -43,7 +43,7 @@ const StudentScheduleCard = ({ schedule }: StudentScheduleCardProps) => {
                 </ClassInfo>
             </ScheduleInfoSection>
             <TeacherInfoSection>
-                <ProfileImage src={schedule.teacherProfileUrl} />
+                <ProfileImage src={schedule.teacherProfileUrl} alt="선생님 프로필 사진" />
                 <TeacherName>{schedule.teacherName} 선생님</TeacherName>
                 <StartChattingButton
                     onClick={(e) => {

@@ -36,7 +36,7 @@ const TutoringTeacherProfile = ({
             ) : (
                 <>
                     <ProfileImage>
-                        <img src={seletedTutoring.teacherProfileUrl} alt="" />
+                        <img src={seletedTutoring.teacherProfileUrl} alt="선생님 프로필 사진" />
                     </ProfileImage>
                     <TeacherInfo onClick={!open ? openDropdown : undefined}>
                         <SubjectName>
@@ -57,7 +57,10 @@ const TutoringTeacherProfile = ({
                                             }}
                                             key={`select_teacher_${index}`}
                                         >
-                                            <TeacherProfileImage src={tutoring.teacherProfileUrl} />
+                                            <TeacherProfileImage
+                                                src={tutoring.teacherProfileUrl}
+                                                alt="선생님 프로필 사진"
+                                            />
                                             <div>
                                                 <SubjectName>{tutoring.subject.name} </SubjectName>
                                                 <TeacherName>
