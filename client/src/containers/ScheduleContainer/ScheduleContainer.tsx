@@ -10,6 +10,7 @@ import {
     IStudentTutorings,
     ITeacherTutoring,
     ITeacherTutorings,
+    ITutoring,
     ITutorings,
     ITutoringSchedules,
     ITutoringTextbook,
@@ -50,44 +51,27 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const userSession = useRecoilValue(userSessionAtom);
 
     const {
-        tutorings = [],
-        tutoringSchedules = [],
-        homeworkList: initHomeworkList,
-        progressPercentage: initProgressPercentage,
-        tutoringTextbooks: initTutoringTextbooks = [],
+        tutorings,
+        tutoringSchedules,
+        homeworkList: _homeworkList,
+        progressPercentage: _progressPercentage,
+        tutoringTextbooks: _tutoringTextbooks,
         openLoginModal,
     } = pageProps;
 
-    console.log(
-        tutorings,
-        tutoringSchedules,
-        initHomeworkList,
-        initProgressPercentage,
-        initTutoringTextbooks
+    if (!tutorings) return null; // 매칭 없음
+
+    const [seletedTutoring, setSelectedTutoring] = useState<ITutoring>(tutorings[0]);
+
+    const { homeworkList, refetch } = useGetHomeworkList(seletedTutoring.tutoringId, {
+        homeworkList: _homeworkList,
+        progressPercentage: _progressPercentage,
+    });
+    const { tutoringTextbooks } = useGetTutoringTextbooks(
+        seletedTutoring.tutoringId,
+        _tutoringTextbooks
     );
-    console.log(userSession);
-
-    const [seletedTutoring, setSelectedTutoring] = useState<
-        ITeacherTutoring | IStudentTutoring | undefined
-    >(tutorings[0]);
-
-    const { data, refetch } = seletedTutoring
-        ? useGetHomeworkList(seletedTutoring.tutoringId, {
-              homeworkList: initHomeworkList,
-              progressPercentage: initProgressPercentage,
-          })
-        : { data: undefined, refetch: undefined };
-    const { homeworkList, progressPercentage } = data ?? {
-        homeworkList: initHomeworkList,
-        progressPercentage: initProgressPercentage,
-    };
-    const { data: videoList } = seletedTutoring
-        ? useGetTutoringVideoList(seletedTutoring.tutoringId)
-        : { data: undefined };
-
-    const { data: tutoringTextbooks } = seletedTutoring
-        ? useGetTutoringTextbooks(seletedTutoring.tutoringId, initTutoringTextbooks)
-        : { data: undefined };
+    const { videoList } = useGetTutoringVideoList(seletedTutoring.tutoringId);
 
     const [listTab, setListTab] = useState<'homework' | 'textbook' | 'review'>('homework');
 
@@ -119,11 +103,6 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                                         tutorings={tutorings as ITeacherTutorings}
                                     />
                                 </ProfileContainer>
-                                <ChartContainer>
-                                    <HomeworkProgressPercentage
-                                        progressPercentage={progressPercentage}
-                                    />
-                                </ChartContainer>
                             </Container>
                         ) : (
                             <Container>
@@ -138,11 +117,6 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                                         tutorings={tutorings as IStudentTutorings}
                                     />
                                 </ProfileContainer>
-                                <ChartContainer>
-                                    <HomeworkProgressPercentage
-                                        progressPercentage={progressPercentage}
-                                    />
-                                </ChartContainer>
                             </Container>
                         )}
                         <ListSection>
@@ -169,7 +143,7 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                                         </Tab>
                                     )}
                                 </Title>
-                                {userSession?.role === 'TEACHER' && seletedTutoring && (
+                                {userSession?.role === 'TEACHER' && (
                                     <CreateNewHomework
                                         tutoringId={seletedTutoring.tutoringId}
                                         tutoringTextbooks={tutoringTextbooks}

@@ -3,12 +3,15 @@ import { getTextbooks } from '@/apis/tutoring/get-textbooks';
 import { ITutoringTextbook } from '@/apis/tutoring/tutoring';
 
 export const useGetTutoringTextbooks = (tutoringId: number, initialData: ITutoringTextbook[]) => {
-    const { data, isLoading } = useQuery({
+    const result = useQuery({
         queryKey: ['tutoringTextbooks', tutoringId],
         queryFn: () => getTextbooks(tutoringId),
         cacheTime: Infinity,
         initialData,
     });
 
-    return { data, isLoading };
+    return {
+        tutoringTextbooks: result.data,
+        ...result,
+    };
 };
