@@ -261,13 +261,8 @@ const Container = styled.div`
 `;
 
 const ProfileContainer = styled.div`
-    width: 80%;
+    width: 100%;
     padding-right: 5px;
-`;
-
-const ChartContainer = styled.div`
-    width: 20%;
-    padding-left: 5px;
 `;
 
 export default WithAuth(ScheduleContainer);
