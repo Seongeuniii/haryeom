@@ -31,6 +31,7 @@ import { useGetTutoringVideoList } from '@/queries/useGetTutoringVideoList';
 import { useGetTutoringTextbooks } from '@/queries/useGetTutoringTextbooks';
 import LoginModal from '@/components/LoginModal';
 import TutoringProfile from '@/components/TutoringProfile';
+import Tabs from '@/components/commons/Tabs';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -81,36 +82,33 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                                 : undefined
                         }
                     />
-                    <SelectedTutoring>
+                    <SelectedTutoringSection>
                         <TutoringProfile
                             seletedTutoring={seletedTutoring}
                             setSelectedTutoring={setSelectedTutoring}
                             tutorings={tutorings}
                         />
-                        <ListSection>
-                            <ListHeader>
-                                <Title>
-                                    <Tab
-                                        selected={listTab === 'homework'}
-                                        onClick={() => setListTab('homework')}
-                                    >
-                                        숙제
-                                    </Tab>
-                                    <Tab
-                                        selected={listTab === 'textbook'}
-                                        onClick={() => setListTab('textbook')}
-                                    >
-                                        학습자료
-                                    </Tab>
-                                    {userSession?.role === 'STUDENT' && (
-                                        <Tab
-                                            selected={listTab === 'review'}
-                                            onClick={() => setListTab('review')}
-                                        >
-                                            복습
-                                        </Tab>
-                                    )}
-                                </Title>
+                        <TutoringContents>
+                            <TutoringContentsTab>
+                                <Tabs
+                                    tabs={[
+                                        {
+                                            name: '숙제',
+                                            selected: listTab === 'homework',
+                                            changeTab: () => setListTab('homework'),
+                                        },
+                                        {
+                                            name: '학습자료',
+                                            selected: listTab === 'textbook',
+                                            changeTab: () => setListTab('textbook'),
+                                        },
+                                        {
+                                            name: '복습',
+                                            selected: listTab === 'review',
+                                            changeTab: () => setListTab('review'),
+                                        },
+                                    ]}
+                                />
                                 {userSession?.role === 'TEACHER' && (
                                     <CreateNewHomework
                                         tutoringId={seletedTutoring.tutoringId}
@@ -118,14 +116,14 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                                         refetch={refetch}
                                     />
                                 )}
-                            </ListHeader>
+                            </TutoringContentsTab>
                             {listTab === 'homework' && <HomeworkList homeworkList={homeworkList} />}
                             {listTab === 'textbook' && (
                                 <TextbookList textbookList={tutoringTextbooks} />
                             )}
                             {listTab === 'review' && <TutoringVideoList videoList={videoList} />}
-                        </ListSection>
-                    </SelectedTutoring>
+                        </TutoringContents>
+                    </SelectedTutoringSection>
                 </StyledScheduleContainer>
             </HomeLayout>
         </>
@@ -150,6 +148,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         homeworkListInfo = await getHomeworkList(tutorings[0].tutoringId);
         tutoringTextbooks = await getTextbooks(tutorings[0].tutoringId);
     }
+
     return {
         props: {
             tutorings: tutorings || null,
@@ -169,14 +168,14 @@ const StyledScheduleContainer = styled.main`
     justify-content: space-between;
 `;
 
-const SelectedTutoring = styled.main`
+const SelectedTutoringSection = styled.main`
     width: 67%;
     height: 93%;
     display: flex;
     flex-direction: column;
 `;
 
-const ListHeader = styled.div`
+const TutoringContentsTab = styled.div`
     width: 100%;
     padding: 0.3em 0.6em 1.2em 0em;
     font-size: 18px;
@@ -185,31 +184,7 @@ const ListHeader = styled.div`
     align-items: center;
 `;
 
-const Title = styled.div`
-    display: flex;
-    align-items: center;
-    border: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
-    border-radius: 0.5em;
-`;
-
-const Tab = styled.span<{ selected: boolean }>`
-    padding: 6px 8px;
-    border-radius: 0.5em;
-    font-size: 16px;
-    font-weight: ${({ theme, selected }) => (selected ? 600 : 400)};
-    background-color: ${({ theme, selected }) => (selected ? theme.PRIMARY : 'white')};
-    color: ${({ theme, selected }) => (selected ? 'white' : theme.LIGHT_BLACK)};
-    cursor: pointer;
-
-    &:hover {
-        background-color: ${({ theme, selected }) =>
-            selected ? theme.PRIMARY : theme.PRIMARY_LIGHT};
-        color: white;
-        transition: all 0.5s;
-    }
-`;
-
-const ListSection = styled.div`
+const TutoringContents = styled.div`
     width: 100%;
     height: 100%;
     padding: 1.8em;
