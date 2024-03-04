@@ -1,14 +1,11 @@
 import { GetServerSideProps } from 'next';
+import { useState } from 'react';
 import { getCookie } from 'cookies-next';
 import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
-
 import HomeLayout from '@/components/layouts/HomeLayout';
 import ClassSchedule from '@/components/ClassSchedule';
 import {
-    IStudentTutoring,
-    IStudentTutorings,
-    ITeacherTutoring,
     ITeacherTutorings,
     ITutoring,
     ITutorings,
@@ -23,20 +20,17 @@ import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
 import { getYearMonth } from '@/utils/time';
 import WithAuth from '@/hocs/withAuth';
 import { IUserRole } from '@/apis/user/user';
-import TutoringTeacherProfile from '@/components/TutoringTeacherProfile';
-import TutoringStudentProfile from '@/components/TutoringStudentProfile';
 import CreateNewClass from '@/components/CreateNewClass';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { getTextbooks } from '@/apis/tutoring/get-textbooks';
 import CreateNewHomework from '@/components/CreateNewHomework';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
 import { useGetHomeworkList } from '@/queries/useGetHomeworkList';
 import TextbookList from '@/components/TextbookList';
-import HomeworkProgressPercentage from '@/components/Homework/HomeworkProgressPercentage';
 import TutoringVideoList from '@/components/TutoringVideoList';
 import { useGetTutoringVideoList } from '@/queries/useGetTutoringVideoList';
 import { useGetTutoringTextbooks } from '@/queries/useGetTutoringTextbooks';
 import LoginModal from '@/components/LoginModal';
+import TutoringProfile from '@/components/TutoringProfile';
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -48,8 +42,6 @@ interface ScheduleContainerProps {
 }
 
 const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
-    const userSession = useRecoilValue(userSessionAtom);
-
     const {
         tutorings,
         tutoringSchedules,
@@ -58,9 +50,9 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
         tutoringTextbooks: _tutoringTextbooks,
         openLoginModal,
     } = pageProps;
-
     if (!tutorings) return null; // 매칭 없음
 
+    const userSession = useRecoilValue(userSessionAtom);
     const [seletedTutoring, setSelectedTutoring] = useState<ITutoring>(tutorings[0]);
 
     const { homeworkList, refetch } = useGetHomeworkList(seletedTutoring.tutoringId, {
@@ -83,42 +75,18 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                     <ClassSchedule
                         tutoringSchedules={tutoringSchedules}
                         CreateNewSchedule={
-                            userSession?.role === 'TEACHER' && tutorings
+                            userSession?.role === 'TEACHER'
                                 ? () =>
                                       CreateNewClass({ tutorings: tutorings as ITeacherTutorings })
                                 : undefined
                         }
                     />
                     <SelectedTutoring>
-                        {userSession?.role === 'TEACHER' ? (
-                            <Container>
-                                <ProfileContainer>
-                                    <TutoringStudentProfile
-                                        seletedTutoring={seletedTutoring as ITeacherTutoring}
-                                        setSelectedTutoring={
-                                            setSelectedTutoring as Dispatch<
-                                                SetStateAction<ITeacherTutoring>
-                                            >
-                                        }
-                                        tutorings={tutorings as ITeacherTutorings}
-                                    />
-                                </ProfileContainer>
-                            </Container>
-                        ) : (
-                            <Container>
-                                <ProfileContainer>
-                                    <TutoringTeacherProfile
-                                        seletedTutoring={seletedTutoring as IStudentTutoring}
-                                        setSelectedTutoring={
-                                            setSelectedTutoring as Dispatch<
-                                                SetStateAction<IStudentTutoring>
-                                            >
-                                        }
-                                        tutorings={tutorings as IStudentTutorings}
-                                    />
-                                </ProfileContainer>
-                            </Container>
-                        )}
+                        <TutoringProfile
+                            seletedTutoring={seletedTutoring}
+                            setSelectedTutoring={setSelectedTutoring}
+                            tutorings={tutorings}
+                        />
                         <ListSection>
                             <ListHeader>
                                 <Title>

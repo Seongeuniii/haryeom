@@ -1,4 +1,5 @@
-export type ITutorings = ITeacherTutorings | IStudentTutorings;
+export type ITutorings = ITeacherTutorings & IStudentTutorings;
+export type ITutoring = ITeacherTutoring & IStudentTutoring;
 export type ITeacherTutorings = ITeacherTutoring[];
 export type IStudentTutorings = IStudentTutoring[];
 
