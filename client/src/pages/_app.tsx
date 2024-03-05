@@ -12,12 +12,13 @@ import { getUser } from '@/apis/user/get-user';
 import { IUser } from '@/apis/user/user';
 import userSession from '@/recoil/atoms/userSession';
 import { setCookie } from 'cookies-next';
+import { axiosConfig } from '@/config/axios';
 
 interface MyAppProps extends AppProps {
     loginUserData: IUser | undefined;
 }
 
-axios.defaults.withCredentials = true;
+axiosConfig();
 
 function MyApp({ Component, pageProps, loginUserData }: MyAppProps) {
     const [queryClient] = useState(() => new QueryClient());

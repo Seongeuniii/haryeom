@@ -1,11 +1,6 @@
-// const res = await axios.get(`${process.env.NEXT_PUBLIC_API_SERVER}${path}`, {
-// withCredentials: true,
-// headers: {
-//     'Access-Control-Allow-Origin': '*',
-//     'Content-Type': 'application/json',
-//     'crossDomain': true,
-// },
-// });
+import axios from 'axios';
 
-const axios = () => {};
-export default axios;
+export const axiosConfig = () => {
+    axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_SERVER;
+    axios.defaults.withCredentials = true;
+};
