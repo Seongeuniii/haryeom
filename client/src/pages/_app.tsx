@@ -21,7 +21,16 @@ interface MyAppProps extends AppProps {
 axiosConfig();
 
 function MyApp({ Component, pageProps, loginUserData }: MyAppProps) {
-    const [queryClient] = useState(() => new QueryClient());
+    const [queryClient] = useState(
+        () =>
+            new QueryClient({
+                defaultOptions: {
+                    queries: {
+                        staleTime: 60 * 1000,
+                    },
+                },
+            })
+    );
 
     const initializer = useMemo(
         () =>
