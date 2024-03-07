@@ -6,8 +6,12 @@ interface IUseMyPaint {
     backgroundImage?: Blob | string;
     penStyle: IPenStyle;
     dataChannels?: RTCDataChannel[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    erasePeerPaint?: (offset: any) => void;
+    erasePeerPaint?: (offset: IOffset) => void;
+}
+
+interface IOffset {
+    x: number;
+    y: number;
 }
 
 const useMyPaint = ({
@@ -24,6 +28,7 @@ const useMyPaint = ({
         pixelRatio: 1,
     });
     const [isDown, setIsDown] = useState<boolean>(false);
+    const [points, setPoints] = useState<IOffset[]>([]);
 
     useEffect(() => {
         const isBrowser = typeof window !== 'undefined';
@@ -45,17 +50,7 @@ const useMyPaint = ({
         contextRef.current.strokeStyle = penStyle.strokeStyle;
         contextRef.current.lineWidth = penStyle.lineWidth;
 
-        dataChannels?.map((channel: RTCDataChannel) => {
-            try {
-                channel.send(
-                    JSON.stringify({
-                        updatedPenStyle: penStyle,
-                    })
-                );
-            } catch (e) {
-                console.log('전송 실패');
-            }
-        });
+        SendAction({ updatedPenStyle: penStyle });
     }, [penStyle]);
 
     const init = () => {
@@ -128,8 +123,7 @@ const useMyPaint = ({
         };
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const erase = (offset: any) => {
+    const erase = (offset: IOffset) => {
         if (!contextRef.current) return;
         const { x, y } = offset;
         contextRef.current.globalCompositeOperation = 'destination-out';
@@ -143,84 +137,82 @@ const useMyPaint = ({
     };
 
     const handlePointerDown = ({ nativeEvent }: PointerEvent) => {
-        setIsDown(true);
         if (!contextRef.current) return;
+        setIsDown(true);
         const { offsetX, offsetY } = nativeEvent;
-        console.log(offsetX, offsetY);
-        console.log(canvasRef.current?.width, canvasRef.current?.height);
-        contextRef.current.beginPath();
-        contextRef.current.moveTo(offsetX, offsetY);
+        setPoints((prev) => [...prev, { x: offsetX, y: offsetY }]);
 
-        dataChannels?.map((channel: RTCDataChannel) => {
-            try {
-                channel.send(
-                    JSON.stringify({
-                        action: 'down',
-                        offset: {
-                            x: offsetX,
-                            y: offsetY,
-                            canvasWidth: canvasRef.current?.width,
-                            canvasHeight: canvasRef.current?.height,
-                        },
-                    })
-                );
-            } catch (e) {
-                console.log('전송 실패');
-            }
+        SendAction({
+            action: 'down',
+            offset: {
+                x: offsetX,
+                y: offsetY,
+                canvasWidth: canvasRef.current?.width,
+                canvasHeight: canvasRef.current?.height,
+            },
         });
     };
 
     const handlePointerMove = ({ nativeEvent }: PointerEvent) => {
-        if (!isDown || !contextRef.current) return;
+        if (!contextRef.current || !isDown) return;
         const { offsetX, offsetY } = nativeEvent;
 
         if (penStyle.isPen) {
-            contextRef.current.strokeStyle = penStyle.strokeStyle;
-            contextRef.current.lineWidth = penStyle.lineWidth;
-            contextRef.current.lineTo(offsetX, offsetY);
-            contextRef.current.stroke();
+            setPoints((prev) => [...prev, { x: offsetX, y: offsetY }]);
         } else {
             erase({ x: offsetX, y: offsetY });
         }
 
-        dataChannels?.map((channel: RTCDataChannel) => {
-            try {
-                if (offsetX && offsetY) {
-                    channel.send(
-                        JSON.stringify({
-                            action: 'move',
-                            offset: {
-                                x: offsetX,
-                                y: offsetY,
-                                canvasWidth: canvasRef.current?.width,
-                                canvasHeight: canvasRef.current?.height,
-                            },
-                        })
-                    );
-                }
-            } catch (e) {
-                console.log('전송 실패');
-            }
+        SendAction({
+            action: 'move',
+            offset: {
+                x: offsetX,
+                y: offsetY,
+                canvasWidth: canvasRef.current?.width,
+                canvasHeight: canvasRef.current?.height,
+            },
         });
     };
 
     const handlePointerUp = () => {
+        if (!canvasRef.current || !contextRef.current) return;
         setIsDown(false);
-        if (!contextRef.current) return;
-        contextRef.current.closePath();
-
-        dataChannels?.map((channel: RTCDataChannel) => {
-            try {
-                channel.send(
-                    JSON.stringify({
-                        action: 'up',
-                    })
-                );
-            } catch (e) {
-                console.log('전송 실패');
-            }
-        });
+        contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        setPoints(() => []);
     };
+
+    useEffect(() => {
+        if (!canvasRef.current || !contextRef.current || points.length === 0) return;
+
+        if (points.length < 3) {
+            const b = points[0];
+            contextRef.current.beginPath();
+            contextRef.current.arc(b.x, b.y, contextRef.current.lineWidth / 2, 0, Math.PI * 2, !0);
+            contextRef.current.fill();
+            contextRef.current.closePath();
+            return;
+        }
+
+        contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        contextRef.current.beginPath();
+        contextRef.current.moveTo(points[0].x, points[0].y);
+
+        // eslint-disable-next-line no-var
+        for (var i = 1; i < points.length - 2; i++) {
+            const c = (points[i].x + points[i + 1].x) / 2;
+            const d = (points[i].y + points[i + 1].y) / 2;
+
+            contextRef.current.quadraticCurveTo(points[i].x, points[i].y, c, d);
+        }
+
+        contextRef.current.quadraticCurveTo(
+            points[i].x,
+            points[i].y,
+            points[i + 1].x,
+            points[i + 1].y
+        );
+        contextRef.current.stroke();
+    }, [points]);
 
     const getCanvasDrawingImage = (size: { width: number; height: number }) => {
         const tempCanvas = document.createElement('canvas');
@@ -252,6 +244,19 @@ const useMyPaint = ({
     const resetCanvas = () => {
         if (!canvasRef.current || !contextRef.current) return;
         contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SendAction = (data: any) => {
+        dataChannels?.map((channel: RTCDataChannel) => {
+            if (Object.values(data).every((value) => typeof value !== 'undefined')) {
+                try {
+                    channel.send(JSON.stringify(data));
+                } catch (e) {
+                    console.log('전송 실패');
+                }
+            }
+        });
     };
 
     return {
