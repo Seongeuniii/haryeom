@@ -544,15 +544,13 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                             handlePeerPointerDown(calculateOffsetRelativeToCanvasSize(offset));
                             break;
                         case 'move':
-                            requestAnimationFrame(() =>
-                                handlePeerPointerMove(calculateOffsetRelativeToCanvasSize(offset))
-                            );
+                            handlePeerPointerMove(calculateOffsetRelativeToCanvasSize(offset));
                             if (!peerAction.penStyle.isPen) {
                                 erase(calculateOffsetRelativeToCanvasSize(offset));
                             }
                             break;
                         case 'up':
-                            requestAnimationFrame(() => handlePeerPointerUp());
+                            handlePeerPointerUp();
                             break;
                     }
                 }
