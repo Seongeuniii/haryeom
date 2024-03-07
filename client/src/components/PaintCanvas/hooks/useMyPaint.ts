@@ -1,9 +1,9 @@
-import { PointerEvent, RefObject, useEffect, useRef, useState } from 'react';
+import { MutableRefObject, PointerEvent, RefObject, useEffect, useRef, useState } from 'react';
 import { IPenStyle } from '@/hooks/useClass';
 
 interface IUseMyPaint {
     canvasRef: RefObject<HTMLCanvasElement>;
-    backgroundImage?: Blob | string;
+    contextRef: MutableRefObject<CanvasRenderingContext2D | null>;
     penStyle: IPenStyle;
     dataChannels?: RTCDataChannel[];
     erasePeerPaint?: (offset: IOffset) => void;
@@ -16,112 +16,21 @@ interface IOffset {
 
 const useMyPaint = ({
     canvasRef,
-    backgroundImage,
+    contextRef,
     penStyle,
     dataChannels,
     erasePeerPaint,
 }: IUseMyPaint) => {
-    const contextRef = useRef<CanvasRenderingContext2D | null>(null);
-    const canvasInformRef = useRef({
-        width: 0,
-        height: 0,
-        pixelRatio: 1,
-    });
     const [isDown, setIsDown] = useState<boolean>(false);
     const [points, setPoints] = useState<IOffset[]>([]);
 
     useEffect(() => {
-        const isBrowser = typeof window !== 'undefined';
-        if (isBrowser) {
-            canvasInformRef.current = {
-                width: 0,
-                height: 0,
-                pixelRatio: window.devicePixelRatio > 1 ? 2 : 1,
-            };
-        }
-    }, []);
-
-    useEffect(() => {
-        init();
-    }, [canvasRef.current?.width, canvasRef.current?.height, backgroundImage]);
-
-    useEffect(() => {
         if (!contextRef.current) return;
+        contextRef.current.lineCap = 'round';
         contextRef.current.strokeStyle = penStyle.strokeStyle;
         contextRef.current.lineWidth = penStyle.lineWidth;
-
         SendAction({ updatedPenStyle: penStyle });
-    }, [penStyle]);
-
-    const init = () => {
-        if (!canvasRef.current) return;
-        const { clientWidth, clientHeight } = canvasRef.current;
-        canvasSizeSetting(clientWidth, clientHeight);
-
-        const context = canvasRef.current.getContext('2d');
-        if (!context) return;
-        canvasContextSetting(context);
-        canvasBackgroundSetting(context);
-    };
-
-    const canvasSizeSetting = (width: number, height: number) => {
-        if (!canvasRef.current) return;
-        const resultWidth = width * canvasInformRef.current.pixelRatio;
-        const resultHeight = height * canvasInformRef.current.pixelRatio;
-
-        canvasRef.current.width = resultWidth;
-        canvasRef.current.height = resultHeight;
-
-        canvasInformRef.current.width = resultWidth;
-        canvasInformRef.current.height = resultHeight;
-    };
-
-    const canvasContextSetting = (ctx: CanvasRenderingContext2D) => {
-        if (!ctx) return;
-        ctx.scale(canvasInformRef.current.pixelRatio, canvasInformRef.current.pixelRatio);
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = penStyle.strokeStyle;
-        ctx.lineWidth = penStyle.lineWidth;
-        contextRef.current = ctx;
-    };
-
-    const canvasBackgroundSetting = (ctx: CanvasRenderingContext2D) => {
-        if (!backgroundImage) return;
-
-        const imageObj = new Image();
-        imageObj.crossOrigin = 'anonymous';
-        if (typeof backgroundImage === 'string') {
-            imageObj.src = backgroundImage;
-        } else {
-            imageObj.src = URL.createObjectURL(backgroundImage);
-        }
-
-        imageObj.onload = () => {
-            if (!canvasRef.current) return;
-            const { clientWidth, clientHeight } = canvasRef.current;
-            const imageAspectRatio = imageObj.width / imageObj.height;
-
-            let newWidth, newHeight;
-            if (clientWidth / clientHeight > imageAspectRatio) {
-                newWidth = clientHeight * imageAspectRatio;
-                newHeight = clientHeight;
-            } else {
-                newWidth = clientWidth;
-                newHeight = clientWidth / imageAspectRatio;
-            }
-            ctx?.drawImage(
-                imageObj,
-                0,
-                0,
-                imageObj.width,
-                imageObj.height,
-                0,
-                0,
-                newWidth,
-                newHeight
-            );
-        };
-    };
+    }, [penStyle, contextRef.current]);
 
     const erase = (offset: IOffset) => {
         if (!contextRef.current) return;

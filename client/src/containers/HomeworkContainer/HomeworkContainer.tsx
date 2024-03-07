@@ -15,6 +15,7 @@ import { useGetHomework } from '@/queries/useGetHomework';
 import { QueryClient } from 'react-query';
 import DrawingTools from '@/components/DrawingTools';
 import { useRouter } from 'next/router';
+import useCanvas from '@/components/PaintCanvas/hooks/useCanvas';
 
 interface HomeworkContainerProps {
     homeworkData: IHomework;
@@ -79,6 +80,11 @@ const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContai
         setPenStyle((prev) => ({ ...prev, ...value }));
     };
 
+    const { contextRef } = useCanvas({
+        canvasRef: homeworkCanvasRef,
+        backgroundImage: myHomeworkDrawings[selectedPageNumber],
+    });
+
     const {
         handlePointerDown,
         handlePointerMove,
@@ -87,7 +93,7 @@ const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContai
         resetCanvas,
     } = useMyPaint({
         canvasRef: homeworkCanvasRef,
-        backgroundImage: myHomeworkDrawings[selectedPageNumber],
+        contextRef,
         penStyle,
     });
 

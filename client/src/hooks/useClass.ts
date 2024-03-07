@@ -12,6 +12,7 @@ import { saveTutoringvideo } from '@/apis/tutoring/save-tutoring-video';
 import useClassTimer from './useClassTimer';
 import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
 import { IMyHomeworkDrawings } from '@/containers/HomeworkContainer/HomeworkContainer';
+import useCanvas from '@/components/PaintCanvas/hooks/useCanvas';
 
 export type ContentsType = '화이트보드' | '학습자료' | '숙제';
 export interface IPenStyle {
@@ -159,6 +160,22 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         penStyle: peerAction.penStyle,
     });
 
+    const { contextRef } = useCanvas({
+        canvasRef:
+            myAction.content === '화이트보드'
+                ? myWhiteboardCanvasRef
+                : myAction.content === '학습자료'
+                  ? myTextbookCanvasRef
+                  : myHomeworkCanvasRef,
+        backgroundImage:
+            myAction.content === '화이트보드'
+                ? myWhiteboardCanvasBackgroundImage
+                : myAction.content === '학습자료'
+                  ? myTextbookCanvasBackgroundImage
+                  : homeworkDrawings
+                    ? homeworkDrawings[myAction.pageNumber]
+                    : '',
+    });
     const {
         handlePointerDown,
         handlePointerMove,
@@ -174,14 +191,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                 : myAction.content === '학습자료'
                   ? myTextbookCanvasRef
                   : myHomeworkCanvasRef,
-        backgroundImage:
-            myAction.content === '화이트보드'
-                ? myWhiteboardCanvasBackgroundImage
-                : myAction.content === '학습자료'
-                  ? myTextbookCanvasBackgroundImage
-                  : homeworkDrawings
-                    ? homeworkDrawings[myAction.pageNumber]
-                    : '',
+        contextRef,
         penStyle: myAction.penStyle,
         dataChannels,
         erasePeerPaint,
