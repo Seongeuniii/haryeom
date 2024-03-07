@@ -88,6 +88,8 @@ const ClassContainer = () => {
         changeClassState,
         saveHomeworkDrawing,
         resetCanvas,
+
+        tempCanvasRef,
     } = useClass({
         tutoringScheduleId: parseInt(router.query.tutoringScheduleId as string),
         dataChannels,
@@ -208,6 +210,7 @@ const ClassContainer = () => {
                                 <DrawingLayer>
                                     <PaintCanvas
                                         canvasRef={myWhiteboardCanvasRef}
+                                        tempCanvasRef={tempCanvasRef}
                                         handlePointerDown={handlePointerDown}
                                         handlePointerMove={handlePointerMove}
                                         handlePointerUp={handlePointerUp}

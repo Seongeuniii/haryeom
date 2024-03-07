@@ -4,6 +4,7 @@ import { IPenStyle } from '@/hooks/useClass';
 interface IUseMyPaint {
     canvasRef: RefObject<HTMLCanvasElement>;
     contextRef: MutableRefObject<CanvasRenderingContext2D | null>;
+    tempContextRef?: MutableRefObject<CanvasRenderingContext2D | null>;
     penStyle: IPenStyle;
     dataChannels?: RTCDataChannel[];
     erasePeerPaint?: (offset: IOffset) => void;
@@ -17,6 +18,7 @@ interface IOffset {
 const useMyPaint = ({
     canvasRef,
     contextRef,
+    tempContextRef,
     penStyle,
     dataChannels,
     erasePeerPaint,
@@ -86,6 +88,19 @@ const useMyPaint = ({
     const handlePointerUp = () => {
         if (!canvasRef.current || !contextRef.current) return;
         setIsDown(false);
+        if (tempContextRef?.current) {
+            tempContextRef.current.drawImage(
+                canvasRef.current,
+                0,
+                0,
+                canvasRef.current.width,
+                canvasRef.current.height,
+                0,
+                0,
+                canvasRef.current.clientWidth,
+                canvasRef.current.clientHeight
+            );
+        }
         contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
         setPoints(() => []);
     };

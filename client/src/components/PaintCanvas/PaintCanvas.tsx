@@ -18,37 +18,23 @@ const PaintCanvas = ({
 }: PaintCanvasProps) => {
     return (
         <>
+            {tempCanvasRef && <Canvas ref={tempCanvasRef} />}
             <Canvas
                 ref={canvasRef}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
             />
-            {tempCanvasRef && <Canvas ref={tempCanvasRef} />}
         </>
     );
 };
 
 const Canvas = styled.canvas`
     touch-action: none;
+    position: absolute;
     width: 100%;
     height: 100%;
     z-index: 3;
-`;
-
-const SaveCanvasDrawingButton = styled.button`
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    padding: 5px;
-    border-radius: 6px;
-    color: ${({ theme }) => theme.WHITE};
-    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
-
-    &:hover {
-        color: ${({ theme }) => theme.WHITE};
-        background-color: ${({ theme }) => theme.PRIMARY};
-    }
 `;
 
 export default PaintCanvas;
