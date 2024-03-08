@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 interface PaintCanvasProps {
     canvasRef: RefObject<HTMLCanvasElement>;
-    tempCanvasRef?: RefObject<HTMLCanvasElement>;
+    presentationCanvasRef?: RefObject<HTMLCanvasElement>;
     handlePointerDown: ({ nativeEvent }: PointerEvent) => void;
     handlePointerMove: ({ nativeEvent }: PointerEvent) => void;
     handlePointerUp: ({ nativeEvent }: PointerEvent) => void;
@@ -11,14 +11,14 @@ interface PaintCanvasProps {
 
 const PaintCanvas = ({
     canvasRef,
-    tempCanvasRef,
+    presentationCanvasRef,
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
 }: PaintCanvasProps) => {
     return (
         <>
-            {tempCanvasRef && <Canvas ref={tempCanvasRef} />}
+            {presentationCanvasRef && <Canvas ref={presentationCanvasRef} />}
             <Canvas
                 ref={canvasRef}
                 onPointerDown={handlePointerDown}

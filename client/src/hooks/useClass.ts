@@ -160,9 +160,9 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         penStyle: peerAction.penStyle,
     });
 
-    const tempCanvasRef = useRef<HTMLCanvasElement>(null);
+    const presentationCanvasRef = useRef<HTMLCanvasElement>(null);
 
-    const { contextRef: tempContextRef } = useCanvas({ canvasRef: tempCanvasRef });
+    const { contextRef: presentationContextRef } = useCanvas({ canvasRef: presentationCanvasRef });
     const { contextRef } = useCanvas({
         canvasRef:
             myAction.content === '화이트보드'
@@ -196,7 +196,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                   ? myTextbookCanvasRef
                   : myHomeworkCanvasRef,
         contextRef,
-        tempContextRef,
+        presentationContextRef,
         penStyle: myAction.penStyle,
         dataChannels,
         erasePeerPaint,
@@ -658,7 +658,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         saveHomeworkDrawing,
         resetCanvas,
 
-        tempCanvasRef,
+        presentationCanvasRef,
     };
 };
 
