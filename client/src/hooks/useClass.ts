@@ -138,6 +138,14 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
     //     }
     // }, [myAction.content, selectedPeerCanvasRef, selectedPeerCanvasBackgroundImage]);
 
+    const presentationCanvasRef = useRef<HTMLCanvasElement>(null);
+    const peerPresentationCanvasRef = useRef<HTMLCanvasElement>(null);
+
+    const { contextRef: presentationContextRef } = useCanvas({ canvasRef: presentationCanvasRef });
+    const { contextRef: peerPresentationContextRef } = useCanvas({
+        canvasRef: peerPresentationCanvasRef,
+    });
+
     const {
         handlePointerDown: handlePeerPointerDown,
         handlePointerMove: handlePeerPointerMove,
@@ -151,6 +159,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                 : myAction.content === '학습자료'
                   ? peerTextbookCanvasRef
                   : peerHomeworkCanvasRef,
+        presentationContextRef: peerPresentationContextRef,
         backgroundImage:
             myAction.content === '화이트보드'
                 ? peerWhiteboardCanvasBackgroundImage
@@ -160,9 +169,6 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         penStyle: peerAction.penStyle,
     });
 
-    const presentationCanvasRef = useRef<HTMLCanvasElement>(null);
-
-    const { contextRef: presentationContextRef } = useCanvas({ canvasRef: presentationCanvasRef });
     const { contextRef } = useCanvas({
         canvasRef:
             myAction.content === '화이트보드'
@@ -659,6 +665,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         resetCanvas,
 
         presentationCanvasRef,
+        peerPresentationCanvasRef,
     };
 };
 

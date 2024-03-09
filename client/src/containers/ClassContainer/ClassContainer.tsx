@@ -90,6 +90,7 @@ const ClassContainer = () => {
         resetCanvas,
 
         presentationCanvasRef,
+        peerPresentationCanvasRef,
     } = useClass({
         tutoringScheduleId: parseInt(router.query.tutoringScheduleId as string),
         dataChannels,
@@ -202,6 +203,7 @@ const ClassContainer = () => {
                                 <DrawingLayer>
                                     <PaintCanvas
                                         canvasRef={peerWhiteboardCanvasRef}
+                                        presentationCanvasRef={peerPresentationCanvasRef}
                                         handlePointerDown={handlePeerPointerDown}
                                         handlePointerMove={handlePeerPointerMove}
                                         handlePointerUp={handlePeerPointerUp}
