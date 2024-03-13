@@ -42,7 +42,7 @@ const usePdf = ({ initialSelectedPageNumer = 1 }: IUsePdf) => {
         const timerId = setTimeout(() => {
             const { width, height } = size;
             setPdfPageCurrentSize({ width, height });
-        });
+        }, 200);
         setResizeTimer(timerId);
     };
 
