@@ -178,6 +178,7 @@ const PdfThumbnailList = styled.div`
     position: sticky;
     top: 0;
     left: 0;
+    width: 108px;
     height: 100%;
     margin-right: 8px;
     margin: 1em 0;
