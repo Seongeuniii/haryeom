@@ -50,7 +50,9 @@ const ClassSchedule = ({
         _tutoringSchedules
     );
     const [renderedTutoringSchedules, setRenderedTutoringSchedules] = useState<ITutoringSchedules>(
-        tutoringSchedules || []
+        tutoringSchedules?.filter(
+            (schedule) => schedule.scheduleDate === getFormattedYearMonthDay(date)
+        ) as ITutoringSchedules
     );
 
     useEffect(() => {
