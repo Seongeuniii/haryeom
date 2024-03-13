@@ -6,6 +6,7 @@ import { OnDocumentLoadSuccess, OnPageLoadSuccess } from 'react-pdf/dist/cjs/sha
 import { IPdfSize } from '@/hooks/usePdf';
 import { IMyHomeworkDrawings } from '@/containers/HomeworkContainer/HomeworkContainer';
 import Fold from '../icons/Fold';
+import { useIntersect } from '@/hooks/useIntersect';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
@@ -27,7 +28,6 @@ interface PdfViewerProps extends Homework {
     ZoomInPdfPageCurrentSize: () => void;
     ZoomOutPdfPageCurrentSize: () => void;
 }
-
 const PdfViewer = ({
     pdfFile,
     totalPagesOfPdfFile,
@@ -43,8 +43,15 @@ const PdfViewer = ({
     children,
     myHomeworkDrawings,
 }: PdfViewerProps) => {
+    if (!pdfFile) {
+        return (
+            <StyledPdfViewer>
+                <NoPdfFile>불러온 파일이 없어요:)</NoPdfFile>
+            </StyledPdfViewer>
+        );
+    }
+
     const pdfPageWrapperRef = useRef<HTMLDivElement>(null);
-    const thumbnailListcontainer = useRef<HTMLDivElement>(null);
     const [show, setShow] = useState<boolean>(true);
 
     useEffect(() => {
@@ -64,42 +71,44 @@ const PdfViewer = ({
         return { width: clientWidth, height: clientHeight };
     };
 
-    if (!pdfFile) {
-        return (
-            <StyledPdfViewer>
-                <NoPdfFile>불러온 파일이 없어요:)</NoPdfFile>
-            </StyledPdfViewer>
-        );
-    }
+    const [renderedThumbnailLength, setRenderedThumbnailLength] = useState<number>(0);
+    const lastItemRef = useIntersect(async (entry, observer) => {
+        observer.unobserve(entry.target);
+
+        if (totalPagesOfPdfFile - renderedThumbnailLength >= 10) {
+            setRenderedThumbnailLength((prev) => prev + 10);
+        } else {
+            setRenderedThumbnailLength(
+                (prev) => prev + totalPagesOfPdfFile - renderedThumbnailLength
+            );
+        }
+    });
 
     return (
         <StyledPdfViewer>
-            <PdfThumbnailList ref={thumbnailListcontainer}>
-                {show && (
-                    <Document file={pdfFile}>
-                        {Array.from({ length: totalPagesOfPdfFile }, (el, index) => (
-                            <PdfThumbnail
-                                key={`page_${index + 1}`}
-                                startPageNumber={startPageNumber}
+            <PdfThumbnailList>
+                <Document file={pdfFile}>
+                    {Array.from({ length: renderedThumbnailLength }, (el, index) => (
+                        <PdfThumbnail
+                            key={`page_${index + 1}`}
+                            startPageNumber={startPageNumber}
+                            pageNumber={index + 1}
+                            selectedPageNumber={selectedPageNumber}
+                            movePage={movePage}
+                            homeworkStatus={
+                                myHomeworkDrawings[index + 1] === undefined ? 'notStart' : 'done'
+                            }
+                        >
+                            <Page
                                 pageNumber={index + 1}
-                                selectedPageNumber={selectedPageNumber}
-                                movePage={movePage}
-                                homeworkStatus={
-                                    myHomeworkDrawings[index + 1] === undefined
-                                        ? 'notStart'
-                                        : 'done'
-                                }
-                            >
-                                <Page
-                                    pageNumber={index + 1}
-                                    renderAnnotationLayer={false}
-                                    renderTextLayer={false}
-                                    width={70}
-                                />
-                            </PdfThumbnail>
-                        ))}
-                    </Document>
-                )}
+                                renderAnnotationLayer={false}
+                                renderTextLayer={false}
+                                width={70}
+                            />
+                        </PdfThumbnail>
+                    ))}
+                    <div ref={lastItemRef} />
+                </Document>
             </PdfThumbnailList>
             <PdfPageWrapper ref={pdfPageWrapperRef}>
                 <ToggleThumbnailButton onClick={(prev) => setShow(!show)}>
