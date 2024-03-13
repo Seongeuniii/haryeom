@@ -71,7 +71,8 @@ const PdfViewer = ({
         return { width: clientWidth, height: clientHeight };
     };
 
-    const [renderedThumbnailLength, setRenderedThumbnailLength] = useState<number>(0);
+    const [renderedThumbnailLength, setRenderedThumbnailLength] = useState<number>(10);
+
     const lastItemRef = useIntersect(async (entry, observer) => {
         observer.unobserve(entry.target);
 
@@ -107,7 +108,7 @@ const PdfViewer = ({
                             />
                         </PdfThumbnail>
                     ))}
-                    <div ref={lastItemRef} />
+                    <LastItem ref={lastItemRef} />
                 </Document>
             </PdfThumbnailList>
             <PdfPageWrapper ref={pdfPageWrapperRef}>
@@ -220,6 +221,11 @@ const ZoomButton = styled.button`
         color: ${({ theme }) => theme.WHITE};
         background-color: ${({ theme }) => theme.PRIMARY};
     }
+`;
+
+const LastItem = styled.div`
+    width: 100%;
+    height: 1px;
 `;
 
 export default PdfViewer;
