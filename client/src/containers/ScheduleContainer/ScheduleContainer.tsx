@@ -21,7 +21,6 @@ import { getYearMonth } from '@/utils/time';
 import WithAuth from '@/hocs/withAuth';
 import { IUserRole } from '@/apis/user/user';
 import { getTextbooks } from '@/apis/tutoring/get-textbooks';
-import CreateNewHomework from '@/components/CreateNewHomework';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
 import { useGetHomeworkList } from '@/queries/useGetHomeworkList';
 import TextbookList from '@/components/TextbookList';
@@ -32,7 +31,10 @@ import LoginModal from '@/components/LoginModal';
 import TutoringProfile from '@/components/TutoringProfile';
 import Tabs from '@/components/commons/Tabs';
 import dynamic from 'next/dynamic';
+import Modal from '@/components/commons/Modal';
+import { useModal } from '@/hooks/useModal';
 const CreateNewClass = dynamic(() => import('@/components/CreateNewClass'), { ssr: false });
+const CreateNewHomework = dynamic(() => import('@/components/CreateNewHomework'), { ssr: false });
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -69,6 +71,9 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const { videoList } = useGetTutoringVideoList(seletedTutoring.tutoringId);
 
     const [listTab, setListTab] = useState<'homework' | 'textbook' | 'review'>('homework');
+
+    const { open, openModal, closeModal } = useModal();
+    const [show, setShow] = useState<boolean>(false);
 
     return (
         <HomeLayout>
@@ -109,11 +114,33 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                                 ]}
                             />
                             {userSession?.role === 'TEACHER' && (
-                                <CreateNewHomework
-                                    tutoringId={seletedTutoring.tutoringId}
-                                    tutoringTextbooks={tutoringTextbooks}
-                                    refetch={refetch}
-                                />
+                                <>
+                                    <StyledCreateNewHomework>
+                                        <OpenModalButton
+                                            onClick={() => {
+                                                setShow(true);
+                                                openModal();
+                                            }}
+                                        >
+                                            +
+                                        </OpenModalButton>
+                                    </StyledCreateNewHomework>
+                                    {show && (
+                                        <Modal
+                                            open={open}
+                                            closeModal={() => {
+                                                setShow(false);
+                                                closeModal();
+                                            }}
+                                        >
+                                            <CreateNewHomework
+                                                tutoringId={seletedTutoring.tutoringId}
+                                                tutoringTextbooks={tutoringTextbooks}
+                                                refetch={refetch}
+                                            />
+                                        </Modal>
+                                    )}
+                                </>
                             )}
                         </TutoringContentsTab>
                         {listTab === 'homework' && <HomeworkList homeworkList={homeworkList} />}
@@ -194,16 +221,25 @@ const TutoringContents = styled.div`
     font-size: 16px;
 `;
 
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    height: 30vh;
+const StyledCreateNewHomework = styled.div`
+    bottom: 1.5em;
+    left: 0;
+    text-align: center;
 `;
 
-const ProfileContainer = styled.div`
-    width: 100%;
-    padding-right: 5px;
+const OpenModalButton = styled.button`
+    width: 25px;
+    height: 25px;
+    font-size: 24px;
+    border-radius: 100%;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
+    background-color: ${({ theme }) => theme.LIGHT_BLACK};
+    color: white;
+
+    &:hover {
+        background-color: ${({ theme }) => theme.PRIMARY};
+        color: white;
+    }
 `;
 
 export default WithAuth(ScheduleContainer);
