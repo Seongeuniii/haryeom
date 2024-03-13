@@ -20,7 +20,6 @@ import { getTutoringSchedules } from '@/apis/tutoring/get-tutoring-schedules';
 import { getYearMonth } from '@/utils/time';
 import WithAuth from '@/hocs/withAuth';
 import { IUserRole } from '@/apis/user/user';
-import CreateNewClass from '@/components/CreateNewClass';
 import { getTextbooks } from '@/apis/tutoring/get-textbooks';
 import CreateNewHomework from '@/components/CreateNewHomework';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
@@ -32,6 +31,8 @@ import { useGetTutoringTextbooks } from '@/queries/useGetTutoringTextbooks';
 import LoginModal from '@/components/LoginModal';
 import TutoringProfile from '@/components/TutoringProfile';
 import Tabs from '@/components/commons/Tabs';
+import dynamic from 'next/dynamic';
+const CreateNewClass = dynamic(() => import('@/components/CreateNewClass'), { ssr: false });
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -51,6 +52,7 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
         tutoringTextbooks: _tutoringTextbooks,
         openLoginModal,
     } = pageProps;
+    if (openLoginModal) return <LoginModal />;
     if (!tutorings) return null; // 매칭 없음
 
     const userSession = useRecoilValue(userSessionAtom);
@@ -69,64 +71,60 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
     const [listTab, setListTab] = useState<'homework' | 'textbook' | 'review'>('homework');
 
     return (
-        <>
-            {openLoginModal && <LoginModal />}
-            <HomeLayout>
-                <StyledScheduleContainer>
-                    <ClassSchedule
-                        tutoringSchedules={tutoringSchedules}
-                        CreateNewSchedule={
-                            userSession?.role === 'TEACHER'
-                                ? () =>
-                                      CreateNewClass({ tutorings: tutorings as ITeacherTutorings })
-                                : undefined
-                        }
+        <HomeLayout>
+            <StyledScheduleContainer>
+                <ClassSchedule
+                    tutoringSchedules={tutoringSchedules}
+                    CreateNewSchedule={
+                        userSession?.role === 'TEACHER'
+                            ? () => <CreateNewClass tutorings={tutorings as ITeacherTutorings} />
+                            : undefined
+                    }
+                />
+                <SelectedTutoringSection>
+                    <TutoringProfile
+                        seletedTutoring={seletedTutoring}
+                        setSelectedTutoring={setSelectedTutoring}
+                        tutorings={tutorings}
                     />
-                    <SelectedTutoringSection>
-                        <TutoringProfile
-                            seletedTutoring={seletedTutoring}
-                            setSelectedTutoring={setSelectedTutoring}
-                            tutorings={tutorings}
-                        />
-                        <TutoringContents>
-                            <TutoringContentsTab>
-                                <Tabs
-                                    tabs={[
-                                        {
-                                            name: '숙제',
-                                            selected: listTab === 'homework',
-                                            changeTab: () => setListTab('homework'),
-                                        },
-                                        {
-                                            name: '학습자료',
-                                            selected: listTab === 'textbook',
-                                            changeTab: () => setListTab('textbook'),
-                                        },
-                                        {
-                                            name: '복습',
-                                            selected: listTab === 'review',
-                                            changeTab: () => setListTab('review'),
-                                        },
-                                    ]}
+                    <TutoringContents>
+                        <TutoringContentsTab>
+                            <Tabs
+                                tabs={[
+                                    {
+                                        name: '숙제',
+                                        selected: listTab === 'homework',
+                                        changeTab: () => setListTab('homework'),
+                                    },
+                                    {
+                                        name: '학습자료',
+                                        selected: listTab === 'textbook',
+                                        changeTab: () => setListTab('textbook'),
+                                    },
+                                    {
+                                        name: '복습',
+                                        selected: listTab === 'review',
+                                        changeTab: () => setListTab('review'),
+                                    },
+                                ]}
+                            />
+                            {userSession?.role === 'TEACHER' && (
+                                <CreateNewHomework
+                                    tutoringId={seletedTutoring.tutoringId}
+                                    tutoringTextbooks={tutoringTextbooks}
+                                    refetch={refetch}
                                 />
-                                {userSession?.role === 'TEACHER' && (
-                                    <CreateNewHomework
-                                        tutoringId={seletedTutoring.tutoringId}
-                                        tutoringTextbooks={tutoringTextbooks}
-                                        refetch={refetch}
-                                    />
-                                )}
-                            </TutoringContentsTab>
-                            {listTab === 'homework' && <HomeworkList homeworkList={homeworkList} />}
-                            {listTab === 'textbook' && (
-                                <TextbookList textbookList={tutoringTextbooks} />
                             )}
-                            {listTab === 'review' && <TutoringVideoList videoList={videoList} />}
-                        </TutoringContents>
-                    </SelectedTutoringSection>
-                </StyledScheduleContainer>
-            </HomeLayout>
-        </>
+                        </TutoringContentsTab>
+                        {listTab === 'homework' && <HomeworkList homeworkList={homeworkList} />}
+                        {listTab === 'textbook' && (
+                            <TextbookList textbookList={tutoringTextbooks} />
+                        )}
+                        {listTab === 'review' && <TutoringVideoList videoList={videoList} />}
+                    </TutoringContents>
+                </SelectedTutoringSection>
+            </StyledScheduleContainer>
+        </HomeLayout>
     );
 };
 
