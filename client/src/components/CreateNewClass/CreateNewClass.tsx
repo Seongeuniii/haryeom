@@ -1,12 +1,10 @@
+import { useState } from 'react';
 import styled from 'styled-components';
-import { useModal } from '@/hooks/useModal';
-import Modal from '@/components/commons/Modal';
 import { INewSchedule, ITeacherTutorings } from '@/apis/tutoring/tutoring';
 import SelectTutoringId from './SelectTutoringId';
 import SelectTutoringTime from './SelectTutoringTime';
 import SelectTutoringDate from './SelectTutoringDate';
 import WriteCurriculum from './WriteCurriculum';
-import { useState } from 'react';
 import { getFormattedYearMonthDay } from '@/utils/time';
 import { createTutorings } from '@/apis/tutoring/create-tutorings';
 
@@ -15,7 +13,7 @@ interface CreateNewClassProps {
 }
 
 const CreateNewClass = ({ tutorings }: CreateNewClassProps) => {
-    const { open, openModal, closeModal } = useModal();
+    console.log('newClass');
     const [selectedTutoringId, setSelectedTutoringId] = useState<number>();
     const [selectedStartHour, setSelectedStartHour] = useState<string>('18');
     const [selectedStartMin, setSelectedStartMin] = useState<string>('30');
@@ -50,37 +48,30 @@ const CreateNewClass = ({ tutorings }: CreateNewClassProps) => {
     };
 
     return (
-        <>
-            <Modal open={open} closeModal={closeModal}>
-                <StyledCreateNewClassForm>
-                    <CreateNewClassFormHeader>과외 일정 추가</CreateNewClassFormHeader>
-                    <div style={{ display: 'flex', gap: '2em' }}>
-                        <LeftSection>
-                            <SelectTutoringId
-                                tutorings={tutorings}
-                                setSelectedTutoringId={setSelectedTutoringId}
-                            />
-                            <SelectTutoringTime
-                                setSelectedStartHour={setSelectedStartHour}
-                                setSelectedStartMin={setSelectedStartMin}
-                                setSelectedDuration={setSelectedDuration}
-                            />
-                            <SelectTutoringDate updateSchedules={updateSchedules} />
-                        </LeftSection>
-                        <RightSection>
-                            <WriteCurriculum
-                                newSchedules={newSchedules}
-                                setNewSchedules={setNewSchedules}
-                            />
-                        </RightSection>
-                    </div>
-                    <SubmitButton onClick={submit}>등록</SubmitButton>
-                </StyledCreateNewClassForm>
-            </Modal>
-            <StyledCreateNewClass>
-                <OpenModalButton onClick={openModal}>+</OpenModalButton>
-            </StyledCreateNewClass>
-        </>
+        <StyledCreateNewClassForm>
+            <CreateNewClassFormHeader>과외 일정 추가</CreateNewClassFormHeader>
+            <div style={{ display: 'flex', gap: '2em' }}>
+                <LeftSection>
+                    <SelectTutoringId
+                        tutorings={tutorings}
+                        setSelectedTutoringId={setSelectedTutoringId}
+                    />
+                    <SelectTutoringTime
+                        setSelectedStartHour={setSelectedStartHour}
+                        setSelectedStartMin={setSelectedStartMin}
+                        setSelectedDuration={setSelectedDuration}
+                    />
+                    <SelectTutoringDate updateSchedules={updateSchedules} />
+                </LeftSection>
+                <RightSection>
+                    <WriteCurriculum
+                        newSchedules={newSchedules}
+                        setNewSchedules={setNewSchedules}
+                    />
+                </RightSection>
+            </div>
+            <SubmitButton onClick={submit}>등록</SubmitButton>
+        </StyledCreateNewClassForm>
     );
 };
 
@@ -124,30 +115,6 @@ const SubmitButton = styled.button`
 
     &:hover {
         background-color: ${({ theme }) => theme.PRIMARY};
-    }
-`;
-
-const StyledCreateNewClass = styled.div`
-    width: 100%;
-    bottom: 1.5em;
-    left: 0;
-    text-align: center;
-    position: absolute;
-`;
-
-const OpenModalButton = styled.button`
-    width: 30px;
-    height: 30px;
-    margin-top: 8px;
-    font-size: 24px;
-    border-radius: 100%;
-    color: ${({ theme }) => theme.LIGHT_BLACK};
-    background-color: ${({ theme }) => theme.LIGHT_BLACK};
-    color: white;
-
-    &:hover {
-        background-color: ${({ theme }) => theme.PRIMARY};
-        color: white;
     }
 `;
 

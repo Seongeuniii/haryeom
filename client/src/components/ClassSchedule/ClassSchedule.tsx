@@ -8,17 +8,18 @@ import userSessionAtom from '@/recoil/atoms/userSession';
 import { useEffect, useState } from 'react';
 import TeacherScheduleCard from './TeacherScheduleCard';
 import StudentScheduleCard from './StudentScheduleCard';
-import { getFormattedYearMonthDay, getYearMonth } from '@/utils/time';
+import { getFormattedYearMonthDay } from '@/utils/time';
 import { useGetTutoringSchedules } from '@/queries/useGetTutoringSchedules';
-import moment from 'moment';
+import { useModal } from '@/hooks/useModal';
+import Modal from '@/components/commons/Modal';
 
 interface ClassScheduleProps {
-    tutoringSchedules: ITutoringSchedules | undefined;
+    tutoringSchedules: ITutoringSchedules;
     CreateNewSchedule?: () => JSX.Element;
 }
 
 const ClassSchedule = ({
-    tutoringSchedules: initialData,
+    tutoringSchedules: _tutoringSchedules,
     CreateNewSchedule,
 }: ClassScheduleProps) => {
     const userSession = useRecoilValue(userSessionAtom);
@@ -40,14 +41,13 @@ const ClassSchedule = ({
                         <span>과외 일정 없음</span>
                     </NoSchedule>
                 </ScheduleList>
-                {CreateNewSchedule && <CreateNewSchedule />}
             </StyledClassSchedule>
         );
 
     const { data: tutoringSchedules, isLoading } = useGetTutoringSchedules(
         userSession.role,
         yearMonth,
-        initialData
+        _tutoringSchedules
     );
     const [renderedTutoringSchedules, setRenderedTutoringSchedules] = useState<ITutoringSchedules>(
         tutoringSchedules || []
@@ -70,6 +70,9 @@ const ClassSchedule = ({
         if (!tutoringSchedules) return;
         setRenderedTutoringSchedules(tutoringSchedules);
     };
+
+    const { open, openModal, closeModal } = useModal();
+    const [show, setShow] = useState<boolean>(false);
 
     return (
         <StyledClassSchedule>
@@ -114,7 +117,30 @@ const ClassSchedule = ({
                     </NoSchedule>
                 )}
             </ScheduleList>
-            {CreateNewSchedule && <CreateNewSchedule />}
+            {CreateNewSchedule && (
+                <>
+                    <OpenCreateNewScheduleModalButton
+                        onClick={() => {
+                            setShow(true);
+                            openModal();
+                        }}
+                        content="+"
+                    >
+                        +
+                    </OpenCreateNewScheduleModalButton>
+                    {show && (
+                        <Modal
+                            open={open}
+                            closeModal={() => {
+                                setShow(false);
+                                closeModal();
+                            }}
+                        >
+                            <CreateNewSchedule />
+                        </Modal>
+                    )}
+                </>
+            )}
         </StyledClassSchedule>
     );
 };
@@ -179,6 +205,26 @@ const NoSchedule = styled.div`
     justify-content: center;
     font-weight: 700;
     color: ${({ theme }) => theme.LIGHT_BLACK};
+`;
+
+const OpenCreateNewScheduleModalButton = styled.button`
+    position: absolute;
+    bottom: 0.4em;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px;
+    height: 30px;
+    margin-top: 8px;
+    font-size: 24px;
+    border-radius: 100%;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
+    background-color: ${({ theme }) => theme.LIGHT_BLACK};
+    color: white;
+
+    &:hover {
+        background-color: ${({ theme }) => theme.PRIMARY};
+        color: white;
+    }
 `;
 
 export default ClassSchedule;
