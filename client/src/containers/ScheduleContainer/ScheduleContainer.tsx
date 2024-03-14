@@ -23,8 +23,6 @@ import { IUserRole } from '@/apis/user/user';
 import { getTextbooks } from '@/apis/tutoring/get-textbooks';
 import { getTutorings } from '@/apis/tutoring/get-tutorings';
 import { useGetHomeworkList } from '@/queries/useGetHomeworkList';
-import TextbookList from '@/components/TextbookList';
-import TutoringVideoList from '@/components/TutoringVideoList';
 import { useGetTutoringVideoList } from '@/queries/useGetTutoringVideoList';
 import { useGetTutoringTextbooks } from '@/queries/useGetTutoringTextbooks';
 import LoginModal from '@/components/LoginModal';
@@ -33,8 +31,15 @@ import Tabs from '@/components/commons/Tabs';
 import dynamic from 'next/dynamic';
 import Modal from '@/components/commons/Modal';
 import { useModal } from '@/hooks/useModal';
+// import TextbookList from '@/components/TextbookList';
+// import TutoringVideoList from '@/components/TutoringVideoList';
+// import CreateNewClass from '@/components/CreateNewClass';
+// import CreateNewHomework from '@/components/CreateNewHomework';
+
 const CreateNewClass = dynamic(() => import('@/components/CreateNewClass'), { ssr: false });
 const CreateNewHomework = dynamic(() => import('@/components/CreateNewHomework'), { ssr: false });
+const TextbookList = dynamic(() => import('@/components/TextbookList'), { ssr: false });
+const TutoringVideoList = dynamic(() => import('@/components/TutoringVideoList'), { ssr: false });
 
 interface ScheduleContainerProps {
     tutorings: ITutorings;
@@ -230,6 +235,26 @@ const StyledCreateNewHomework = styled.div`
 const OpenModalButton = styled.button`
     width: 25px;
     height: 25px;
+    font-size: 24px;
+    border-radius: 100%;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
+    background-color: ${({ theme }) => theme.LIGHT_BLACK};
+    color: white;
+
+    &:hover {
+        background-color: ${({ theme }) => theme.PRIMARY};
+        color: white;
+    }
+`;
+
+const OpenCreateNewScheduleModalButton = styled.button`
+    position: absolute;
+    bottom: 0.4em;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px;
+    height: 30px;
+    margin-top: 8px;
     font-size: 24px;
     border-radius: 100%;
     color: ${({ theme }) => theme.LIGHT_BLACK};
