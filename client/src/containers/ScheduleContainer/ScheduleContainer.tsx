@@ -86,9 +86,32 @@ const ScheduleContainer = ({ ...pageProps }: ScheduleContainerProps) => {
                 <ClassSchedule
                     tutoringSchedules={tutoringSchedules}
                     CreateNewSchedule={
-                        userSession?.role === 'TEACHER'
-                            ? () => <CreateNewClass tutorings={tutorings as ITeacherTutorings} />
-                            : undefined
+                        userSession?.role === 'TEACHER' ? (
+                            <>
+                                <OpenCreateNewScheduleModalButton
+                                    onClick={() => {
+                                        setShow(true);
+                                        openModal();
+                                    }}
+                                    content="+"
+                                >
+                                    +
+                                </OpenCreateNewScheduleModalButton>
+                                {show && (
+                                    <Modal
+                                        open={open}
+                                        closeModal={() => {
+                                            setShow(false);
+                                            closeModal();
+                                        }}
+                                    >
+                                        <CreateNewClass
+                                            tutorings={tutorings as ITeacherTutorings}
+                                        />
+                                    </Modal>
+                                )}
+                            </>
+                        ) : undefined
                     }
                 />
                 <SelectedTutoringSection>

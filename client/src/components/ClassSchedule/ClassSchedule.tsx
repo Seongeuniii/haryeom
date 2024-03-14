@@ -15,7 +15,7 @@ import Modal from '@/components/commons/Modal';
 
 interface ClassScheduleProps {
     tutoringSchedules: ITutoringSchedules;
-    CreateNewSchedule?: () => JSX.Element;
+    CreateNewSchedule?: JSX.Element;
 }
 
 const ClassSchedule = ({
@@ -73,9 +73,6 @@ const ClassSchedule = ({
         setRenderedTutoringSchedules(tutoringSchedules);
     };
 
-    const { open, openModal, closeModal } = useModal();
-    const [show, setShow] = useState<boolean>(false);
-
     return (
         <StyledClassSchedule>
             <ClassScheduleHeader>
@@ -119,30 +116,7 @@ const ClassSchedule = ({
                     </NoSchedule>
                 )}
             </ScheduleList>
-            {CreateNewSchedule && (
-                <>
-                    <OpenCreateNewScheduleModalButton
-                        onClick={() => {
-                            setShow(true);
-                            openModal();
-                        }}
-                        content="+"
-                    >
-                        +
-                    </OpenCreateNewScheduleModalButton>
-                    {show && (
-                        <Modal
-                            open={open}
-                            closeModal={() => {
-                                setShow(false);
-                                closeModal();
-                            }}
-                        >
-                            <CreateNewSchedule />
-                        </Modal>
-                    )}
-                </>
-            )}
+            {CreateNewSchedule}
         </StyledClassSchedule>
     );
 };
@@ -207,26 +181,6 @@ const NoSchedule = styled.div`
     justify-content: center;
     font-weight: 700;
     color: ${({ theme }) => theme.LIGHT_BLACK};
-`;
-
-const OpenCreateNewScheduleModalButton = styled.button`
-    position: absolute;
-    bottom: 0.4em;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 30px;
-    height: 30px;
-    margin-top: 8px;
-    font-size: 24px;
-    border-radius: 100%;
-    color: ${({ theme }) => theme.LIGHT_BLACK};
-    background-color: ${({ theme }) => theme.LIGHT_BLACK};
-    color: white;
-
-    &:hover {
-        background-color: ${({ theme }) => theme.PRIMARY};
-        color: white;
-    }
 `;
 
 export default ClassSchedule;
