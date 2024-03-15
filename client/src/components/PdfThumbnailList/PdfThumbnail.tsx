@@ -1,13 +1,14 @@
 import { MouseEvent, ReactNode, useRef } from 'react';
 import styled from 'styled-components';
 import Check from '@/components/icons/Check';
+import { IHomeworkStatus } from '@/containers/HomeworkContainer/HomeworkContainer';
 
 interface PdfThumbnailProps {
     pageNumber: number;
     selectedPageNumber: number;
     startPageNumber: number;
     movePage: (selectedPageNumber: number) => void;
-    homeworkStatus?: 'done' | 'inProgress' | 'notStart';
+    homeworkStatus?: IHomeworkStatus;
     children: ReactNode;
 }
 

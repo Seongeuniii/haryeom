@@ -1,12 +1,10 @@
-import { ReactNode, RefObject, useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Document, Page, pdfjs } from 'react-pdf';
-import PdfThumbnail from './PdfThumbnail';
 import { OnDocumentLoadSuccess, OnPageLoadSuccess } from 'react-pdf/dist/cjs/shared/types';
 import { IPdfSize } from '@/hooks/usePdf';
 import { IMyHomeworkDrawings } from '@/containers/HomeworkContainer/HomeworkContainer';
-import Fold from '../icons/Fold';
-import { useIntersect } from '@/hooks/useIntersect';
+import Fold from '@/components/icons/Fold';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
@@ -71,46 +69,8 @@ const PdfViewer = ({
         return { width: clientWidth, height: clientHeight };
     };
 
-    const [renderedThumbnailLength, setRenderedThumbnailLength] = useState<number>(10);
-
-    const lastItemRef = useIntersect(async (entry, observer) => {
-        observer.unobserve(entry.target);
-
-        if (totalPagesOfPdfFile - renderedThumbnailLength >= 10) {
-            setRenderedThumbnailLength((prev) => prev + 10);
-        } else {
-            setRenderedThumbnailLength(
-                (prev) => prev + totalPagesOfPdfFile - renderedThumbnailLength
-            );
-        }
-    });
-
     return (
         <StyledPdfViewer>
-            <PdfThumbnailList>
-                <Document file={pdfFile}>
-                    {Array.from({ length: renderedThumbnailLength }, (el, index) => (
-                        <PdfThumbnail
-                            key={`page_${index + 1}`}
-                            startPageNumber={startPageNumber}
-                            pageNumber={index + 1}
-                            selectedPageNumber={selectedPageNumber}
-                            movePage={movePage}
-                            homeworkStatus={
-                                myHomeworkDrawings[index + 1] === undefined ? 'notStart' : 'done'
-                            }
-                        >
-                            <Page
-                                pageNumber={index + 1}
-                                renderAnnotationLayer={false}
-                                renderTextLayer={false}
-                                width={70}
-                            />
-                        </PdfThumbnail>
-                    ))}
-                    <LastItem ref={lastItemRef} />
-                </Document>
-            </PdfThumbnailList>
             <PdfPageWrapper ref={pdfPageWrapperRef}>
                 <ToggleThumbnailButton onClick={(prev) => setShow(!show)}>
                     <Fold />
@@ -175,21 +135,6 @@ const ToggleThumbnailButton = styled.button`
     }
 `;
 
-const PdfThumbnailList = styled.div`
-    position: sticky;
-    top: 0;
-    left: 0;
-    width: 108px;
-    height: 100%;
-    margin-right: 8px;
-    margin: 1em 0;
-
-    overflow: scroll;
-    &::-webkit-scrollbar {
-        display: none;
-    }
-`;
-
 const PdfPageWrapper = styled.div`
     position: relative;
     height: 100%;
@@ -221,11 +166,6 @@ const ZoomButton = styled.button`
         color: ${({ theme }) => theme.WHITE};
         background-color: ${({ theme }) => theme.PRIMARY};
     }
-`;
-
-const LastItem = styled.div`
-    width: 100%;
-    height: 1px;
 `;
 
 export default PdfViewer;
