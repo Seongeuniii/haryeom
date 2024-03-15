@@ -31,21 +31,17 @@ export interface IHomeworkStatus {
     [pageNum: number]: 'progress' | 'done' | 'not-start';
 }
 
-const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContainerProps) => {
-    const router = useRouter();
-    const { data: homeworkData, refetch } = useGetHomework(
-        initialHomeworkData.homeworkId,
-        initialHomeworkData
-    );
+const HomeworkContainer = ({ homeworkData: _homeworkData }: HomeworkContainerProps) => {
+    const { data: homeworkData, refetch } = useGetHomework(_homeworkData.homeworkId, _homeworkData);
     if (!homeworkData) return <div>...loading</div>; // TODO : 리팩토링
 
+    const router = useRouter();
     const [myHomeworkDrawings, setMyHomeworkDrawings] = useState<IMyHomeworkDrawings>(
         homeworkData.drawings.reduce((acc, { page, homeworkDrawingUrl }) => {
             acc[page] = homeworkDrawingUrl;
             return acc;
         }, {} as IMyHomeworkDrawings)
     );
-
     const saveHomeworkDrawing = () => {
         const imageSize = {
             width: pdfPageOriginalSize?.width as number,
@@ -57,6 +53,16 @@ const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContai
             return newbackgroundImage;
         });
     };
+
+    const homeworkCanvasRef = useRef<HTMLCanvasElement>(null);
+    const [penStyle, setPenStyle] = useState<IPenStyle>({
+        isPen: true,
+        strokeStyle: 'black',
+        lineWidth: 3,
+    });
+    const changePenStyle = useCallback((value: IPenStyle) => {
+        setPenStyle((prev) => ({ ...prev, ...value }));
+    }, []);
 
     const {
         totalPagesOfPdfFile,
@@ -72,24 +78,10 @@ const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContai
     } = usePdf({
         initialSelectedPageNumer: 1,
     });
-
-    const homeworkCanvasRef = useRef<HTMLCanvasElement>(null);
-
-    const [penStyle, setPenStyle] = useState<IPenStyle>({
-        isPen: true,
-        strokeStyle: 'black',
-        lineWidth: 3,
-    });
-
-    const changePenStyle = useCallback((value: IPenStyle) => {
-        setPenStyle((prev) => ({ ...prev, ...value }));
-    }, []);
-
     const { contextRef } = useCanvas({
         canvasRef: homeworkCanvasRef,
         backgroundImage: myHomeworkDrawings[selectedPageNumber],
     });
-
     const {
         handlePointerDown,
         handlePointerMove,
@@ -119,7 +111,6 @@ const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContai
             return acc;
         }, {} as IHomeworkStatus);
     }, [homeworkData, myHomeworkDrawings]);
-
     const handleSave = useCallback(async () => {
         await saveHomework(homeworkData.homeworkId, myHomeworkDrawings);
         refetch();
@@ -214,31 +205,6 @@ const StyledHomeworkContainer = styled.div`
     display: flex;
     justify-content: center;
     align-items: end;
-`;
-
-const SubmitButtons = styled.div`
-    position: absolute;
-    right: 16.5%;
-    display: flex;
-    gap: 7px;
-
-    @media screen and (max-width: 1200px) {
-        & {
-            right: 2%;
-        }
-    }
-`;
-
-const SubmitHomeworkButton = styled.button`
-    padding: 5px 12px;
-    border-radius: 5px;
-    background-color: ${({ theme }) => theme.PRIMARY_LIGHT};
-    color: white;
-
-    &:hover {
-        background-color: ${({ theme }) => theme.PRIMARY};
-        transition: all 0.5s;
-    }
 `;
 
 const BoardWrapper = styled.div`
