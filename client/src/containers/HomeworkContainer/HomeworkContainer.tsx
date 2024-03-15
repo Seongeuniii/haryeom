@@ -1,5 +1,5 @@
 import { GetServerSideProps } from 'next';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import PdfViewer from '@/components/PdfViewer';
 import PaintCanvas from '@/components/PaintCanvas';
@@ -23,6 +23,10 @@ interface HomeworkContainerProps {
 
 export interface IMyHomeworkDrawings {
     [pageNum: number]: Blob | string;
+}
+
+export interface IHomeworkStatus {
+    [pageNum: number]: 'progress' | 'done' | 'not-start';
 }
 
 const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContainerProps) => {
@@ -97,6 +101,24 @@ const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContai
         penStyle,
     });
 
+    const homeworkStatus: IHomeworkStatus = useMemo(() => {
+        const { startPage, endPage } = homeworkData;
+        const pageRange: number[] = Array.from(
+            { length: endPage - startPage + 1 },
+            (_, index) => startPage + index
+        );
+        return pageRange.reduce((acc, pageNum) => {
+            if (homeworkData.drawings.some((drawing) => drawing.page === pageNum)) {
+                acc[pageNum] = 'done';
+            } else if (myHomeworkDrawings[pageNum]) {
+                acc[pageNum] = 'progress';
+            } else {
+                acc[pageNum] = 'not-start';
+            }
+            return acc;
+        }, {} as IHomeworkStatus);
+    }, [homeworkData, myHomeworkDrawings]);
+
     return (
         <HomeworkLayout
             homeworkData={homeworkData}
@@ -148,10 +170,7 @@ const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContai
                         </DrawingLayer>
                     </PdfViewer>
                 </Board>
-                <HomeworkStatus
-                    homeworkData={homeworkData}
-                    myHomeworkDrawings={myHomeworkDrawings}
-                />
+                <HomeworkStatus homeworkData={homeworkData} homeworkStatus={homeworkStatus} />
             </StyledHomeworkContainer>
         </HomeworkLayout>
     );
