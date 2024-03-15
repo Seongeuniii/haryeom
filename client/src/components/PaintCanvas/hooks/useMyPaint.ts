@@ -1,4 +1,4 @@
-import { MutableRefObject, PointerEvent, RefObject, useEffect, useRef, useState } from 'react';
+import { MutableRefObject, PointerEvent, RefObject, useCallback, useEffect, useState } from 'react';
 import { IPenStyle } from '@/hooks/useClass';
 
 interface IUseMyPaint {
@@ -10,7 +10,7 @@ interface IUseMyPaint {
     erasePeerPaint?: (offset: IOffset) => void;
 }
 
-interface IOffset {
+export interface IOffset {
     x: number;
     y: number;
 }
@@ -165,10 +165,10 @@ const useMyPaint = ({
         return blob;
     };
 
-    const resetCanvas = () => {
+    const resetCanvas = useCallback(() => {
         if (!canvasRef.current || !contextRef.current) return;
         contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    };
+    }, []);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const SendAction = (data: any) => {

@@ -81,9 +81,9 @@ const HomeworkContainer = ({ homeworkData: initialHomeworkData }: HomeworkContai
         lineWidth: 3,
     });
 
-    const changePenStyle = (value: IPenStyle) => {
+    const changePenStyle = useCallback((value: IPenStyle) => {
         setPenStyle((prev) => ({ ...prev, ...value }));
-    };
+    }, []);
 
     const { contextRef } = useCanvas({
         canvasRef: homeworkCanvasRef,
