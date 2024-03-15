@@ -1,7 +1,7 @@
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { IHomework } from '@/apis/homework/homework';
 import { IHomeworkStatus } from '@/containers/HomeworkContainer/HomeworkContainer';
-import React from 'react';
 
 interface HomeworkStatusProps {
     homeworkData: IHomework;
@@ -10,33 +10,21 @@ interface HomeworkStatusProps {
 
 const HomeworkStatus = ({ homeworkData, homeworkStatus }: HomeworkStatusProps) => {
     const { startPage, endPage, drawings } = homeworkData;
-
-    const renderPageButtons = () => {
-        const pageRange = Array.from(
-            { length: endPage - startPage + 1 },
-            (_, index) => startPage + index
-        );
-        return pageRange.map((page) => (
-            <PageButton key={page} className={homeworkStatus[page - startPage + 1]}>
-                {page}
-            </PageButton>
-        ));
-    };
-
-    const calculateDoneCount = () => {
-        return drawings.length;
-    };
-
-    const calculatePageLength = () => {
-        return endPage - startPage + 1;
-    };
+    const calculateDoneCount = useMemo(() => drawings.length, [drawings.length]);
+    const calculatePageLength = useMemo(() => endPage - startPage + 1, [startPage, endPage]);
 
     return (
         <StyledHomeworkStatus>
             <Title>
-                숙제 현황 ({calculateDoneCount()}/{calculatePageLength()})
+                숙제 현황 ({calculateDoneCount}/{calculatePageLength})
             </Title>
-            <PageButttons>{renderPageButtons()}</PageButttons>
+            <PageButttons>
+                {Object.entries(homeworkStatus).map(([page, status]) => (
+                    <PageButton key={page} className={status}>
+                        {page}
+                    </PageButton>
+                ))}
+            </PageButttons>
         </StyledHomeworkStatus>
     );
 };
