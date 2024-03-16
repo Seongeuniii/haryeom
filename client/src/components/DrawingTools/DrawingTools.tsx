@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 import Button from '@/components/commons/Button';
 import Pen from '@/components/icons/Pen';
@@ -174,4 +175,4 @@ const ResetButton = styled.div`
     }
 `;
 
-export default DrawingTools;
+export default React.memo(DrawingTools);
