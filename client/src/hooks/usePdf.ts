@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { DocumentCallback, PageCallback } from 'react-pdf/dist/cjs/shared/types';
 
 export interface IPdfSize {
@@ -33,9 +33,9 @@ const usePdf = ({ initialSelectedPageNumer = 1 }: IUsePdf) => {
         });
     };
 
-    const movePage = (selectedPageNumber: number) => {
+    const movePage = useCallback((selectedPageNumber: number) => {
         setSelectedPageNum(selectedPageNumber);
-    };
+    }, []);
 
     const updatePdfPageCurrentSize = (size: IPdfSize) => {
         clearTimeout(resizeTimer);

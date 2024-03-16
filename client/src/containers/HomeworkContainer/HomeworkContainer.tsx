@@ -131,53 +131,51 @@ const HomeworkContainer = ({ homeworkData: _homeworkData }: HomeworkContainerPro
                 handleSave={handleSave}
                 handleSubmit={handleSubmit}
             />
-            <ContainerWrapper>
-                <BoardWrapper>
-                    <Board>
-                        <DrawingToolWrapper>
-                            <DrawingTools
-                                penStyle={penStyle}
-                                changePenStyle={changePenStyle}
-                                resetCanvas={resetCanvas}
-                            />
-                        </DrawingToolWrapper>
-                        <PdfThumbnailList
-                            pdfFile={homeworkData.textbook.textbookUrl}
-                            totalPagesOfPdfFile={totalPagesOfPdfFile}
-                            startPageNumber={homeworkData.startPage}
-                            selectedPageNumber={selectedPageNumber}
-                            movePage={movePage}
+            <HomeworkContents>
+                <HomeworkDrawingBoard>
+                    <DrawingToolsWrapper>
+                        <DrawingTools
+                            penStyle={penStyle}
+                            changePenStyle={changePenStyle}
+                            resetCanvas={resetCanvas}
                         />
-                        <PdfViewer
-                            pdfFile={homeworkData.textbook.textbookUrl}
-                            selectedPageNumber={selectedPageNumber}
-                            totalPagesOfPdfFile={totalPagesOfPdfFile}
-                            pdfPageCurrentSize={pdfPageCurrentSize}
-                            movePage={movePage}
-                            onDocumentLoadSuccess={onDocumentLoadSuccess}
-                            onPageLoadSuccess={onPageLoadSuccess}
-                            updatePdfPageCurrentSize={updatePdfPageCurrentSize}
-                            ZoomInPdfPageCurrentSize={ZoomInPdfPageCurrentSize}
-                            ZoomOutPdfPageCurrentSize={ZoomOutPdfPageCurrentSize}
-                            myHomeworkDrawings={myHomeworkDrawings}
-                            startPageNumber={homeworkData.startPage}
-                        >
-                            <DrawingLayer>
-                                <PaintCanvas
-                                    canvasRef={homeworkCanvasRef}
-                                    handlePointerDown={handlePointerDown}
-                                    handlePointerMove={handlePointerMove}
-                                    handlePointerUp={() => {
-                                        handlePointerUp();
-                                        saveHomeworkDrawing();
-                                    }}
-                                />
-                            </DrawingLayer>
-                        </PdfViewer>
-                    </Board>
-                    <HomeworkStatus homeworkData={homeworkData} homeworkStatus={homeworkStatus} />
-                </BoardWrapper>
-            </ContainerWrapper>
+                    </DrawingToolsWrapper>
+                    <PdfThumbnailList
+                        pdfFile={homeworkData.textbook.textbookUrl}
+                        totalPagesOfPdfFile={totalPagesOfPdfFile}
+                        startPageNumber={homeworkData.startPage}
+                        selectedPageNumber={selectedPageNumber}
+                        movePage={movePage}
+                    />
+                    <PdfViewer
+                        pdfFile={homeworkData.textbook.textbookUrl}
+                        selectedPageNumber={selectedPageNumber}
+                        totalPagesOfPdfFile={totalPagesOfPdfFile}
+                        pdfPageCurrentSize={pdfPageCurrentSize}
+                        movePage={movePage}
+                        onDocumentLoadSuccess={onDocumentLoadSuccess}
+                        onPageLoadSuccess={onPageLoadSuccess}
+                        updatePdfPageCurrentSize={updatePdfPageCurrentSize}
+                        ZoomInPdfPageCurrentSize={ZoomInPdfPageCurrentSize}
+                        ZoomOutPdfPageCurrentSize={ZoomOutPdfPageCurrentSize}
+                        myHomeworkDrawings={myHomeworkDrawings}
+                        startPageNumber={homeworkData.startPage}
+                    >
+                        <DrawingLayer>
+                            <PaintCanvas
+                                canvasRef={homeworkCanvasRef}
+                                handlePointerDown={handlePointerDown}
+                                handlePointerMove={handlePointerMove}
+                                handlePointerUp={() => {
+                                    handlePointerUp();
+                                    saveHomeworkDrawing();
+                                }}
+                            />
+                        </DrawingLayer>
+                    </PdfViewer>
+                </HomeworkDrawingBoard>
+                <HomeworkStatus homeworkData={homeworkData} homeworkStatus={homeworkStatus} />
+            </HomeworkContents>
             <ChatContainer />
         </StyledHomeworkContainer>
     );
@@ -207,16 +205,7 @@ const StyledHomeworkContainer = styled.div`
     align-items: end;
 `;
 
-const BoardWrapper = styled.div`
-    background-color: white;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-`;
-
-const Board = styled.div`
+const HomeworkDrawingBoard = styled.div`
     position: relative;
     width: 100%;
     margin-top: 1em;
@@ -232,7 +221,7 @@ const DrawingLayer = styled.div`
     height: 100%;
 `;
 
-const DrawingToolWrapper = styled.div`
+const DrawingToolsWrapper = styled.div`
     position: absolute;
     width: 95%;
     height: 40px;
@@ -247,7 +236,7 @@ const DrawingToolWrapper = styled.div`
     z-index: 10;
 `;
 
-const ContainerWrapper = styled.main`
+const HomeworkContents = styled.main`
     width: 70%;
     height: calc(100% - 3em);
     display: flex;

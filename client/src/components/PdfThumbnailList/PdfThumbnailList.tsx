@@ -1,6 +1,7 @@
+import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
-import { Document, Page, pdfjs } from 'react-pdf';
+import { Document, Page } from 'react-pdf';
 import PdfThumbnail from './PdfThumbnail';
 import { useIntersect } from '@/hooks/useIntersect';
 import { IHomeworkStatus } from '@/containers/HomeworkContainer/HomeworkContainer';
@@ -82,4 +83,4 @@ const LastItem = styled.div`
     height: 1px;
 `;
 
-export default PdfThumbnailList;
+export default React.memo(PdfThumbnailList);
