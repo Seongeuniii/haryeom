@@ -16,7 +16,6 @@ import DrawingTools from '@/components/DrawingTools';
 import { useRouter } from 'next/router';
 import useCanvas from '@/components/PaintCanvas/hooks/useCanvas';
 import PdfThumbnailList from '@/components/PdfThumbnailList';
-import ChatContainer from '@/containers/ChatContainer';
 import HomeworkPageHeader from '@/components/HomeworkPageHeader';
 
 interface HomeworkContainerProps {
@@ -176,7 +175,6 @@ const HomeworkContainer = ({ homeworkData: _homeworkData }: HomeworkContainerPro
                 </HomeworkDrawingBoard>
                 <HomeworkStatus homeworkData={homeworkData} homeworkStatus={homeworkStatus} />
             </HomeworkContents>
-            <ChatContainer />
         </StyledHomeworkContainer>
     );
 };

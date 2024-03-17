@@ -1,12 +1,17 @@
 import Head from 'next/head';
 import { ReactNode } from 'react';
 import styled from 'styled-components';
+import { useRecoilValue } from 'recoil';
+import ChatContainer from '@/containers/ChatContainer';
+import userSessionAtom from '@/recoil/atoms/userSession';
 
 interface MainLayoutProps {
     children: ReactNode;
 }
 
 const MainLayout = ({ children }: MainLayoutProps) => {
+    const userSession = useRecoilValue(userSessionAtom);
+
     return (
         <StyledMainLayout>
             <Head>
@@ -14,6 +19,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 <meta name="description" content="" />
             </Head>
             {children}
+            {userSession && <ChatContainer />}
         </StyledMainLayout>
     );
 };
