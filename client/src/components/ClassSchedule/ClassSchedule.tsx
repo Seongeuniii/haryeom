@@ -1,83 +1,45 @@
 import styled from 'styled-components';
 import MyCalendar from '@/components/Calendar';
 import useCalendar from '@/hooks/useCalendar';
-import CreateNewClass from '@/components/CreateNewClass/CreateNewClass';
 import { IStudentSchedule, ITeacherSchedule, ITutoringSchedules } from '@/apis/tutoring/tutoring';
 import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
-import { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import TeacherScheduleCard from './TeacherScheduleCard';
 import StudentScheduleCard from './StudentScheduleCard';
 import { getFormattedYearMonthDay } from '@/utils/time';
 import { useGetTutoringSchedules } from '@/queries/useGetTutoringSchedules';
-import { useModal } from '@/hooks/useModal';
-import Modal from '@/components/commons/Modal';
 
 interface ClassScheduleProps {
     tutoringSchedules: ITutoringSchedules;
-    CreateNewSchedule?: JSX.Element;
+    children?: ReactNode;
 }
 
-const ClassSchedule = ({
-    tutoringSchedules: _tutoringSchedules,
-    CreateNewSchedule,
-}: ClassScheduleProps) => {
+const ClassSchedule = ({ tutoringSchedules: _tutoringSchedules, children }: ClassScheduleProps) => {
     const userSession = useRecoilValue(userSessionAtom);
-    const { date, setDate, yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
+    if (!userSession) return null;
 
-    if (!userSession)
-        return (
-            <StyledClassSchedule>
-                <ClassScheduleHeader>
-                    <Title>과외 일정</Title>
-                </ClassScheduleHeader>
-                <MyCalendar
-                    selectedDate={date}
-                    handleClickDay={handleClickDay}
-                    handleYearMonthChange={handleYearMonthChange}
-                ></MyCalendar>
-                <ScheduleList>
-                    <NoSchedule>
-                        <span>과외 일정 없음</span>
-                    </NoSchedule>
-                </ScheduleList>
-            </StyledClassSchedule>
-        );
-
-    const { data: tutoringSchedules, isLoading } = useGetTutoringSchedules(
+    const { date, yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
+    const { data: tutoringSchedulesOfMonth } = useGetTutoringSchedules(
         userSession.role,
         yearMonth,
         _tutoringSchedules
     );
-    const [renderedTutoringSchedules, setRenderedTutoringSchedules] = useState<ITutoringSchedules>(
-        tutoringSchedules?.filter(
-            (schedule) => schedule.scheduleDate === getFormattedYearMonthDay(date)
-        ) as ITutoringSchedules
-    );
-
-    useEffect(() => {
-        if (!tutoringSchedules) return;
-        setRenderedTutoringSchedules(
-            tutoringSchedules.filter(
-                (schedule) => schedule.scheduleDate === getFormattedYearMonthDay(date)
-            ) as ITutoringSchedules
+    const [showMonth, setShowMonth] = useState<boolean>(false);
+    const schedulesToShow = useMemo(() => {
+        if (!tutoringSchedulesOfMonth) return [];
+        if (showMonth) return tutoringSchedulesOfMonth;
+        const formattedDate = getFormattedYearMonthDay(date);
+        return tutoringSchedulesOfMonth.filter(
+            (schedule) => schedule.scheduleDate === formattedDate
         );
-    }, [date, tutoringSchedules]);
-
-    useEffect(() => {
-        setDate(new Date());
-    }, []);
-
-    const renderTotalSchedules = () => {
-        if (!tutoringSchedules) return;
-        setRenderedTutoringSchedules(tutoringSchedules);
-    };
+    }, [showMonth, tutoringSchedulesOfMonth, date]);
 
     return (
         <StyledClassSchedule>
             <ClassScheduleHeader>
                 <Title>과외 일정</Title>
-                <TodayScheduleButton onClick={renderTotalSchedules}>
+                <TodayScheduleButton onClick={() => setShowMonth(true)}>
                     이번 달 전체
                 </TodayScheduleButton>
             </ClassScheduleHeader>
@@ -85,11 +47,11 @@ const ClassSchedule = ({
                 selectedDate={date}
                 handleClickDay={handleClickDay}
                 handleYearMonthChange={handleYearMonthChange}
-                dotDates={tutoringSchedules?.flatMap((schedule) => schedule.scheduleDate)}
+                dotDates={tutoringSchedulesOfMonth?.flatMap((schedule) => schedule.scheduleDate)}
             ></MyCalendar>
             <ScheduleList>
-                {renderedTutoringSchedules.length > 0 ? (
-                    renderedTutoringSchedules.map((daySchedule, index) => (
+                {schedulesToShow.length > 0 ? (
+                    schedulesToShow.map((daySchedule, index) => (
                         <SchedulesOfADay key={`daySchedule_${index}`}>
                             <ScheduleDate>{daySchedule.scheduleDate}</ScheduleDate>
                             <ScheduleCards>
@@ -116,7 +78,7 @@ const ClassSchedule = ({
                     </NoSchedule>
                 )}
             </ScheduleList>
-            {CreateNewSchedule}
+            {children}
         </StyledClassSchedule>
     );
 };
