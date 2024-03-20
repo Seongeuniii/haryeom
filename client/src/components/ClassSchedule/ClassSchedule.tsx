@@ -1,14 +1,13 @@
+import React, { ReactNode, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import MyCalendar from '@/components/Calendar';
 import useCalendar from '@/hooks/useCalendar';
-import { IStudentSchedule, ITeacherSchedule, ITutoringSchedules } from '@/apis/tutoring/tutoring';
+import { ITutoringSchedules } from '@/apis/tutoring/tutoring';
 import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
-import React, { ReactNode, useEffect, useMemo, useState } from 'react';
-import TeacherScheduleCard from './TeacherScheduleCard';
-import StudentScheduleCard from './StudentScheduleCard';
 import { getFormattedYearMonthDay } from '@/utils/time';
 import { useGetTutoringSchedules } from '@/queries/useGetTutoringSchedules';
+import ClassScheduleCard from '@/components/ClassScheduleCard';
 
 interface ClassScheduleProps {
     tutoringSchedules: ITutoringSchedules;
@@ -20,7 +19,7 @@ const ClassSchedule = ({ tutoringSchedules: _tutoringSchedules, children }: Clas
     if (!userSession) return null;
 
     const { date, yearMonth, handleClickDay, handleYearMonthChange } = useCalendar();
-    const { data: tutoringSchedulesOfMonth } = useGetTutoringSchedules(
+    const { tutoringSchedulesOfMonth } = useGetTutoringSchedules(
         userSession.role,
         yearMonth,
         _tutoringSchedules
@@ -30,6 +29,7 @@ const ClassSchedule = ({ tutoringSchedules: _tutoringSchedules, children }: Clas
         if (!tutoringSchedulesOfMonth) return [];
         if (showMonth) return tutoringSchedulesOfMonth;
         const formattedDate = getFormattedYearMonthDay(date);
+        // TODO : -> find
         return tutoringSchedulesOfMonth.filter(
             (schedule) => schedule.scheduleDate === formattedDate
         );
@@ -51,26 +51,12 @@ const ClassSchedule = ({ tutoringSchedules: _tutoringSchedules, children }: Clas
             ></MyCalendar>
             <ScheduleList>
                 {schedulesToShow.length > 0 ? (
-                    schedulesToShow.map((daySchedule, index) => (
-                        <SchedulesOfADay key={`daySchedule_${index}`}>
-                            <ScheduleDate>{daySchedule.scheduleDate}</ScheduleDate>
-                            <ScheduleCards>
-                                {daySchedule.schedules.map((schedule) => {
-                                    return userSession?.role === 'TEACHER' ? (
-                                        <TeacherScheduleCard
-                                            key={`teacher_schedule_${schedule.tutoringScheduleId}`}
-                                            schedule={schedule as ITeacherSchedule}
-                                            scheduleDate={daySchedule.scheduleDate}
-                                        />
-                                    ) : (
-                                        <StudentScheduleCard
-                                            key={`student_schedule_${schedule.tutoringScheduleId}`}
-                                            schedule={schedule as IStudentSchedule}
-                                        />
-                                    );
-                                })}
-                            </ScheduleCards>
-                        </SchedulesOfADay>
+                    schedulesToShow.map((classSchedulesOfDay, index) => (
+                        <ClassScheduleCard
+                            key={`daySchedule_${index}`}
+                            userRole={userSession.role}
+                            classSchedulesOfDay={classSchedulesOfDay}
+                        />
                     ))
                 ) : (
                     <NoSchedule>
@@ -122,18 +108,6 @@ const ScheduleList = styled.div`
     padding-bottom: 3em;
     border-top: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
 `;
-
-const SchedulesOfADay = styled.div`
-    margin: 1em 0;
-`;
-
-const ScheduleDate = styled.div`
-    padding: 1em 0.5em 1em 0.5em;
-    color: ${({ theme }) => theme.DARK_BLACK};
-    font-size: 0.9em;
-`;
-
-const ScheduleCards = styled.div``;
 
 const NoSchedule = styled.div`
     width: 100%;
