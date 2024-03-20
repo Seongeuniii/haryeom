@@ -1,24 +1,36 @@
 import styled from 'styled-components';
 import { IUserRole } from '@/apis/user/user';
-import { IStudentSchedule, ITeacherSchedule, ITutoringSchedule } from '@/apis/tutoring/tutoring';
+import { IStudentSchedule, ITeacherSchedule } from '@/apis/tutoring/tutoring';
 import TeacherScheduleCard from '@/components/ClassSchedule/TeacherScheduleCard';
 import StudentScheduleCard from '@/components/ClassSchedule/StudentScheduleCard';
 
 interface ClassScheduleCardProps {
     userRole: IUserRole;
-    classSchedulesOfDay: ITutoringSchedule;
+    scheduleDate: string;
+    classSchedulesOfDay: ITeacherSchedule[] | IStudentSchedule[] | undefined;
 }
-const ClassScheduleCard = ({ userRole, classSchedulesOfDay }: ClassScheduleCardProps) => {
+const ClassScheduleCard = ({
+    userRole,
+    scheduleDate,
+    classSchedulesOfDay,
+}: ClassScheduleCardProps) => {
+    if (!classSchedulesOfDay)
+        return (
+            <NoSchedule>
+                <span>과외 일정 없음</span>
+            </NoSchedule>
+        );
+
     return (
         <SchedulesOfADay>
-            <ScheduleDate>{classSchedulesOfDay.scheduleDate}</ScheduleDate>
+            <ScheduleDate>{scheduleDate}</ScheduleDate>
             <ScheduleCards>
-                {classSchedulesOfDay.schedules.map((schedule) => {
+                {classSchedulesOfDay.map((schedule) => {
                     return userRole === 'TEACHER' ? (
                         <TeacherScheduleCard
                             key={`schedule_card_${schedule.tutoringScheduleId}`}
                             schedule={schedule as ITeacherSchedule}
-                            scheduleDate={classSchedulesOfDay.scheduleDate}
+                            scheduleDate={scheduleDate}
                         />
                     ) : (
                         <StudentScheduleCard
@@ -43,5 +55,15 @@ const ScheduleDate = styled.div`
 `;
 
 const ScheduleCards = styled.div``;
+
+const NoSchedule = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: ${({ theme }) => theme.LIGHT_BLACK};
+`;
 
 export default ClassScheduleCard;

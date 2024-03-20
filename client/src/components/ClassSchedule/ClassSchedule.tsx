@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo, useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import styled from 'styled-components';
 import MyCalendar from '@/components/Calendar';
 import useCalendar from '@/hooks/useCalendar';
@@ -24,16 +24,8 @@ const ClassSchedule = ({ tutoringSchedules: _tutoringSchedules, children }: Clas
         yearMonth,
         _tutoringSchedules
     );
+    if (!tutoringSchedulesOfMonth) return '네트워크 에러';
     const [showMonth, setShowMonth] = useState<boolean>(false);
-    const schedulesToShow = useMemo(() => {
-        if (!tutoringSchedulesOfMonth) return [];
-        if (showMonth) return tutoringSchedulesOfMonth;
-        const formattedDate = getFormattedYearMonthDay(date);
-        // TODO : -> find
-        return tutoringSchedulesOfMonth.filter(
-            (schedule) => schedule.scheduleDate === formattedDate
-        );
-    }, [showMonth, tutoringSchedulesOfMonth, date]);
 
     return (
         <StyledClassSchedule>
@@ -47,21 +39,28 @@ const ClassSchedule = ({ tutoringSchedules: _tutoringSchedules, children }: Clas
                 selectedDate={date}
                 handleClickDay={handleClickDay}
                 handleYearMonthChange={handleYearMonthChange}
-                dotDates={tutoringSchedulesOfMonth?.flatMap((schedule) => schedule.scheduleDate)}
+                dotDates={Object.keys(tutoringSchedulesOfMonth).map((scheduleDate) => scheduleDate)}
             ></MyCalendar>
             <ScheduleList>
-                {schedulesToShow.length > 0 ? (
-                    schedulesToShow.map((classSchedulesOfDay, index) => (
-                        <ClassScheduleCard
-                            key={`daySchedule_${index}`}
-                            userRole={userSession.role}
-                            classSchedulesOfDay={classSchedulesOfDay}
-                        />
-                    ))
+                {showMonth ? (
+                    Object.entries(tutoringSchedulesOfMonth).map(
+                        ([scheduleDate, classSchedulesOfDay], index) => (
+                            <ClassScheduleCard
+                                key={`daySchedule_${scheduleDate}_${index}`}
+                                userRole={userSession.role}
+                                scheduleDate={scheduleDate}
+                                classSchedulesOfDay={classSchedulesOfDay}
+                            />
+                        )
+                    )
                 ) : (
-                    <NoSchedule>
-                        <span>과외 일정 없음</span>
-                    </NoSchedule>
+                    <ClassScheduleCard
+                        userRole={userSession.role}
+                        scheduleDate={getFormattedYearMonthDay(date)}
+                        classSchedulesOfDay={
+                            tutoringSchedulesOfMonth[getFormattedYearMonthDay(date)]
+                        }
+                    />
                 )}
             </ScheduleList>
             {children}
@@ -107,16 +106,6 @@ const ScheduleList = styled.div`
     margin-top: 1em;
     padding-bottom: 3em;
     border-top: 1px solid ${({ theme }) => theme.BORDER_LIGHT};
-`;
-
-const NoSchedule = styled.div`
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    color: ${({ theme }) => theme.LIGHT_BLACK};
 `;
 
 export default ClassSchedule;
