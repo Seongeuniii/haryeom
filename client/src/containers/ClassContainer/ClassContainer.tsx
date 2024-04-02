@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import { useRecoilValue } from 'recoil';
@@ -8,7 +8,6 @@ import useStream from '@/hooks/useStream';
 import useWebRTCStomp from '@/hooks/useWebRTC';
 import useClass from '@/hooks/useClass';
 import usePdf from '@/hooks/usePdf';
-import ClassLayout from '@/components/layouts/ClassLayout';
 import PdfViewer from '@/components/PdfViewer';
 import PaintCanvas from '@/components/PaintCanvas';
 import DrawingTools from '@/components/DrawingTools';
@@ -117,93 +116,143 @@ const ClassContainer = () => {
     }, [router, stopStream, stompClient]);
 
     return (
-        <ClassLayout>
-            <StyledClassContainer>
-                <LeftSection>
-                    <ClassInfo>
-                        <ClassInfoHeader>
-                            <Logo>하렴</Logo>
-                            {classState === '수업중' && <RecordState>녹화중</RecordState>}
-                        </ClassInfoHeader>
-                        <div>
-                            <Subject>{router.query.subject}</Subject>
-                            <Title>| {router.query.title}</Title>
-                        </div>
-                        <ClassTimer
-                            progressTime={progressTime}
-                            classState={classState}
-                            changeClassState={changeClassState}
+        <StyledClassContainer>
+            <LeftSection>
+                <ClassInfo>
+                    <ClassInfoHeader>
+                        <Logo>하렴</Logo>
+                        {classState === '수업중' && <RecordState>녹화중</RecordState>}
+                    </ClassInfoHeader>
+                    <div>
+                        <Subject>{router.query.subject}</Subject>
+                        <Title>| {router.query.title}</Title>
+                    </div>
+                    <ClassTimer
+                        progressTime={progressTime}
+                        classState={classState}
+                        changeClassState={changeClassState}
+                    />
+                </ClassInfo>
+                <MediaStream myStream={myStream} peerStream={peerStream} />
+                <Timestamp progressTime={progressTime} />
+            </LeftSection>
+            <TeachingTools>
+                <HelperBar>
+                    <ClassContentsType
+                        changeContents={changeContents}
+                        contentType={myAction.content}
+                        LoadTextbook={
+                            userSession.role === 'TEACHER'
+                                ? ({ closeModal }) =>
+                                      LoadClassContent({
+                                          content: 'textbook',
+                                          tutoringId: parseInt(router.query.tutoringId as string),
+                                          loadClassContent: loadTextbook,
+                                          closeModal,
+                                      })
+                                : undefined
+                        }
+                        LoadHomework={
+                            userSession.role === 'TEACHER'
+                                ? ({ closeModal }) =>
+                                      LoadClassContent({
+                                          content: 'homework',
+                                          tutoringId: parseInt(router.query.tutoringId as string),
+                                          loadClassContent: loadHomework,
+                                          closeModal,
+                                      })
+                                : undefined
+                        }
+                        textbookName={
+                            myAction.content === '학습자료'
+                                ? textbook?.textbookName
+                                : homework?.textbook.textbookName
+                        }
+                    />
+                    <Section>
+                        <FollowingMode
+                            onClick={() => {
+                                followPeer();
+                                movePage(peerAction.pageNumber);
+                            }}
+                            isWatching={watchingSameScreen}
+                        >
+                            <Display />
+                        </FollowingMode>
+                        <DrawingTools
+                            penStyle={penStyle}
+                            changePenStyle={changePenStyle}
+                            resetCanvas={resetCanvas}
                         />
-                    </ClassInfo>
-                    <MediaStream myStream={myStream} peerStream={peerStream} />
-                    <Timestamp progressTime={progressTime} />
-                </LeftSection>
-                <TeachingTools>
-                    <HelperBar>
-                        <ClassContentsType
-                            changeContents={changeContents}
-                            contentType={myAction.content}
-                            LoadTextbook={
-                                userSession.role === 'TEACHER'
-                                    ? ({ closeModal }) =>
-                                          LoadClassContent({
-                                              content: 'textbook',
-                                              tutoringId: parseInt(
-                                                  router.query.tutoringId as string
-                                              ),
-                                              loadClassContent: loadTextbook,
-                                              closeModal,
-                                          })
-                                    : undefined
-                            }
-                            LoadHomework={
-                                userSession.role === 'TEACHER'
-                                    ? ({ closeModal }) =>
-                                          LoadClassContent({
-                                              content: 'homework',
-                                              tutoringId: parseInt(
-                                                  router.query.tutoringId as string
-                                              ),
-                                              loadClassContent: loadHomework,
-                                              closeModal,
-                                          })
-                                    : undefined
-                            }
-                            textbookName={
-                                myAction.content === '학습자료'
-                                    ? textbook?.textbookName
-                                    : homework?.textbook.textbookName
-                            }
-                        />
-                        <Section>
-                            <FollowingMode
-                                onClick={() => {
-                                    followPeer();
-                                    movePage(peerAction.pageNumber);
+                    </Section>
+                </HelperBar>
+                <Board>
+                    <PeerWatchingSameScreen isWatching={watchingSameScreen}>
+                        {watchingSameScreen
+                            ? `${gerRole(userSession.role)}이 현재 화면을 보고있어요.`
+                            : `${gerRole(userSession.role)}이 다른 화면을 보고있어요`}
+                    </PeerWatchingSameScreen>
+                    {myAction.content === '화이트보드' ? (
+                        <WhiteBoard>
+                            <DrawingLayer>
+                                <PaintCanvas
+                                    canvasRef={peerWhiteboardCanvasRef}
+                                    presentationCanvasRef={peerPresentationCanvasRef}
+                                    handlePointerDown={handlePeerPointerDown}
+                                    handlePointerMove={handlePeerPointerMove}
+                                    handlePointerUp={handlePeerPointerUp}
+                                />
+                            </DrawingLayer>
+                            <DrawingLayer>
+                                <PaintCanvas
+                                    canvasRef={myWhiteboardCanvasRef}
+                                    presentationCanvasRef={presentationCanvasRef}
+                                    handlePointerDown={handlePointerDown}
+                                    handlePointerMove={handlePointerMove}
+                                    handlePointerUp={handlePointerUp}
+                                />
+                            </DrawingLayer>
+                        </WhiteBoard>
+                    ) : (
+                        <>
+                            <PdfViewer
+                                pdfFile={
+                                    myAction.content === '학습자료'
+                                        ? textbook?.textbookUrl
+                                        : homework?.textbook.textbookUrl
+                                }
+                                selectedPageNumber={selectedPageNumber}
+                                totalPagesOfPdfFile={totalPagesOfPdfFile}
+                                pdfPageCurrentSize={pdfPageCurrentSize}
+                                movePage={(selectedPageNumber) => {
+                                    myAction.content === '학습자료' &&
+                                        cleanUpCanvas(
+                                            myTextbookCanvasRef,
+                                            setMyTextbookCanvasBackgroundImage
+                                        );
+                                    myAction.content === '숙제' && saveHomeworkDrawing();
+                                    saveHomeworkDrawing();
+                                    movePage(selectedPageNumber);
                                 }}
-                                isWatching={watchingSameScreen}
+                                onDocumentLoadSuccess={onDocumentLoadSuccess}
+                                onPageLoadSuccess={onPageLoadSuccess}
+                                updatePdfPageCurrentSize={updatePdfPageCurrentSize}
+                                ZoomInPdfPageCurrentSize={ZoomInPdfPageCurrentSize}
+                                ZoomOutPdfPageCurrentSize={ZoomOutPdfPageCurrentSize}
+                                myHomeworkDrawings={homeworkDrawings || {}}
+                                startPageNumber={
+                                    myAction.content === '학습자료'
+                                        ? 0
+                                        : (homework?.startPage as number)
+                                }
                             >
-                                <Display />
-                            </FollowingMode>
-                            <DrawingTools
-                                penStyle={penStyle}
-                                changePenStyle={changePenStyle}
-                                resetCanvas={resetCanvas}
-                            />
-                        </Section>
-                    </HelperBar>
-                    <Board>
-                        <PeerWatchingSameScreen isWatching={watchingSameScreen}>
-                            {watchingSameScreen
-                                ? `${gerRole(userSession.role)}이 현재 화면을 보고있어요.`
-                                : `${gerRole(userSession.role)}이 다른 화면을 보고있어요`}
-                        </PeerWatchingSameScreen>
-                        {myAction.content === '화이트보드' ? (
-                            <WhiteBoard>
                                 <DrawingLayer>
                                     <PaintCanvas
-                                        canvasRef={peerWhiteboardCanvasRef}
-                                        presentationCanvasRef={peerPresentationCanvasRef}
+                                        canvasRef={
+                                            myAction.content === '학습자료'
+                                                ? peerTextbookCanvasRef
+                                                : peerHomeworkCanvasRef
+                                        }
                                         handlePointerDown={handlePeerPointerDown}
                                         handlePointerMove={handlePeerPointerMove}
                                         handlePointerUp={handlePeerPointerUp}
@@ -211,86 +260,38 @@ const ClassContainer = () => {
                                 </DrawingLayer>
                                 <DrawingLayer>
                                     <PaintCanvas
-                                        canvasRef={myWhiteboardCanvasRef}
-                                        presentationCanvasRef={presentationCanvasRef}
+                                        canvasRef={
+                                            myAction.content === '학습자료'
+                                                ? myTextbookCanvasRef
+                                                : myHomeworkCanvasRef
+                                        }
                                         handlePointerDown={handlePointerDown}
                                         handlePointerMove={handlePointerMove}
                                         handlePointerUp={handlePointerUp}
                                     />
                                 </DrawingLayer>
-                            </WhiteBoard>
-                        ) : (
-                            <>
-                                <PdfViewer
-                                    pdfFile={
-                                        myAction.content === '학습자료'
-                                            ? textbook?.textbookUrl
-                                            : homework?.textbook.textbookUrl
-                                    }
-                                    selectedPageNumber={selectedPageNumber}
-                                    totalPagesOfPdfFile={totalPagesOfPdfFile}
-                                    pdfPageCurrentSize={pdfPageCurrentSize}
-                                    movePage={(selectedPageNumber) => {
-                                        myAction.content === '학습자료' &&
-                                            cleanUpCanvas(
-                                                myTextbookCanvasRef,
-                                                setMyTextbookCanvasBackgroundImage
-                                            );
-                                        myAction.content === '숙제' && saveHomeworkDrawing();
-                                        saveHomeworkDrawing();
-                                        movePage(selectedPageNumber);
-                                    }}
-                                    onDocumentLoadSuccess={onDocumentLoadSuccess}
-                                    onPageLoadSuccess={onPageLoadSuccess}
-                                    updatePdfPageCurrentSize={updatePdfPageCurrentSize}
-                                    ZoomInPdfPageCurrentSize={ZoomInPdfPageCurrentSize}
-                                    ZoomOutPdfPageCurrentSize={ZoomOutPdfPageCurrentSize}
-                                    myHomeworkDrawings={homeworkDrawings || {}}
-                                    startPageNumber={
-                                        myAction.content === '학습자료'
-                                            ? 0
-                                            : (homework?.startPage as number)
-                                    }
-                                >
-                                    <DrawingLayer>
-                                        <PaintCanvas
-                                            canvasRef={
-                                                myAction.content === '학습자료'
-                                                    ? peerTextbookCanvasRef
-                                                    : peerHomeworkCanvasRef
-                                            }
-                                            handlePointerDown={handlePeerPointerDown}
-                                            handlePointerMove={handlePeerPointerMove}
-                                            handlePointerUp={handlePeerPointerUp}
-                                        />
-                                    </DrawingLayer>
-                                    <DrawingLayer>
-                                        <PaintCanvas
-                                            canvasRef={
-                                                myAction.content === '학습자료'
-                                                    ? myTextbookCanvasRef
-                                                    : myHomeworkCanvasRef
-                                            }
-                                            handlePointerDown={handlePointerDown}
-                                            handlePointerMove={handlePointerMove}
-                                            handlePointerUp={handlePointerUp}
-                                        />
-                                    </DrawingLayer>
-                                </PdfViewer>
-                            </>
-                        )}
-                    </Board>
-                </TeachingTools>
-            </StyledClassContainer>
-        </ClassLayout>
+                            </PdfViewer>
+                        </>
+                    )}
+                </Board>
+            </TeachingTools>
+        </StyledClassContainer>
     );
 };
 
 const StyledClassContainer = styled.main`
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
+    padding: 0 7%;
     display: flex;
     align-items: center;
+    justify-content: center;
+
+    @media screen and (max-width: 1200px) {
+        & {
+            width: 100%;
+        }
+    }
 `;
 
 const FollowingMode = styled.button<{ isWatching: boolean }>`
