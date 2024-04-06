@@ -2,10 +2,9 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import { useRecoilValue } from 'recoil';
-import MediaStream from './MediaStream';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import useStream from '@/hooks/useStream';
-import useWebRTCStomp from '@/hooks/useWebRTC';
+import useWebRTC from '@/hooks/useWebRTC';
 import useClass from '@/hooks/useClass';
 import usePdf from '@/hooks/usePdf';
 import PdfViewer from '@/components/PdfViewer';
@@ -17,16 +16,19 @@ import LoadClassContent from '@/components/LoadClassContent';
 import Timestamp from '@/components/Timestamp';
 import { gerRole } from '@/components/MatchingStage/GetResponse';
 import Display from '@/components/icons/Display';
+import MediaStreamList from '@/components/organisms/MediaStreamList';
 
 const ClassContainer = () => {
     const userSession = useRecoilValue(userSessionAtom);
-    if (!userSession) return;
+    if (!userSession) return null;
+
     const router = useRouter();
+    const { id: classId, tutoringId, tutoringScheduleId, subject, title } = router.query;
 
     const { myStream, stopStream } = useStream();
-    const { stompClient, peerStream, peerConnections, dataChannels } = useWebRTCStomp({
+    const { stompClient, peerStream, dataChannels } = useWebRTC({
         memberId: userSession.memberId,
-        roomCode: router.query.id as string,
+        roomCode: classId as string,
         myStream,
     });
 
@@ -91,7 +93,7 @@ const ClassContainer = () => {
         presentationCanvasRef,
         peerPresentationCanvasRef,
     } = useClass({
-        tutoringScheduleId: parseInt(router.query.tutoringScheduleId as string),
+        tutoringScheduleId: parseInt(tutoringScheduleId as string),
         dataChannels,
         selectedPageNumber,
     });
@@ -124,8 +126,8 @@ const ClassContainer = () => {
                         {classState === '수업중' && <RecordState>녹화중</RecordState>}
                     </ClassInfoHeader>
                     <div>
-                        <Subject>{router.query.subject}</Subject>
-                        <Title>| {router.query.title}</Title>
+                        <Subject>{subject}</Subject>
+                        <Title>| {title}</Title>
                     </div>
                     <ClassTimer
                         progressTime={progressTime}
@@ -133,7 +135,7 @@ const ClassContainer = () => {
                         changeClassState={changeClassState}
                     />
                 </ClassInfo>
-                <MediaStream myStream={myStream} peerStream={peerStream} />
+                <MediaStreamList myStream={myStream} peerStream={peerStream} />
                 <Timestamp progressTime={progressTime} />
             </LeftSection>
             <TeachingTools>
@@ -146,7 +148,7 @@ const ClassContainer = () => {
                                 ? ({ closeModal }) =>
                                       LoadClassContent({
                                           content: 'textbook',
-                                          tutoringId: parseInt(router.query.tutoringId as string),
+                                          tutoringId: parseInt(tutoringId as string),
                                           loadClassContent: loadTextbook,
                                           closeModal,
                                       })
@@ -157,7 +159,7 @@ const ClassContainer = () => {
                                 ? ({ closeModal }) =>
                                       LoadClassContent({
                                           content: 'homework',
-                                          tutoringId: parseInt(router.query.tutoringId as string),
+                                          tutoringId: parseInt(tutoringId as string),
                                           loadClassContent: loadHomework,
                                           closeModal,
                                       })

@@ -7,7 +7,7 @@ interface VideoProps {
     muted: boolean;
 }
 
-const MediaStreamDisplay = ({ stream, nickname, muted }: VideoProps) => {
+const UserMediaStream = ({ stream, nickname, muted }: VideoProps) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -22,17 +22,15 @@ const MediaStreamDisplay = ({ stream, nickname, muted }: VideoProps) => {
     }, [stream]);
 
     return (
-        <StyledMediaStreamDisplay>
+        <StyledUserMediaStream>
             <Video ref={videoRef} autoPlay playsInline />
             <Audio ref={audioRef} autoPlay playsInline muted={muted} />
-            <NickName>
-                <span>{nickname}</span>
-            </NickName>
-        </StyledMediaStreamDisplay>
+            <Nickname>{nickname}</Nickname>
+        </StyledUserMediaStream>
     );
 };
 
-const StyledMediaStreamDisplay = styled.div`
+const StyledUserMediaStream = styled.div`
     position: relative;
     width: 220px;
     height: 220px;
@@ -52,18 +50,16 @@ const Audio = styled.audio`
     display: none;
 `;
 
-const NickName = styled.div`
+const Nickname = styled.span`
     position: absolute;
     bottom: 5px;
     right: 5px;
-
     padding: 8px 15px;
     border-radius: 8px;
-
     color: white;
     font-size: 13px;
     font-weight: 600;
     background: rgb(104 104 104 / 40%);
 `;
 
-export default MediaStreamDisplay;
+export default UserMediaStream;

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
-import MediaStreamDisplay from '@/components/MediaStreamDisplay';
+import MediaStreamDisplay from '@/components/molecules/UserMediaStream';
 import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
 

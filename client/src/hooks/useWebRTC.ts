@@ -19,13 +19,13 @@ interface IPeerInfo extends IPeerSession {
     memberName: string;
 }
 
-interface IUseWebRTCStompProps {
+interface IUseWebRTCProps {
     memberId: number;
     roomCode: string;
     myStream: MediaStream | null;
 }
 
-const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) => {
+const useWebRTC = ({ memberId, roomCode, myStream }: IUseWebRTCProps) => {
     const userSession = useRecoilValue(userSessionAtom);
     const [stompClient, setStompClient] = useState<CompatClient>();
     const peerConnections = useRef<{ [socketId: string]: RTCPeerConnection }>({});
@@ -278,4 +278,4 @@ const useWebRTCStomp = ({ memberId, roomCode, myStream }: IUseWebRTCStompProps) 
     return { stompClient, peerStream, peerConnections, dataChannels };
 };
 
-export default useWebRTCStomp;
+export default useWebRTC;
