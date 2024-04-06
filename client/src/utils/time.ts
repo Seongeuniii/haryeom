@@ -44,3 +44,15 @@ export const timeStringToSeconds = (timeString: string) => {
     const seconds = parseInt(parts[2], 10) || 0;
     return hours * 3600 + minutes * 60 + seconds;
 };
+
+export const getHour = (ms: number) => {
+    return String(Math.floor((ms / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+};
+
+export const getMinute = (ms: number) => {
+    return String(Math.floor((ms / (1000 * 60)) % 60)).padStart(2, '0');
+};
+
+export const getSecond = (ms: number) => {
+    return String(Math.floor((ms / 1000) % 60)).padStart(2, '0');
+};

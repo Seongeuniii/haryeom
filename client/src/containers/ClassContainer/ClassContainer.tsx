@@ -10,25 +10,25 @@ import usePdf from '@/hooks/usePdf';
 import PdfViewer from '@/components/PdfViewer';
 import PaintCanvas from '@/components/PaintCanvas';
 import DrawingTools from '@/components/DrawingTools';
-import ClassTimer from '@/components/ClassTimer';
 import ClassContentsType from '@/components/ClassContentsType';
 import LoadClassContent from '@/components/LoadClassContent';
 import Timestamp from '@/components/Timestamp';
 import { gerRole } from '@/components/MatchingStage/GetResponse';
 import Display from '@/components/icons/Display';
 import MediaStreamList from '@/components/organisms/MediaStreamList';
+import ClassStatus from '@/components/organisms/ClassStatus';
+import { ParsedUrlQuery } from 'querystring';
 
 const ClassContainer = () => {
     const userSession = useRecoilValue(userSessionAtom);
     if (!userSession) return null;
-
     const router = useRouter();
-    const { id: classId, tutoringId, tutoringScheduleId, subject, title } = router.query;
+    const { classId, tutoringId, tutoringScheduleId, subject, title } = parseQuery(router.query);
 
     const { myStream, stopStream } = useStream();
     const { stompClient, peerStream, dataChannels } = useWebRTC({
         memberId: userSession.memberId,
-        roomCode: classId as string,
+        roomCode: classId,
         myStream,
     });
 
@@ -84,26 +84,16 @@ const ClassContainer = () => {
         changePenStyle,
         loadTextbook,
         loadHomework,
-        progressTime,
-        classState,
-        changeClassState,
         saveHomeworkDrawing,
         resetCanvas,
 
         presentationCanvasRef,
         peerPresentationCanvasRef,
     } = useClass({
-        tutoringScheduleId: parseInt(tutoringScheduleId as string),
+        tutoringScheduleId,
         dataChannels,
         selectedPageNumber,
     });
-
-    useEffect(() => {
-        if (classState === '수업종료') {
-            alert('수업이 종료되었어요:) 홈 화면으로 이동합니다.');
-            router.push('/');
-        }
-    }, [classState]);
 
     // TOOD: 리팩토링
     useEffect(() => {
@@ -120,23 +110,13 @@ const ClassContainer = () => {
     return (
         <StyledClassContainer>
             <LeftSection>
-                <ClassInfo>
-                    <ClassInfoHeader>
-                        <Logo>하렴</Logo>
-                        {classState === '수업중' && <RecordState>녹화중</RecordState>}
-                    </ClassInfoHeader>
-                    <div>
-                        <Subject>{subject}</Subject>
-                        <Title>| {title}</Title>
-                    </div>
-                    <ClassTimer
-                        progressTime={progressTime}
-                        classState={classState}
-                        changeClassState={changeClassState}
-                    />
-                </ClassInfo>
+                <ClassStatus
+                    tutoringScheduleId={tutoringScheduleId}
+                    subject={subject}
+                    title={title}
+                />
                 <MediaStreamList myStream={myStream} peerStream={peerStream} />
-                <Timestamp progressTime={progressTime} />
+                <Timestamp progressTime={0} /> {/* TODO : 얘 어뜨케 */}
             </LeftSection>
             <TeachingTools>
                 <HelperBar>
@@ -148,7 +128,7 @@ const ClassContainer = () => {
                                 ? ({ closeModal }) =>
                                       LoadClassContent({
                                           content: 'textbook',
-                                          tutoringId: parseInt(tutoringId as string),
+                                          tutoringId,
                                           loadClassContent: loadTextbook,
                                           closeModal,
                                       })
@@ -159,7 +139,7 @@ const ClassContainer = () => {
                                 ? ({ closeModal }) =>
                                       LoadClassContent({
                                           content: 'homework',
-                                          tutoringId: parseInt(tutoringId as string),
+                                          tutoringId,
                                           loadClassContent: loadHomework,
                                           closeModal,
                                       })
@@ -281,6 +261,17 @@ const ClassContainer = () => {
     );
 };
 
+const parseQuery = (query: ParsedUrlQuery) => {
+    const { id, tutoringId, tutoringScheduleId, subject, title } = query;
+    return {
+        classId: id as string,
+        tutoringId: parseInt(tutoringId as string),
+        tutoringScheduleId: parseInt(tutoringScheduleId as string),
+        subject: subject as string,
+        title: title as string,
+    };
+};
+
 const StyledClassContainer = styled.main`
     width: 100vw;
     height: 100vh;
@@ -329,62 +320,6 @@ const Section = styled.div`
     display: flex;
     height: 100%;
     gap: 15px;
-`;
-
-const ClassInfo = styled.div`
-    width: 100%;
-    padding: 1em;
-    /* margin-bottom: 2em; */
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    border: 2px solid ${({ theme }) => theme.PRIMARY};
-    border-radius: 0.6em;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-`;
-
-const ClassInfoHeader = styled.div`
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-`;
-
-const Logo = styled.span`
-    font-weight: 700;
-    font-size: 22px;
-    color: ${({ theme }) => theme.PRIMARY};
-`;
-
-const RecordState = styled.div`
-    background-color: #ff4e4e;
-    padding: 5px;
-    font-size: 12px;
-    border-radius: 13px;
-    color: white;
-    animation: blink 2s infinite;
-
-    @keyframes blink {
-        0% {
-            opacity: 1;
-        }
-        50% {
-            opacity: 0.7;
-        }
-        100% {
-            opacity: 1;
-        }
-    }
-`;
-
-const Subject = styled.div`
-    font-weight: 700;
-    font-size: 18px;
-    margin-bottom: 8px;
-`;
-
-const Title = styled.div`
-    color: ${({ theme }) => theme.LIGHT_BLACK};
 `;
 
 const Board = styled.div`

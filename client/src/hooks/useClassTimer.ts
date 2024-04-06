@@ -1,74 +1,35 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import useTimer from '@/hooks/useTimer';
 
-export type ClassState = '수업시작전' | '수업중' | '수업종료';
+export type IClassState = '수업시작전' | '수업중' | '수업종료';
 
-interface IUseClassTimer {
-    startClass: () => Promise<boolean>;
-    endClass: () => Promise<boolean>;
-}
+const useClassTimer = () => {
+    const [classState, setClassState] = useState<IClassState>('수업시작전');
+    const { progressTime, startTimer, stopTimer } = useTimer();
 
-const useClassTimer = ({ startClass, endClass }: IUseClassTimer) => {
-    const [classState, setClassState] = useState<ClassState>('수업시작전');
-    const [progressTime, setProgressTime] = useState<number>(0);
-    const [timerId, setTimerId] = useState<NodeJS.Timeout | number>(0);
-
-    const startTimer = () => {
-        const INTERVAL = 1000;
-        const timerId = setInterval(() => {
-            setProgressTime((prevTime) => prevTime + INTERVAL);
-        }, 1000);
-        setTimerId(timerId);
-    };
-
-    const stopTimer = () => {
-        clearInterval(timerId);
-    };
-
-    const changeClassState = async (state?: string) => {
-        console.log(state);
-        if (state) {
-            if (state === 'start') {
-                startTimer();
-                setClassState('수업중');
-            } else if (state === 'stop') {
-                stopTimer();
-                setClassState('수업종료');
-            }
+    const startClass = async (handleStartClass: () => Promise<void>): Promise<void> => {
+        const isUserSelectDisplay = confirm('[필수] 녹화에 필요한 화면을 선택해주세요.');
+        if (!isUserSelectDisplay) {
+            alert('녹화 화면 선택 후 수업을 시작할 수 있어요:)');
             return;
         }
-
-        if (classState === '수업시작전') {
-            const isStart = await startClass();
-            if (!isStart) return;
-            startTimer();
-            setClassState('수업중');
-        } else if (classState === '수업중') {
-            const isEnd = await endClass();
-            if (!isEnd) return;
-            stopTimer();
-            setClassState('수업종료');
-        } else return;
+        await handleStartClass();
+        alert('녹화가 시작되었어요.');
+        startTimer();
+        setClassState('수업중');
     };
 
-    useEffect(() => {
-        return () => stopTimer();
-    }, []);
+    const endClass = async (handleClassEnd: () => Promise<void>): Promise<void> => {
+        const isEndingClass = confirm('수업을 종료하시겠습니까?');
+        if (!isEndingClass) {
+            return;
+        }
+        await handleClassEnd();
+        stopTimer();
+        setClassState('수업종료');
+    };
 
-    return { startTimer, stopTimer, progressTime, classState, changeClassState };
+    return { progressTime, classState, startClass, endClass };
 };
 
 export default useClassTimer;
-
-const getHour = (ms: number) => {
-    return String(Math.floor((ms / (1000 * 60 * 60)) % 24)).padStart(2, '0');
-};
-
-const getMinute = (ms: number) => {
-    return String(Math.floor((ms / (1000 * 60)) % 60)).padStart(2, '0');
-};
-
-const getSecond = (ms: number) => {
-    return String(Math.floor((ms / 1000) % 60)).padStart(2, '0');
-};
-
-export { getHour, getMinute, getSecond };

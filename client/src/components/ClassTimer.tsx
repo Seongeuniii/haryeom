@@ -1,28 +1,22 @@
-import React, { MouseEvent, useEffect, useState } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { getHour, getMinute, getSecond, ClassState } from '@/hooks/useClassTimer';
-import userSessionAtom from '@/recoil/atoms/userSession';
+import { getHour, getMinute, getSecond } from '@/utils/time';
+import { IClassState } from '@/hooks/useClassTimer';
+import { IUserRole } from '@/apis/user/user';
 
-interface ClassTimerProps {
+interface IClassTimer {
+    userRole: IUserRole;
+    classState: IClassState;
     progressTime: number;
-    classState: ClassState;
-    changeClassState: (state?: string) => Promise<void>;
+    changeClassState: () => void;
 }
 
-const ClassTimer = ({ progressTime, classState, changeClassState }: ClassTimerProps) => {
-    const userSession = useRecoilValue(userSessionAtom);
+const ClassTimer = ({ userRole, classState, progressTime, changeClassState }: IClassTimer) => {
     const [staticShow, setStaticShow] = useState<string>('수업 시작');
     const [hoverShow, setHoverShow] = useState<string>('수업 시작');
     const [isHover, setIsHover] = useState<boolean>(false);
-
-    const handleMouseEnter = (e: MouseEvent) => {
-        setIsHover(true);
-    };
-
-    const handleMouseLeave = (e: MouseEvent) => {
-        setIsHover(false);
-    };
+    const handleMouseEnter = () => setIsHover(true);
+    const handleMouseLeave = () => setIsHover(false);
 
     useEffect(() => {
         switch (classState) {
@@ -44,7 +38,7 @@ const ClassTimer = ({ progressTime, classState, changeClassState }: ClassTimerPr
         }
     }, [classState]);
 
-    if (userSession?.role === 'STUDENT') {
+    if (userRole === 'STUDENT') {
         return (
             <StyledStudentClassTimer
                 $classState={classState}
@@ -64,7 +58,7 @@ const ClassTimer = ({ progressTime, classState, changeClassState }: ClassTimerPr
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
-            <Clock onClick={() => changeClassState()}>
+            <Clock onClick={changeClassState}>
                 {isHover ? (
                     <>
                         {hoverShow === 'progressTime' ? (
@@ -93,7 +87,7 @@ const ClassTimer = ({ progressTime, classState, changeClassState }: ClassTimerPr
     );
 };
 
-const StyledClassTimer = styled.div<{ $classState: ClassState }>`
+const StyledClassTimer = styled.div<{ $classState: IClassState }>`
     width: 100%;
     height: 35px;
     display: flex;
@@ -112,7 +106,7 @@ const StyledClassTimer = styled.div<{ $classState: ClassState }>`
     }
 `;
 
-const StyledStudentClassTimer = styled.div<{ $classState: ClassState }>`
+const StyledStudentClassTimer = styled.div<{ $classState: IClassState }>`
     width: 100%;
     height: 35px;
     display: flex;

@@ -1,6 +1,4 @@
 import { Dispatch, RefObject, SetStateAction, useEffect, useRef, useState } from 'react';
-import useMediaRecord from './useMediaRecord';
-import { endTutoring, startTutoring } from '@/apis/tutoring/progress-tutoring';
 import usePeerPaint from '@/components/PaintCanvas/hooks/usePeerPaint';
 import { getTextbookDetail } from '@/apis/tutoring/get-textbook-detail';
 import { IHomework, ITextbook } from '@/apis/homework/homework';
@@ -8,8 +6,6 @@ import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import { getHomework } from '@/apis/homework/get-homework';
 import { saveDrawing } from '@/utils/canvas';
-import { saveTutoringvideo } from '@/apis/tutoring/save-tutoring-video';
-import useClassTimer from './useClassTimer';
 import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
 import { IMyHomeworkDrawings } from '@/containers/HomeworkContainer/HomeworkContainer';
 import useCanvas from '@/components/PaintCanvas/hooks/useCanvas';
@@ -365,56 +361,6 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         setHomework(homework);
     };
 
-    /**
-     * 수업 녹화
-     */
-    const {
-        recordedChunks,
-        prepareRecording,
-        startRecording,
-        stopRecording,
-        pauseRecording,
-        resumeRecording,
-    } = useMediaRecord();
-
-    const startClass = async (): Promise<boolean> => {
-        const isUserSelectDisplay = confirm('[필수] 녹화에 필요한 화면을 선택해주세요.');
-
-        if (!isUserSelectDisplay) {
-            alert('녹화 화면 선택 후 수업을 시작할 수 있어요:)');
-            return false;
-        }
-
-        await prepareRecording();
-        startRecording();
-        await startTutoring(tutoringScheduleId); // api
-        alert('[필수] 녹화가 시작되었어요.');
-        return true;
-    };
-    const endClass = async (): Promise<boolean> => {
-        const isEndingClass = confirm('수업을 종료하시겠습니까?');
-
-        if (!isEndingClass) {
-            return false;
-        }
-
-        stopRecording();
-        startClass;
-        await endTutoring(tutoringScheduleId); // api
-        return true;
-    };
-
-    const { startTimer, stopTimer, progressTime, classState, changeClassState } = useClassTimer({
-        startClass,
-        endClass,
-    });
-
-    // TODO : 리팩토링 - useMediaRecord 내부로
-    useEffect(() => {
-        if (!recordedChunks) return;
-        saveTutoringvideo(tutoringScheduleId, recordedChunks);
-    }, [recordedChunks]);
-
     const sendMyAction = (name: keyof IClassAction) => {
         dataChannels?.map((channel: RTCDataChannel) => {
             try {
@@ -501,11 +447,11 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         sendHomework();
     }, [dataChannels, homework]);
 
-    useEffect(() => {
-        if (userSession?.role === 'STUDENT') return;
-        if (classState === '수업중') sendClassState('start');
-        if (classState === '수업종료') sendClassState('stop');
-    }, [dataChannels, classState]);
+    // useEffect(() => {
+    //     if (userSession?.role === 'STUDENT') return;
+    //     if (classState === '수업중') sendClassState('start');
+    //     if (classState === '수업종료') sendClassState('stop');
+    // }, [dataChannels, classState]);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const calculateOffsetRelativeToCanvasSize = (offsetFromPeer: any) => {
@@ -601,11 +547,11 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                     setHomework(loadHomework);
                 }
 
-                if (classState) {
-                    console.log('peer가 classState를 변경했어요: ', classState);
-                    if (classState === 'start') changeClassState('start');
-                    if (classState === 'stop') changeClassState('stop');
-                }
+                // if (classState) {
+                //     console.log('peer가 classState를 변경했어요: ', classState);
+                //     if (classState === 'start') changeClassState('start');
+                //     if (classState === 'stop') changeClassState('stop');
+                // }
 
                 if (canvasReset) {
                     resetPeerCanvas();
@@ -613,7 +559,7 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
                 }
             };
         });
-    }, [dataChannels, peerAction, textbook, homework, changeClassState]);
+    }, [dataChannels, peerAction, textbook, homework]); //changeClassState
 
     return {
         myAction,
@@ -656,11 +602,11 @@ const useClass = ({ tutoringScheduleId, dataChannels, selectedPageNumber }: IUse
         changePenStyle,
         loadTextbook,
         loadHomework,
-        startTimer,
-        stopTimer,
-        progressTime,
-        classState,
-        changeClassState,
+        // startTimer,
+        // stopTimer,
+        // progressTime,
+        // classState,
+        // changeClassState,
         saveHomeworkDrawing,
         resetCanvas,
 
