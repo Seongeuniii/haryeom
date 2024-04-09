@@ -3,18 +3,18 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { QueryClient } from 'react-query';
 import PdfViewer from '@/components/PdfViewer';
-import PaintCanvas from '@/components/PaintCanvas';
+import PaintCanvas from '@/atoms/Canvas/PaintCanvas';
 import { getHomework } from '@/apis/homework/get-homework';
 import { IHomework } from '@/apis/homework/homework';
 import usePdf from '@/hooks/usePdf';
-import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
+import useMyPaint from '@/hooks/useMyPaint';
 import HomeworkStatus from '@/components/HomeworkStatus';
 import { IPenStyle } from '@/hooks/useClass';
 import { saveHomework, submitHomework } from '@/apis/homework/save-homework';
 import { useGetHomework } from '@/queries/useGetHomework';
 import DrawingTools from '@/components/DrawingTools';
 import { useRouter } from 'next/router';
-import useCanvas from '@/components/PaintCanvas/hooks/useCanvas';
+import useCanvas from '@/hooks/useCanvas';
 import PdfThumbnailList from '@/components/PdfThumbnailList';
 import HomeworkPageHeader from '@/components/HomeworkPageHeader';
 
@@ -160,17 +160,15 @@ const HomeworkContainer = ({ homeworkData: _homeworkData }: HomeworkContainerPro
                         myHomeworkDrawings={myHomeworkDrawings}
                         startPageNumber={homeworkData.startPage}
                     >
-                        <DrawingLayer>
-                            <PaintCanvas
-                                canvasRef={homeworkCanvasRef}
-                                handlePointerDown={handlePointerDown}
-                                handlePointerMove={handlePointerMove}
-                                handlePointerUp={() => {
-                                    handlePointerUp();
-                                    saveHomeworkDrawing();
-                                }}
-                            />
-                        </DrawingLayer>
+                        <PaintCanvas
+                            canvasRef={homeworkCanvasRef}
+                            handlePointerDown={handlePointerDown}
+                            handlePointerMove={handlePointerMove}
+                            handlePointerUp={() => {
+                                handlePointerUp();
+                                saveHomeworkDrawing();
+                            }}
+                        />
                     </PdfViewer>
                 </HomeworkDrawingBoard>
                 <HomeworkStatus homeworkData={homeworkData} homeworkStatus={homeworkStatus} />
@@ -209,14 +207,6 @@ const HomeworkDrawingBoard = styled.div`
     margin-top: 1em;
     overflow: auto;
     display: flex;
-`;
-
-const DrawingLayer = styled.div`
-    position: absolute;
-    top: 0;
-    height: 0;
-    width: 100%;
-    height: 100%;
 `;
 
 const DrawingToolsWrapper = styled.div`

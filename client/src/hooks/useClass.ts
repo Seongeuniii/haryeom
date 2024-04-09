@@ -1,14 +1,14 @@
 import { Dispatch, RefObject, SetStateAction, useEffect, useRef, useState } from 'react';
-import usePeerPaint from '@/components/PaintCanvas/hooks/usePeerPaint';
+import usePeerPaint from '@/hooks/usePeerPaint';
 import { getTextbookDetail } from '@/apis/tutoring/get-textbook-detail';
 import { IHomework, ITextbook } from '@/apis/homework/homework';
 import { useRecoilValue } from 'recoil';
 import userSessionAtom from '@/recoil/atoms/userSession';
 import { getHomework } from '@/apis/homework/get-homework';
 import { saveDrawing } from '@/utils/canvas';
-import useMyPaint from '@/components/PaintCanvas/hooks/useMyPaint';
+import useMyPaint from '@/hooks/useMyPaint';
 import { IMyHomeworkDrawings } from '@/containers/HomeworkContainer/HomeworkContainer';
-import useCanvas from '@/components/PaintCanvas/hooks/useCanvas';
+import useCanvas from '@/hooks/useCanvas';
 
 export type ContentsType = '화이트보드' | '학습자료' | '숙제';
 export interface IPenStyle {

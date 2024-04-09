@@ -17,7 +17,7 @@ const PaintCanvas = ({
     handlePointerUp,
 }: PaintCanvasProps) => {
     return (
-        <>
+        <DrawingLayer>
             {presentationCanvasRef && <Canvas ref={presentationCanvasRef} />}
             <Canvas
                 ref={canvasRef}
@@ -25,9 +25,17 @@ const PaintCanvas = ({
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
             />
-        </>
+        </DrawingLayer>
     );
 };
+
+const DrawingLayer = styled.div`
+    position: absolute;
+    top: 0;
+    height: 0;
+    width: 100%;
+    height: 100%;
+`;
 
 const Canvas = styled.canvas`
     touch-action: none;
