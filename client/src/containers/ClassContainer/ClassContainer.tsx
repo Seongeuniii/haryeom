@@ -9,7 +9,7 @@ import useWebRTC from '@/hooks/useWebRTC';
 import Timestamp from '@/components/Timestamp';
 import MediaStreamList from '@/organisms/MediaStreamList';
 import ClassStatus from '@/organisms/ClassStatus';
-import ClassBoard from '@/organisms/ClassBoard';
+import TeachingTools from '@/organisms/TeachingTools';
 
 const ClassContainer = () => {
     const userSession = useRecoilValue(userSessionAtom);
@@ -44,8 +44,8 @@ const ClassContainer = () => {
                 <MediaStreamList myStream={myStream} peerStream={peerStream} />
                 <Timestamp progressTime={0} /> {/* TODO : 얘 어뜨케 */}
             </LeftSection>
-            <ClassBoard
-                userRole={userSession.role}
+            <TeachingTools
+                isTeacher={userSession.role === 'TEACHER'}
                 tutoringScheduleId={tutoringScheduleId}
                 dataChannels={dataChannels}
                 tutoringId={tutoringId}

@@ -5,7 +5,6 @@ import ClassContents from '@/components/icons/ClassContents';
 import Homework from '@/components/icons/Homework';
 import Dropdown from '@/components/commons/Dropdown';
 import useDropdown from '@/hooks/useDropdown';
-import { ContentsType } from '@/hooks/useClass';
 import HomeworkList from '@/components/HomeworkList';
 import Modal from '@/components/commons/Modal';
 import { useModal } from '@/hooks/useModal';
@@ -17,6 +16,8 @@ const contentsIcon = {
     학습자료: <ClassContents />,
     숙제: <Homework />,
 };
+
+type ContentsType = '화이트보드' | '학습자료' | '숙제';
 
 interface ClassContentsType {
     contentType: ContentsType;

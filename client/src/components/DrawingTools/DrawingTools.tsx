@@ -6,8 +6,8 @@ import ThickPen from '@/components/icons/ThickPen';
 import Eraser from '@/components/icons/Eraser';
 import Dropdown from '../commons/Dropdown';
 import useDropdown from '@/hooks/useDropdown';
-import { IPenStyle } from '@/hooks/useClass';
 import Reset from '@/components/icons/Reset';
+import { IPenStyle } from '@/hooks/useMyPaint';
 
 interface DrawingToolsProps {
     penStyle: {

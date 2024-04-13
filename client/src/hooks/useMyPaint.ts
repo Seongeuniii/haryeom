@@ -1,12 +1,12 @@
 import { MutableRefObject, PointerEvent, RefObject, useCallback, useEffect, useState } from 'react';
-import { IPenStyle } from '@/hooks/useClass';
 
 interface IUseMyPaint {
     canvasRef: RefObject<HTMLCanvasElement>;
     contextRef: MutableRefObject<CanvasRenderingContext2D | null>;
     presentationContextRef?: MutableRefObject<CanvasRenderingContext2D | null>;
-    penStyle: IPenStyle;
-    dataChannels?: RTCDataChannel[];
+    penStyle?: IPenStyle;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    SendAction?: (data: any) => void;
     erasePeerPaint?: (offset: IOffset) => void;
 }
 
@@ -15,24 +15,38 @@ export interface IOffset {
     y: number;
 }
 
+export interface IPenStyle {
+    isPen: boolean;
+    strokeStyle: string;
+    lineWidth: number;
+}
+
 const useMyPaint = ({
     canvasRef,
     contextRef,
     presentationContextRef,
-    penStyle,
-    dataChannels,
+    SendAction,
     erasePeerPaint,
 }: IUseMyPaint) => {
-    const [isDown, setIsDown] = useState<boolean>(false);
+    const [penStyle, setPenStyle] = useState<IPenStyle>({
+        isPen: true,
+        strokeStyle: 'black',
+        lineWidth: 3,
+    });
     const [points, setPoints] = useState<IOffset[]>([]);
+    const [isDown, setIsDown] = useState<boolean>(false);
 
     useEffect(() => {
         if (!contextRef.current) return;
         contextRef.current.lineCap = 'round';
         contextRef.current.strokeStyle = penStyle.strokeStyle;
         contextRef.current.lineWidth = penStyle.lineWidth;
-        SendAction({ updatedPenStyle: penStyle });
+        SendAction && SendAction({ updatedPenStyle: penStyle });
     }, [penStyle, contextRef.current]);
+
+    const changePenStyle = (value: IPenStyle) => {
+        setPenStyle((prev) => ({ ...prev, penStyle: value }));
+    };
 
     const erase = (offset: IOffset) => {
         if (!contextRef.current) return;
@@ -43,7 +57,6 @@ const useMyPaint = ({
         contextRef.current.fill();
         contextRef.current.closePath();
         contextRef.current.globalCompositeOperation = 'source-over';
-
         erasePeerPaint && erasePeerPaint(offset);
     };
 
@@ -53,36 +66,40 @@ const useMyPaint = ({
         const { offsetX, offsetY } = nativeEvent;
         setPoints((prev) => [...prev, { x: offsetX, y: offsetY }]);
 
-        SendAction({
-            action: 'down',
-            offset: {
-                x: offsetX,
-                y: offsetY,
-                canvasWidth: canvasRef.current?.width,
-                canvasHeight: canvasRef.current?.height,
-            },
-        });
+        SendAction &&
+            SendAction({
+                action: 'down',
+                offset: {
+                    x: offsetX,
+                    y: offsetY,
+                    canvasWidth: canvasRef.current?.width,
+                    canvasHeight: canvasRef.current?.height,
+                },
+            });
     };
 
     const handlePointerMove = ({ nativeEvent }: PointerEvent) => {
         if (!contextRef.current || !isDown) return;
         const { offsetX, offsetY } = nativeEvent;
 
-        if (penStyle.isPen) {
-            setPoints((prev) => [...prev, { x: offsetX, y: offsetY }]);
-        } else {
-            erase({ x: offsetX, y: offsetY });
-        }
+        // TODO : 수정
+        setPoints((prev) => [...prev, { x: offsetX, y: offsetY }]);
+        // if (penStyle.isPen) {
+        //     setPoints((prev) => [...prev, { x: offsetX, y: offsetY }]);
+        // } else {
+        //     erase({ x: offsetX, y: offsetY });
+        // }
 
-        SendAction({
-            action: 'move',
-            offset: {
-                x: offsetX,
-                y: offsetY,
-                canvasWidth: canvasRef.current?.width,
-                canvasHeight: canvasRef.current?.height,
-            },
-        });
+        SendAction &&
+            SendAction({
+                action: 'move',
+                offset: {
+                    x: offsetX,
+                    y: offsetY,
+                    canvasWidth: canvasRef.current?.width,
+                    canvasHeight: canvasRef.current?.height,
+                },
+            });
     };
 
     const handlePointerUp = () => {
@@ -170,19 +187,6 @@ const useMyPaint = ({
         contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
     }, []);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const SendAction = (data: any) => {
-        dataChannels?.map((channel: RTCDataChannel) => {
-            if (Object.values(data).every((value) => typeof value !== 'undefined')) {
-                try {
-                    channel.send(JSON.stringify(data));
-                } catch (e) {
-                    console.log('전송 실패');
-                }
-            }
-        });
-    };
-
     return {
         handlePointerDown,
         handlePointerMove,
@@ -191,6 +195,7 @@ const useMyPaint = ({
         getCanvasDrawingImage,
         resetCanvas,
         penStyle,
+        changePenStyle,
     };
 };
 

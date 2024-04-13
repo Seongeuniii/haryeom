@@ -1,12 +1,11 @@
-import { IPenStyle } from '@/hooks/useClass';
-import { MutableRefObject, PointerEvent, RefObject, useEffect, useRef, useState } from 'react';
-import { IOffset } from './useMyPaint';
+import { MutableRefObject, RefObject, useEffect, useRef, useState } from 'react';
+import { IOffset, IPenStyle } from './useMyPaint';
 
 interface IUsePeerPaint {
     canvasRef: RefObject<HTMLCanvasElement>;
     presentationContextRef?: MutableRefObject<CanvasRenderingContext2D | null>;
     backgroundImage?: Blob | string;
-    penStyle: IPenStyle;
+    penStyle?: IPenStyle;
 }
 
 const usePeerPaint = ({
@@ -15,6 +14,7 @@ const usePeerPaint = ({
     backgroundImage,
     penStyle,
 }: IUsePeerPaint) => {
+    const [points, setPoints] = useState<IOffset[]>([]);
     const contextRef = useRef<CanvasRenderingContext2D | null>(null);
     const canvasInformRef = useRef({
         width: 0,
@@ -118,8 +118,6 @@ const usePeerPaint = ({
         contextRef.current.globalCompositeOperation = 'source-over';
     };
 
-    const [points, setPoints] = useState<IOffset[]>([]);
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handlePointerDown = (offset: any) => {
         if (!contextRef.current) return;
@@ -131,12 +129,13 @@ const usePeerPaint = ({
     const handlePointerMove = (offset: any) => {
         if (!contextRef.current) return;
         const { x, y } = offset;
+        setPoints((prev) => [...prev, { x, y }]);
 
-        if (penStyle.isPen) {
-            setPoints((prev) => [...prev, { x, y }]);
-        } else {
-            erase(offset);
-        }
+        // if (penStyle.isPen) {
+        //     setPoints((prev) => [...prev, { x, y }]);
+        // } else {
+        //     erase(offset);
+        // }
     };
 
     const handlePointerUp = () => {
@@ -158,8 +157,9 @@ const usePeerPaint = ({
         setPoints(() => []);
     };
 
-    const paint = () => {
+    useEffect(() => {
         if (!canvasRef.current || !contextRef.current || points.length === 0) return;
+
         if (points.length < 3) {
             const b = points[0];
             contextRef.current.beginPath();
@@ -168,15 +168,19 @@ const usePeerPaint = ({
             contextRef.current.closePath();
             return;
         }
+
         contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
         contextRef.current.beginPath();
         contextRef.current.moveTo(points[0].x, points[0].y);
+
         // eslint-disable-next-line no-var
         for (var i = 1; i < points.length - 2; i++) {
             const c = (points[i].x + points[i + 1].x) / 2;
             const d = (points[i].y + points[i + 1].y) / 2;
+
             contextRef.current.quadraticCurveTo(points[i].x, points[i].y, c, d);
         }
+
         contextRef.current.quadraticCurveTo(
             points[i].x,
             points[i].y,
@@ -184,10 +188,6 @@ const usePeerPaint = ({
             points[i + 1].y
         );
         contextRef.current.stroke();
-    };
-
-    useEffect(() => {
-        paint();
     }, [points]);
 
     const resetCanvas = () => {

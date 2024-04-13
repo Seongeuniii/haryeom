@@ -4,9 +4,9 @@ import styled from 'styled-components';
 interface PaintCanvasProps {
     canvasRef: RefObject<HTMLCanvasElement>;
     presentationCanvasRef?: RefObject<HTMLCanvasElement>;
-    handlePointerDown: ({ nativeEvent }: PointerEvent) => void;
-    handlePointerMove: ({ nativeEvent }: PointerEvent) => void;
-    handlePointerUp: ({ nativeEvent }: PointerEvent) => void;
+    handlePointerDown?: ({ nativeEvent }: PointerEvent) => void;
+    handlePointerMove?: ({ nativeEvent }: PointerEvent) => void;
+    handlePointerUp?: ({ nativeEvent }: PointerEvent) => void;
 }
 
 const PaintCanvas = ({
